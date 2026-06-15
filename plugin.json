@@ -72,6 +72,38 @@
         "title": "테이블 삭제"
       },
       {
+        "name": "export-sql",
+        "title": "SQL 내보내기"
+      },
+      {
+        "name": "import-sql",
+        "title": "SQL 가져오기"
+      },
+      {
+        "name": "export-dbml",
+        "title": "DBML 내보내기"
+      },
+      {
+        "name": "import-dbml",
+        "title": "DBML 가져오기"
+      },
+      {
+        "name": "export-prisma",
+        "title": "Prisma 내보내기"
+      },
+      {
+        "name": "import-prisma",
+        "title": "Prisma 가져오기"
+      },
+      {
+        "name": "export-mermaid",
+        "title": "Mermaid 내보내기"
+      },
+      {
+        "name": "import-mermaid",
+        "title": "Mermaid 가져오기"
+      },
+      {
         "name": "get-columns",
         "title": "컬럼 목록"
       },
