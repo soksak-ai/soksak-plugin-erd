@@ -1,0 +1,31 @@
+export const MYSQL_DATA_TYPES = [
+  'INT', 'BIGINT', 'SMALLINT', 'TINYINT', 'MEDIUMINT',
+  'DECIMAL', 'FLOAT', 'DOUBLE',
+  'VARCHAR', 'CHAR', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT', 'TINYTEXT',
+  'DATE', 'DATETIME', 'TIMESTAMP', 'TIME', 'YEAR',
+  'BOOLEAN', 'BIT',
+  'BLOB', 'MEDIUMBLOB', 'LONGBLOB', 'TINYBLOB',
+  'JSON', 'ENUM', 'SET',
+  'BINARY', 'VARBINARY',
+  'GEOMETRY', 'POINT', 'LINESTRING', 'POLYGON',
+] as const;
+
+export const POSTGRESQL_DATA_TYPES = [
+  'INTEGER', 'BIGINT', 'SMALLINT', 'SERIAL', 'BIGSERIAL',
+  'NUMERIC', 'DECIMAL', 'REAL', 'DOUBLE PRECISION',
+  'VARCHAR', 'CHAR', 'TEXT',
+  'DATE', 'TIMESTAMP', 'TIMESTAMPTZ', 'TIME', 'TIMETZ', 'INTERVAL',
+  'BOOLEAN',
+  'BYTEA',
+  'JSON', 'JSONB',
+  'UUID',
+  'ARRAY', 'INET', 'CIDR', 'MACADDR',
+  'POINT', 'LINE', 'CIRCLE', 'BOX', 'PATH', 'POLYGON',
+  'TSVECTOR', 'TSQUERY',
+  'XML', 'MONEY',
+] as const;
+
+export const DATA_TYPES: Record<string, readonly string[]> = {
+  mysql: MYSQL_DATA_TYPES,
+  postgresql: POSTGRESQL_DATA_TYPES,
+};

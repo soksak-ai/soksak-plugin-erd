@@ -6,13 +6,151 @@
   "repo": "https://github.com/soksak-ai/soksak-plugin-erd.git",
   "description": "상용급 멀티-DB ERD 다이어그램 에디터 — 스키마 설계·마이그레이션·SQL 생성을 GUI 와 CLI/MCP 로.",
   "entry": "main.js",
-  "permissions": ["ui", "commands"],
+  "permissions": [
+    "ui",
+    "commands"
+  ],
   "contributes": {
     "views": [
-      { "id": "canvas", "title": "ERD", "icon": "▤", "placements": ["content"], "defaultPlacement": "content" }
+      {
+        "id": "canvas",
+        "title": "ERD",
+        "icon": "▤",
+        "placements": [
+          "content"
+        ],
+        "defaultPlacement": "content"
+      }
     ],
     "commands": [
-      { "name": "ping", "title": "플러그인 적재/버전 확인(E2E)" }
+      {
+        "name": "ping",
+        "title": "플러그인 적재/버전 확인(E2E)"
+      },
+      {
+        "name": "add-column",
+        "title": "컬럼 추가"
+      },
+      {
+        "name": "add-index",
+        "title": "인덱스 추가"
+      },
+      {
+        "name": "add-relationship",
+        "title": "관계 추가"
+      },
+      {
+        "name": "apply",
+        "title": "배치 실행"
+      },
+      {
+        "name": "auto-layout",
+        "title": "자동 레이아웃"
+      },
+      {
+        "name": "create-table",
+        "title": "테이블 생성"
+      },
+      {
+        "name": "diff",
+        "title": "스키마 차이"
+      },
+      {
+        "name": "drop-column",
+        "title": "컬럼 삭제"
+      },
+      {
+        "name": "drop-index",
+        "title": "인덱스 삭제"
+      },
+      {
+        "name": "drop-relationship",
+        "title": "관계 삭제"
+      },
+      {
+        "name": "drop-table",
+        "title": "테이블 삭제"
+      },
+      {
+        "name": "get-columns",
+        "title": "컬럼 목록"
+      },
+      {
+        "name": "get-schema",
+        "title": "스키마 조회"
+      },
+      {
+        "name": "get-table",
+        "title": "테이블 조회"
+      },
+      {
+        "name": "get-viewport",
+        "title": "뷰포트 조회"
+      },
+      {
+        "name": "list-relationships",
+        "title": "관계 목록"
+      },
+      {
+        "name": "list-tables",
+        "title": "테이블 목록"
+      },
+      {
+        "name": "redo",
+        "title": "다시실행"
+      },
+      {
+        "name": "rename-table",
+        "title": "테이블 이름변경"
+      },
+      {
+        "name": "reorder-columns",
+        "title": "컬럼 순서변경"
+      },
+      {
+        "name": "select",
+        "title": "선택"
+      },
+      {
+        "name": "set-color",
+        "title": "색상 설정"
+      },
+      {
+        "name": "set-pk",
+        "title": "기본키 설정"
+      },
+      {
+        "name": "set-position",
+        "title": "위치 설정"
+      },
+      {
+        "name": "set-unique",
+        "title": "UNIQUE 설정"
+      },
+      {
+        "name": "set-viewport",
+        "title": "뷰포트 설정"
+      },
+      {
+        "name": "stats",
+        "title": "통계"
+      },
+      {
+        "name": "undo",
+        "title": "실행취소"
+      },
+      {
+        "name": "update-column",
+        "title": "컬럼 수정"
+      },
+      {
+        "name": "update-relationship",
+        "title": "관계 수정"
+      },
+      {
+        "name": "validate",
+        "title": "스키마 검증"
+      }
     ]
   }
 }
