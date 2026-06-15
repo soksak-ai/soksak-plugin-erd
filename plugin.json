@@ -1,0 +1,18 @@
+{
+  "spec": "soksak-plugin-spec@1",
+  "id": "soksak-plugin-erd",
+  "name": "ERD",
+  "version": "0.1.0",
+  "repo": "https://github.com/soksak-ai/soksak-plugin-erd.git",
+  "description": "상용급 멀티-DB ERD 다이어그램 에디터 — 스키마 설계·마이그레이션·SQL 생성을 GUI 와 CLI/MCP 로.",
+  "entry": "main.js",
+  "permissions": ["ui", "commands"],
+  "contributes": {
+    "views": [
+      { "id": "canvas", "title": "ERD", "icon": "▤", "placements": ["content"], "defaultPlacement": "content" }
+    ],
+    "commands": [
+      { "name": "ping", "title": "플러그인 적재/버전 확인(E2E)" }
+    ]
+  }
+}
