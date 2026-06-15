@@ -355,3 +355,98 @@ describe('Introspection — validate / stats / diff', () => {
     expect(res.diff.addedTables).toContain('newbie');
   });
 });
+
+describe('Import/Export — 라운드트립(엔진 배선)', () => {
+  // users(PK id) ← orders(user_id FK) 2-테이블 스키마를 커맨드로 구축.
+  // export 한 텍스트가 비어있지 않고, replace 재적재 후 테이블 이름 집합이 동치임을 단언한다.
+  async function buildSchema(call: (n: string, p?: any) => Promise<any>) {
+    await call('create-table', { name: 'users', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false, autoIncrement: true },
+      { name: 'email', dataType: 'VARCHAR', length: 255, nullable: false },
+    ] });
+    await call('create-table', { name: 'orders', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false, autoIncrement: true },
+    ] });
+    await call('add-relationship', { source: 'users', target: 'orders', type: '1:N', autoFk: true });
+  }
+
+  const tableNames = async (call: (n: string, p?: any) => Promise<any>) => {
+    const list = await call('list-tables');
+    return list.tables.map((t: any) => t.name).sort();
+  };
+
+  it('export-sql(각 dialect) 비어있지 않음 → import-sql(replace) 재적재 → 테이블 이름 동치', async () => {
+    for (const dialect of ['sqlite', 'mysql', 'postgresql'] as const) {
+      const { call } = setup();
+      await buildSchema(call);
+      const before = await tableNames(call);
+
+      const exp = await call('export-sql', { dialect });
+      expect(exp.ok, `export-sql ${dialect}`).toBe(true);
+      expect(typeof exp.sql).toBe('string');
+      expect(exp.sql.length).toBeGreaterThan(0);
+
+      const imp = await call('import-sql', { text: exp.sql, dialect, mode: 'replace' });
+      expect(imp.ok, `import-sql ${dialect}: ${imp.error}`).toBe(true);
+      expect(imp.added.tables).toBeGreaterThan(0);
+
+      const after = await tableNames(call);
+      expect(after, `roundtrip table names ${dialect}`).toEqual(before);
+    }
+  });
+
+  it('export-dbml → import-dbml(replace) 라운드트립', async () => {
+    const { call } = setup();
+    await buildSchema(call);
+    const before = await tableNames(call);
+
+    const exp = await call('export-dbml');
+    expect(exp.ok).toBe(true);
+    expect(exp.dbml.length).toBeGreaterThan(0);
+
+    const imp = await call('import-dbml', { text: exp.dbml, mode: 'replace' });
+    expect(imp.ok, `import-dbml: ${imp.error}`).toBe(true);
+
+    const after = await tableNames(call);
+    expect(after).toEqual(before);
+  });
+
+  it('export-prisma → import-prisma(replace) 라운드트립', async () => {
+    const { call } = setup();
+    await buildSchema(call);
+    const before = await tableNames(call);
+
+    const exp = await call('export-prisma');
+    expect(exp.ok).toBe(true);
+    expect(exp.prisma.length).toBeGreaterThan(0);
+
+    const imp = await call('import-prisma', { text: exp.prisma, mode: 'replace' });
+    expect(imp.ok, `import-prisma: ${imp.error}`).toBe(true);
+
+    const after = await tableNames(call);
+    expect(after).toEqual(before);
+  });
+
+  it('export-mermaid → import-mermaid(replace) 라운드트립', async () => {
+    const { call } = setup();
+    await buildSchema(call);
+    const before = await tableNames(call);
+
+    const exp = await call('export-mermaid');
+    expect(exp.ok).toBe(true);
+    expect(exp.mermaid.length).toBeGreaterThan(0);
+
+    const imp = await call('import-mermaid', { text: exp.mermaid, mode: 'replace' });
+    expect(imp.ok, `import-mermaid: ${imp.error}`).toBe(true);
+
+    const after = await tableNames(call);
+    expect(after).toEqual(before);
+  });
+
+  it('import 실패 텍스트는 {ok:false,error}', async () => {
+    const { call } = setup();
+    const res = await call('import-sql', { text: '', dialect: 'mysql' });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBeTruthy();
+  });
+});

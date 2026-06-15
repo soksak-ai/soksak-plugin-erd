@@ -7,6 +7,9 @@ import type { ERDSchema, Table, Column, Relationship, RelationType, ReferentialA
 import { validateSchema } from '@/features/validation';
 import { computeAutoLayout } from '@/features/layout';
 import { generateId } from '@/lib/id';
+import { getDialect, type DialectId } from '@/features/db/dialect/registry';
+import { generateDbml, parseDbml, generatePrisma, parsePrisma } from '@/features/convert';
+import { generateMermaid, parseMermaid } from '@/features/mermaid';
 
 // soksak ctx 의 최소 표면(커맨드 등록 + 구독 폐기 수집).
 interface PluginContext {
@@ -65,6 +68,24 @@ function restoreSnapshot(store: ErdStore, snap: StoreSnapshot): void {
     tables: structuredClone(snap.tables),
     relationships: structuredClone(snap.relationships),
   });
+}
+
+// ── import 적재 유틸 ─────────────────────────────────────────────────────────
+// 파싱된 스키마를 store 에 싣는다.
+// - mode='replace': 기존 스키마를 비우고(clearSchema) 적재.
+// - mode='merge'(기본): 기존 위에 합침(loadSchema = Object.assign).
+// 적재된 테이블/관계 수를 added 로 반환(라운드트립 단언용).
+function loadParsedSchema(
+  store: ErdStore,
+  parsed: ERDSchema,
+  mode: 'merge' | 'replace',
+): { tables: number; relationships: number } {
+  if (mode === 'replace') store.getState().clearSchema();
+  store.getState().loadSchema(parsed.tables, parsed.relationships);
+  return {
+    tables: Object.keys(parsed.tables).length,
+    relationships: Object.keys(parsed.relationships).length,
+  };
 }
 
 // ── 카탈로그 등록 ────────────────────────────────────────────────────────────
@@ -617,9 +638,109 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     tables: { type: 'json', description: '선택할 테이블 이름/ id 배열' },
   });
 
-  // ── import / export / migration(P3/P4 통합 stub) ────────────────────────────
-  // dialect·.mig DSL 의존이라 이번 lane 에서는 시그니처만. 테스트는 mutation/introspection/batch/layout 위주.
-  // TODO(P3): import-sql / import-mermaid 핸들러 — sql-parser·mermaid-parser 배선.
-  // TODO(P3): export-sql(dialect) — generateDDL(schema, dialect) 배선.
+  // ── import / export(멀티-DB Dialect + 포맷 변환기 배선) ──────────────────────
+  // export: 현재 스키마 → 외부 포맷 문자열. import: 외부 포맷 → 파싱 후 store 적재.
+  // 파싱 실패/엔진 throw 는 {ok:false,error} 로 흡수한다.
+
+  add('export-sql', 'SQL DDL 생성(dialect 선택: sqlite/mysql/postgresql)', (p) => {
+    const dialect = (p.dialect as DialectId) ?? 'mysql';
+    try {
+      const sql = getDialect(dialect).generate(snapshotSchema(store));
+      return { ok: true, sql };
+    } catch (e) {
+      return { ok: false, error: `export-sql failed: ${(e as Error).message}` };
+    }
+  }, {
+    dialect: { type: 'string', enum: ['sqlite', 'mysql', 'postgresql'], description: '대상 DB dialect', default: 'mysql' },
+  });
+
+  add('import-sql', 'SQL DDL 파싱 후 적재(dialect 선택, mode: merge/replace)', (p) => {
+    if (!p.text || typeof p.text !== 'string') return { ok: false, error: 'text required' };
+    const dialect = (p.dialect as DialectId) ?? 'mysql';
+    const mode: 'merge' | 'replace' = p.mode === 'replace' ? 'replace' : 'merge';
+    try {
+      const { schema, warnings } = getDialect(dialect).parse(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-sql failed: ${(e as Error).message}` };
+    }
+  }, {
+    text: { type: 'string', required: true, description: '파싱할 SQL DDL 텍스트' },
+    dialect: { type: 'string', enum: ['sqlite', 'mysql', 'postgresql'], description: '입력 DDL 의 dialect', default: 'mysql' },
+    mode: { type: 'string', enum: ['merge', 'replace'], description: 'merge(기존 위 합침) | replace(기존 비우고 적재)', default: 'merge' },
+  });
+
+  add('export-dbml', 'DBML 생성(현재 스키마)', () => {
+    try {
+      return { ok: true, dbml: generateDbml(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-dbml failed: ${(e as Error).message}` };
+    }
+  });
+
+  add('import-dbml', 'DBML 파싱 후 적재(mode: merge/replace)', (p) => {
+    if (!p.text || typeof p.text !== 'string') return { ok: false, error: 'text required' };
+    const mode: 'merge' | 'replace' = p.mode === 'replace' ? 'replace' : 'merge';
+    try {
+      const { schema, warnings } = parseDbml(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-dbml failed: ${(e as Error).message}` };
+    }
+  }, {
+    text: { type: 'string', required: true, description: '파싱할 DBML 텍스트' },
+    mode: { type: 'string', enum: ['merge', 'replace'], description: 'merge(기존 위 합침) | replace(기존 비우고 적재)', default: 'merge' },
+  });
+
+  add('export-prisma', 'Prisma 스키마 생성(현재 스키마)', () => {
+    try {
+      return { ok: true, prisma: generatePrisma(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-prisma failed: ${(e as Error).message}` };
+    }
+  });
+
+  add('import-prisma', 'Prisma 스키마 파싱 후 적재(mode: merge/replace)', (p) => {
+    if (!p.text || typeof p.text !== 'string') return { ok: false, error: 'text required' };
+    const mode: 'merge' | 'replace' = p.mode === 'replace' ? 'replace' : 'merge';
+    try {
+      const { schema, warnings } = parsePrisma(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-prisma failed: ${(e as Error).message}` };
+    }
+  }, {
+    text: { type: 'string', required: true, description: '파싱할 Prisma 스키마 텍스트' },
+    mode: { type: 'string', enum: ['merge', 'replace'], description: 'merge(기존 위 합침) | replace(기존 비우고 적재)', default: 'merge' },
+  });
+
+  add('export-mermaid', 'Mermaid erDiagram 생성(현재 스키마)', () => {
+    try {
+      return { ok: true, mermaid: generateMermaid(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-mermaid failed: ${(e as Error).message}` };
+    }
+  });
+
+  add('import-mermaid', 'Mermaid erDiagram 파싱 후 적재(mode: merge/replace)', (p) => {
+    if (!p.text || typeof p.text !== 'string') return { ok: false, error: 'text required' };
+    const mode: 'merge' | 'replace' = p.mode === 'replace' ? 'replace' : 'merge';
+    try {
+      // parseMermaid 는 ERDSchema 를 직접 반환(다른 파서와 달리 warnings 래퍼 없음) → warnings=[].
+      const schema = parseMermaid(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings: [] };
+    } catch (e) {
+      return { ok: false, error: `import-mermaid failed: ${(e as Error).message}` };
+    }
+  }, {
+    text: { type: 'string', required: true, description: '파싱할 Mermaid erDiagram 텍스트' },
+    mode: { type: 'string', enum: ['merge', 'replace'], description: 'merge(기존 위 합침) | replace(기존 비우고 적재)', default: 'merge' },
+  });
+
+  // ── migration(.mig DSL — P4 통합 stub) ───────────────────────────────────────
   // TODO(P4): commit-migration / get-migration-sql(.mig DSL) — migration-slice getVersionSQL 배선.
 }

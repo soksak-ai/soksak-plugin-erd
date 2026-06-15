@@ -16679,6 +16679,1570 @@ function flatLayout(schema, options) {
   return positions;
 }
 
+// src/features/sql/sql-parser.ts
+function parseCreateTables(sql) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const cleaned = sql.replace(/--[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const statements = extractCreateTableStatements(cleaned);
+  for (const stmt of statements) {
+    const id = generateId();
+    const table = {
+      id,
+      name: stmt.tableName,
+      schema: stmt.schema || void 0,
+      columns: [],
+      indexes: []
+    };
+    const fks = [];
+    const pkColumns = [];
+    const parts = splitByComma(stmt.body);
+    for (const part of parts) {
+      const trimmed = part.trim();
+      if (!trimmed) continue;
+      const pkMatch = trimmed.match(/^\s*PRIMARY\s+KEY\s*\(([^)]+)\)/i);
+      if (pkMatch) {
+        const cols = pkMatch[1].split(",").map((c) => c.trim().replace(/`/g, ""));
+        pkColumns.push(...cols);
+        continue;
+      }
+      const uniqueMatch = trimmed.match(/^\s*(?:CONSTRAINT\s+`?\w+`?\s+)?UNIQUE\s+(?:KEY\s+)?(?:`?\w+`?\s+)?\(([^)]+)\)/i);
+      if (uniqueMatch) {
+        continue;
+      }
+      if (/^\s*(?:INDEX|KEY)\s/i.test(trimmed)) continue;
+      const fkMatch = trimmed.match(
+        /^\s*(?:CONSTRAINT\s+`?(\w+)`?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+`?(\w+)`?\s*\(([^)]+)\)(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?/i
+      );
+      if (fkMatch) {
+        fks.push({
+          constraintName: fkMatch[1],
+          columns: fkMatch[2].split(",").map((c) => c.trim().replace(/`/g, "")),
+          refTable: fkMatch[3],
+          refColumns: fkMatch[4].split(",").map((c) => c.trim().replace(/`/g, "")),
+          onDelete: parseRefAction(fkMatch[5]),
+          onUpdate: parseRefAction(fkMatch[6])
+        });
+        continue;
+      }
+      const colMatch = trimmed.match(
+        /^\s*`?(\w+)`?\s+(\w+(?:\s*\([^)]*\))?(?:\s+(?:UNSIGNED|SIGNED|ZEROFILL))*)/i
+      );
+      if (colMatch) {
+        const colName = colMatch[1];
+        const dataType = colMatch[2].toUpperCase();
+        const rest = trimmed.slice(colMatch[0].length).toUpperCase();
+        const col = {
+          id: generateId(),
+          name: colName,
+          dataType: normalizeDataType(dataType),
+          nullable: !rest.includes("NOT NULL"),
+          autoIncrement: rest.includes("AUTO_INCREMENT") || rest.includes("SERIAL"),
+          isPrimaryKey: rest.includes("PRIMARY KEY"),
+          isUnique: rest.includes("UNIQUE")
+        };
+        const defaultMatch = rest.match(/DEFAULT\s+('(?:[^'\\]|\\.)*'|\S+)/i);
+        if (defaultMatch) {
+          col.defaultValue = defaultMatch[1].replace(/^'|'$/g, "");
+        }
+        table.columns.push(col);
+      }
+    }
+    for (const pkCol of pkColumns) {
+      const col = table.columns.find((c) => c.name.toLowerCase() === pkCol.toLowerCase());
+      if (col) col.isPrimaryKey = true;
+    }
+    schema.tables[id] = table;
+    for (const fk of fks) {
+      const relId = generateId();
+      schema._pendingFKs ??= [];
+      schema._pendingFKs.push({
+        ...fk,
+        sourceTableId: id,
+        relId
+      });
+    }
+  }
+  const pending = schema._pendingFKs;
+  if (pending) {
+    for (const fk of pending) {
+      const referencedTable = Object.values(schema.tables).find(
+        (t) => t.name.toLowerCase() === fk.refTable.toLowerCase()
+      );
+      if (!referencedTable) continue;
+      const fkTable = schema.tables[fk.sourceTableId];
+      if (!fkTable) continue;
+      const sourceColumnIds = fk.refColumns.map(
+        (colName) => referencedTable.columns.find((c) => c.name.toLowerCase() === colName.toLowerCase())?.id
+      ).filter((id) => !!id);
+      const targetColumnIds = fk.columns.map(
+        (colName) => fkTable.columns.find((c) => c.name.toLowerCase() === colName.toLowerCase())?.id
+      ).filter((id) => !!id);
+      schema.relationships[fk.relId] = {
+        id: fk.relId,
+        name: fk.constraintName,
+        sourceTableId: referencedTable.id,
+        targetTableId: fkTable.id,
+        type: "1:N",
+        sourceColumnIds,
+        targetColumnIds,
+        onDelete: fk.onDelete ?? "NO ACTION",
+        onUpdate: fk.onUpdate ?? "NO ACTION"
+      };
+    }
+    delete schema._pendingFKs;
+  }
+  return schema;
+}
+function extractCreateTableStatements(sql) {
+  const results = [];
+  const headerRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:`?(\w+)`?\.)?`?(\w+)`?\s*\(/gi;
+  let headerMatch;
+  while ((headerMatch = headerRegex.exec(sql)) !== null) {
+    const schemaName = headerMatch[1] || null;
+    const tableName = headerMatch[2];
+    const bodyStart = headerMatch.index + headerMatch[0].length;
+    let depth = 1;
+    let i = bodyStart;
+    while (i < sql.length && depth > 0) {
+      const ch = sql[i];
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      i++;
+    }
+    if (depth !== 0) continue;
+    const body = sql.slice(bodyStart, i - 1);
+    results.push({ schema: schemaName, tableName, body });
+  }
+  return results;
+}
+function splitByComma(text) {
+  const parts = [];
+  let depth = 0;
+  let current2 = "";
+  for (const char of text) {
+    if (char === "(") depth++;
+    else if (char === ")") depth--;
+    else if (char === "," && depth === 0) {
+      parts.push(current2);
+      current2 = "";
+      continue;
+    }
+    current2 += char;
+  }
+  if (current2.trim()) parts.push(current2);
+  return parts;
+}
+function parseRefAction(action) {
+  if (!action) return "NO ACTION";
+  const normalized = action.toUpperCase().replace(/\s+/g, " ").trim();
+  switch (normalized) {
+    case "CASCADE":
+      return "CASCADE";
+    case "SET NULL":
+      return "SET NULL";
+    case "SET DEFAULT":
+      return "SET DEFAULT";
+    case "RESTRICT":
+      return "RESTRICT";
+    case "NO ACTION":
+      return "NO ACTION";
+    default:
+      return "NO ACTION";
+  }
+}
+function normalizeDataType(dt2) {
+  return dt2.replace(/\s+/g, " ").trim();
+}
+
+// src/features/db/dialect/alter-fk.ts
+var ALTER_FK_RE = new RegExp(
+  // ALTER TABLE <t> ADD [CONSTRAINT <name>] FOREIGN KEY (<cols>) REFERENCES <ref> (<refcols>) [ON DELETE ..] [ON UPDATE ..]
+  String.raw`ALTER\s+TABLE\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+ADD\s+(?:CONSTRAINT\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\(([^)]+)\)` + String.raw`(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?` + String.raw`(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?`,
+  "gi"
+);
+function splitCols(s) {
+  return s.split(",").map((c) => c.trim().replace(/["`]/g, "")).filter((c) => c.length > 0);
+}
+function refAction(a) {
+  if (!a) return "NO ACTION";
+  const n = a.toUpperCase().replace(/\s+/g, " ").trim();
+  switch (n) {
+    case "CASCADE":
+      return "CASCADE";
+    case "SET NULL":
+      return "SET NULL";
+    case "SET DEFAULT":
+      return "SET DEFAULT";
+    case "RESTRICT":
+      return "RESTRICT";
+    default:
+      return "NO ACTION";
+  }
+}
+var UNIQUE_RE = new RegExp(
+  String.raw`(?:CONSTRAINT\s+["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?UNIQUE\s*(?:KEY\s+)?(?:["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?\(\s*["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\)`,
+  "gi"
+);
+function attachUniqueConstraints(schema, ddl) {
+  const headerRe = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?\w+["`]?\.)?["`]?(\w+)["`]?\s*\(/gi;
+  let hm;
+  while ((hm = headerRe.exec(ddl)) !== null) {
+    const tableName = hm[1];
+    const start = hm.index + hm[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < ddl.length && depth > 0) {
+      const ch = ddl[i];
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      i++;
+    }
+    if (depth !== 0) continue;
+    const body = ddl.slice(start, i - 1);
+    const table = Object.values(schema.tables).find(
+      (t) => t.name.toLowerCase() === tableName.toLowerCase()
+    );
+    if (!table) continue;
+    UNIQUE_RE.lastIndex = 0;
+    let um;
+    while ((um = UNIQUE_RE.exec(body)) !== null) {
+      const colName = um[1];
+      const col = table.columns.find((c) => c.name.toLowerCase() === colName.toLowerCase());
+      if (col) col.isUnique = true;
+    }
+  }
+}
+function attachAlterForeignKeys(schema, ddl) {
+  ALTER_FK_RE.lastIndex = 0;
+  let m;
+  while ((m = ALTER_FK_RE.exec(ddl)) !== null) {
+    const [, fkTableName, constraintName, colStr, refTableName, refColStr, onDel, onUpd] = m;
+    const fkTable = Object.values(schema.tables).find(
+      (t) => t.name.toLowerCase() === fkTableName.toLowerCase()
+    );
+    const refTable = Object.values(schema.tables).find(
+      (t) => t.name.toLowerCase() === refTableName.toLowerCase()
+    );
+    if (!fkTable || !refTable) continue;
+    const cols = splitCols(colStr);
+    const refCols = splitCols(refColStr);
+    const already = Object.values(schema.relationships).some(
+      (r) => r.targetTableId === fkTable.id && r.targetColumnIds.map((id) => fkTable.columns.find((c) => c.id === id)?.name?.toLowerCase()).join() === cols.map((c) => c.toLowerCase()).join()
+    );
+    if (already) continue;
+    const sourceColumnIds = refCols.map((n) => refTable.columns.find((c) => c.name.toLowerCase() === n.toLowerCase())?.id).filter((id) => !!id);
+    const targetColumnIds = cols.map((n) => fkTable.columns.find((c) => c.name.toLowerCase() === n.toLowerCase())?.id).filter((id) => !!id);
+    const relId = generateId();
+    schema.relationships[relId] = {
+      id: relId,
+      name: constraintName,
+      sourceTableId: refTable.id,
+      // 참조 PK 측
+      targetTableId: fkTable.id,
+      // FK 보유 측
+      type: "1:N",
+      sourceColumnIds,
+      targetColumnIds,
+      onDelete: refAction(onDel),
+      onUpdate: refAction(onUpd)
+    };
+  }
+}
+
+// src/features/db/dialect/canonical.ts
+var BASE_ALIAS = {
+  INT: "INTEGER",
+  INT4: "INTEGER",
+  INTEGER: "INTEGER",
+  INT2: "SMALLINT",
+  SMALLINT: "SMALLINT",
+  INT8: "BIGINT",
+  BIGINT: "BIGINT",
+  BOOL: "BOOLEAN",
+  BOOLEAN: "BOOLEAN",
+  TINYINT: "BOOLEAN",
+  // 관용: TINYINT(1) ↔ BOOLEAN
+  NUMERIC: "DECIMAL",
+  DECIMAL: "DECIMAL",
+  REAL: "FLOAT",
+  FLOAT: "FLOAT",
+  FLOAT4: "FLOAT",
+  DOUBLE: "DOUBLE",
+  "DOUBLE PRECISION": "DOUBLE",
+  FLOAT8: "DOUBLE",
+  CHARACTER: "CHAR",
+  CHAR: "CHAR",
+  "CHARACTER VARYING": "VARCHAR",
+  VARCHAR: "VARCHAR",
+  VARCHAR2: "VARCHAR",
+  TEXT: "TEXT",
+  CLOB: "TEXT",
+  DATE: "DATE",
+  TIME: "TIME",
+  TIMESTAMP: "TIMESTAMP",
+  TIMESTAMPTZ: "TIMESTAMP",
+  DATETIME: "DATETIME",
+  BLOB: "BLOB",
+  BYTEA: "BLOB",
+  JSON: "JSON",
+  JSONB: "JSON",
+  UUID: "UUID",
+  ENUM: "ENUM",
+  SET: "ENUM"
+};
+function sqliteAffinity(base) {
+  const b = base.toUpperCase();
+  if (b.includes("INT")) return "INTEGER";
+  if (b.includes("CHAR") || b.includes("CLOB") || b.includes("TEXT")) return "TEXT";
+  if (b === "BLOB") return "BLOB";
+  if (b.includes("REAL") || b.includes("FLOA") || b.includes("DOUB")) return "REAL";
+  return "NUMERIC";
+}
+function parseNativeType(native) {
+  const raw = native.trim();
+  const upper = raw.toUpperCase();
+  const enumMatch = upper.match(/^(ENUM|SET)\s*\(([^)]*)\)/);
+  if (enumMatch) {
+    const values = enumMatch[2].split(",").map((v2) => v2.trim().replace(/^'|'$/g, "")).filter((v2) => v2.length > 0);
+    return { base: "ENUM", enumValues: values, raw };
+  }
+  const unsigned = /\bUNSIGNED\b/.test(upper);
+  const stripped = upper.replace(/\b(UNSIGNED|SIGNED|ZEROFILL)\b/g, "").trim();
+  const m = stripped.match(/^([A-Z0-9_ ]+?)\s*(?:\(([^)]*)\))?$/);
+  const rawBase = (m?.[1] ?? stripped).trim();
+  const argStr = m?.[2];
+  const base = BASE_ALIAS[rawBase] ?? rawBase;
+  const args = argStr ? argStr.split(",").map((a) => parseInt(a.trim(), 10)).filter((n) => !Number.isNaN(n)) : void 0;
+  const canon = { base, raw };
+  if (args && args.length > 0) canon.args = args;
+  if (unsigned) canon.unsigned = true;
+  return canon;
+}
+function deriveCanonical(col) {
+  const canon = parseNativeType(col.dataType);
+  if (col.enumValues && col.enumValues.length > 0) {
+    canon.base = "ENUM";
+    canon.enumValues = col.enumValues;
+  }
+  return canon;
+}
+function renderTypeWithArgs(base, args) {
+  if (args && args.length > 0) return `${base}(${args.join(", ")})`;
+  return base;
+}
+
+// src/features/db/dialect/shared.ts
+function quote(name, q) {
+  return q + name.split(q).join(q + q) + q;
+}
+function isReservedIn(word, reserved) {
+  return reserved.has(word.toUpperCase());
+}
+function normalizeQuotesForParser(ddl) {
+  return ddl.split('"').join("`");
+}
+function generateAlterFor(diff, caps, q) {
+  const out = [];
+  for (const t of diff.droppedTables) {
+    out.push(`DROP TABLE IF EXISTS ${q(t)};`);
+  }
+  for (const t of diff.addedTables) {
+    out.push(`-- ADD TABLE ${q(t)} (use generate() for full CREATE)`);
+  }
+  for (const { table, column } of diff.addedColumns) {
+    const nn = column.nullable ? "" : " NOT NULL";
+    const def = column.defaultValue !== void 0 && column.defaultValue !== "" ? ` DEFAULT ${column.defaultValue}` : "";
+    out.push(`ALTER TABLE ${q(table)} ADD COLUMN ${q(column.name)} ${column.dataType}${nn}${def};`);
+  }
+  for (const { table, column } of diff.droppedColumns) {
+    out.push(`ALTER TABLE ${q(table)} DROP COLUMN ${q(column)};`);
+  }
+  for (const fk of diff.addedRelationships) {
+    const name = fk.name ?? `fk_${fk.table}_${fk.columns[0] ?? "x"}`;
+    const cols = fk.columns.map(q).join(", ");
+    const refCols = fk.refColumns.map(q).join(", ");
+    if (caps.alterAddConstraint) {
+      out.push(
+        `ALTER TABLE ${q(fk.table)} ADD CONSTRAINT ${q(name)} FOREIGN KEY (${cols}) REFERENCES ${q(fk.refTable)} (${refCols}) ON DELETE ${fk.onDelete} ON UPDATE ${fk.onUpdate};`
+      );
+    } else {
+      out.push(
+        `-- SQLite: cannot ADD FOREIGN KEY via ALTER (${name}); recreate table ${fk.table} with inline FK to ${fk.refTable}.`
+      );
+    }
+  }
+  for (const fk of diff.droppedRelationships) {
+    if (caps.alterAddConstraint) {
+      out.push(`ALTER TABLE ${q(fk.table)} DROP CONSTRAINT ${q(fk.name)};`);
+    } else {
+      out.push(
+        `-- SQLite: cannot DROP CONSTRAINT ${fk.name} via ALTER; recreate table ${fk.table}.`
+      );
+    }
+  }
+  return out.join("\n");
+}
+
+// src/features/db/dialect/sqlite.ts
+var CAPS = {
+  identifierQuote: '"',
+  schemas: false,
+  autoIncrement: "autoincrement",
+  // INTEGER PRIMARY KEY AUTOINCREMENT
+  enumStyle: "check",
+  // native ENUM 없음 → CHECK(또는 폴백 TEXT)
+  inlineForeignKeys: true,
+  // ALTER ADD FK 불가 → 본문 인라인만
+  alterAddConstraint: false,
+  partialIndexes: true,
+  expressionIndexes: true,
+  checkConstraints: true,
+  engineCharset: false,
+  sequences: false,
+  identifierMaxLen: 0
+  // 사실상 제한 없음
+};
+function mapCanonical(canon, _col) {
+  const base = canon.base;
+  switch (base) {
+    case "BOOLEAN":
+      return "INTEGER";
+    // SQLite 는 0/1
+    case "SMALLINT":
+    case "INTEGER":
+    case "BIGINT":
+      return "INTEGER";
+    case "FLOAT":
+    case "DOUBLE":
+      return "REAL";
+    case "DECIMAL":
+      return "NUMERIC";
+    case "CHAR":
+    case "VARCHAR":
+    case "TEXT":
+    case "UUID":
+    case "ENUM":
+    // 폴백: TEXT affinity
+    case "JSON":
+      return "TEXT";
+    case "BLOB":
+      return "BLOB";
+    case "DATE":
+    case "TIME":
+    case "TIMESTAMP":
+    case "DATETIME":
+      return "TEXT";
+    // SQLite 권장: ISO8601 텍스트
+    default:
+      return sqliteAffinity(base);
+  }
+}
+var RESERVED = /* @__PURE__ */ new Set([
+  "ABORT",
+  "ADD",
+  "ALTER",
+  "AND",
+  "AS",
+  "AUTOINCREMENT",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DELETE",
+  "DROP",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "UPDATE",
+  "WHERE"
+]);
+function parseSqlite(ddl) {
+  const schema = parseCreateTables(normalizeQuotesForParser(ddl));
+  attachUniqueConstraints(schema, ddl);
+  for (const table of Object.values(schema.tables)) {
+    for (const col of table.columns) {
+      const re = new RegExp(
+        `["\`]?${escapeRe(col.name)}["\`]?[^,(]*?\\bAUTOINCREMENT\\b`,
+        "i"
+      );
+      if (re.test(ddl)) {
+        col.autoIncrement = true;
+        col.isPrimaryKey = true;
+      }
+    }
+  }
+  return { schema, warnings: [] };
+}
+function escapeRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function generateSqlite(schema) {
+  const tables = Object.values(schema.tables);
+  if (tables.length === 0) return "-- No tables defined yet";
+  const rels = Object.values(schema.relationships);
+  const sorted = topoSort(tables, rels);
+  const q = (n) => quote(n, '"');
+  const blocks = [];
+  for (const table of sorted) {
+    blocks.push(generateCreate(table, schema, q));
+  }
+  return blocks.join("\n\n");
+}
+function generateCreate(table, schema, q) {
+  const lines = [];
+  const pkCols = table.columns.filter((c) => c.isPrimaryKey);
+  const singleIntPk = pkCols.length === 1 && pkCols[0].autoIncrement;
+  for (const col of table.columns) {
+    const canon = deriveCanonical(col);
+    const type = mapCanonical(canon, col);
+    let def = `  ${q(col.name)} ${type}`;
+    if (singleIntPk && col.isPrimaryKey && col.autoIncrement) {
+      def = `  ${q(col.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
+    } else {
+      if (!col.nullable) def += " NOT NULL";
+      if (col.isUnique && !col.isPrimaryKey) def += " UNIQUE";
+      if (col.defaultValue !== void 0 && col.defaultValue !== "") {
+        def += ` DEFAULT ${col.defaultValue}`;
+      }
+    }
+    lines.push(def);
+  }
+  if (!singleIntPk && pkCols.length > 0) {
+    lines.push(`  PRIMARY KEY (${pkCols.map((c) => q(c.name)).join(", ")})`);
+  }
+  for (const rel of Object.values(schema.relationships)) {
+    if (rel.targetTableId !== table.id) continue;
+    const refTable = schema.tables[rel.sourceTableId];
+    if (!refTable) continue;
+    const cols = rel.targetColumnIds.map((id) => table.columns.find((c) => c.id === id)?.name).filter((n) => !!n);
+    const refCols = rel.sourceColumnIds.map((id) => refTable.columns.find((c) => c.id === id)?.name).filter((n) => !!n);
+    if (cols.length === 0 || refCols.length === 0) continue;
+    let fk = `  CONSTRAINT ${q(rel.name ?? `fk_${table.name}_${refTable.name}`)} FOREIGN KEY (${cols.map(q).join(", ")}) REFERENCES ${q(refTable.name)} (${refCols.map(q).join(", ")})`;
+    if (rel.onDelete && rel.onDelete !== "NO ACTION") fk += ` ON DELETE ${rel.onDelete}`;
+    if (rel.onUpdate && rel.onUpdate !== "NO ACTION") fk += ` ON UPDATE ${rel.onUpdate}`;
+    lines.push(fk);
+  }
+  return `CREATE TABLE ${q(table.name)} (
+${lines.join(",\n")}
+);`;
+}
+function topoSort(tables, rels) {
+  const map = new Map(tables.map((t) => [t.id, t]));
+  const indeg = /* @__PURE__ */ new Map();
+  const adj = /* @__PURE__ */ new Map();
+  for (const t of tables) {
+    indeg.set(t.id, 0);
+    adj.set(t.id, []);
+  }
+  for (const r of rels) {
+    if (map.has(r.sourceTableId) && map.has(r.targetTableId)) {
+      adj.get(r.sourceTableId).push(r.targetTableId);
+      indeg.set(r.targetTableId, (indeg.get(r.targetTableId) ?? 0) + 1);
+    }
+  }
+  const queue = [...indeg].filter(([, d]) => d === 0).map(([id]) => id);
+  const result = [];
+  while (queue.length > 0) {
+    const cur = queue.shift();
+    const t = map.get(cur);
+    if (t) result.push(t);
+    for (const nb of adj.get(cur) ?? []) {
+      const d = (indeg.get(nb) ?? 1) - 1;
+      indeg.set(nb, d);
+      if (d === 0) queue.push(nb);
+    }
+  }
+  for (const t of tables) if (!result.find((r) => r.id === t.id)) result.push(t);
+  return result;
+}
+var sqliteDialect = {
+  id: "sqlite",
+  displayName: "SQLite",
+  caps: CAPS,
+  parse: parseSqlite,
+  generate: generateSqlite,
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS, (n) => quote(n, CAPS.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED);
+  },
+  mapType(canonical, col) {
+    return mapCanonical(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
+// src/features/sql/ddl-generator.ts
+function generateDDL(schema, dialect) {
+  const tables = Object.values(schema.tables);
+  const relationships = Object.values(schema.relationships);
+  if (tables.length === 0) {
+    return `-- No tables defined yet`;
+  }
+  const sorted = topologicalSort(tables, relationships);
+  const statements = [];
+  for (const table of sorted) {
+    statements.push(generateCreateTable(table, dialect));
+  }
+  for (const rel of relationships) {
+    const fk = generateForeignKey(rel, schema.tables, dialect);
+    if (fk) statements.push(fk);
+  }
+  const header = dialect === "mysql" ? `-- Generated by ERD Studio for MySQL
+-- Date: ${(/* @__PURE__ */ new Date()).toISOString()}` : `-- Generated by ERD Studio for PostgreSQL
+-- Date: ${(/* @__PURE__ */ new Date()).toISOString()}`;
+  return header + "\n\n" + statements.join("\n\n");
+}
+function topologicalSort(tables, relationships) {
+  const tableMap = new Map(tables.map((t) => [t.id, t]));
+  const inDegree = /* @__PURE__ */ new Map();
+  const adjacency = /* @__PURE__ */ new Map();
+  for (const t of tables) {
+    inDegree.set(t.id, 0);
+    adjacency.set(t.id, []);
+  }
+  for (const rel of relationships) {
+    if (tableMap.has(rel.sourceTableId) && tableMap.has(rel.targetTableId)) {
+      adjacency.get(rel.sourceTableId).push(rel.targetTableId);
+      inDegree.set(rel.targetTableId, (inDegree.get(rel.targetTableId) ?? 0) + 1);
+    }
+  }
+  const queue = [];
+  for (const [id, deg] of inDegree) {
+    if (deg === 0) queue.push(id);
+  }
+  const result = [];
+  while (queue.length > 0) {
+    const current2 = queue.shift();
+    const table = tableMap.get(current2);
+    if (table) result.push(table);
+    for (const neighbor of adjacency.get(current2) ?? []) {
+      const newDeg = (inDegree.get(neighbor) ?? 1) - 1;
+      inDegree.set(neighbor, newDeg);
+      if (newDeg === 0) queue.push(neighbor);
+    }
+  }
+  for (const t of tables) {
+    if (!result.find((r) => r.id === t.id)) {
+      result.push(t);
+    }
+  }
+  return result;
+}
+function generateCreateTable(table, dialect) {
+  const q = dialect === "mysql" ? "`" : '"';
+  const lines = [];
+  for (const col of table.columns) {
+    lines.push("  " + generateColumnDef(col, dialect));
+  }
+  const pkCols = table.columns.filter((c) => c.isPrimaryKey);
+  if (pkCols.length > 0) {
+    lines.push(`  PRIMARY KEY (${pkCols.map((c) => `${q}${c.name}${q}`).join(", ")})`);
+  }
+  for (const col of table.columns) {
+    if (col.isUnique && !col.isPrimaryKey) {
+      lines.push(`  UNIQUE (${q}${col.name}${q})`);
+    }
+  }
+  for (const idx of table.indexes) {
+    const colNames = idx.columnIds.map((cid) => table.columns.find((c) => c.id === cid)?.name).filter(Boolean).map((n) => `${q}${n}${q}`);
+    if (colNames.length > 0) {
+      const uniqueKw = idx.unique ? "UNIQUE " : "";
+      lines.push(`  ${uniqueKw}INDEX ${q}${idx.name}${q} (${colNames.join(", ")})`);
+    }
+  }
+  let ddl = `CREATE TABLE ${q}${table.name}${q} (
+${lines.join(",\n")}
+)`;
+  if (dialect === "mysql") {
+    const engine = table.engine ?? "InnoDB";
+    const charset = table.charset ?? "utf8mb4";
+    ddl += ` ENGINE=${engine} DEFAULT CHARSET=${charset}`;
+  }
+  ddl += ";";
+  if (table.comment) {
+    ddl += ` -- ${table.comment}`;
+  }
+  return ddl;
+}
+function generateColumnDef(col, dialect) {
+  const q = dialect === "mysql" ? "`" : '"';
+  const parts = [`${q}${col.name}${q}`];
+  parts.push(resolveDataType(col, dialect));
+  if (!col.nullable) {
+    parts.push("NOT NULL");
+  }
+  if (col.autoIncrement) {
+    if (dialect === "mysql") {
+      parts.push("AUTO_INCREMENT");
+    }
+  }
+  if (col.defaultValue !== void 0 && col.defaultValue !== "") {
+    parts.push(`DEFAULT ${col.defaultValue}`);
+  }
+  return parts.join(" ");
+}
+function resolveDataType(col, dialect) {
+  const dt2 = col.dataType.toUpperCase();
+  if (dialect === "postgresql" && col.autoIncrement) {
+    if (dt2 === "INT" || dt2 === "INTEGER") return "SERIAL";
+    if (dt2 === "BIGINT") return "BIGSERIAL";
+    if (dt2 === "SMALLINT") return "SMALLSERIAL";
+  }
+  if (col.length && ["VARCHAR", "CHAR", "VARBINARY", "BINARY"].includes(dt2)) {
+    return `${dt2}(${col.length})`;
+  }
+  if (col.precision !== void 0 && col.scale !== void 0 && ["DECIMAL", "NUMERIC"].includes(dt2)) {
+    return `${dt2}(${col.precision}, ${col.scale})`;
+  }
+  if (col.enumValues && col.enumValues.length > 0 && (dt2 === "ENUM" || dt2 === "SET")) {
+    const vals = col.enumValues.map((v2) => `'${v2}'`).join(", ");
+    if (dialect === "mysql") {
+      return `${dt2}(${vals})`;
+    }
+    return "VARCHAR(255)";
+  }
+  return dt2;
+}
+function generateForeignKey(rel, tables, dialect) {
+  const sourceTable = tables[rel.sourceTableId];
+  const targetTable = tables[rel.targetTableId];
+  if (!sourceTable || !targetTable) return null;
+  const q = dialect === "mysql" ? "`" : '"';
+  const sourceColNames = rel.sourceColumnIds.map((cid) => sourceTable.columns.find((c) => c.id === cid)?.name).filter(Boolean);
+  const targetColNames = rel.targetColumnIds.map((cid) => targetTable.columns.find((c) => c.id === cid)?.name).filter(Boolean);
+  if (sourceColNames.length === 0 || targetColNames.length === 0) return null;
+  const fkName = rel.name ?? `fk_${targetTable.name}_${sourceTable.name}`;
+  return `ALTER TABLE ${q}${targetTable.name}${q}
+  ADD CONSTRAINT ${q}${fkName}${q}
+  FOREIGN KEY (${targetColNames.map((n) => `${q}${n}${q}`).join(", ")})
+  REFERENCES ${q}${sourceTable.name}${q} (${sourceColNames.map((n) => `${q}${n}${q}`).join(", ")})
+  ON DELETE ${rel.onDelete}
+  ON UPDATE ${rel.onUpdate};`;
+}
+
+// src/features/db/dialect/mysql.ts
+var CAPS2 = {
+  identifierQuote: "`",
+  schemas: false,
+  // MySQL 의 "schema" 는 database 와 동의어 — ERD 모델에선 비사용 취급
+  autoIncrement: "autoincrement",
+  // AUTO_INCREMENT 키워드
+  enumStyle: "native",
+  // ENUM('a','b')
+  inlineForeignKeys: false,
+  // ddl-generator 는 ALTER 로 분리
+  alterAddConstraint: true,
+  partialIndexes: false,
+  expressionIndexes: true,
+  // 8.0.13+
+  checkConstraints: true,
+  // 8.0.16+
+  engineCharset: true,
+  sequences: false,
+  identifierMaxLen: 64
+};
+function mapCanonical2(canon, col) {
+  const base = canon.base;
+  const unsigned = canon.unsigned ? " UNSIGNED" : "";
+  switch (base) {
+    case "BOOLEAN":
+      return "TINYINT(1)";
+    case "INTEGER":
+      return `INT${unsigned}`;
+    case "SMALLINT":
+      return `SMALLINT${unsigned}`;
+    case "BIGINT":
+      return `BIGINT${unsigned}`;
+    case "FLOAT":
+      return "FLOAT";
+    case "DOUBLE":
+      return "DOUBLE";
+    case "DECIMAL":
+      return renderTypeWithArgs("DECIMAL", canon.args);
+    case "VARCHAR":
+      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
+    case "CHAR":
+      return renderTypeWithArgs("CHAR", canon.args);
+    case "TEXT":
+      return "TEXT";
+    case "BLOB":
+      return "BLOB";
+    case "JSON":
+      return "JSON";
+    case "UUID":
+      return "CHAR(36)";
+    case "DATETIME":
+      return "DATETIME";
+    case "TIMESTAMP":
+      return "TIMESTAMP";
+    case "DATE":
+      return "DATE";
+    case "TIME":
+      return "TIME";
+    case "ENUM": {
+      const vals = canon.enumValues ?? col.enumValues ?? [];
+      if (vals.length > 0) return `ENUM(${vals.map((v2) => `'${v2}'`).join(", ")})`;
+      return "VARCHAR(255)";
+    }
+    default:
+      return canon.raw ?? renderTypeWithArgs(base, canon.args);
+  }
+}
+var RESERVED2 = /* @__PURE__ */ new Set([
+  "ADD",
+  "ALTER",
+  "AUTO_INCREMENT",
+  "BETWEEN",
+  "BY",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DELETE",
+  "DROP",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "INSERT",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "UPDATE",
+  "WHERE"
+]);
+var mysqlDialect = {
+  id: "mysql",
+  displayName: "MySQL",
+  caps: CAPS2,
+  parse(ddl) {
+    const schema = parseCreateTables(ddl);
+    attachUniqueConstraints(schema, ddl);
+    attachAlterForeignKeys(schema, ddl);
+    return { schema, warnings: [] };
+  },
+  generate(schema) {
+    return generateDDL(schema, "mysql");
+  },
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS2, (n) => quote(n, CAPS2.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS2.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED2);
+  },
+  mapType(canonical, col) {
+    return mapCanonical2(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
+// src/features/db/dialect/postgresql.ts
+var CAPS3 = {
+  identifierQuote: '"',
+  schemas: true,
+  autoIncrement: "serial",
+  // SERIAL/BIGSERIAL (ddl-generator 가 실현)
+  enumStyle: "check",
+  // 인라인 native ENUM 미지원 → CHECK/별도 타입; 본 엔진은 VARCHAR 폴백
+  inlineForeignKeys: false,
+  alterAddConstraint: true,
+  partialIndexes: true,
+  expressionIndexes: true,
+  checkConstraints: true,
+  engineCharset: false,
+  sequences: true,
+  identifierMaxLen: 63
+};
+function mapCanonical3(canon, _col) {
+  const base = canon.base;
+  switch (base) {
+    case "BOOLEAN":
+      return "BOOLEAN";
+    case "INTEGER":
+      return "INTEGER";
+    case "SMALLINT":
+      return "SMALLINT";
+    case "BIGINT":
+      return "BIGINT";
+    case "FLOAT":
+      return "REAL";
+    case "DOUBLE":
+      return "DOUBLE PRECISION";
+    case "DECIMAL":
+      return renderTypeWithArgs("NUMERIC", canon.args);
+    case "VARCHAR":
+      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
+    case "CHAR":
+      return renderTypeWithArgs("CHAR", canon.args);
+    case "TEXT":
+      return "TEXT";
+    case "BLOB":
+      return "BYTEA";
+    case "JSON":
+      return "JSONB";
+    case "UUID":
+      return "UUID";
+    case "DATETIME":
+      return "TIMESTAMP";
+    case "TIMESTAMP":
+      return "TIMESTAMP";
+    case "DATE":
+      return "DATE";
+    case "TIME":
+      return "TIME";
+    case "ENUM":
+      return "VARCHAR(255)";
+    default:
+      return canon.raw ?? renderTypeWithArgs(base, canon.args);
+  }
+}
+var RESERVED3 = /* @__PURE__ */ new Set([
+  "ALL",
+  "ANALYSE",
+  "ANALYZE",
+  "AND",
+  "ANY",
+  "AS",
+  "ASC",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DESC",
+  "DISTINCT",
+  "DO",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "USER",
+  "WHERE"
+]);
+var postgresqlDialect = {
+  id: "postgresql",
+  displayName: "PostgreSQL",
+  caps: CAPS3,
+  parse(ddl) {
+    const schema = parseCreateTables(normalizeQuotesForParser(ddl));
+    attachUniqueConstraints(schema, ddl);
+    attachAlterForeignKeys(schema, ddl);
+    for (const table of Object.values(schema.tables)) {
+      for (const col of table.columns) {
+        const dt2 = col.dataType.toUpperCase();
+        if (dt2 === "SERIAL") {
+          col.dataType = "INTEGER";
+          col.autoIncrement = true;
+        } else if (dt2 === "BIGSERIAL") {
+          col.dataType = "BIGINT";
+          col.autoIncrement = true;
+        } else if (dt2 === "SMALLSERIAL") {
+          col.dataType = "SMALLINT";
+          col.autoIncrement = true;
+        }
+      }
+    }
+    return { schema, warnings: [] };
+  },
+  generate(schema) {
+    return generateDDL(schema, "postgresql");
+  },
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS3, (n) => quote(n, CAPS3.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS3.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED3);
+  },
+  mapType(canonical, col) {
+    return mapCanonical3(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
+// src/features/db/dialect/registry.ts
+var dialectRegistry = {
+  sqlite: sqliteDialect,
+  mysql: mysqlDialect,
+  postgresql: postgresqlDialect
+};
+function getDialect(id) {
+  const d = dialectRegistry[id];
+  if (!d) throw new Error(`Unknown dialect: ${id}`);
+  return d;
+}
+
+// src/features/convert/registry.ts
+var registry = /* @__PURE__ */ new Map();
+function registerConverter(converter) {
+  registry.set(converter.id, converter);
+}
+
+// src/features/convert/type-map.ts
+var SQL_TO_PRISMA = {
+  INT: "Int",
+  INTEGER: "Int",
+  SMALLINT: "Int",
+  TINYINT: "Int",
+  BIGINT: "BigInt",
+  SERIAL: "Int",
+  BIGSERIAL: "BigInt",
+  DECIMAL: "Decimal",
+  NUMERIC: "Decimal",
+  FLOAT: "Float",
+  DOUBLE: "Float",
+  REAL: "Float",
+  VARCHAR: "String",
+  CHAR: "String",
+  TEXT: "String",
+  LONGTEXT: "String",
+  UUID: "String",
+  BOOL: "Boolean",
+  BOOLEAN: "Boolean",
+  DATE: "DateTime",
+  DATETIME: "DateTime",
+  TIMESTAMP: "DateTime",
+  TIME: "DateTime",
+  JSON: "Json",
+  JSONB: "Json",
+  BYTEA: "Bytes",
+  BLOB: "Bytes"
+};
+var PRISMA_TO_SQL = {
+  Int: "INT",
+  BigInt: "BIGINT",
+  Decimal: "DECIMAL",
+  Float: "FLOAT",
+  String: "VARCHAR",
+  Boolean: "BOOLEAN",
+  DateTime: "TIMESTAMP",
+  Json: "JSON",
+  Bytes: "BYTEA"
+};
+var SQL_TO_DBML = {
+  INT: "int",
+  INTEGER: "integer",
+  BIGINT: "bigint",
+  SMALLINT: "smallint",
+  TINYINT: "tinyint",
+  DECIMAL: "decimal",
+  NUMERIC: "numeric",
+  FLOAT: "float",
+  DOUBLE: "double",
+  VARCHAR: "varchar",
+  CHAR: "char",
+  TEXT: "text",
+  BOOL: "boolean",
+  BOOLEAN: "boolean",
+  DATE: "date",
+  DATETIME: "datetime",
+  TIMESTAMP: "timestamp",
+  JSON: "json",
+  UUID: "uuid"
+};
+function baseSqlType(dataType) {
+  return dataType.toUpperCase().replace(/\(.*\)/, "").replace(/\b(UNSIGNED|SIGNED|ZEROFILL)\b/g, "").trim();
+}
+function sqlToPrisma(dataType) {
+  const base = baseSqlType(dataType);
+  const mapped = SQL_TO_PRISMA[base];
+  if (mapped) return { type: mapped };
+  return { type: "String", warning: `\uBBF8\uC9C0\uC6D0 SQL \uD0C0\uC785 "${dataType}" \u2192 Prisma String \uC73C\uB85C \uB300\uCCB4` };
+}
+function prismaToSql(prismaType) {
+  const mapped = PRISMA_TO_SQL[prismaType];
+  if (mapped) return { type: mapped };
+  return { type: prismaType.toUpperCase(), warning: `\uBBF8\uC9C0\uC6D0 Prisma \uD0C0\uC785 "${prismaType}" \u2014 \uC6D0\uD615 \uC720\uC9C0` };
+}
+function sqlToDbml(dataType) {
+  const base = baseSqlType(dataType);
+  return SQL_TO_DBML[base] ?? base.toLowerCase();
+}
+function dbmlToSql(dbmlType) {
+  return dbmlType.toUpperCase().replace(/\(.*\)/, "").trim();
+}
+
+// src/features/convert/prisma.ts
+function generatePrisma(schema) {
+  const tables = Object.values(schema.tables);
+  if (tables.length === 0) return "// \uC815\uC758\uB41C \uD14C\uC774\uBE14\uC774 \uC5C6\uC2B5\uB2C8\uB2E4";
+  const relsByTarget = /* @__PURE__ */ new Map();
+  for (const rel of Object.values(schema.relationships)) {
+    const arr = relsByTarget.get(rel.targetTableId) ?? [];
+    arr.push(rel);
+    relsByTarget.set(rel.targetTableId, arr);
+  }
+  const relsBySource = /* @__PURE__ */ new Map();
+  for (const rel of Object.values(schema.relationships)) {
+    const arr = relsBySource.get(rel.sourceTableId) ?? [];
+    arr.push(rel);
+    relsBySource.set(rel.sourceTableId, arr);
+  }
+  const blocks = [];
+  for (const table of tables) {
+    const lines = [`model ${table.name} {`];
+    for (const col of table.columns) {
+      lines.push("  " + generateFieldLine(col));
+    }
+    for (const rel of relsByTarget.get(table.id) ?? []) {
+      const refTable = schema.tables[rel.sourceTableId];
+      if (!refTable) continue;
+      const fkCols = rel.targetColumnIds.map((id) => table.columns.find((c) => c.id === id)?.name).filter((n) => !!n);
+      const refCols = rel.sourceColumnIds.map((id) => refTable.columns.find((c) => c.id === id)?.name).filter((n) => !!n);
+      if (fkCols.length === 0 || refCols.length === 0) continue;
+      const fieldName = lowerFirst(refTable.name);
+      lines.push(
+        `  ${fieldName} ${refTable.name} @relation(fields: [${fkCols.join(", ")}], references: [${refCols.join(", ")}])`
+      );
+    }
+    for (const rel of relsBySource.get(table.id) ?? []) {
+      const fkTable = schema.tables[rel.targetTableId];
+      if (!fkTable) continue;
+      const fieldName = lowerFirst(fkTable.name) + "s";
+      lines.push(`  ${fieldName} ${fkTable.name}[]`);
+    }
+    lines.push("}");
+    blocks.push(lines.join("\n"));
+  }
+  return blocks.join("\n\n") + "\n";
+}
+function generateFieldLine(col) {
+  const { type } = sqlToPrisma(col.dataType);
+  let line = `${col.name} ${type}${col.nullable && !col.isPrimaryKey ? "?" : ""}`;
+  const attrs = [];
+  if (col.isPrimaryKey) attrs.push("@id");
+  if (col.isUnique && !col.isPrimaryKey) attrs.push("@unique");
+  if (col.autoIncrement) attrs.push("@default(autoincrement())");
+  else if (col.defaultValue !== void 0 && col.defaultValue !== "") {
+    attrs.push(`@default(${formatDefault(col.defaultValue, type)})`);
+  }
+  if (attrs.length > 0) line += " " + attrs.join(" ");
+  return line;
+}
+function formatDefault(value, prismaType) {
+  if (prismaType === "Int" || prismaType === "BigInt" || prismaType === "Float" || prismaType === "Decimal") {
+    return value;
+  }
+  if (prismaType === "Boolean") return value.toLowerCase();
+  if (/^".*"$/.test(value)) return value;
+  return `"${value}"`;
+}
+function lowerFirst(s) {
+  return s.length > 0 ? s[0].toLowerCase() + s.slice(1) : s;
+}
+function parsePrisma(input) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const warnings = [];
+  const cleaned = input.replace(/\/\/[^\n]*/g, "");
+  const modelRegex = /model\s+(\w+)\s*\{([\s\S]*?)\}/g;
+  let m;
+  const pendingRels = [];
+  const tableIdByName = /* @__PURE__ */ new Map();
+  while ((m = modelRegex.exec(cleaned)) !== null) {
+    const modelName = m[1];
+    const body = m[2];
+    const tableId = generateId();
+    const table = { id: tableId, name: modelName, columns: [], indexes: [] };
+    tableIdByName.set(modelName, tableId);
+    const fieldLines = body.split("\n").map((l) => l.trim()).filter((l) => l.length > 0 && !l.startsWith("@@"));
+    for (const line of fieldLines) {
+      const relMatch = line.match(/@relation\(\s*fields:\s*\[([^\]]+)\],\s*references:\s*\[([^\]]+)\]/);
+      if (relMatch) {
+        const fieldHead = line.match(/^(\w+)\s+(\w+)/);
+        const refTableName = fieldHead ? fieldHead[2] : "";
+        pendingRels.push({
+          fkTableName: modelName,
+          fkCols: splitList(relMatch[1]),
+          refTableName,
+          refCols: splitList(relMatch[2])
+        });
+        continue;
+      }
+      const fieldMatch = line.match(/^(\w+)\s+(\w+)(\[\])?(\?)?\s*(.*)$/);
+      if (!fieldMatch) continue;
+      const fieldName = fieldMatch[1];
+      const prismaType = fieldMatch[2];
+      const isList = !!fieldMatch[3];
+      const optional = !!fieldMatch[4];
+      const attrs = fieldMatch[5];
+      if (isList) continue;
+      if (/^[A-Z]/.test(prismaType) && !isKnownPrismaScalar(prismaType)) {
+        continue;
+      }
+      const { type: sqlType, warning } = prismaToSql(prismaType);
+      if (warning) warnings.push(warning);
+      const col = {
+        id: generateId(),
+        name: fieldName,
+        dataType: sqlType,
+        nullable: optional,
+        autoIncrement: /@default\(\s*autoincrement\(\)\s*\)/.test(attrs),
+        isPrimaryKey: /@id\b/.test(attrs),
+        isUnique: /@unique\b/.test(attrs)
+      };
+      const defMatch = attrs.match(/@default\(\s*([^)]*)\)/);
+      if (defMatch && !/autoincrement/.test(defMatch[1])) {
+        col.defaultValue = defMatch[1].trim().replace(/^"|"$/g, "");
+      }
+      table.columns.push(col);
+    }
+    schema.tables[tableId] = table;
+  }
+  for (const pr of pendingRels) {
+    const fkTableId = tableIdByName.get(pr.fkTableName);
+    const refTableId = tableIdByName.get(pr.refTableName);
+    if (!fkTableId || !refTableId) {
+      warnings.push(`\uAD00\uACC4 \uD574\uC11D \uC2E4\uD328: ${pr.fkTableName} \u2192 ${pr.refTableName}`);
+      continue;
+    }
+    const fkTable = schema.tables[fkTableId];
+    const refTable = schema.tables[refTableId];
+    const targetColumnIds = pr.fkCols.map((n) => fkTable.columns.find((c) => c.name === n)?.id).filter((id) => !!id);
+    const sourceColumnIds = pr.refCols.map((n) => refTable.columns.find((c) => c.name === n)?.id).filter((id) => !!id);
+    const relId = generateId();
+    const rel = {
+      id: relId,
+      sourceTableId: refTableId,
+      // 참조(PK) 측
+      targetTableId: fkTableId,
+      // FK 보유 측
+      type: "1:N",
+      sourceColumnIds,
+      targetColumnIds,
+      onDelete: "NO ACTION",
+      onUpdate: "NO ACTION"
+    };
+    schema.relationships[relId] = rel;
+  }
+  return { schema, warnings };
+}
+var PRISMA_SCALARS = /* @__PURE__ */ new Set(["Int", "BigInt", "String", "Boolean", "DateTime", "Json", "Bytes", "Decimal", "Float"]);
+function isKnownPrismaScalar(t) {
+  return PRISMA_SCALARS.has(t);
+}
+function splitList(s) {
+  return s.split(",").map((x) => x.trim()).filter(Boolean);
+}
+var prismaConverter = {
+  id: "prisma",
+  direction: "both",
+  parse: parsePrisma,
+  generate: generatePrisma
+};
+registerConverter(prismaConverter);
+
+// src/features/convert/dbml.ts
+function generateDbml(schema) {
+  const tables = Object.values(schema.tables);
+  if (tables.length === 0) return "// \uC815\uC758\uB41C \uD14C\uC774\uBE14\uC774 \uC5C6\uC2B5\uB2C8\uB2E4";
+  const blocks = [];
+  for (const table of tables) {
+    const lines = [`Table ${table.name} {`];
+    for (const col of table.columns) {
+      lines.push("  " + generateColumnLine(col));
+    }
+    lines.push("}");
+    blocks.push(lines.join("\n"));
+  }
+  const refLines = [];
+  for (const rel of Object.values(schema.relationships)) {
+    const source = schema.tables[rel.sourceTableId];
+    const target = schema.tables[rel.targetTableId];
+    if (!source || !target) continue;
+    const fkCol = target.columns.find((c) => c.id === rel.targetColumnIds[0])?.name;
+    const refCol = source.columns.find((c) => c.id === rel.sourceColumnIds[0])?.name;
+    if (!fkCol || !refCol) continue;
+    const op = relationOperator(rel.type);
+    refLines.push(`Ref: ${target.name}.${fkCol} ${op} ${source.name}.${refCol}`);
+  }
+  return blocks.join("\n\n") + (refLines.length > 0 ? "\n\n" + refLines.join("\n") : "") + "\n";
+}
+function generateColumnLine(col) {
+  const type = sqlToDbml(col.dataType);
+  const typeWithLen = col.length && ["varchar", "char"].includes(type) ? `${type}(${col.length})` : type;
+  const settings = [];
+  if (col.isPrimaryKey) settings.push("pk");
+  if (col.autoIncrement) settings.push("increment");
+  if (col.isUnique && !col.isPrimaryKey) settings.push("unique");
+  if (!col.nullable && !col.isPrimaryKey) settings.push("not null");
+  if (col.defaultValue !== void 0 && col.defaultValue !== "") {
+    settings.push(`default: ${formatDbmlDefault(col.defaultValue)}`);
+  }
+  const settingStr = settings.length > 0 ? ` [${settings.join(", ")}]` : "";
+  return `${col.name} ${typeWithLen}${settingStr}`;
+}
+function formatDbmlDefault(value) {
+  if (/^-?\d+(\.\d+)?$/.test(value)) return value;
+  if (/^(true|false)$/i.test(value)) return value.toLowerCase();
+  if (/^`.*`$/.test(value)) return value;
+  return `'${value}'`;
+}
+function relationOperator(type) {
+  switch (type) {
+    case "1:1":
+      return "-";
+    case "N:M":
+      return "<>";
+    case "1:N":
+    default:
+      return ">";
+  }
+}
+function parseDbml(input) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const warnings = [];
+  const cleaned = input.replace(/\/\/[^\n]*/g, "").replace(/--[^\n]*/g, "");
+  const tableIdByName = /* @__PURE__ */ new Map();
+  const tableRegex = /Table\s+("?[\w.]+"?)\s*(?:as\s+\w+\s*)?\{([\s\S]*?)\}/g;
+  let m;
+  while ((m = tableRegex.exec(cleaned)) !== null) {
+    const rawName = m[1].replace(/"/g, "");
+    const tableName = rawName.includes(".") ? rawName.split(".").pop() : rawName;
+    const body = m[2];
+    const tableId = generateId();
+    const table = { id: tableId, name: tableName, columns: [], indexes: [] };
+    tableIdByName.set(tableName, tableId);
+    const colLines = body.split("\n").map((l) => l.trim()).filter((l) => l.length > 0 && !/^(indexes|Note)\b/i.test(l) && l !== "{" && l !== "}");
+    for (const line of colLines) {
+      const colMatch = line.match(/^("?[\w]+"?)\s+([\w]+(?:\([^)]*\))?)\s*(\[[^\]]*\])?/);
+      if (!colMatch) continue;
+      const colName = colMatch[1].replace(/"/g, "");
+      const rawType = colMatch[2];
+      const settings = (colMatch[3] ?? "").toLowerCase();
+      const lenMatch = rawType.match(/\((\d+)\)/);
+      const col = {
+        id: generateId(),
+        name: colName,
+        dataType: dbmlToSql(rawType),
+        nullable: !settings.includes("not null") && !settings.includes("pk"),
+        autoIncrement: settings.includes("increment"),
+        isPrimaryKey: settings.includes("pk") || settings.includes("primary key"),
+        isUnique: settings.includes("unique")
+      };
+      if (lenMatch) col.length = Number(lenMatch[1]);
+      const defMatch = (colMatch[3] ?? "").match(/default:\s*('([^']*)'|`([^`]*)`|[^,\]]+)/i);
+      if (defMatch) {
+        col.defaultValue = (defMatch[2] ?? defMatch[3] ?? defMatch[1]).trim();
+      }
+      table.columns.push(col);
+    }
+    schema.tables[tableId] = table;
+  }
+  const refRegex = /Ref\s*(?:\w+\s*)?:\s*("?[\w]+"?)\.("?[\w]+"?)\s*(<>|<|>|-)\s*("?[\w]+"?)\.("?[\w]+"?)/g;
+  let r;
+  while ((r = refRegex.exec(cleaned)) !== null) {
+    const leftTable = r[1].replace(/"/g, "");
+    const leftCol = r[2].replace(/"/g, "");
+    const op = r[3];
+    const rightTable = r[4].replace(/"/g, "");
+    const rightCol = r[5].replace(/"/g, "");
+    let fkTableName, fkColName, refTableName, refColName;
+    let type = "1:N";
+    if (op === "<") {
+      fkTableName = rightTable;
+      fkColName = rightCol;
+      refTableName = leftTable;
+      refColName = leftCol;
+    } else if (op === "<>") {
+      type = "N:M";
+      fkTableName = leftTable;
+      fkColName = leftCol;
+      refTableName = rightTable;
+      refColName = rightCol;
+    } else if (op === "-") {
+      type = "1:1";
+      fkTableName = leftTable;
+      fkColName = leftCol;
+      refTableName = rightTable;
+      refColName = rightCol;
+    } else {
+      fkTableName = leftTable;
+      fkColName = leftCol;
+      refTableName = rightTable;
+      refColName = rightCol;
+    }
+    const fkTableId = tableIdByName.get(fkTableName);
+    const refTableId = tableIdByName.get(refTableName);
+    if (!fkTableId || !refTableId) {
+      warnings.push(`Ref \uD574\uC11D \uC2E4\uD328: ${leftTable}.${leftCol} ${op} ${rightTable}.${rightCol}`);
+      continue;
+    }
+    const fkTable = schema.tables[fkTableId];
+    const refTable = schema.tables[refTableId];
+    const targetColId = fkTable.columns.find((c) => c.name === fkColName)?.id;
+    const sourceColId = refTable.columns.find((c) => c.name === refColName)?.id;
+    const relId = generateId();
+    const rel = {
+      id: relId,
+      sourceTableId: refTableId,
+      // 참조(PK) 측
+      targetTableId: fkTableId,
+      // FK 보유 측
+      type,
+      sourceColumnIds: sourceColId ? [sourceColId] : [],
+      targetColumnIds: targetColId ? [targetColId] : [],
+      onDelete: "NO ACTION",
+      onUpdate: "NO ACTION"
+    };
+    schema.relationships[relId] = rel;
+  }
+  return { schema, warnings };
+}
+var dbmlConverter = {
+  id: "dbml",
+  direction: "both",
+  parse: parseDbml,
+  generate: generateDbml
+};
+registerConverter(dbmlConverter);
+
+// src/features/mermaid/mermaid-generator.ts
+function generateMermaid(schema) {
+  const lines = ["erDiagram"];
+  const fkColumnIds = /* @__PURE__ */ new Set();
+  for (const rel of Object.values(schema.relationships)) {
+    for (const id of rel.sourceColumnIds) fkColumnIds.add(id);
+    for (const id of rel.targetColumnIds) fkColumnIds.add(id);
+  }
+  for (const table of Object.values(schema.tables)) {
+    lines.push(`    ${table.name} {`);
+    for (const col of table.columns) {
+      const typeName = col.dataType.replace(/\(.*\)/, "");
+      let line = `        ${typeName} ${col.name}`;
+      const flags = [];
+      if (col.isPrimaryKey) flags.push("PK");
+      if (fkColumnIds.has(col.id) && !col.isPrimaryKey) flags.push("FK");
+      if (col.isUnique && !col.isPrimaryKey) flags.push("UK");
+      if (!col.nullable && !col.isPrimaryKey) flags.push('"NOT NULL"');
+      if (flags.length > 0) line += " " + flags.join(" ");
+      lines.push(line);
+    }
+    lines.push("    }");
+  }
+  for (const rel of Object.values(schema.relationships)) {
+    const source = schema.tables[rel.sourceTableId];
+    const target = schema.tables[rel.targetTableId];
+    if (!source || !target) continue;
+    let arrow = "";
+    switch (rel.type) {
+      case "1:1":
+        arrow = "||--||";
+        break;
+      case "1:N":
+        arrow = "||--o{";
+        break;
+      case "N:M":
+        arrow = "}o--o{";
+        break;
+    }
+    lines.push(`    ${source.name} ${arrow} ${target.name} : "${rel.name ?? ""}"`);
+  }
+  return lines.join("\n");
+}
+
+// src/features/mermaid/mermaid-parser.ts
+function parseMermaid(text) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("erDiagram") && !l.startsWith("%%"));
+  let currentTable = null;
+  for (const line of lines) {
+    const entityMatch = line.match(/^(\w+)\s*\{$/);
+    if (entityMatch) {
+      const id = generateId();
+      currentTable = { id, name: entityMatch[1], columns: [], indexes: [] };
+      schema.tables[id] = currentTable;
+      continue;
+    }
+    if (line === "}") {
+      currentTable = null;
+      continue;
+    }
+    if (currentTable) {
+      const colMatch = line.match(/^(\w+)\s+(\w+)(.*)$/);
+      if (colMatch) {
+        const dataType = colMatch[1].toUpperCase();
+        const name = colMatch[2];
+        const flags = colMatch[3].toUpperCase();
+        currentTable.columns.push({
+          id: generateId(),
+          name,
+          dataType,
+          nullable: !flags.includes("NOT NULL") && !flags.includes("PK"),
+          autoIncrement: false,
+          isPrimaryKey: flags.includes("PK"),
+          isUnique: flags.includes("UK")
+        });
+      }
+      continue;
+    }
+    const relMatch = line.match(/^(\w+)\s+(\|{1,2}|[{}]o?)(--)(\|{1,2}|o?[{}])\s+(\w+)\s*:\s*"?([^"]*)"?$/);
+    if (relMatch) {
+      const sourceName = relMatch[1];
+      const leftMarker = relMatch[2];
+      const rightMarker = relMatch[4];
+      const targetName = relMatch[5];
+      let type = "1:N";
+      if (rightMarker.includes("{") || leftMarker.includes("{")) {
+        if (rightMarker.includes("{") && leftMarker.includes("}")) {
+          type = "N:M";
+        } else {
+          type = "1:N";
+        }
+      } else {
+        type = "1:1";
+      }
+      const sourceTable = Object.values(schema.tables).find((t) => t.name === sourceName);
+      const targetTable = Object.values(schema.tables).find((t) => t.name === targetName);
+      if (sourceTable && targetTable) {
+        const relId = generateId();
+        schema.relationships[relId] = {
+          id: relId,
+          name: relMatch[6]?.trim() || void 0,
+          sourceTableId: sourceTable.id,
+          targetTableId: targetTable.id,
+          type,
+          sourceColumnIds: [],
+          targetColumnIds: [],
+          onDelete: "NO ACTION",
+          onUpdate: "NO ACTION"
+        };
+      }
+    }
+  }
+  return schema;
+}
+
 // src/plugin/commands.ts
 function snapshotSchema(store) {
   const s = store.getState();
@@ -16707,6 +18271,14 @@ function restoreSnapshot(store, snap) {
     tables: structuredClone(snap.tables),
     relationships: structuredClone(snap.relationships)
   });
+}
+function loadParsedSchema(store, parsed, mode) {
+  if (mode === "replace") store.getState().clearSchema();
+  store.getState().loadSchema(parsed.tables, parsed.relationships);
+  return {
+    tables: Object.keys(parsed.tables).length,
+    relationships: Object.keys(parsed.relationships).length
+  };
 }
 function registerCommands(ctx, store) {
   const reg = ctx.app.commands?.register;
@@ -17198,6 +18770,96 @@ function registerCommands(ctx, store) {
     return { ok: true, selected: ids };
   }, {
     tables: { type: "json", description: "\uC120\uD0DD\uD560 \uD14C\uC774\uBE14 \uC774\uB984/ id \uBC30\uC5F4" }
+  });
+  add("export-sql", "SQL DDL \uC0DD\uC131(dialect \uC120\uD0DD: sqlite/mysql/postgresql)", (p) => {
+    const dialect = p.dialect ?? "mysql";
+    try {
+      const sql = getDialect(dialect).generate(snapshotSchema(store));
+      return { ok: true, sql };
+    } catch (e) {
+      return { ok: false, error: `export-sql failed: ${e.message}` };
+    }
+  }, {
+    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "\uB300\uC0C1 DB dialect", default: "mysql" }
+  });
+  add("import-sql", "SQL DDL \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(dialect \uC120\uD0DD, mode: merge/replace)", (p) => {
+    if (!p.text || typeof p.text !== "string") return { ok: false, error: "text required" };
+    const dialect = p.dialect ?? "mysql";
+    const mode = p.mode === "replace" ? "replace" : "merge";
+    try {
+      const { schema, warnings } = getDialect(dialect).parse(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-sql failed: ${e.message}` };
+    }
+  }, {
+    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 SQL DDL \uD14D\uC2A4\uD2B8" },
+    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "\uC785\uB825 DDL \uC758 dialect", default: "mysql" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+  });
+  add("export-dbml", "DBML \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+    try {
+      return { ok: true, dbml: generateDbml(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-dbml failed: ${e.message}` };
+    }
+  });
+  add("import-dbml", "DBML \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p) => {
+    if (!p.text || typeof p.text !== "string") return { ok: false, error: "text required" };
+    const mode = p.mode === "replace" ? "replace" : "merge";
+    try {
+      const { schema, warnings } = parseDbml(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-dbml failed: ${e.message}` };
+    }
+  }, {
+    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 DBML \uD14D\uC2A4\uD2B8" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+  });
+  add("export-prisma", "Prisma \uC2A4\uD0A4\uB9C8 \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+    try {
+      return { ok: true, prisma: generatePrisma(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-prisma failed: ${e.message}` };
+    }
+  });
+  add("import-prisma", "Prisma \uC2A4\uD0A4\uB9C8 \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p) => {
+    if (!p.text || typeof p.text !== "string") return { ok: false, error: "text required" };
+    const mode = p.mode === "replace" ? "replace" : "merge";
+    try {
+      const { schema, warnings } = parsePrisma(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings };
+    } catch (e) {
+      return { ok: false, error: `import-prisma failed: ${e.message}` };
+    }
+  }, {
+    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 Prisma \uC2A4\uD0A4\uB9C8 \uD14D\uC2A4\uD2B8" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+  });
+  add("export-mermaid", "Mermaid erDiagram \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+    try {
+      return { ok: true, mermaid: generateMermaid(snapshotSchema(store)) };
+    } catch (e) {
+      return { ok: false, error: `export-mermaid failed: ${e.message}` };
+    }
+  });
+  add("import-mermaid", "Mermaid erDiagram \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p) => {
+    if (!p.text || typeof p.text !== "string") return { ok: false, error: "text required" };
+    const mode = p.mode === "replace" ? "replace" : "merge";
+    try {
+      const schema = parseMermaid(p.text);
+      const added = loadParsedSchema(store, schema, mode);
+      return { ok: true, added, warnings: [] };
+    } catch (e) {
+      return { ok: false, error: `import-mermaid failed: ${e.message}` };
+    }
+  }, {
+    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 Mermaid erDiagram \uD14D\uC2A4\uD2B8" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
   });
 }
 
