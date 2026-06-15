@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`representative snapshots > dbml generate snapshot 1`] = `
+"Table User {
+  id int [pk, increment]
+  email varchar(255) [unique, not null]
+  name varchar
+}
+
+Table Post {
+  id int [pk, increment]
+  title varchar(255) [not null]
+  user_id int [not null]
+}
+
+Ref: Post.user_id > User.id
+"
+`;
+
+exports[`representative snapshots > prisma generate snapshot 1`] = `
+"model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String?
+  posts Post[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  title String
+  user_id Int
+  user User @relation(fields: [user_id], references: [id])
+}
+"
+`;

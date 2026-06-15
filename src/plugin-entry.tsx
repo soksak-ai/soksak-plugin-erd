@@ -2,6 +2,8 @@
 // P0a: 번들 파이프라인(esbuild + React-in-blob + registerView + 커맨드)이 soksak 에서 적재되는지 검증.
 // 전체 abyss-erd 앱 마운트·워커 인라인·Tailwind Shadow DOM 은 P1.
 import { createRoot, type Root } from "react-dom/client";
+import { useStore } from "@/store";
+import { registerCommands } from "@/plugin/commands";
 
 // 뷰는 container(soksak 제공 HTMLElement)에 마운트. placement(content/sidebar) 무관 동일 provider.
 const roots = new WeakMap<HTMLElement, Root>();
@@ -52,11 +54,15 @@ export default {
             ok: true,
             plugin: "soksak-plugin-erd",
             version: "0.1.0",
-            phase: "P0a",
+            phase: "P2",
           }),
         }),
       );
     }
+
+    // 헤드리스 커맨드 카탈로그(introspection/mutation/batch/layout) 등록 — store(useStore)를 주입.
+    // 뷰 미오픈에도 sok plugin.soksak-plugin-erd.* / MCP / 소켓 E2E 로 전부 동작.
+    registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
   },
   deactivate() {},
 };
