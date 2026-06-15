@@ -8,7 +8,9 @@
   "entry": "main.js",
   "permissions": [
     "ui",
-    "commands"
+    "commands",
+    "fs:read",
+    "fs:write"
   ],
   "contributes": {
     "views": [
@@ -182,6 +184,38 @@
       {
         "name": "validate",
         "title": "스키마 검증"
+      },
+      {
+        "name": "migration-status",
+        "title": "마이그레이션 상태"
+      },
+      {
+        "name": "migration-generate",
+        "title": "마이그레이션 생성"
+      },
+      {
+        "name": "migration-list",
+        "title": "마이그레이션 목록"
+      },
+      {
+        "name": "migration-show",
+        "title": "마이그레이션 조회"
+      },
+      {
+        "name": "migration-sql",
+        "title": "마이그레이션 SQL"
+      },
+      {
+        "name": "migration-apply",
+        "title": "마이그레이션 적용"
+      },
+      {
+        "name": "migration-revert",
+        "title": "마이그레이션 되돌리기"
+      },
+      {
+        "name": "migration-lint",
+        "title": "마이그레이션 린트"
       }
     ]
   }
