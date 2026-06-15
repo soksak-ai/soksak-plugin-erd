@@ -10,8 +10,21 @@ import { generateId } from '@/lib/id';
 import { getDialect, type DialectId } from '@/features/db/dialect/registry';
 import { generateDbml, parseDbml, generatePrisma, parsePrisma } from '@/features/convert';
 import { generateMermaid, parseMermaid } from '@/features/mermaid';
+import { parseMig, serializeMig, lintMig } from '@/features/migration/mig-dsl';
+import { applyOperation } from '@/features/migration/operations';
+import { getSQLGenerator } from '@/features/migration/sql-generator';
+import type { Operation } from '@/features/migration/types';
+import { diffSchemas } from '@/features/migration/diff';
 
-// soksak ctx 의 최소 표면(커맨드 등록 + 구독 폐기 수집).
+// soksak fs API 의 최소 표면(파일 기반 마이그레이션용). "fs:read"/"fs:write" 권한이 있을 때만 주입된다.
+// readText: offset 지정 시 증분 tail. list: meta=true 면 자식 modified(unix 초) 동봉.
+interface PluginFs {
+  readText?: (path: string, offset?: number) => Promise<{ text: string; truncated: boolean; totalBytes: number }>;
+  writeText?: (path: string, content: string) => Promise<void>;
+  list?: (path: string, opts?: { meta?: boolean }) => Promise<unknown>;
+}
+
+// soksak ctx 의 최소 표면(커맨드 등록 + 구독 폐기 수집 + 선택적 fs).
 interface PluginContext {
   subscriptions: Array<{ dispose(): void }>;
   app: {
@@ -21,6 +34,7 @@ interface PluginContext {
         spec: { description: string; params?: Record<string, unknown>; handler: (params: any) => Promise<any> },
       ): { dispose(): void };
     };
+    fs?: PluginFs;
   };
 }
 
@@ -86,6 +100,105 @@ function loadParsedSchema(
     tables: Object.keys(parsed.tables).length,
     relationships: Object.keys(parsed.relationships).length,
   };
+}
+
+// ── 파일 기반 마이그레이션 유틸(.mig) ─────────────────────────────────────────
+// 빈 ERDSchema(베이스라인 fold 시작점).
+const EMPTY_SCHEMA: ERDSchema = { tables: {}, relationships: {}, layers: {} };
+
+// 2자리 zero-pad.
+function pad2(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+// 파일명 타임스탬프 컴포넌트(로컬 시각). YYYYMMDD / HHIISS.
+function nowStamp(d: Date = new Date()): { date: string; time: string } {
+  const date = `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+  const time = `${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+  return { date, time };
+}
+
+// 마이그레이션 파일명. NNN = 기존 .mig 개수+1(3자리 zero-pad).
+function migFilename(existingCount: number, d: Date = new Date()): string {
+  const { date, time } = nowStamp(d);
+  const seq = String(existingCount + 1).padStart(3, '0');
+  return `migration_${date}_${time}_${seq}.mig`;
+}
+
+// 경로 결합(절대 dir + 파일명). 중복 슬래시 방지.
+function joinPath(dir: string, file: string): string {
+  return dir.endsWith('/') ? `${dir}${file}` : `${dir}/${file}`;
+}
+
+// name 메타 + up 블록 → .mig 파일 내용(down 은 serializeMig 가 자동 파생).
+// name 은 선행 주석(-- name: …)으로 기록 — parseMig 가 주석을 흡수하므로 라운드트립 무손실.
+function migFileContent(name: string | undefined, ops: Operation[]): string {
+  const body = serializeMig(ops);
+  return name ? `-- name: ${name}\n${body}` : body;
+}
+
+// .mig 텍스트에서 name 메타 추출(없으면 undefined).
+function parseMigName(text: string): string | undefined {
+  const m = text.match(/^\s*--\s*name:\s*(.+?)\s*$/m);
+  return m ? m[1] : undefined;
+}
+
+// fs.list 결과(ChildListing { root, children:[{name,dir,modified?}] })에서 .mig 파일명만 추출.
+function extractMigNames(listing: unknown): string[] {
+  const children = (listing as { children?: Array<{ name?: string; dir?: boolean }> } | null)?.children ?? [];
+  return children
+    .filter((c) => c && c.dir !== true && typeof c.name === 'string' && c.name.endsWith('.mig'))
+    .map((c) => c.name as string)
+    .sort(); // 파일명 = 시간순 정렬 키(YYYYMMDD_HHIISS_NNN)
+}
+
+// 에러 메시지 정규화. Tauri invoke 는 문자열로 reject 하므로(Error 아님) (e as Error).message
+// 가 undefined 가 된다 → 문자열/임의 throw 까지 안전하게 문자열화한다.
+function errMsg(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === 'string') return e;
+  try { return JSON.stringify(e); } catch { return String(e); }
+}
+
+// id(파일명) 해석 — 확장자 유무 무관. dir 의 실제 .mig 목록에서 매칭한다.
+//   1) 정확 일치(id 그대로)  2) id + '.mig'  3) 확장자 제거 후 basename 일치
+// 못 찾으면 null. fs.list 권한 없으면 입력 id 를 그대로 신뢰(폴백).
+async function resolveMigId(fs: PluginFs, dir: string, id: string): Promise<string | null> {
+  if (!fs.list) return id; // list 불가 → 입력 그대로(readText 가 최종 판정)
+  let files: string[];
+  try {
+    files = extractMigNames(await fs.list(dir));
+  } catch {
+    return id; // 리스팅 실패 → 입력 그대로 폴백
+  }
+  if (files.includes(id)) return id;
+  const withExt = id.endsWith('.mig') ? id : `${id}.mig`;
+  if (files.includes(withExt)) return withExt;
+  const stem = id.endsWith('.mig') ? id.slice(0, -4) : id;
+  const byStem = files.find((f) => f.slice(0, -4) === stem);
+  return byStem ?? null;
+}
+
+// dir 의 모든 .mig 파일을 이름순으로 파싱 → up ops 를 빈 스키마부터 fold → 마지막 상태.
+// 반환: { schema, files(이름순), ops(누적 up ops) }.
+async function buildBaseline(
+  fs: PluginFs,
+  dir: string,
+): Promise<{ schema: ERDSchema; files: string[]; ops: Operation[] }> {
+  if (!fs.list || !fs.readText) throw new Error('fs 권한 필요');
+  const listing = await fs.list(dir);
+  const files = extractMigNames(listing);
+  let schema = EMPTY_SCHEMA;
+  const ops: Operation[] = [];
+  for (const file of files) {
+    const { text } = await fs.readText(joinPath(dir, file));
+    const { ops: up } = parseMig(text);
+    for (const op of up) {
+      ops.push(op);
+      schema = applyOperation(schema, op);
+    }
+  }
+  return { schema, files, ops };
 }
 
 // ── 카탈로그 등록 ────────────────────────────────────────────────────────────
@@ -741,6 +854,185 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     mode: { type: 'string', enum: ['merge', 'replace'], description: 'merge(기존 위 합침) | replace(기존 비우고 적재)', default: 'merge' },
   });
 
-  // ── migration(.mig DSL — P4 통합 stub) ───────────────────────────────────────
-  // TODO(P4): commit-migration / get-migration-sql(.mig DSL) — migration-slice getVersionSQL 배선.
+  // ── migration(파일 기반 .mig 마이그레이션) ───────────────────────────────────
+  // write 계열은 dir(절대경로) 필수 — 헤드리스·명시적(프로젝트 git 관리).
+  // fs 는 ctx.app.fs 가 있을 때만(권한 게이트). 없으면 {ok:false,error:"fs 권한 필요"}.
+  const fs = ctx.app.fs;
+
+  // fs 게이트 — read/write 필요한 커맨드의 공통 가드.
+  const needFs = (): Err | null => (fs ? null : { ok: false, error: 'fs 권한 필요' });
+  const requireDir = (p: any): Err | null =>
+    typeof p.dir === 'string' && p.dir.length > 0 ? null : { ok: false, error: 'dir(절대경로) required' };
+
+  add('migration-status', '대기 변경 미리보기(베이스라인 vs 현재 working store diff)', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    try {
+      const { schema: baseline, files } = await buildBaseline(fs!, p.dir);
+      const ops = diffSchemas(baseline, snapshotSchema(store));
+      return {
+        ok: true,
+        applied: files.length,
+        appliedFiles: files,
+        pendingOps: ops.length,
+        ops,
+        clean: ops.length === 0,
+      };
+    } catch (e) {
+      return { ok: false, error: `migration-status 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+  });
+
+  add('migration-generate', '베이스라인→현재 diff 로 .mig 생성(confirm 없으면 preview, confirm=true 면 파일 기록)', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    try {
+      const { schema: baseline, files } = await buildBaseline(fs!, p.dir);
+      const ops = diffSchemas(baseline, snapshotSchema(store));
+      if (ops.length === 0) return { ok: true, noop: true };
+
+      const mig = migFileContent(p.name, ops);
+      if (!p.confirm) {
+        // 미리보기 — 파일 미기록.
+        return { ok: true, preview: true, mig, ops };
+      }
+      if (!fs!.writeText) return { ok: false, error: 'fs 권한 필요' };
+      const filename = migFilename(files.length);
+      const path = joinPath(p.dir, filename);
+      await fs!.writeText(path, mig);
+      return { ok: true, written: true, filename, path, ops };
+    } catch (e) {
+      return { ok: false, error: `migration-generate 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+    name: { type: 'string', description: '마이그레이션 이름 메타(파일에 -- name: 으로 기록)' },
+    confirm: { type: 'boolean', description: 'true 면 파일 기록, 생략 시 미리보기(mig/ops 만)' },
+  });
+
+  add('migration-list', '디렉토리의 .mig 파일 목록(이름순)', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    if (!fs!.list) return { ok: false, error: 'fs 권한 필요' };
+    try {
+      const listing = await fs!.list(p.dir);
+      const files = extractMigNames(listing);
+      return { ok: true, files, count: files.length };
+    } catch (e) {
+      return { ok: false, error: `migration-list 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+  });
+
+  add('migration-show', '단일 .mig 파일 내용·파싱 결과 조회', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    if (!p.id || typeof p.id !== 'string') return { ok: false, error: 'id(파일명) required' };
+    if (!fs!.readText) return { ok: false, error: 'fs 권한 필요' };
+    try {
+      const file = await resolveMigId(fs!, p.dir, p.id);
+      if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+      const { text } = await fs!.readText(joinPath(p.dir, file));
+      const { ops, downOps, warnings } = parseMig(text);
+      return { ok: true, id: file, name: parseMigName(text), text, ops, downOps, warnings };
+    } catch (e) {
+      return { ok: false, error: `migration-show 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+    id: { type: 'string', required: true, description: '.mig 파일명(확장자 생략 가능)' },
+  });
+
+  add('migration-sql', '단일 .mig 의 up ops → 해당 dialect DDL 생성', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    if (!p.id || typeof p.id !== 'string') return { ok: false, error: 'id(파일명) required' };
+    if (!fs!.readText) return { ok: false, error: 'fs 권한 필요' };
+    const dialect = (p.dialect as 'mysql' | 'postgresql') ?? 'mysql';
+    if (dialect !== 'mysql' && dialect !== 'postgresql') {
+      return { ok: false, error: `migration-sql dialect 미지원: '${dialect}'(mysql|postgresql)` };
+    }
+    try {
+      const file = await resolveMigId(fs!, p.dir, p.id);
+      if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+      const { text } = await fs!.readText(joinPath(p.dir, file));
+      const { ops, downOps } = parseMig(text);
+      // mig op[] → DDL: migration sql-generator 가 Operation[] 을 직접 받는다(generateAlter 의
+      // SchemaDiff 시그니처와 형태 불일치 → ops 직접 generate 채택).
+      const gen = getSQLGenerator(dialect);
+      return { ok: true, id: file, dialect, up: gen.generateBatch(ops), down: gen.generateBatch(downOps) };
+    } catch (e) {
+      return { ok: false, error: `migration-sql 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+    id: { type: 'string', required: true, description: '.mig 파일명(확장자 생략 가능)' },
+    dialect: { type: 'string', enum: ['mysql', 'postgresql'], description: '대상 DB dialect', default: 'mysql' },
+  });
+
+  add('migration-apply', '.mig 의 up ops 를 working store 에 적용(id 생략 시 dir 전체 fold)', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    if (!fs!.readText || !fs!.list) return { ok: false, error: 'fs 권한 필요' };
+    try {
+      let ops: Operation[];
+      if (p.id && typeof p.id === 'string') {
+        const file = await resolveMigId(fs!, p.dir, p.id);
+        if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+        const { text } = await fs!.readText(joinPath(p.dir, file));
+        ops = parseMig(text).ops;
+      } else {
+        ops = (await buildBaseline(fs!, p.dir)).ops;
+      }
+      // working store(snapshot)에 fold 후 통째 재적재(replace).
+      let schema = snapshotSchema(store);
+      for (const op of ops) schema = applyOperation(schema, op);
+      loadParsedSchema(store, schema, 'replace');
+      return { ok: true, applied: ops.length };
+    } catch (e) {
+      return { ok: false, error: `migration-apply 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+    id: { type: 'string', description: '.mig 파일명(확장자 생략 가능, 생략 시 dir 전체 베이스라인 적용)' },
+  });
+
+  add('migration-revert', '.mig 의 down ops 를 working store 에 적용(역연산 — id 생략 시 마지막 파일)', async (p) => {
+    const g = needFs(); if (g) return g;
+    const d = requireDir(p); if (d) return d;
+    if (!fs!.readText || !fs!.list) return { ok: false, error: 'fs 권한 필요' };
+    try {
+      let id: string | null;
+      if (typeof p.id === 'string') {
+        id = await resolveMigId(fs!, p.dir, p.id);
+        if (!id) return { ok: false, error: `migration not found: '${p.id}'` };
+      } else {
+        const files = extractMigNames(await fs!.list(p.dir));
+        if (files.length === 0) return { ok: true, noop: true };
+        id = files[files.length - 1]; // 마지막(최신) 파일
+      }
+      const { text } = await fs!.readText(joinPath(p.dir, id));
+      const { downOps } = parseMig(text);
+      let schema = snapshotSchema(store);
+      for (const op of downOps) schema = applyOperation(schema, op);
+      loadParsedSchema(store, schema, 'replace');
+      return { ok: true, reverted: downOps.length, id };
+    } catch (e) {
+      return { ok: false, error: `migration-revert 실패: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: 'string', required: true, description: '마이그레이션 디렉토리(절대경로)' },
+    id: { type: 'string', description: '.mig 파일명(확장자 생략 가능, 생략 시 가장 최신 파일)' },
+  });
+
+  add('migration-lint', '.mig 텍스트 문법 검증(에러 목록, fs 불요)', (p) => {
+    if (typeof p.text !== 'string') return { ok: false, error: 'text required' };
+    const { errors } = lintMig(p.text);
+    return { ok: true, errors, valid: errors.length === 0 };
+  }, {
+    text: { type: 'string', required: true, description: '검증할 .mig 텍스트' },
+  });
 }
