@@ -22,6 +22,9 @@ import { NODE_WIDTH, COLORS, getLOD, LOD } from './constants';
 import { CanvasContextMenu } from '../CanvasContextMenu';
 import { PixiCanvasProvider } from './PixiCanvasContext';
 import type { PixiCanvasAPI } from './PixiCanvasContext';
+// 번들 플러그인(blob-URL ESM)에서는 `new Worker(new URL('@/...', import.meta.url))` 가 깨진다.
+// build.mjs(Stage A) 가 워커를 IIFE 문자열(__ERD_WORKER_*)로 주입 → blobWorker 로 생성.
+import { blobWorker } from '@/workers/inline-worker';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -827,6 +830,10 @@ export function PixiERDCanvas() {
       pendingEdgePickRef.current = null;
       edgeCanvasRef.current = null;
       hoverPickPosRef.current.clear();
+      // WebGL 컨텍스트 명시 해제 — remount(soksak 뷰 unmount→mount) 시 GL 컨텍스트 누수 방지.
+      // Pixi v8 webgl 렌더러의 raw GL 핸들은 renderer.gl. destroy 전에 loseContext 호출.
+      const gl = (appRef.current?.renderer as unknown as { gl?: WebGLRenderingContext })?.gl;
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
       appRef.current?.destroy(true);
       appRef.current = null;
       worldRef.current = null;
@@ -867,7 +874,7 @@ export function PixiERDCanvas() {
     }
 
     if (!edgeWorkerRef.current) {
-      const worker = new Worker(new URL('@/workers/edge-render.worker.ts', import.meta.url), { type: 'module' });
+      const worker = blobWorker(__ERD_WORKER_EDGE__);
       edgeWorkerRef.current = worker;
       const offscreen = edgeCanvas.transferControlToOffscreen();
       worker.postMessage({
@@ -949,6 +956,17 @@ export function PixiERDCanvas() {
     console.info('[EdgeWorker] toggled: ON');
     edgeDirty.current = true;
     wakeRenderLoop();
+
+    // 이 effect 가 생성한 edge-render 워커는 이 effect 가 책임지고 회수한다.
+    // (언마운트·toggle 시 OffscreenCanvas worker 누수 방지 — 메인 mount cleanup 과 멱등.)
+    return () => {
+      edgeWorkerRef.current?.terminate();
+      edgeWorkerRef.current = null;
+      edgeWorkerReadyRef.current = false;
+      edgePickInFlightRef.current = false;
+      pendingEdgePickRef.current = null;
+      hoverPickPosRef.current.clear();
+    };
   }, [edgeWorkerEnabled]);
 
   // Keep camera in sync with global viewport state (single source of truth).
@@ -1802,10 +1820,7 @@ export function PixiERDCanvas() {
 
     workerRef.current?.terminate();
 
-    const worker = new Worker(
-      new URL('@/workers/layout.worker.ts', import.meta.url),
-      { type: 'module' },
-    );
+    const worker = blobWorker(__ERD_WORKER_LAYOUT__);
     workerRef.current = worker;
 
     worker.onmessage = (

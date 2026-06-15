@@ -3,6 +3,7 @@ import { useStore } from '@/store';
 import { perf } from '@/lib/perf';
 import { computeLayoutCenter, computeSeedLayout } from '@/features/layout/seed-layout';
 import type { MWBWorkerResponse } from '@/workers/mwb.worker';
+import { blobWorker } from '@/workers/inline-worker';
 import {
   Dialog,
   DialogContent,
@@ -16,10 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, FileArchive, Loader2 } from 'lucide-react';
 
 function createMWBWorker() {
-  return new Worker(
-    new URL('@/workers/mwb.worker.ts', import.meta.url),
-    { type: 'module' },
-  );
+  // 번들 플러그인(blob ESM): import.meta.url URL 워커 불가 → IIFE 문자열을 blob 워커로.
+  return blobWorker(__ERD_WORKER_MWB__);
 }
 
 export function ImportMWBDialog() {
