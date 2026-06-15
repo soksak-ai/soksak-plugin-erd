@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ERDCanvas } from '@/components/canvas/ERDCanvas';
 import { CreateTableDialog } from '@/components/dialogs/CreateTableDialog';
@@ -5,20 +6,44 @@ import { ImportSQLDialog } from '@/components/dialogs/ImportSQLDialog';
 import { ImportMermaidDialog } from '@/components/dialogs/ImportMermaidDialog';
 import { ImportMWBDialog } from '@/components/dialogs/ImportMWBDialog';
 import { useThemeEffect } from '@/hooks/useTheme';
+import { useStore } from '@/store';
+import { PortalRootProvider } from '@/components/ui/portal-context';
 import '@/lib/perf';
 import '@/lib/benchmark';
 
-function App() {
+interface AppProps {
+  // 번들 플러그인(plugin-entry)에서 Shadow DOM 안 host 를 주입한다. Radix 포털 컨테이너 +
+  // 다크모드 클래스 미러 타깃. 일반 웹(main.tsx)에서는 미지정(undefined) → document 기본 동작.
+  portalRoot?: HTMLElement;
+}
+
+function App({ portalRoot }: AppProps) {
   useThemeEffect();
 
+  // Shadow DOM 다크모드 — useThemeEffect 는 document.documentElement 에 class 를 단다. Shadow
+  // 안에서는 그 class 가 보이지 않으므로(@custom-variant dark 가 :is(.dark *) 로 끊김), 같은
+  // light/dark class 를 portalRoot(=shadow host)에도 미러해 shadow 내부 트리에서 보이게 한다.
+  const theme = useStore((s) => s.theme);
+  useEffect(() => {
+    if (!portalRoot) return;
+    const resolved =
+      theme === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        : theme;
+    portalRoot.classList.remove('light', 'dark');
+    portalRoot.classList.add(resolved);
+  }, [theme, portalRoot]);
+
   return (
-    <>
+    <PortalRootProvider value={portalRoot ?? null}>
       <AppLayout canvas={<ERDCanvas />} />
       <CreateTableDialog />
       <ImportSQLDialog />
       <ImportMermaidDialog />
       <ImportMWBDialog />
-    </>
+    </PortalRootProvider>
   );
 }
 

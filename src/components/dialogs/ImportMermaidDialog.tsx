@@ -3,6 +3,7 @@ import { useStore } from '@/store';
 import { perf } from '@/lib/perf';
 import { computeLayoutCenter, computeSeedLayout } from '@/features/layout/seed-layout';
 import type { ImportWorkerRequest, ImportWorkerResponse } from '@/workers/import.worker';
+import { blobWorker } from '@/workers/inline-worker';
 import {
   Dialog,
   DialogContent,
@@ -17,10 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2 } from 'lucide-react';
 
 function createImportWorker() {
-  return new Worker(
-    new URL('@/workers/import.worker.ts', import.meta.url),
-    { type: 'module' },
-  );
+  // 번들 플러그인(blob ESM): import.meta.url URL 워커 불가 → IIFE 문자열을 blob 워커로.
+  return blobWorker(__ERD_WORKER_IMPORT__);
 }
 
 export function ImportMermaidDialog() {

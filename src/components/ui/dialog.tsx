@@ -4,6 +4,7 @@ import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { usePortalRoot } from "@/components/ui/portal-context"
 
 function Dialog({
   ...props
@@ -18,9 +19,18 @@ function DialogTrigger({
 }
 
 function DialogPortal({
+  container,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+  // R6: container 미지정 시 Shadow DOM host(usePortalRoot)로 포털 → 스타일 격리 유지.
+  const portalRoot = usePortalRoot()
+  return (
+    <DialogPrimitive.Portal
+      data-slot="dialog-portal"
+      container={container ?? portalRoot}
+      {...props}
+    />
+  )
 }
 
 function DialogClose({

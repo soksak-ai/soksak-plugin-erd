@@ -4,6 +4,7 @@ import * as React from "react"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { usePortalRoot } from "@/components/ui/portal-context"
 
 function TooltipProvider({
   delayDuration = 0,
@@ -36,8 +37,9 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  const portalRoot = usePortalRoot()
   return (
-    <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Portal container={portalRoot}>
       <TooltipPrimitive.Content
         data-slot="tooltip-content"
         sideOffset={sideOffset}
