@@ -1,0 +1,18 @@
+{
+  "name": "soksak-plugin-erd",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "soksak ERD 플러그인 — abyss-erd 포팅(첫 번들 플러그인)",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
+}
