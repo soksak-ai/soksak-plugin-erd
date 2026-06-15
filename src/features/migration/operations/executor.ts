@@ -184,28 +184,32 @@ export function applyOperation(schema: ERDSchema, op: Operation): ERDSchema {
 
     case 'addForeignKey': {
       const id = generateId();
-      const sourceTable = Object.values(next.tables).find(
+      // op 파라미터 규약(.mig `add fk N on <FK보유> ( fkCols ) -> <PK> ( pkCols )`):
+      //   p.table    = FK 보유 테이블  → Relationship.target
+      //   p.refTable = 참조/PK 테이블  → Relationship.source
+      // Relationship 불변: source = 참조/PK 테이블, target = FK 보유 테이블.
+      const fkTable = Object.values(next.tables).find(
         (t) => t.name === (p.table as string),
       );
-      const targetTable = Object.values(next.tables).find(
+      const refTable = Object.values(next.tables).find(
         (t) => t.name === (p.refTable as string),
       );
-      if (sourceTable && targetTable) {
-        const sourceColIds = (p.columns as string[])
-          .map((name) => sourceTable.columns.find((c) => c.name === name)?.id)
+      if (fkTable && refTable) {
+        const fkColIds = (p.columns as string[])
+          .map((name) => fkTable.columns.find((c) => c.name === name)?.id)
           .filter((id): id is string => id != null);
-        const targetColIds = (p.refColumns as string[])
-          .map((name) => targetTable.columns.find((c) => c.name === name)?.id)
+        const refColIds = (p.refColumns as string[])
+          .map((name) => refTable.columns.find((c) => c.name === name)?.id)
           .filter((id): id is string => id != null);
 
         next.relationships[id] = {
           id,
           name: p.name as string | undefined,
-          sourceTableId: sourceTable.id,
-          targetTableId: targetTable.id,
+          sourceTableId: refTable.id, // 참조/PK 테이블
+          targetTableId: fkTable.id, // FK 보유 테이블
           type: '1:N',
-          sourceColumnIds: sourceColIds,
-          targetColumnIds: targetColIds,
+          sourceColumnIds: refColIds, // PK 컬럼
+          targetColumnIds: fkColIds, // FK 컬럼
           onDelete: p.onDelete as ReferentialAction,
           onUpdate: p.onUpdate as ReferentialAction,
         };

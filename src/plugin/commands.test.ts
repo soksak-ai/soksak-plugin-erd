@@ -11,6 +11,10 @@ import { createMigrationSlice } from '@/store/slices/migration-slice';
 import type { StoreState } from '@/store/index';
 import { registerCommands } from './commands';
 import { resolveTable } from './resolve';
+import { diffSchemas } from '@/features/migration/diff';
+import { serializeMig, parseMig } from '@/features/migration/mig-dsl';
+import { applyOperation } from '@/features/migration/operations';
+import type { ERDSchema } from '@/types/schema';
 
 setAutoFreeze(false);
 
@@ -60,6 +64,49 @@ function setup() {
   return { store, ctx, handlers, specs, call };
 }
 
+// ── 인메모리 fs 모킹(파일 기반 마이그레이션 테스트용) ─────────────────────────
+// soksak fs API(readText/writeText/list) 표면을 그대로 흉내낸다. 단일 디렉토리 평면 저장.
+function makeMemFs() {
+  const files = new Map<string, string>(); // 절대경로 → 내용
+  const base = (path: string) => path.slice(path.lastIndexOf('/') + 1);
+  const dirOf = (path: string) => path.slice(0, path.lastIndexOf('/'));
+  return {
+    files,
+    fs: {
+      readText: async (path: string) => {
+        // soksak 런타임(Tauri)은 누락 파일을 Error 가 아닌 "문자열"로 reject 한다 → 충실히 흉내.
+        if (!files.has(path)) throw `read_text_file: no such file: ${path}`;
+        const text = files.get(path)!;
+        return { text, truncated: false, totalBytes: text.length };
+      },
+      writeText: async (path: string, content: string) => {
+        files.set(path, content);
+      },
+      list: async (dir: string) => {
+        const norm = dir.endsWith('/') ? dir.slice(0, -1) : dir;
+        const children = [...files.keys()]
+          .filter((p) => dirOf(p) === norm)
+          .map((p) => ({ name: base(p), dir: false }));
+        return { root: norm, children };
+      },
+    },
+  };
+}
+
+// fs 주입 버전 setup. fs=null 이면 fs 없는(권한 미부여) ctx.
+function setupFs(memFs: ReturnType<typeof makeMemFs> | null) {
+  const store = makeStore();
+  const { ctx, handlers, specs } = makeCtx();
+  if (memFs) (ctx.app as any).fs = memFs.fs;
+  registerCommands(ctx as any, store as any);
+  const call = (name: string, params: any = {}) => {
+    const h = handlers.get(name);
+    if (!h) throw new Error(`command not registered: ${name}`);
+    return h(params);
+  };
+  return { store, ctx, handlers, specs, call };
+}
+
 describe('registerCommands — 카탈로그 등록', () => {
   it('전 그룹의 핵심 커맨드가 등록된다(description 포함)', () => {
     const { handlers, specs } = setup();
@@ -74,6 +121,9 @@ describe('registerCommands — 카탈로그 등록', () => {
       'apply', 'undo', 'redo',
       // Layout
       'auto-layout', 'set-position', 'get-viewport', 'set-viewport', 'select',
+      // Migration(파일 기반 .mig)
+      'migration-status', 'migration-generate', 'migration-list', 'migration-show',
+      'migration-sql', 'migration-apply', 'migration-revert', 'migration-lint',
     ];
     for (const name of expected) {
       expect(handlers.has(name), `missing command: ${name}`).toBe(true);
@@ -448,5 +498,305 @@ describe('Import/Export — 라운드트립(엔진 배선)', () => {
     const res = await call('import-sql', { text: '', dialect: 'mysql' });
     expect(res.ok).toBe(false);
     expect(res.error).toBeTruthy();
+  });
+});
+
+// ── 마이그레이션 순수부분: diff → serialize → parse → fold 동치 ──────────────────
+describe('Migration 순수 라운드트립 — diffSchemas → serializeMig → parseMig → fold 동치', () => {
+  function schemaOf(tables: any[]): ERDSchema {
+    return {
+      tables: Object.fromEntries(tables.map((t) => [t.id, t])),
+      relationships: {},
+      layers: {},
+    };
+  }
+  const col = (id: string, name: string, dataType = 'INT', extra: any = {}) => ({
+    id, name, dataType,
+    nullable: extra.nullable ?? true,
+    autoIncrement: extra.autoIncrement ?? false,
+    isPrimaryKey: extra.isPrimaryKey ?? false,
+    isUnique: extra.isUnique ?? false,
+    defaultValue: extra.defaultValue,
+  });
+  const tbl = (id: string, name: string, columns: any[]) => ({ id, name, columns, indexes: [] });
+
+  // 동치 비교용 정규형(id 무시 — 이름/구조만).
+  const normalize = (s: ERDSchema) =>
+    Object.values(s.tables)
+      .map((t) => ({
+        name: t.name,
+        columns: [...t.columns]
+          .map((c) => ({ name: c.name, dataType: c.dataType, nullable: c.nullable, isPrimaryKey: c.isPrimaryKey }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+  it('빈 스키마 → 2테이블: diff 를 .mig 직렬화/역파싱 후 빈 스키마에 fold 하면 동치', () => {
+    const empty: ERDSchema = { tables: {}, relationships: {}, layers: {} };
+    const after = schemaOf([
+      tbl('t1', 'users', [col('c1', 'id', 'INT', { isPrimaryKey: true, nullable: false }), col('c2', 'email', 'VARCHAR')]),
+      tbl('t2', 'posts', [col('c3', 'id', 'INT', { isPrimaryKey: true, nullable: false })]),
+    ]);
+
+    // diff → ops
+    const ops = diffSchemas(empty, after);
+    expect(ops.length).toBeGreaterThan(0);
+
+    // ops → .mig 텍스트 → 재파싱(up)
+    const mig = serializeMig(ops);
+    const { ops: parsed } = parseMig(mig);
+
+    // 빈 스키마에 parsed up 을 fold → after 와 동치
+    let folded: ERDSchema = { tables: {}, relationships: {}, layers: {} };
+    for (const op of parsed) folded = applyOperation(folded, op);
+    expect(normalize(folded)).toEqual(normalize(after));
+  });
+
+  it('down 블록 자동 파생: serializeMig 가 up/down 둘 다 산출하고 down 으로 원복', () => {
+    const empty: ERDSchema = { tables: {}, relationships: {}, layers: {} };
+    const after = schemaOf([tbl('t1', 'widget', [col('c1', 'id', 'INT', { isPrimaryKey: true, nullable: false })])]);
+    const ops = diffSchemas(empty, after);
+    const mig = serializeMig(ops);
+    expect(mig).toContain('up {');
+    expect(mig).toContain('down {');
+
+    const { ops: up, downOps } = parseMig(mig);
+    expect(downOps.length).toBeGreaterThan(0);
+
+    // up fold → 테이블 존재, 이어서 down fold → 다시 비어짐
+    let s: ERDSchema = { tables: {}, relationships: {}, layers: {} };
+    for (const op of up) s = applyOperation(s, op);
+    expect(Object.values(s.tables).map((t) => t.name)).toContain('widget');
+    for (const op of downOps) s = applyOperation(s, op);
+    expect(Object.values(s.tables).map((t) => t.name)).not.toContain('widget');
+  });
+});
+
+// ── 파일 기반 마이그레이션 커맨드(인메모리 fs 모킹) ───────────────────────────
+describe('Migration 커맨드 — 파일 기반(.mig) 배선', () => {
+  const DIR = '/proj/migrations';
+
+  it('fs 권한 미부여 시 write/read 계열은 {ok:false,error}', async () => {
+    const { call } = setupFs(null); // fs 없음
+    for (const name of ['migration-status', 'migration-generate', 'migration-list', 'migration-apply', 'migration-revert']) {
+      const res = await call(name, { dir: DIR });
+      expect(res.ok, name).toBe(false);
+      expect(res.error).toBe('fs 권한 필요');
+    }
+    // migration-show/sql 도 동일
+    const show = await call('migration-show', { dir: DIR, id: 'x.mig' });
+    expect(show.ok).toBe(false);
+  });
+
+  it('migration-generate: confirm 없으면 preview, confirm=true 면 파일 기록', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+
+    // working store 에 테이블 구성
+    await call('create-table', { name: 'users', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false, autoIncrement: true },
+    ] });
+
+    // 미리보기 — 파일 미기록
+    const prev = await call('migration-generate', { dir: DIR, name: 'init' });
+    expect(prev.ok).toBe(true);
+    expect(prev.preview).toBe(true);
+    expect(typeof prev.mig).toBe('string');
+    expect(prev.mig).toContain('-- name: init');
+    expect(prev.mig).toContain('create table users');
+    expect(mem.files.size).toBe(0); // 기록 안 됨
+
+    // confirm — 파일 기록
+    const written = await call('migration-generate', { dir: DIR, name: 'init', confirm: true });
+    expect(written.ok).toBe(true);
+    expect(written.written).toBe(true);
+    expect(written.filename).toMatch(/^migration_\d{8}_\d{6}_001\.mig$/);
+    expect(mem.files.size).toBe(1);
+  });
+
+  it('migration-generate: 변경 0 이면 noop', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+    // 빈 store + 빈 dir → diff 없음
+    const res = await call('migration-generate', { dir: DIR, confirm: true });
+    expect(res.ok).toBe(true);
+    expect(res.noop).toBe(true);
+    expect(mem.files.size).toBe(0);
+  });
+
+  it('status → generate(confirm) → list → show → apply 일관성', async () => {
+    const mem = makeMemFs();
+    const { store, call } = setupFs(mem);
+
+    await call('create-table', { name: 'product', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false },
+      { name: 'price', dataType: 'DECIMAL' },
+    ] });
+
+    // status: 베이스라인(빈) vs 현재 → pending > 0
+    const st = await call('migration-status', { dir: DIR });
+    expect(st.ok).toBe(true);
+    expect(st.applied).toBe(0);
+    expect(st.pendingOps).toBeGreaterThan(0);
+    expect(st.clean).toBe(false);
+
+    // generate confirm
+    const gen = await call('migration-generate', { dir: DIR, name: 'add-product', confirm: true });
+    expect(gen.ok).toBe(true);
+    const filename = gen.filename;
+
+    // list
+    const list = await call('migration-list', { dir: DIR });
+    expect(list.ok).toBe(true);
+    expect(list.files).toContain(filename);
+    expect(list.count).toBe(1);
+
+    // show: name 메타 + ops 파싱
+    const show = await call('migration-show', { dir: DIR, id: filename });
+    expect(show.ok).toBe(true);
+    expect(show.name).toBe('add-product');
+    expect(show.ops.length).toBeGreaterThan(0);
+
+    // generate 후 status 는 다시 clean(베이스라인이 현재를 따라잡음)
+    const st2 = await call('migration-status', { dir: DIR });
+    expect(st2.ok).toBe(true);
+    expect(st2.applied).toBe(1);
+    expect(st2.clean).toBe(true);
+
+    // store 를 비운 뒤 apply 로 베이스라인 복원
+    store.getState().clearSchema();
+    expect(Object.keys(store.getState().tables).length).toBe(0);
+    const applied = await call('migration-apply', { dir: DIR });
+    expect(applied.ok).toBe(true);
+    const names = Object.values(store.getState().tables).map((t: any) => t.name);
+    expect(names).toContain('product');
+  });
+
+  it('migration-apply(id) 후 migration-revert(id) 로 원복', async () => {
+    const mem = makeMemFs();
+    const { store, call } = setupFs(mem);
+
+    await call('create-table', { name: 'temp_t', columns: [{ name: 'id', dataType: 'INT' }] });
+    const gen = await call('migration-generate', { dir: DIR, name: 'mk-temp', confirm: true });
+    const id = gen.filename;
+
+    // store 비우고 단일 파일 apply → temp_t 복원
+    store.getState().clearSchema();
+    await call('migration-apply', { dir: DIR, id });
+    expect(Object.values(store.getState().tables).map((t: any) => t.name)).toContain('temp_t');
+
+    // revert(down) → temp_t 제거
+    const rev = await call('migration-revert', { dir: DIR, id });
+    expect(rev.ok).toBe(true);
+    expect(Object.values(store.getState().tables).map((t: any) => t.name)).not.toContain('temp_t');
+  });
+
+  it('migration-sql: .mig up ops → mysql/postgresql DDL', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+    await call('create-table', { name: 'acct', columns: [{ name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false }] });
+    const gen = await call('migration-generate', { dir: DIR, confirm: true });
+    const id = gen.filename;
+
+    const mysql = await call('migration-sql', { dir: DIR, id, dialect: 'mysql' });
+    expect(mysql.ok).toBe(true);
+    expect(mysql.up).toContain('CREATE TABLE');
+
+    const pg = await call('migration-sql', { dir: DIR, id, dialect: 'postgresql' });
+    expect(pg.ok).toBe(true);
+    expect(pg.up.length).toBeGreaterThan(0);
+  });
+
+  it('migration-sql: 확장자 없는 id(postgresql) 도 해석해 ALTER DDL 반환(버그 B 회귀)', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+    await call('create-table', { name: 'acct', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false },
+    ] });
+    const gen = await call('migration-generate', { dir: DIR, confirm: true });
+    const filename: string = gen.filename;
+    const stem = filename.replace(/\.mig$/, ''); // .mig 제거한 형태(소켓이 넘긴 id)
+
+    const pg = await call('migration-sql', { dir: DIR, id: stem, dialect: 'postgresql' });
+    expect(pg.ok, pg.error).toBe(true);
+    expect(pg.id).toBe(filename); // 실제 파일명으로 해석됨
+    expect(typeof pg.up).toBe('string');
+    expect(pg.up).toContain('CREATE TABLE');
+  });
+
+  it('migration-show: 없는 id 는 throw 가 아니라 {ok:false,error}(undefined 메시지 금지)', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+    const res = await call('migration-show', { dir: DIR, id: 'ghost' });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBeTruthy();
+    expect(res.error).not.toContain('undefined');
+  });
+
+  it('FK(autoFk) 스키마: generate(confirm) 후 status 가 clean(반전 spurious FK 없음 — 소켓 E2E 시나리오)', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+
+    // users(PK id) ← orders(FK). autoFk: source=users(PK), target=orders(FK보유).
+    await call('create-table', { name: 'users', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false, autoIncrement: true },
+    ] });
+    await call('create-table', { name: 'orders', columns: [
+      { name: 'id', dataType: 'INT', isPrimaryKey: true, nullable: false, autoIncrement: true },
+    ] });
+    await call('add-relationship', { source: 'users', target: 'orders', type: '1:N', autoFk: true });
+
+    // 1차 generate(init): FK 포함
+    const gen1 = await call('migration-generate', { dir: DIR, name: 'init', confirm: true });
+    expect(gen1.ok).toBe(true);
+    // .mig 가 FK 를 FK 보유 테이블(orders)에 건다.
+    const initText = [...mem.files.values()][0];
+    expect(initText).toMatch(/add fk \S+ on orders \( \S+ \) -> users \( id \)/);
+
+    // 1차 후 status: 반전 버그면 spurious add/drop fk 로 clean=false
+    const st = await call('migration-status', { dir: DIR });
+    expect(st.ok).toBe(true);
+    expect(st.clean, JSON.stringify(st.ops)).toBe(true);
+
+    // 컬럼 하나 추가 후 2차 generate up 에 spurious FK 2줄이 없어야 한다
+    await call('add-column', { table: 'orders', name: 'note', dataType: 'VARCHAR' });
+    const gen2 = await call('migration-generate', { dir: DIR, name: 'add-note', confirm: true });
+    expect(gen2.ok).toBe(true);
+    const fkOps = (gen2.ops as any[]).filter((o) => o.type === 'addForeignKey' || o.type === 'dropForeignKey');
+    expect(fkOps, JSON.stringify(gen2.ops)).toEqual([]);
+  });
+
+  it('migration-lint: 정상/오류 텍스트(fs 불요)', async () => {
+    const { call } = setupFs(null); // fs 없어도 lint 는 동작
+    const good = await call('migration-lint', { text: 'up {\n  create table t ( id INT; );\n}' });
+    expect(good.ok).toBe(true);
+    expect(good.valid).toBe(true);
+    expect(good.errors).toEqual([]);
+
+    const bad = await call('migration-lint', { text: 'up {\n  create table' });
+    expect(bad.ok).toBe(true);
+    expect(bad.valid).toBe(false);
+    expect(bad.errors.length).toBeGreaterThan(0);
+  });
+
+  it('write 계열은 dir 누락 시 {ok:false,error}', async () => {
+    const mem = makeMemFs();
+    const { call } = setupFs(mem);
+    const res = await call('migration-generate', {});
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('dir');
+  });
+
+  it('params 4번째 인자(소켓 거부 방지): 전 migration 커맨드가 params 스펙을 갖는다', () => {
+    const { specs } = setupFs(makeMemFs());
+    for (const name of [
+      'migration-status', 'migration-generate', 'migration-list', 'migration-show',
+      'migration-sql', 'migration-apply', 'migration-revert', 'migration-lint',
+    ]) {
+      const spec = specs.get(name);
+      expect(spec, name).toBeTruthy();
+      expect(spec.params, `${name} params`).toBeTruthy();
+      expect(Object.keys(spec.params).length).toBeGreaterThan(0);
+    }
   });
 });
