@@ -18243,6 +18243,1203 @@ function parseMermaid(text) {
   return schema;
 }
 
+// src/features/migration/mig-dsl/tokenizer.ts
+var TokenType = {
+  Keyword: "Keyword",
+  Ident: "Ident",
+  Number: "Number",
+  String: "String",
+  Comment: "Comment",
+  LBrace: "LBrace",
+  // {
+  RBrace: "RBrace",
+  // }
+  LParen: "LParen",
+  // (
+  RParen: "RParen",
+  // )
+  Semicolon: "Semicolon",
+  // ;
+  Dot: "Dot",
+  // .
+  Comma: "Comma",
+  // ,
+  Arrow: "Arrow",
+  // ->
+  NL: "NL",
+  // 줄바꿈(파서는 무시하지만 위치 보존용으로 노출)
+  EOF: "EOF"
+};
+var KEYWORDS = /* @__PURE__ */ new Set([
+  "create",
+  "table",
+  "alter",
+  "add",
+  "drop",
+  "rename",
+  "column",
+  "fk",
+  "index",
+  "unique",
+  "on",
+  "delete",
+  "update",
+  "up",
+  "down",
+  "raw",
+  "to",
+  "primary",
+  "key",
+  "not",
+  "null",
+  "auto_increment",
+  "default",
+  "check"
+]);
+function isIdentStart(ch) {
+  return /[A-Za-z_]/.test(ch);
+}
+function isIdentPart(ch) {
+  return /[A-Za-z0-9_]/.test(ch);
+}
+function isDigit(ch) {
+  return ch >= "0" && ch <= "9";
+}
+function tokenize(input) {
+  const tokens = [];
+  let i = 0;
+  let line = 1;
+  let col = 1;
+  const n = input.length;
+  function advance() {
+    const ch = input[i++];
+    if (ch === "\n") {
+      line++;
+      col = 1;
+    } else {
+      col++;
+    }
+    return ch;
+  }
+  while (i < n) {
+    const ch = input[i];
+    const startLine = line;
+    const startCol = col;
+    if (ch === "\n") {
+      advance();
+      tokens.push({ type: TokenType.NL, value: "\n", line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === " " || ch === "	" || ch === "\r") {
+      advance();
+      continue;
+    }
+    if (ch === "-" && input[i + 1] === "-") {
+      advance();
+      advance();
+      let value = "";
+      while (i < n && input[i] !== "\n") value += advance();
+      tokens.push({ type: TokenType.Comment, value: value.trim(), line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === "-" && input[i + 1] === ">") {
+      advance();
+      advance();
+      tokens.push({ type: TokenType.Arrow, value: "->", line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === "'") {
+      advance();
+      let value = "";
+      let closed = false;
+      while (i < n) {
+        const c = input[i];
+        if (c === "'") {
+          if (input[i + 1] === "'") {
+            advance();
+            advance();
+            value += "'";
+            continue;
+          }
+          advance();
+          closed = true;
+          break;
+        }
+        value += advance();
+      }
+      if (!closed) {
+        throw makeLexError("Unterminated string literal", startLine, startCol);
+      }
+      tokens.push({ type: TokenType.String, value, line: startLine, col: startCol });
+      continue;
+    }
+    if (isDigit(ch)) {
+      let value = "";
+      while (i < n && isDigit(input[i])) value += advance();
+      tokens.push({ type: TokenType.Number, value, line: startLine, col: startCol });
+      continue;
+    }
+    if (isIdentStart(ch)) {
+      let value = "";
+      while (i < n && isIdentPart(input[i])) value += advance();
+      const lower = value.toLowerCase();
+      tokens.push({
+        type: KEYWORDS.has(lower) ? TokenType.Keyword : TokenType.Ident,
+        value: KEYWORDS.has(lower) ? lower : value,
+        line: startLine,
+        col: startCol
+      });
+      continue;
+    }
+    const punct = {
+      "{": TokenType.LBrace,
+      "}": TokenType.RBrace,
+      "(": TokenType.LParen,
+      ")": TokenType.RParen,
+      ";": TokenType.Semicolon,
+      ".": TokenType.Dot,
+      ",": TokenType.Comma
+    };
+    if (punct[ch] !== void 0) {
+      advance();
+      tokens.push({ type: punct[ch], value: ch, line: startLine, col: startCol });
+      continue;
+    }
+    throw makeLexError(`Unexpected character '${ch}'`, startLine, startCol);
+  }
+  tokens.push({ type: TokenType.EOF, value: "", line, col });
+  return tokens;
+}
+function makeLexError(message, line, col) {
+  const err = new Error(`${message} (line ${line}, col ${col})`);
+  err.line = line;
+  err.col = col;
+  return err;
+}
+
+// src/features/migration/mig-dsl/parser.ts
+function makeError(message, tok) {
+  const err = new Error(`${message} (line ${tok.line}, col ${tok.col})`);
+  err.line = tok.line;
+  err.col = tok.col;
+  return err;
+}
+var REF_ACTIONS = {
+  cascade: "CASCADE",
+  restrict: "RESTRICT",
+  set_null: "SET NULL",
+  no_action: "NO ACTION",
+  set_default: "SET DEFAULT"
+};
+var Parser = class {
+  toks;
+  pos = 0;
+  warnings = [];
+  constructor(input) {
+    this.toks = tokenize(input).filter((t) => t.type !== TokenType.NL);
+  }
+  // ── 토큰 커서 헬퍼 ──────────────────────────────────────────────
+  peek() {
+    return this.toks[this.pos];
+  }
+  next() {
+    return this.toks[this.pos++];
+  }
+  atEof() {
+    return this.peek().type === TokenType.EOF;
+  }
+  // 다음 토큰이 특정 키워드인지(소비하지 않음)
+  isKeyword(kw) {
+    const t = this.peek();
+    return t.type === TokenType.Keyword && t.value === kw;
+  }
+  // 특정 키워드를 기대하고 소비. 아니면 에러.
+  expectKeyword(kw) {
+    const t = this.peek();
+    if (t.type !== TokenType.Keyword || t.value !== kw) {
+      throw makeError(`Expected keyword '${kw}'`, t);
+    }
+    return this.next();
+  }
+  // 특정 토큰 타입을 기대하고 소비. 아니면 에러.
+  expect(type, label) {
+    const t = this.peek();
+    if (t.type !== type) {
+      throw makeError(`Expected ${label}`, t);
+    }
+    return this.next();
+  }
+  // 식별자(또는 키워드도 식별자로 허용하지 않음 — 식별자만)
+  expectIdent(label = "identifier") {
+    const t = this.peek();
+    if (t.type !== TokenType.Ident) {
+      throw makeError(`Expected ${label}`, t);
+    }
+    return this.next();
+  }
+  // qname := (ident '.')? ident → { schema?, name }
+  parseQName() {
+    const first = this.expectIdent("table name");
+    if (this.peek().type === TokenType.Dot) {
+      this.next();
+      const second = this.expectIdent("table name");
+      return { schema: first.value, name: second.value };
+    }
+    return { name: first.value };
+  }
+  // ── 진입점 ─────────────────────────────────────────────────────
+  parse() {
+    while (this.peek().type === TokenType.Comment) this.next();
+    let ops = [];
+    let downOps = [];
+    if (this.isKeyword("up")) {
+      ops = this.parseBlock("up");
+    } else {
+      ops = this.parseStatementsUntilEof();
+      return { ops, downOps, warnings: this.warnings };
+    }
+    while (this.peek().type === TokenType.Comment) this.next();
+    if (this.isKeyword("down")) {
+      downOps = this.parseBlock("down");
+    }
+    while (this.peek().type === TokenType.Comment) this.next();
+    if (!this.atEof()) {
+      throw makeError("Unexpected trailing tokens", this.peek());
+    }
+    return { ops, downOps, warnings: this.warnings };
+  }
+  // 'up'|'down' '{' stmt* '}'
+  parseBlock(kw) {
+    this.expectKeyword(kw);
+    this.expect(TokenType.LBrace, "'{'");
+    const ops = [];
+    while (!this.atEof() && this.peek().type !== TokenType.RBrace) {
+      if (this.peek().type === TokenType.Comment) {
+        this.next();
+        continue;
+      }
+      ops.push(this.parseStatement());
+    }
+    this.expect(TokenType.RBrace, "'}'");
+    return ops;
+  }
+  // 블록 없이 톱레벨 문장(EOF 까지)
+  parseStatementsUntilEof() {
+    const ops = [];
+    while (!this.atEof()) {
+      if (this.peek().type === TokenType.Comment) {
+        this.next();
+        continue;
+      }
+      ops.push(this.parseStatement());
+    }
+    return ops;
+  }
+  // 단일 문장 → Operation. 끝에 ';' 강제.
+  parseStatement() {
+    const head = this.peek();
+    if (head.type !== TokenType.Keyword) {
+      throw makeError(`Expected statement keyword, got '${head.value}'`, head);
+    }
+    let op;
+    switch (head.value) {
+      case "create":
+        op = this.parseCreate();
+        break;
+      case "alter":
+        op = this.parseAlter();
+        break;
+      case "drop":
+        op = this.parseDrop();
+        break;
+      case "rename":
+        op = this.parseRenameTable();
+        break;
+      case "add":
+        op = this.parseAdd();
+        break;
+      case "raw":
+        op = this.parseRaw();
+        break;
+      default:
+        throw makeError(`Unknown statement keyword '${head.value}'`, head);
+    }
+    this.expect(TokenType.Semicolon, "';'");
+    return op;
+  }
+  // create table | create [unique] index
+  parseCreate() {
+    this.expectKeyword("create");
+    if (this.isKeyword("table")) {
+      return this.parseCreateTable();
+    }
+    if (this.isKeyword("unique") || this.isKeyword("index")) {
+      return this.parseCreateIndex();
+    }
+    throw makeError("Expected 'table' or 'index' after 'create'", this.peek());
+  }
+  // create table qname '(' column_def (';' column_def)* ')'
+  parseCreateTable() {
+    this.expectKeyword("table");
+    const { schema, name } = this.parseQName();
+    this.expect(TokenType.LParen, "'('");
+    const columns = [];
+    while (this.peek().type !== TokenType.RParen && !this.atEof()) {
+      columns.push(this.parseColumnDef());
+      if (this.peek().type === TokenType.Semicolon) {
+        this.next();
+      } else if (this.peek().type !== TokenType.RParen) {
+        throw makeError("Expected ';' or ')' in column list", this.peek());
+      }
+    }
+    this.expect(TokenType.RParen, "')'");
+    const params = { name, columns };
+    if (schema) params.schema = schema;
+    return this.mkOp("createTable", params);
+  }
+  // column_def := ident type flag*
+  //   flag := 'primary' 'key' | 'auto_increment' | 'not' 'null' | 'null'
+  //         | 'unique' | 'default' (string|number|ident)
+  parseColumnDef() {
+    const nameTok = this.expectIdent("column name");
+    const typeTok = this.parseTypeName();
+    const col = { name: nameTok.value, dataType: typeTok };
+    let sawNotNull = false;
+    let sawNull = false;
+    while (this.peek().type === TokenType.Keyword) {
+      const kw = this.peek().value;
+      if (kw === "primary") {
+        this.next();
+        this.expectKeyword("key");
+        col.isPrimaryKey = true;
+      } else if (kw === "auto_increment") {
+        this.next();
+        col.autoIncrement = true;
+      } else if (kw === "not") {
+        this.next();
+        this.expectKeyword("null");
+        sawNotNull = true;
+      } else if (kw === "null") {
+        this.next();
+        sawNull = true;
+      } else if (kw === "unique") {
+        this.next();
+        col.isUnique = true;
+      } else if (kw === "default") {
+        this.next();
+        col.defaultValue = this.parseDefaultValue();
+      } else {
+        break;
+      }
+    }
+    if (sawNotNull) col.nullable = false;
+    else if (sawNull) col.nullable = true;
+    return col;
+  }
+  // 타입 이름: 식별자(+선택적 '(' 정수 [',' 정수] ')'). 타입에 붙은 길이/정밀도는 이름에 합친다.
+  parseTypeName() {
+    const base = this.expectIdent("type name");
+    let type = base.value;
+    if (this.peek().type === TokenType.LParen) {
+      this.next();
+      const parts = [];
+      while (this.peek().type !== TokenType.RParen && !this.atEof()) {
+        const t = this.peek();
+        if (t.type === TokenType.Number || t.type === TokenType.Ident) {
+          parts.push(this.next().value);
+        } else if (t.type === TokenType.Comma) {
+          this.next();
+        } else {
+          throw makeError("Invalid type parameter", t);
+        }
+      }
+      this.expect(TokenType.RParen, "')'");
+      type += `(${parts.join(",")})`;
+    }
+    return type;
+  }
+  // default 값: 문자열은 따옴표 포함 정규형('...'), 정수/식별자(NULL·CURRENT_TIMESTAMP 등)는 원문
+  parseDefaultValue() {
+    const t = this.peek();
+    if (t.type === TokenType.String) {
+      this.next();
+      return `'${t.value}'`;
+    }
+    if (t.type === TokenType.Number) {
+      this.next();
+      return t.value;
+    }
+    if (t.type === TokenType.Ident || t.type === TokenType.Keyword) {
+      this.next();
+      return t.value.toUpperCase() === "NULL" ? "NULL" : t.value;
+    }
+    throw makeError("Expected default value", t);
+  }
+  // alter table qname (add|drop|rename|alter) column ...
+  parseAlter() {
+    this.expectKeyword("alter");
+    this.expectKeyword("table");
+    const { name: table } = this.parseQName();
+    const sub = this.peek();
+    if (sub.type !== TokenType.Keyword) {
+      throw makeError("Expected add/drop/rename/alter in alter table", sub);
+    }
+    switch (sub.value) {
+      case "add": {
+        this.next();
+        this.expectKeyword("column");
+        const colNameTok = this.expectIdent("column name");
+        const typeTok = this.parseTypeName();
+        const params = { table, name: colNameTok.value, dataType: typeTok };
+        let sawNotNull = false;
+        let sawNull = false;
+        while (this.peek().type === TokenType.Keyword) {
+          const kw = this.peek().value;
+          if (kw === "not") {
+            this.next();
+            this.expectKeyword("null");
+            sawNotNull = true;
+          } else if (kw === "null") {
+            this.next();
+            sawNull = true;
+          } else if (kw === "unique") {
+            this.next();
+            params.isUnique = true;
+          } else if (kw === "auto_increment") {
+            this.next();
+            params.autoIncrement = true;
+          } else if (kw === "default") {
+            this.next();
+            params.defaultValue = this.parseDefaultValue();
+          } else break;
+        }
+        if (sawNotNull) params.nullable = false;
+        else if (sawNull) params.nullable = true;
+        return this.mkOp("addColumn", params);
+      }
+      case "drop": {
+        this.next();
+        this.expectKeyword("column");
+        const colNameTok = this.expectIdent("column name");
+        return this.mkOp("dropColumn", { table, name: colNameTok.value });
+      }
+      case "rename": {
+        this.next();
+        this.expectKeyword("column");
+        const oldTok = this.expectIdent("column name");
+        this.expectKeyword("to");
+        const newTok = this.expectIdent("column name");
+        return this.mkOp("renameColumn", { table, oldName: oldTok.value, newName: newTok.value });
+      }
+      case "alter": {
+        this.next();
+        this.expectKeyword("column");
+        const colTok = this.expectIdent("column name");
+        const newType = this.parseTypeName();
+        return this.mkOp("modifyColumnType", { table, column: colTok.value, newType });
+      }
+      default:
+        throw makeError(`Unknown alter action '${sub.value}'`, sub);
+    }
+  }
+  // drop table qname | drop fk name on qname | drop index name on qname
+  parseDrop() {
+    this.expectKeyword("drop");
+    if (this.isKeyword("table")) {
+      this.next();
+      const { name } = this.parseQName();
+      return this.mkOp("dropTable", { name });
+    }
+    if (this.isKeyword("fk")) {
+      this.next();
+      const fkName = this.expectIdent("fk name").value;
+      this.expectKeyword("on");
+      const { name: table } = this.parseQName();
+      return this.mkOp("dropForeignKey", { table, name: fkName });
+    }
+    if (this.isKeyword("index")) {
+      this.next();
+      const idxName = this.expectIdent("index name").value;
+      this.expectKeyword("on");
+      const { name: table } = this.parseQName();
+      return this.mkOp("dropIndex", { table, name: idxName });
+    }
+    throw makeError("Expected 'table', 'fk', or 'index' after 'drop'", this.peek());
+  }
+  // rename table qname to ident
+  parseRenameTable() {
+    this.expectKeyword("rename");
+    this.expectKeyword("table");
+    const { name: oldName } = this.parseQName();
+    this.expectKeyword("to");
+    const newName = this.expectIdent("new table name").value;
+    return this.mkOp("renameTable", { oldName, newName });
+  }
+  // add fk name on qname '(' cols ')' -> qname '(' cols ')' [on delete X] [on update Y]
+  parseAdd() {
+    this.expectKeyword("add");
+    this.expectKeyword("fk");
+    const fkName = this.expectIdent("fk name").value;
+    this.expectKeyword("on");
+    const { name: table } = this.parseQName();
+    const columns = this.parseColumnList();
+    this.expect(TokenType.Arrow, "'->'");
+    const { name: refTable } = this.parseQName();
+    const refColumns = this.parseColumnList();
+    let onDelete = "NO ACTION";
+    let onUpdate = "NO ACTION";
+    while (this.isKeyword("on")) {
+      this.next();
+      if (this.isKeyword("delete")) {
+        this.next();
+        onDelete = this.parseRefAction();
+      } else if (this.isKeyword("update")) {
+        this.next();
+        onUpdate = this.parseRefAction();
+      } else {
+        throw makeError("Expected 'delete' or 'update' after 'on'", this.peek());
+      }
+    }
+    return this.mkOp("addForeignKey", {
+      name: fkName,
+      table,
+      columns,
+      refTable,
+      refColumns,
+      onDelete,
+      onUpdate
+    });
+  }
+  // 참조 동작: cascade/restrict/set null/no action/set default
+  parseRefAction() {
+    const t = this.peek();
+    const first = this.consumeWord();
+    let key = first.toLowerCase();
+    if (key === "set" || key === "no") {
+      const second = this.consumeWord();
+      key = `${key}_${second.toLowerCase()}`;
+    }
+    const action = REF_ACTIONS[key];
+    if (!action) {
+      throw makeError(`Unknown referential action '${key.replace("_", " ")}'`, t);
+    }
+    return action;
+  }
+  // 키워드/식별자 어느 쪽이든 단어 하나를 소비해 값 반환
+  consumeWord() {
+    const t = this.peek();
+    if (t.type === TokenType.Keyword || t.type === TokenType.Ident) {
+      return this.next().value;
+    }
+    throw makeError("Expected word", t);
+  }
+  // create [unique] index name on qname '(' cols ')'
+  parseCreateIndex() {
+    let unique = false;
+    if (this.isKeyword("unique")) {
+      this.next();
+      unique = true;
+    }
+    this.expectKeyword("index");
+    const idxName = this.expectIdent("index name").value;
+    this.expectKeyword("on");
+    const { name: table } = this.parseQName();
+    const columns = this.parseColumnList();
+    return this.mkOp("createIndex", { table, name: idxName, columns, unique });
+  }
+  // raw '<sql string>'
+  parseRaw() {
+    this.expectKeyword("raw");
+    const sqlTok = this.expect(TokenType.String, "raw SQL string");
+    return this.mkOp("raw", { sql: sqlTok.value });
+  }
+  // '(' ident (',' ident)* ')'
+  parseColumnList() {
+    this.expect(TokenType.LParen, "'('");
+    const cols = [];
+    cols.push(this.expectIdent("column name").value);
+    while (this.peek().type === TokenType.Comma) {
+      this.next();
+      cols.push(this.expectIdent("column name").value);
+    }
+    this.expect(TokenType.RParen, "')'");
+    return cols;
+  }
+  // Operation 생성(id/timestamp 채움)
+  mkOp(type, params) {
+    return { id: generateId(), type, timestamp: 0, params };
+  }
+};
+function parse(input) {
+  return new Parser(input).parse();
+}
+
+// src/features/migration/mig-dsl/serializer.ts
+var INDENT = "  ";
+function serializeColumnDef(c) {
+  const parts = [String(c.name), String(c.dataType)];
+  if (c.isPrimaryKey) parts.push("primary key");
+  if (c.autoIncrement) parts.push("auto_increment");
+  if (c.nullable === false) parts.push("not null");
+  else if (c.nullable === true) parts.push("null");
+  if (c.isUnique) parts.push("unique");
+  if (c.defaultValue != null) parts.push(`default ${String(c.defaultValue)}`);
+  return parts.join(" ");
+}
+function qname(name, schema) {
+  return schema ? `${String(schema)}.${String(name)}` : String(name);
+}
+function refAction2(a) {
+  return String(a).toLowerCase();
+}
+function serializeOp(op) {
+  const p = op.params;
+  switch (op.type) {
+    case "createTable": {
+      const cols = p.columns ?? [];
+      const header = `create table ${qname(p.name, p.schema)} (`;
+      const colLines = cols.map((c) => `${INDENT}${INDENT}${serializeColumnDef(c)};`);
+      return `${header}
+${colLines.join("\n")}
+${INDENT});`;
+    }
+    case "addColumn": {
+      const flags = [];
+      if (p.nullable === false) flags.push("not null");
+      if (p.isUnique) flags.push("unique");
+      if (p.autoIncrement) flags.push("auto_increment");
+      if (p.defaultValue != null) flags.push(`default ${String(p.defaultValue)}`);
+      const tail = flags.length ? ` ${flags.join(" ")}` : "";
+      return `alter table ${String(p.table)} add column ${String(p.name)} ${String(p.dataType)}${tail};`;
+    }
+    case "dropColumn":
+      return `alter table ${String(p.table)} drop column ${String(p.name)};`;
+    case "renameColumn":
+      return `alter table ${String(p.table)} rename column ${String(p.oldName)} to ${String(p.newName)};`;
+    case "modifyColumnType":
+      return `alter table ${String(p.table)} alter column ${String(p.column)} ${String(p.newType)};`;
+    case "dropTable":
+      return `drop table ${qname(p.name, p.schema)};`;
+    case "renameTable":
+      return `rename table ${String(p.oldName)} to ${String(p.newName)};`;
+    case "addForeignKey": {
+      const cols = p.columns.join(", ");
+      const refCols = p.refColumns.join(", ");
+      let s = `add fk ${String(p.name)} on ${String(p.table)} ( ${cols} ) -> ${String(p.refTable)} ( ${refCols} )`;
+      s += ` on delete ${refAction2(p.onDelete)} on update ${refAction2(p.onUpdate)}`;
+      return `${s};`;
+    }
+    case "dropForeignKey":
+      return `drop fk ${String(p.name)} on ${String(p.table)};`;
+    case "createIndex": {
+      const cols = p.columns.join(", ");
+      const uniq = p.unique ? "unique " : "";
+      return `create ${uniq}index ${String(p.name)} on ${String(p.table)} ( ${cols} );`;
+    }
+    case "dropIndex":
+      return `drop index ${String(p.name)} on ${String(p.table)};`;
+    // raw 는 OperationType 에 없으므로 문자열 비교로 처리
+    default:
+      if (op.type === "raw") {
+        return `raw '${String(p.sql)}';`;
+      }
+      throw new Error(`serialize: unsupported operation type '${op.type}'`);
+  }
+}
+function serializeBlockBody(ops) {
+  return ops.map((op) => {
+    const text = serializeOp(op);
+    return text.split("\n").map((line, i) => i === 0 ? `${INDENT}${line}` : line).join("\n");
+  }).join("\n");
+}
+function serialize(ops, opts = {}) {
+  const upBody = serializeBlockBody(ops);
+  let out = `up {
+${upBody}
+}`;
+  if (opts.omitDown) return out;
+  let downOps = opts.downOps;
+  if (!downOps || downOps.length === 0) {
+    downOps = [];
+    for (let i = ops.length - 1; i >= 0; i--) {
+      const inv = generateInverse(ops[i]);
+      if (inv) downOps.push(inv);
+    }
+  }
+  if (downOps.length > 0) {
+    const downBody = serializeBlockBody(downOps);
+    out += `
+down {
+${downBody}
+}`;
+  }
+  return out;
+}
+
+// src/features/migration/mig-dsl/index.ts
+function parseMig(text) {
+  const { ops, downOps, warnings } = parse(text);
+  return { ops, downOps, warnings };
+}
+function serializeMig(ops, opts = {}) {
+  return serialize(ops, opts);
+}
+function lintMig(text) {
+  try {
+    parse(text);
+    return { errors: [] };
+  } catch (e) {
+    const err = e;
+    const line = typeof err.line === "number" ? err.line : 1;
+    const col = typeof err.col === "number" ? err.col : 1;
+    const message = (err.message ?? "parse error").replace(/\s*\(line \d+, col \d+\)\s*$/, "");
+    return { errors: [{ line, col, message }] };
+  }
+}
+
+// src/features/migration/operations/executor.ts
+function applyOperation(schema, op) {
+  const next = structuredClone(schema);
+  const p = op.params;
+  switch (op.type) {
+    case "createTable": {
+      const id = generateId();
+      const columns = p.columns ?? [];
+      next.tables[id] = {
+        id,
+        name: p.name,
+        schema: p.schema,
+        columns: columns.map((c) => ({
+          id: c.id ?? generateId(),
+          name: c.name,
+          dataType: c.dataType,
+          nullable: c.nullable ?? true,
+          autoIncrement: c.autoIncrement ?? false,
+          isPrimaryKey: c.isPrimaryKey ?? false,
+          isUnique: c.isUnique ?? false,
+          defaultValue: c.defaultValue,
+          comment: c.comment,
+          length: c.length,
+          precision: c.precision,
+          scale: c.scale,
+          enumValues: c.enumValues
+        })),
+        indexes: [],
+        comment: p.comment,
+        engine: p.engine,
+        charset: p.charset
+      };
+      break;
+    }
+    case "dropTable": {
+      const tableId = Object.keys(next.tables).find(
+        (id) => next.tables[id].name === p.name
+      );
+      if (tableId) {
+        delete next.tables[tableId];
+        for (const [relId, rel] of Object.entries(next.relationships)) {
+          if (rel.sourceTableId === tableId || rel.targetTableId === tableId) {
+            delete next.relationships[relId];
+          }
+        }
+      }
+      break;
+    }
+    case "renameTable": {
+      const entry = Object.values(next.tables).find(
+        (t) => t.name === p.oldName
+      );
+      if (entry) entry.name = p.newName;
+      break;
+    }
+    case "addColumn": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        table.columns.push({
+          id: generateId(),
+          name: p.name,
+          dataType: p.dataType ?? "VARCHAR",
+          nullable: p.nullable ?? true,
+          autoIncrement: p.autoIncrement ?? false,
+          isPrimaryKey: p.isPrimaryKey ?? false,
+          isUnique: p.isUnique ?? false,
+          defaultValue: p.defaultValue
+        });
+      }
+      break;
+    }
+    case "dropColumn": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        table.columns = table.columns.filter((c) => c.name !== p.name);
+      }
+      break;
+    }
+    case "renameColumn": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.oldName);
+        if (col) col.name = p.newName;
+      }
+      break;
+    }
+    case "modifyColumnType": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.column);
+        if (col) col.dataType = p.newType;
+      }
+      break;
+    }
+    case "modifyColumnDefault": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.column);
+        if (col) col.defaultValue = p.newDefault;
+      }
+      break;
+    }
+    case "setColumnNullable": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.column);
+        if (col) col.nullable = p.nullable;
+      }
+      break;
+    }
+    case "setColumnAutoIncrement": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.column);
+        if (col) col.autoIncrement = p.autoIncrement;
+      }
+      break;
+    }
+    case "setColumnUnique": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const col = table.columns.find((c) => c.name === p.column);
+        if (col) col.isUnique = p.unique;
+      }
+      break;
+    }
+    case "addPrimaryKey": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const colNames = p.columns;
+        for (const col of table.columns) {
+          if (colNames.includes(col.name)) col.isPrimaryKey = true;
+        }
+      }
+      break;
+    }
+    case "dropPrimaryKey": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const colNames = p.columns;
+        for (const col of table.columns) {
+          if (colNames.includes(col.name)) col.isPrimaryKey = false;
+        }
+      }
+      break;
+    }
+    case "addForeignKey": {
+      const id = generateId();
+      const fkTable = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      const refTable = Object.values(next.tables).find(
+        (t) => t.name === p.refTable
+      );
+      if (fkTable && refTable) {
+        const fkColIds = p.columns.map((name) => fkTable.columns.find((c) => c.name === name)?.id).filter((id2) => id2 != null);
+        const refColIds = p.refColumns.map((name) => refTable.columns.find((c) => c.name === name)?.id).filter((id2) => id2 != null);
+        next.relationships[id] = {
+          id,
+          name: p.name,
+          sourceTableId: refTable.id,
+          // 참조/PK 테이블
+          targetTableId: fkTable.id,
+          // FK 보유 테이블
+          type: "1:N",
+          sourceColumnIds: refColIds,
+          // PK 컬럼
+          targetColumnIds: fkColIds,
+          // FK 컬럼
+          onDelete: p.onDelete,
+          onUpdate: p.onUpdate
+        };
+      }
+      break;
+    }
+    case "dropForeignKey": {
+      const relId = Object.keys(next.relationships).find(
+        (id) => next.relationships[id].name === p.name
+      );
+      if (relId) delete next.relationships[relId];
+      break;
+    }
+    case "addUniqueConstraint": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const colNames = p.columns;
+        if (colNames.length === 1) {
+          const col = table.columns.find((c) => c.name === colNames[0]);
+          if (col) col.isUnique = true;
+        } else {
+          const colIds = colNames.map((name) => table.columns.find((c) => c.name === name)?.id).filter((id) => id != null);
+          const indexName = p.name ?? `uq_${table.name}_${colNames.join("_")}`;
+          table.indexes.push({
+            id: generateId(),
+            name: indexName,
+            columnIds: colIds,
+            unique: true
+          });
+        }
+      }
+      break;
+    }
+    case "dropUniqueConstraint": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        table.indexes = table.indexes.filter((idx) => idx.name !== p.name);
+        const cols = p.columns;
+        if (cols && cols.length === 1) {
+          const col = table.columns.find((c) => c.name === cols[0]);
+          if (col) col.isUnique = false;
+        }
+      }
+      break;
+    }
+    case "createIndex": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        const colIds = p.columns.map((name) => table.columns.find((c) => c.name === name)?.id).filter((id) => id != null);
+        table.indexes.push({
+          id: generateId(),
+          name: p.name,
+          columnIds: colIds,
+          unique: p.unique
+        });
+      }
+      break;
+    }
+    case "dropIndex": {
+      const table = Object.values(next.tables).find(
+        (t) => t.name === p.table
+      );
+      if (table) {
+        table.indexes = table.indexes.filter((idx) => idx.name !== p.name);
+      }
+      break;
+    }
+  }
+  return next;
+}
+
+// src/features/migration/diff.ts
+function mkOp(type, params) {
+  return { id: generateId(), type, timestamp: 0, params };
+}
+function columnParams(c) {
+  const out = {
+    name: c.name,
+    dataType: c.dataType,
+    nullable: c.nullable,
+    isPrimaryKey: c.isPrimaryKey,
+    isUnique: c.isUnique,
+    autoIncrement: c.autoIncrement
+  };
+  if (c.defaultValue != null) out.defaultValue = c.defaultValue;
+  if (c.length != null) out.length = c.length;
+  if (c.precision != null) out.precision = c.precision;
+  if (c.scale != null) out.scale = c.scale;
+  return out;
+}
+function columnDefEqual(a, b) {
+  return a.dataType === b.dataType && (a.nullable ?? true) === (b.nullable ?? true) && (a.isPrimaryKey ?? false) === (b.isPrimaryKey ?? false) && (a.isUnique ?? false) === (b.isUnique ?? false) && (a.autoIncrement ?? false) === (b.autoIncrement ?? false) && (a.defaultValue ?? null) === (b.defaultValue ?? null);
+}
+function diffColumns(tableName, before, after) {
+  const ops = [];
+  const afterById = new Map(after.columns.map((c) => [c.id, c]));
+  const beforeByName = new Map(before.columns.map((c) => [c.name, c]));
+  const afterByName = new Map(after.columns.map((c) => [c.name, c]));
+  const matchedBeforeIds = /* @__PURE__ */ new Set();
+  const matchedAfterIds = /* @__PURE__ */ new Set();
+  for (const bc of before.columns) {
+    const ac = afterById.get(bc.id);
+    if (!ac) continue;
+    matchedBeforeIds.add(bc.id);
+    matchedAfterIds.add(ac.id);
+    if (bc.name !== ac.name) {
+      ops.push(mkOp("renameColumn", { table: tableName, oldName: bc.name, newName: ac.name }));
+    }
+    if (bc.dataType !== ac.dataType) {
+      ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
+    }
+    const nameAligned = { ...bc, name: ac.name };
+    if (!columnDefEqual(nameAligned, ac)) {
+      ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
+      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+    }
+  }
+  for (const ac of after.columns) {
+    if (matchedAfterIds.has(ac.id)) continue;
+    if (beforeByName.has(ac.name)) {
+      const bc = beforeByName.get(ac.name);
+      if (bc.dataType !== ac.dataType) {
+        ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
+      }
+      if (!columnDefEqual(bc, ac)) {
+        ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
+        ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+      }
+      matchedBeforeIds.add(bc.id);
+    } else {
+      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+    }
+  }
+  for (const bc of before.columns) {
+    if (matchedBeforeIds.has(bc.id)) continue;
+    if (!afterByName.has(bc.name)) {
+      ops.push(mkOp("dropColumn", { table: tableName, name: bc.name }));
+    }
+  }
+  return ops;
+}
+function diffIndexes(tableName, before, after) {
+  const ops = [];
+  const colName = (t, id) => t.columns.find((c) => c.id === id)?.name;
+  const beforeNames = new Set(before.indexes.map((i) => i.name));
+  const afterNames = new Set(after.indexes.map((i) => i.name));
+  for (const idx of after.indexes) {
+    if (beforeNames.has(idx.name)) continue;
+    const columns = idx.columnIds.map((id) => colName(after, id)).filter((n) => n != null);
+    if (columns.length === 0) continue;
+    ops.push(mkOp("createIndex", { table: tableName, name: idx.name, columns, unique: idx.unique }));
+  }
+  for (const idx of before.indexes) {
+    if (afterNames.has(idx.name)) continue;
+    ops.push(mkOp("dropIndex", { table: tableName, name: idx.name }));
+  }
+  return ops;
+}
+function relToFkParams(rel, after) {
+  const target = after.tables[rel.targetTableId];
+  const source = after.tables[rel.sourceTableId];
+  if (!target || !source) return null;
+  const columns = rel.targetColumnIds.map((id) => target.columns.find((c) => c.id === id)?.name).filter((n) => n != null);
+  const refColumns = rel.sourceColumnIds.map((id) => source.columns.find((c) => c.id === id)?.name).filter((n) => n != null);
+  if (columns.length === 0 || refColumns.length === 0) return null;
+  const name = rel.name ?? `fk_${target.name}_${columns[0]}`;
+  return {
+    name,
+    table: target.name,
+    columns,
+    refTable: source.name,
+    refColumns,
+    onDelete: rel.onDelete,
+    onUpdate: rel.onUpdate
+  };
+}
+function relKey(rel, schema) {
+  const s = schema.tables[rel.sourceTableId];
+  const t = schema.tables[rel.targetTableId];
+  const sName = s?.name ?? rel.sourceTableId;
+  const tName = t?.name ?? rel.targetTableId;
+  const sCols = rel.sourceColumnIds.map((id) => s?.columns.find((c) => c.id === id)?.name ?? id).sort().join(",");
+  const tCols = rel.targetColumnIds.map((id) => t?.columns.find((c) => c.id === id)?.name ?? id).sort().join(",");
+  return `${sName}(${sCols})->${tName}(${tCols})`;
+}
+function diffRelationships(before, after) {
+  const ops = [];
+  const beforeKeys = new Set(Object.values(before.relationships).map((r) => relKey(r, before)));
+  const afterKeys = new Set(Object.values(after.relationships).map((r) => relKey(r, after)));
+  for (const rel of Object.values(after.relationships)) {
+    if (beforeKeys.has(relKey(rel, after))) continue;
+    const params = relToFkParams(rel, after);
+    if (params) ops.push(mkOp("addForeignKey", params));
+  }
+  for (const rel of Object.values(before.relationships)) {
+    if (afterKeys.has(relKey(rel, before))) continue;
+    const target = before.tables[rel.targetTableId];
+    if (!target) continue;
+    const columns = rel.targetColumnIds.map((id) => target.columns.find((c) => c.id === id)?.name).filter((n) => n != null);
+    const name = rel.name ?? `fk_${target.name}_${columns[0] ?? "x"}`;
+    ops.push(mkOp("dropForeignKey", { table: target.name, name }));
+  }
+  return ops;
+}
+function diffSchemas(before, after) {
+  const created = [];
+  const altered = [];
+  const dropped = [];
+  const beforeTables = Object.values(before.tables);
+  const afterTables = Object.values(after.tables);
+  const afterById = new Map(afterTables.map((t) => [t.id, t]));
+  const beforeByName = new Map(beforeTables.map((t) => [t.name, t]));
+  const afterByName = new Map(afterTables.map((t) => [t.name, t]));
+  const matchedBeforeIds = /* @__PURE__ */ new Set();
+  const matchedAfterIds = /* @__PURE__ */ new Set();
+  for (const bt of beforeTables) {
+    const at = afterById.get(bt.id);
+    if (!at) continue;
+    matchedBeforeIds.add(bt.id);
+    matchedAfterIds.add(at.id);
+    if (bt.name !== at.name) {
+      altered.push(mkOp("renameTable", { oldName: bt.name, newName: at.name }));
+    }
+    altered.push(...diffColumns(at.name, bt, at));
+    altered.push(...diffIndexes(at.name, bt, at));
+  }
+  for (const at of afterTables) {
+    if (matchedAfterIds.has(at.id)) continue;
+    const bt = beforeByName.get(at.name);
+    if (bt && !matchedBeforeIds.has(bt.id)) {
+      matchedBeforeIds.add(bt.id);
+      altered.push(...diffColumns(at.name, bt, at));
+      altered.push(...diffIndexes(at.name, bt, at));
+    } else {
+      created.push(mkOp("createTable", { name: at.name, columns: at.columns.map(columnParams), ...at.schema ? { schema: at.schema } : {} }));
+      altered.push(...diffIndexes(at.name, { ...at, indexes: [] }, at));
+    }
+  }
+  for (const bt of beforeTables) {
+    if (matchedBeforeIds.has(bt.id)) continue;
+    if (!afterByName.has(bt.name)) {
+      dropped.push(mkOp("dropTable", { name: bt.name }));
+    }
+  }
+  const rels = diffRelationships(before, after);
+  return [...created, ...altered, ...dropped, ...rels];
+}
+
 // src/plugin/commands.ts
 function snapshotSchema(store) {
   const s = store.getState();
@@ -18279,6 +19476,76 @@ function loadParsedSchema(store, parsed, mode) {
     tables: Object.keys(parsed.tables).length,
     relationships: Object.keys(parsed.relationships).length
   };
+}
+var EMPTY_SCHEMA = { tables: {}, relationships: {}, layers: {} };
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+function nowStamp(d = /* @__PURE__ */ new Date()) {
+  const date = `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+  const time = `${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+  return { date, time };
+}
+function migFilename(existingCount, d = /* @__PURE__ */ new Date()) {
+  const { date, time } = nowStamp(d);
+  const seq = String(existingCount + 1).padStart(3, "0");
+  return `migration_${date}_${time}_${seq}.mig`;
+}
+function joinPath(dir, file) {
+  return dir.endsWith("/") ? `${dir}${file}` : `${dir}/${file}`;
+}
+function migFileContent(name, ops) {
+  const body = serializeMig(ops);
+  return name ? `-- name: ${name}
+${body}` : body;
+}
+function parseMigName(text) {
+  const m = text.match(/^\s*--\s*name:\s*(.+?)\s*$/m);
+  return m ? m[1] : void 0;
+}
+function extractMigNames(listing) {
+  const children = listing?.children ?? [];
+  return children.filter((c) => c && c.dir !== true && typeof c.name === "string" && c.name.endsWith(".mig")).map((c) => c.name).sort();
+}
+function errMsg(e) {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+}
+async function resolveMigId(fs, dir, id) {
+  if (!fs.list) return id;
+  let files;
+  try {
+    files = extractMigNames(await fs.list(dir));
+  } catch {
+    return id;
+  }
+  if (files.includes(id)) return id;
+  const withExt = id.endsWith(".mig") ? id : `${id}.mig`;
+  if (files.includes(withExt)) return withExt;
+  const stem = id.endsWith(".mig") ? id.slice(0, -4) : id;
+  const byStem = files.find((f) => f.slice(0, -4) === stem);
+  return byStem ?? null;
+}
+async function buildBaseline(fs, dir) {
+  if (!fs.list || !fs.readText) throw new Error("fs \uAD8C\uD55C \uD544\uC694");
+  const listing = await fs.list(dir);
+  const files = extractMigNames(listing);
+  let schema = EMPTY_SCHEMA;
+  const ops = [];
+  for (const file of files) {
+    const { text } = await fs.readText(joinPath(dir, file));
+    const { ops: up } = parseMig(text);
+    for (const op of up) {
+      ops.push(op);
+      schema = applyOperation(schema, op);
+    }
+  }
+  return { schema, files, ops };
 }
 function registerCommands(ctx, store) {
   const reg = ctx.app.commands?.register;
@@ -18860,6 +20127,182 @@ function registerCommands(ctx, store) {
   }, {
     text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 Mermaid erDiagram \uD14D\uC2A4\uD2B8" },
     mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+  });
+  const fs = ctx.app.fs;
+  const needFs = () => fs ? null : { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+  const requireDir = (p) => typeof p.dir === "string" && p.dir.length > 0 ? null : { ok: false, error: "dir(\uC808\uB300\uACBD\uB85C) required" };
+  add("migration-status", "\uB300\uAE30 \uBCC0\uACBD \uBBF8\uB9AC\uBCF4\uAE30(\uBCA0\uC774\uC2A4\uB77C\uC778 vs \uD604\uC7AC working store diff)", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    try {
+      const { schema: baseline, files } = await buildBaseline(fs, p.dir);
+      const ops = diffSchemas(baseline, snapshotSchema(store));
+      return {
+        ok: true,
+        applied: files.length,
+        appliedFiles: files,
+        pendingOps: ops.length,
+        ops,
+        clean: ops.length === 0
+      };
+    } catch (e) {
+      return { ok: false, error: `migration-status \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" }
+  });
+  add("migration-generate", "\uBCA0\uC774\uC2A4\uB77C\uC778\u2192\uD604\uC7AC diff \uB85C .mig \uC0DD\uC131(confirm \uC5C6\uC73C\uBA74 preview, confirm=true \uBA74 \uD30C\uC77C \uAE30\uB85D)", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    try {
+      const { schema: baseline, files } = await buildBaseline(fs, p.dir);
+      const ops = diffSchemas(baseline, snapshotSchema(store));
+      if (ops.length === 0) return { ok: true, noop: true };
+      const mig = migFileContent(p.name, ops);
+      if (!p.confirm) {
+        return { ok: true, preview: true, mig, ops };
+      }
+      if (!fs.writeText) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+      const filename = migFilename(files.length);
+      const path = joinPath(p.dir, filename);
+      await fs.writeText(path, mig);
+      return { ok: true, written: true, filename, path, ops };
+    } catch (e) {
+      return { ok: false, error: `migration-generate \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
+    name: { type: "string", description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC774\uB984 \uBA54\uD0C0(\uD30C\uC77C\uC5D0 -- name: \uC73C\uB85C \uAE30\uB85D)" },
+    confirm: { type: "boolean", description: "true \uBA74 \uD30C\uC77C \uAE30\uB85D, \uC0DD\uB7B5 \uC2DC \uBBF8\uB9AC\uBCF4\uAE30(mig/ops \uB9CC)" }
+  });
+  add("migration-list", "\uB514\uB809\uD1A0\uB9AC\uC758 .mig \uD30C\uC77C \uBAA9\uB85D(\uC774\uB984\uC21C)", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    if (!fs.list) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+    try {
+      const listing = await fs.list(p.dir);
+      const files = extractMigNames(listing);
+      return { ok: true, files, count: files.length };
+    } catch (e) {
+      return { ok: false, error: `migration-list \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" }
+  });
+  add("migration-show", "\uB2E8\uC77C .mig \uD30C\uC77C \uB0B4\uC6A9\xB7\uD30C\uC2F1 \uACB0\uACFC \uC870\uD68C", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    if (!p.id || typeof p.id !== "string") return { ok: false, error: "id(\uD30C\uC77C\uBA85) required" };
+    if (!fs.readText) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+    try {
+      const file = await resolveMigId(fs, p.dir, p.id);
+      if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+      const { text } = await fs.readText(joinPath(p.dir, file));
+      const { ops, downOps, warnings } = parseMig(text);
+      return { ok: true, id: file, name: parseMigName(text), text, ops, downOps, warnings };
+    } catch (e) {
+      return { ok: false, error: `migration-show \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
+    id: { type: "string", required: true, description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5)" }
+  });
+  add("migration-sql", "\uB2E8\uC77C .mig \uC758 up ops \u2192 \uD574\uB2F9 dialect DDL \uC0DD\uC131", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    if (!p.id || typeof p.id !== "string") return { ok: false, error: "id(\uD30C\uC77C\uBA85) required" };
+    if (!fs.readText) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+    const dialect = p.dialect ?? "mysql";
+    if (dialect !== "mysql" && dialect !== "postgresql") {
+      return { ok: false, error: `migration-sql dialect \uBBF8\uC9C0\uC6D0: '${dialect}'(mysql|postgresql)` };
+    }
+    try {
+      const file = await resolveMigId(fs, p.dir, p.id);
+      if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+      const { text } = await fs.readText(joinPath(p.dir, file));
+      const { ops, downOps } = parseMig(text);
+      const gen = getSQLGenerator(dialect);
+      return { ok: true, id: file, dialect, up: gen.generateBatch(ops), down: gen.generateBatch(downOps) };
+    } catch (e) {
+      return { ok: false, error: `migration-sql \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
+    id: { type: "string", required: true, description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5)" },
+    dialect: { type: "string", enum: ["mysql", "postgresql"], description: "\uB300\uC0C1 DB dialect", default: "mysql" }
+  });
+  add("migration-apply", ".mig \uC758 up ops \uB97C working store \uC5D0 \uC801\uC6A9(id \uC0DD\uB7B5 \uC2DC dir \uC804\uCCB4 fold)", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    if (!fs.readText || !fs.list) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+    try {
+      let ops;
+      if (p.id && typeof p.id === "string") {
+        const file = await resolveMigId(fs, p.dir, p.id);
+        if (!file) return { ok: false, error: `migration not found: '${p.id}'` };
+        const { text } = await fs.readText(joinPath(p.dir, file));
+        ops = parseMig(text).ops;
+      } else {
+        ops = (await buildBaseline(fs, p.dir)).ops;
+      }
+      let schema = snapshotSchema(store);
+      for (const op of ops) schema = applyOperation(schema, op);
+      loadParsedSchema(store, schema, "replace");
+      return { ok: true, applied: ops.length };
+    } catch (e) {
+      return { ok: false, error: `migration-apply \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
+    id: { type: "string", description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5, \uC0DD\uB7B5 \uC2DC dir \uC804\uCCB4 \uBCA0\uC774\uC2A4\uB77C\uC778 \uC801\uC6A9)" }
+  });
+  add("migration-revert", ".mig \uC758 down ops \uB97C working store \uC5D0 \uC801\uC6A9(\uC5ED\uC5F0\uC0B0 \u2014 id \uC0DD\uB7B5 \uC2DC \uB9C8\uC9C0\uB9C9 \uD30C\uC77C)", async (p) => {
+    const g = needFs();
+    if (g) return g;
+    const d = requireDir(p);
+    if (d) return d;
+    if (!fs.readText || !fs.list) return { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
+    try {
+      let id;
+      if (typeof p.id === "string") {
+        id = await resolveMigId(fs, p.dir, p.id);
+        if (!id) return { ok: false, error: `migration not found: '${p.id}'` };
+      } else {
+        const files = extractMigNames(await fs.list(p.dir));
+        if (files.length === 0) return { ok: true, noop: true };
+        id = files[files.length - 1];
+      }
+      const { text } = await fs.readText(joinPath(p.dir, id));
+      const { downOps } = parseMig(text);
+      let schema = snapshotSchema(store);
+      for (const op of downOps) schema = applyOperation(schema, op);
+      loadParsedSchema(store, schema, "replace");
+      return { ok: true, reverted: downOps.length, id };
+    } catch (e) {
+      return { ok: false, error: `migration-revert \uC2E4\uD328: ${errMsg(e)}` };
+    }
+  }, {
+    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
+    id: { type: "string", description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5, \uC0DD\uB7B5 \uC2DC \uAC00\uC7A5 \uCD5C\uC2E0 \uD30C\uC77C)" }
+  });
+  add("migration-lint", ".mig \uD14D\uC2A4\uD2B8 \uBB38\uBC95 \uAC80\uC99D(\uC5D0\uB7EC \uBAA9\uB85D, fs \uBD88\uC694)", (p) => {
+    if (typeof p.text !== "string") return { ok: false, error: "text required" };
+    const { errors } = lintMig(p.text);
+    return { ok: true, errors, valid: errors.length === 0 };
+  }, {
+    text: { type: "string", required: true, description: "\uAC80\uC99D\uD560 .mig \uD14D\uC2A4\uD2B8" }
   });
 }
 
