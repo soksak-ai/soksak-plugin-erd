@@ -4,3 +4,7 @@ declare const __ERD_WORKER_EDGE__: string; // src/workers/edge-render.worker.ts 
 declare const __ERD_WORKER_LAYOUT__: string; // src/workers/layout.worker.ts (dagre)
 declare const __ERD_WORKER_MWB__: string; // src/workers/mwb.worker.ts
 declare const __ERD_WORKER_IMPORT__: string; // src/workers/import.worker.ts
+
+// build.mjs(Stage B)가 Tailwind 컴파일 CSS + allotment 스타일을 합쳐 문자열로 주입한다.
+// plugin-entry mount 에서 Shadow DOM 안 <style> 로 삽입(soksak chrome 격리).
+declare const __ERD_CSS__: string;

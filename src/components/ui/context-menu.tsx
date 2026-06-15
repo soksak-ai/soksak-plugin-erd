@@ -3,6 +3,7 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 import { ContextMenu as ContextMenuPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { usePortalRoot } from "@/components/ui/portal-context"
 
 function ContextMenu({
   ...props
@@ -27,10 +28,17 @@ function ContextMenuGroup({
 }
 
 function ContextMenuPortal({
+  container,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) {
+  // R6: container 미지정 시 Shadow DOM host 로 포털.
+  const portalRoot = usePortalRoot()
   return (
-    <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} />
+    <ContextMenuPrimitive.Portal
+      data-slot="context-menu-portal"
+      container={container ?? portalRoot}
+      {...props}
+    />
   )
 }
 
@@ -95,8 +103,9 @@ function ContextMenuContent({
   className,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Content>) {
+  const portalRoot = usePortalRoot()
   return (
-    <ContextMenuPrimitive.Portal>
+    <ContextMenuPrimitive.Portal container={portalRoot}>
       <ContextMenuPrimitive.Content
         data-slot="context-menu-content"
         className={cn(
