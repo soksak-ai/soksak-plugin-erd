@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useCallback, useState } from 'react';
-import { Allotment } from 'allotment';
+import { Allotment, LayoutPriority } from 'allotment';
 import { useStore } from '@/store';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { LeftSidebar } from '@/components/sidebar/LeftSidebar';
@@ -60,7 +60,7 @@ export function AppLayout({ canvas }: AppLayoutProps) {
         {leftSidebarOpen ? <LeftSidebar /> : null}
       </Allotment.Pane>
 
-      <Allotment.Pane minSize={MAIN_MIN_PX}>
+      <Allotment.Pane minSize={MAIN_MIN_PX} priority={LayoutPriority.High}>
         {canvas}
       </Allotment.Pane>
 
@@ -86,7 +86,7 @@ export function AppLayout({ canvas }: AppLayoutProps) {
           onChange={handleVerticalChange}
           className="h-full w-full"
         >
-          <Allotment.Pane minSize={320}>
+          <Allotment.Pane minSize={320} priority={LayoutPriority.High}>
             {mainSplit}
           </Allotment.Pane>
           <Allotment.Pane
