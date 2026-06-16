@@ -2,10 +2,33 @@
 // P1: 전체 abyss-erd 앱(<App/>)을 Shadow DOM 에 마운트한다. 워커는 build.mjs(Stage A)가
 // IIFE 문자열로 인라인(__ERD_WORKER_*), Tailwind+allotment CSS 는 Stage B 가 __ERD_CSS__ 로 주입.
 // 헤드리스 커맨드(registerCommands)는 그대로 유지 — 뷰 미오픈에도 sok/MCP/소켓 E2E 전부 동작.
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import App from "@/App";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
+
+// 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
+// console.error 로 원인도 남긴다(소켓/dev 진단).
+class ErrBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
+  state: { err: Error | null } = { err: null };
+  static getDerivedStateFromError(err: Error) {
+    return { err };
+  }
+  componentDidCatch(err: Error, info: ErrorInfo) {
+    console.error("[erd] App 렌더 오류:", err, info.componentStack);
+  }
+  render() {
+    if (this.state.err) {
+      return (
+        <div style={{ padding: 16, color: "#f88", fontFamily: "system-ui", fontSize: 13 }}>
+          ERD 렌더 오류: {this.state.err.message || String(this.state.err)}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // container(soksak 제공 HTMLElement) 별 마운트 상태. Shadow DOM 격리로 Tailwind preflight 전역
 // 리셋이 soksak chrome 을 깨지 않는다. unmount 시 root.unmount() → Pixi destroy·worker.terminate
@@ -21,24 +44,35 @@ function mountApp(container: HTMLElement) {
   unmountApp(container);
 
   // Shadow DOM 격리 — Tailwind preflight(*, html, body 리셋)이 shadow 경계를 넘지 않는다.
-  const shadow = container.attachShadow({ mode: "open" });
+  // attachShadow 는 요소당 1회만 가능(리로드/재마운트 시 같은 container 재사용 → 기존 것 재사용).
+  const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
+  shadow.replaceChildren(); // 재마운트 시 이전 style/host 잔여 제거
 
-  // 컴파일된 CSS(Tailwind + allotment)를 shadow 안 <style> 로 삽입.
+  // 컴파일된 CSS(Tailwind + allotment) + 높이 체인 규칙을 shadow 안 <style> 로 삽입.
+  // 표준앱은 #root 의 definite 높이로 AppLayout(h-full)을 채운다. Shadow DOM 엔 그 체인이 없고,
+  // % 높이는 shadow 경계에서·absolute 는 WKWebView 에서 안정적으로 풀리지 않는다 → flex 가 정공법:
+  // :host(=container, soksak 가 flex:1 로 definite 높이 부여)를 flex 컬럼으로, host 를 flex:1 로 채운다.
   const style = document.createElement("style");
-  style.textContent = __ERD_CSS__;
+  style.textContent = `:host{display:flex;flex-direction:column}\n${__ERD_CSS__}`;
   shadow.appendChild(style);
 
-  // React 루트 host — App 의 portalRoot(Radix 포털 컨테이너 + 다크모드 class 미러 타깃)이기도 하다.
+  // React 루트 host — flex:1 로 컨테이너 definite 높이를 채운다(→ App 의 h-full/allotment 가 전체 채움).
+  // App 의 portalRoot(Radix 포털 컨테이너 + 다크모드 class 미러 타깃)이기도 하다.
   const host = document.createElement("div");
-  host.style.width = "100%";
-  host.style.height = "100%";
+  host.style.flex = "1 1 0%";
+  host.style.minHeight = "0";
+  host.style.overflow = "hidden";
   // 다크 기본값 — App 의 theme effect 가 portalRoot 에 light/dark 를 즉시 미러하지만,
   // 첫 페인트 깜빡임 방지로 dark 를 선반영(store 기본 theme='dark').
   host.classList.add("dark");
   shadow.appendChild(host);
 
   const root = createRoot(host);
-  root.render(<App portalRoot={host} />);
+  root.render(
+    <ErrBoundary>
+      <App portalRoot={host} />
+    </ErrBoundary>,
+  );
   mounts.set(container, { root, shadow });
 }
 
