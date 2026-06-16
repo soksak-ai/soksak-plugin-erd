@@ -421,6 +421,10 @@ export function PixiERDCanvas() {
 
     const app = new Application();
     let alive = true;
+    // Pixi 의 resizeTo=el 은 window resize 만 듣는다 → allotment/사이드바/프로퍼티 패널로 캔버스
+    // 요소가 리사이즈돼도(창 변화 없이) 렌더러가 안 따라가 우측이 잘린다(표준앱은 창과 함께만
+    // 리사이즈돼 미발현, 유연 레이아웃 임베드에서 발현). 요소 ResizeObserver 로 렌더러를 동기화.
+    let resizeObs: ResizeObserver | null = null;
 
     app.init({
       backgroundAlpha: 0,
@@ -453,6 +457,19 @@ export function PixiERDCanvas() {
       el.appendChild(pixiCanvas);
       appRef.current = app;
       sizeRef.current = { w: app.screen.width, h: app.screen.height };
+
+      // 요소 크기 변화(창 resize 가 아닌 레이아웃 변화 포함)마다 렌더러를 el 크기로 맞춘다.
+      // renderer.resize 는 CSS 픽셀을 받아 resolution(DPR)을 내부 적용 → 우측 클립 제거.
+      resizeObs = new ResizeObserver(() => {
+        if (!alive) return;
+        const a = appRef.current;
+        if (!a || el.clientWidth === 0 || el.clientHeight === 0) return;
+        a.renderer.resize(el.clientWidth, el.clientHeight);
+        sizeRef.current = { w: a.screen.width, h: a.screen.height };
+        camDirty.current = true;
+        wakeRenderLoopRef.current?.();
+      });
+      resizeObs.observe(el);
 
       // Grid layer (screen space, below world)
       const gridGfx = new Graphics();
@@ -823,6 +840,8 @@ export function PixiERDCanvas() {
 
     return () => {
       alive = false;
+      resizeObs?.disconnect();
+      resizeObs = null;
       edgeWorkerRef.current?.terminate();
       edgeWorkerRef.current = null;
       edgeWorkerReadyRef.current = false;

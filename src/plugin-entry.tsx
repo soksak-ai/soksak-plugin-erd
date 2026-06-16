@@ -48,19 +48,19 @@ function mountApp(container: HTMLElement) {
   const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren(); // 재마운트 시 이전 style/host 잔여 제거
 
-  // 컴파일된 CSS(Tailwind + allotment) + 높이 체인 규칙을 shadow 안 <style> 로 삽입.
-  // 표준앱은 #root 의 definite 높이로 AppLayout(h-full)을 채운다. Shadow DOM 엔 그 체인이 없고,
-  // % 높이는 shadow 경계에서·absolute 는 WKWebView 에서 안정적으로 풀리지 않는다 → flex 가 정공법:
-  // :host(=container, soksak 가 flex:1 로 definite 높이 부여)를 flex 컬럼으로, host 를 flex:1 로 채운다.
+  // 컴파일된 CSS(Tailwind + allotment)를 shadow 안 <style> 로 삽입.
   const style = document.createElement("style");
-  style.textContent = `:host{display:flex;flex-direction:column}\n${__ERD_CSS__}`;
+  style.textContent = __ERD_CSS__;
   shadow.appendChild(style);
 
-  // React 루트 host — flex:1 로 컨테이너 definite 높이를 채운다(→ App 의 h-full/allotment 가 전체 채움).
+  // React 루트 host — width/height 100% 로 컨테이너를 채운다. soksak 코어가 mount 컨테이너
+  // (.plugin-view-container)를 definite 픽셀 박스로 보장(host absolute inset:0)하므로 100% 가
+  // 풀린다 → App 의 h-full/allotment 가 전체를 채운다. (예전엔 컨테이너가 indefinite 라 flex/
+  // h-screen 우회가 필요했음 — 코어 host 수정으로 정공법 100% 가능.)
   // App 의 portalRoot(Radix 포털 컨테이너 + 다크모드 class 미러 타깃)이기도 하다.
   const host = document.createElement("div");
-  host.style.flex = "1 1 0%";
-  host.style.minHeight = "0";
+  host.style.width = "100%";
+  host.style.height = "100%";
   host.style.overflow = "hidden";
   // 다크 기본값 — App 의 theme effect 가 portalRoot 에 light/dark 를 즉시 미러하지만,
   // 첫 페인트 깜빡임 방지로 dark 를 선반영(store 기본 theme='dark').

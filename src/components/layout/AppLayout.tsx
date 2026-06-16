@@ -75,7 +75,7 @@ export function AppLayout({ canvas }: AppLayoutProps) {
   );
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-gray-50 dark:bg-zinc-950">
+    <div className="flex h-full flex-col overflow-hidden bg-gray-50 dark:bg-zinc-950">
       <Toolbar />
 
       <div className="flex-1">
