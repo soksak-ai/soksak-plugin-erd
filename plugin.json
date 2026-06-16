@@ -106,6 +106,14 @@
         "title": "Mermaid 가져오기"
       },
       {
+        "name": "fit",
+        "title": "뷰포트 맞춤"
+      },
+      {
+        "name": "get-render-state",
+        "title": "렌더 상태"
+      },
+      {
         "name": "get-columns",
         "title": "컬럼 목록"
       },

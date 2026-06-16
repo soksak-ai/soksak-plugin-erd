@@ -751,6 +751,29 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     tables: { type: 'json', description: '선택할 테이블 이름/ id 배열' },
   });
 
+  add('fit', '뷰포트를 전체 콘텐츠에 맞춤(뷰가 마운트된 경우만 — 헤드리스엔 no-op)', () => {
+    // 뷰(PixiERDCanvas)가 마운트 시 store 에 등록하는 doFitView 를 호출한다. 미마운트면 null →
+    // applied:false(정상 — 헤드리스 동작이라 좌표/뷰포트는 그대로). 뷰 열림 후 호출하면 테이블이 보인다.
+    const fit = store.getState().fitViewFn;
+    if (!fit) return { ok: true, applied: false, reason: 'view not mounted' };
+    fit();
+    return { ok: true, applied: true, viewport: store.getState().viewport };
+  });
+
+  add('get-render-state', '렌더/뷰 상태(마운트 여부·노드수·뷰포트 — 뷰 E2E 단언용)', () => {
+    const s = store.getState();
+    return {
+      ok: true,
+      mounted: s.fitViewFn != null, // 뷰의 Pixi 캔버스가 fit 함수를 등록 = 마운트됨
+      tableCount: Object.keys(s.tables).length,
+      relationshipCount: Object.keys(s.relationships).length,
+      positionedCount: Object.keys(s.nodePositions).length,
+      collapsedCount: Object.values(s.collapsedNodes).filter(Boolean).length,
+      selectedCount: s.selectedNodeIds.length,
+      viewport: s.viewport,
+    };
+  });
+
   // ── import / export(멀티-DB Dialect + 포맷 변환기 배선) ──────────────────────
   // export: 현재 스키마 → 외부 포맷 문자열. import: 외부 포맷 → 파싱 후 store 적재.
   // 파싱 실패/엔진 throw 는 {ok:false,error} 로 흡수한다.
