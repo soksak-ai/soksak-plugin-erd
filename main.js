@@ -76368,7 +76368,7 @@ function AppLayout({ canvas }) {
             children: leftSidebarOpen ? /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(LeftSidebar, {}) : null
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Ve.Pane, { minSize: MAIN_MIN_PX, children: canvas }),
+        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Ve.Pane, { minSize: MAIN_MIN_PX, priority: de.High, children: canvas }),
         /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
           Ve.Pane,
           {
@@ -76392,7 +76392,7 @@ function AppLayout({ canvas }) {
         onChange: handleVerticalChange,
         className: "h-full w-full",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Ve.Pane, { minSize: 320, children: mainSplit }),
+          /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Ve.Pane, { minSize: 320, priority: de.High, children: mainSplit }),
           /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
             Ve.Pane,
             {
