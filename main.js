@@ -87326,12 +87326,12 @@ function registerCommands(ctx, store) {
   if (!reg) return;
   const register = reg.bind(ctx.app.commands);
   const internal = /* @__PURE__ */ new Map();
-  const add2 = (name, description, handler, params) => {
+  const add2 = (name, description, triggers, handler, params) => {
     const wrapped = async (p3) => handler(p3 ?? {});
     internal.set(name, wrapped);
-    ctx.subscriptions.push(register(name, { description, params, handler: wrapped }));
+    ctx.subscriptions.push(register(name, { description, triggers, params, handler: wrapped }));
   };
-  add2("get-schema", "\uC2A4\uD0A4\uB9C8 \uC870\uD68C(mode: compact \uC694\uC57D | full \uC6D0\uBCF8)", (p3) => {
+  add2("get-schema", "Return current ERD schema (mode: compact summary | full raw)", { ko: "\uC2A4\uD0A4\uB9C8 \uC870\uD68C ERD \uC804\uCCB4 \uAD6C\uC870 \uD655\uC778" }, (p3) => {
     const mode = p3.mode === "full" ? "full" : "compact";
     if (mode === "full") {
       return { ok: true, mode, schema: snapshotSchema(store) };
@@ -87345,9 +87345,9 @@ function registerCommands(ctx, store) {
     }));
     return { ok: true, mode, tables, relationships };
   }, {
-    mode: { type: "string", enum: ["compact", "full"], description: "\uC870\uD68C \uD615\uC2DD(compact \uC694\uC57D | full \uC6D0\uBCF8)", default: "compact" }
+    mode: { type: "string", enum: ["compact", "full"], description: "Output format: compact summary or full raw schema", default: "compact" }
   });
-  add2("list-tables", "\uD14C\uC774\uBE14 \uBAA9\uB85D(id/name/\uCEEC\uB7FC\uC218)", () => {
+  add2("list-tables", "List all tables (id, name, column count)", { ko: "\uD14C\uC774\uBE14 \uBAA9\uB85D \uC870\uD68C \uD14C\uC774\uBE14 \uC774\uB984" }, () => {
     const tables = Object.values(store.getState().tables).map((t3) => ({
       id: t3.id,
       name: t3.name,
@@ -87355,29 +87355,29 @@ function registerCommands(ctx, store) {
     }));
     return { ok: true, tables };
   });
-  add2("get-table", "\uD14C\uC774\uBE14 \uB2E8\uAC74 \uC870\uD68C(\uC774\uB984/ id)", (p3) => {
+  add2("get-table", "Retrieve a single table by name or id", { ko: "\uD14C\uC774\uBE14 \uC870\uD68C \uB2E8\uAC74" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     return { ok: true, table: r4.table };
   }, {
-    table: { type: "string", required: true, description: "\uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" }
+    table: { type: "string", required: true, description: "Table name or id" }
   });
-  add2("get-columns", "\uD14C\uC774\uBE14 \uCEEC\uB7FC \uBAA9\uB85D", (p3) => {
+  add2("get-columns", "List all columns of a table", { ko: "\uCEEC\uB7FC \uBAA9\uB85D \uC870\uD68C" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     return { ok: true, columns: r4.table.columns };
   }, {
-    table: { type: "string", required: true, description: "\uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" }
+    table: { type: "string", required: true, description: "Table name or id" }
   });
-  add2("list-relationships", "\uAD00\uACC4 \uBAA9\uB85D", () => {
+  add2("list-relationships", "List all FK relationships in the schema", { ko: "\uAD00\uACC4 \uBAA9\uB85D \uC870\uD68C \uC678\uB798\uD0A4 FK" }, () => {
     const relationships = Object.values(store.getState().relationships);
     return { ok: true, relationships };
   });
-  add2("validate", "\uC2A4\uD0A4\uB9C8 \uBB34\uACB0\uC131 \uAC80\uC0AC(\uC774\uC288 \uBC30\uC5F4)", () => {
+  add2("validate", "Validate schema integrity and return an array of issues", { ko: "\uC2A4\uD0A4\uB9C8 \uAC80\uC99D \uBB34\uACB0\uC131 \uC774\uC288 \uD655\uC778" }, () => {
     const issues = validateSchema(snapshotSchema(store));
     return { ok: true, issues };
   });
-  add2("stats", "\uC2A4\uD0A4\uB9C8 \uD1B5\uACC4(\uD14C\uC774\uBE14/\uCEEC\uB7FC/\uAD00\uACC4 \uC218)", () => {
+  add2("stats", "Return schema statistics: table count, column count, relationship count", { ko: "\uC2A4\uD0A4\uB9C8 \uD1B5\uACC4 \uD14C\uC774\uBE14 \uCEEC\uB7FC \uAD00\uACC4 \uC218" }, () => {
     const tables = Object.values(store.getState().tables);
     const columnCount = tables.reduce((acc, t3) => acc + t3.columns.length, 0);
     return {
@@ -87389,7 +87389,7 @@ function registerCommands(ctx, store) {
       }
     };
   });
-  add2("diff", "\uAE30\uC900 \uC2A4\uD0A4\uB9C8(from)\uC640 \uD604\uC7AC\uC758 added/removed \uD14C\uC774\uBE14 \uBCF4\uACE0", (p3) => {
+  add2("diff", "Compare a baseline schema (from) against the current schema and report added/removed tables", { ko: "\uC2A4\uD0A4\uB9C8 \uBE44\uAD50 \uBCC0\uACBD \uD14C\uC774\uBE14 \uCD94\uAC00 \uC0AD\uC81C" }, (p3) => {
     const from = p3.from;
     if (!from || typeof from !== "object" || !from.tables) {
       return { ok: false, error: "diff requires { from: ERDSchema }" };
@@ -87400,9 +87400,9 @@ function registerCommands(ctx, store) {
     const removedTables = [...fromNames].filter((n3) => !nowNames.has(n3));
     return { ok: true, diff: { addedTables, removedTables } };
   }, {
-    from: { type: "json", required: true, description: "\uAE30\uC900 \uC2A4\uD0A4\uB9C8(ERDSchema: { tables, relationships, layers })" }
+    from: { type: "json", required: true, description: "Baseline schema to compare against (ERDSchema: { tables, relationships, layers })" }
   });
-  add2("create-table", "\uD14C\uC774\uBE14 \uC0DD\uC131(ifNotExists \uBA71\uB4F1)", (p3) => {
+  add2("create-table", "Create a table; idempotent when ifNotExists is true", { ko: "\uD14C\uC774\uBE14 \uC0DD\uC131 \uCD94\uAC00 \uB9CC\uB4E4\uAE30" }, (p3) => {
     if (!p3.name || typeof p3.name !== "string") return { ok: false, error: "name required" };
     const existing = Object.values(store.getState().tables).find(
       (t3) => t3.name.toLowerCase() === p3.name.toLowerCase()
@@ -87419,23 +87419,23 @@ function registerCommands(ctx, store) {
     });
     return { ok: true, id };
   }, {
-    name: { type: "string", required: true, description: "\uC0DD\uC131\uD560 \uD14C\uC774\uBE14 \uC774\uB984" },
-    columns: { type: "json", description: "\uCD08\uAE30 \uCEEC\uB7FC \uC815\uC758 \uBC30\uC5F4(Column[] \uBD80\uBD84 \uD615\uD0DC)" },
-    comment: { type: "string", description: "\uD14C\uC774\uBE14 \uC8FC\uC11D" },
-    schema: { type: "string", description: "\uC18C\uC18D \uC2A4\uD0A4\uB9C8(\uB124\uC784\uC2A4\uD398\uC774\uC2A4)" },
-    ifNotExists: { type: "boolean", description: "\uB3D9\uBA85 \uD14C\uC774\uBE14\uC774 \uC788\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    name: { type: "string", required: true, description: "Name of the table to create" },
+    columns: { type: "json", description: "Initial column definitions (partial Column[] array)" },
+    comment: { type: "string", description: "Table comment" },
+    schema: { type: "string", description: "Schema namespace the table belongs to" },
+    ifNotExists: { type: "boolean", description: "Return noop instead of error when a table with the same name already exists" }
   });
-  add2("rename-table", "\uD14C\uC774\uBE14 \uC774\uB984 \uBCC0\uACBD", (p3) => {
+  add2("rename-table", "Rename an existing table", { ko: "\uD14C\uC774\uBE14 \uC774\uB984 \uBCC0\uACBD rename" }, (p3) => {
     const r4 = resolveTable(store, p3.table);
     if (!r4.ok) return r4;
     if (!p3.name || typeof p3.name !== "string") return { ok: false, error: "name required" };
     store.getState().updateTable(r4.id, { name: p3.name });
     return { ok: true, id: r4.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    name: { type: "string", required: true, description: "\uBCC0\uACBD\uD560 \uC0C8 \uC774\uB984" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    name: { type: "string", required: true, description: "New table name" }
   });
-  add2("drop-table", "\uD14C\uC774\uBE14 \uC0AD\uC81C(ifExists \uBA71\uB4F1)", (p3) => {
+  add2("drop-table", "Delete a table; idempotent when ifExists is true", { ko: "\uD14C\uC774\uBE14 \uC0AD\uC81C \uC81C\uAC70 drop" }, (p3) => {
     const r4 = resolveTable(store, p3.table);
     if (!r4.ok) {
       if (p3.ifExists) return { ok: true, noop: true };
@@ -87444,10 +87444,10 @@ function registerCommands(ctx, store) {
     store.getState().removeTable(r4.id);
     return { ok: true, id: r4.id };
   }, {
-    table: { type: "string", required: true, description: "\uC0AD\uC81C\uD560 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    ifExists: { type: "boolean", description: "\uC5C6\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    table: { type: "string", required: true, description: "Table name or id to delete" },
+    ifExists: { type: "boolean", description: "Return noop instead of error when the table does not exist" }
   });
-  add2("add-column", "\uCEEC\uB7FC \uCD94\uAC00(ifNotExists \uBA71\uB4F1)", (p3) => {
+  add2("add-column", "Add a column to a table; idempotent when ifNotExists is true", { ko: "\uCEEC\uB7FC \uCD94\uAC00 \uC5F4 \uCD94\uAC00" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     if (!p3.name || typeof p3.name !== "string") return { ok: false, error: "name required" };
@@ -87470,19 +87470,19 @@ function registerCommands(ctx, store) {
     const created = store.getState().tables[r4.id].columns.find((c3) => c3.name === p3.name);
     return { ok: true, columnId: created?.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    name: { type: "string", required: true, description: "\uCD94\uAC00\uD560 \uCEEC\uB7FC \uC774\uB984" },
-    dataType: { type: "string", description: "\uB370\uC774\uD130 \uD0C0\uC785(\uC608: INT, VARCHAR)" },
-    nullable: { type: "boolean", description: "NULL \uD5C8\uC6A9 \uC5EC\uBD80" },
-    isPrimaryKey: { type: "boolean", description: "PK \uC5EC\uBD80" },
-    isUnique: { type: "boolean", description: "UNIQUE \uC5EC\uBD80" },
-    autoIncrement: { type: "boolean", description: "\uC790\uB3D9 \uC99D\uAC00 \uC5EC\uBD80" },
-    defaultValue: { type: "string", description: "\uAE30\uBCF8\uAC12" },
-    comment: { type: "string", description: "\uCEEC\uB7FC \uC8FC\uC11D" },
-    length: { type: "number", description: "\uAE38\uC774(\uC608: VARCHAR(n))" },
-    ifNotExists: { type: "boolean", description: "\uB3D9\uBA85 \uCEEC\uB7FC\uC774 \uC788\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    name: { type: "string", required: true, description: "Column name to add" },
+    dataType: { type: "string", description: "Data type (e.g. INT, VARCHAR)" },
+    nullable: { type: "boolean", description: "Whether the column allows NULL" },
+    isPrimaryKey: { type: "boolean", description: "Whether this column is a primary key" },
+    isUnique: { type: "boolean", description: "Whether this column has a UNIQUE constraint" },
+    autoIncrement: { type: "boolean", description: "Whether this column auto-increments" },
+    defaultValue: { type: "string", description: "Default value expression" },
+    comment: { type: "string", description: "Column comment" },
+    length: { type: "number", description: "Column length (e.g. n in VARCHAR(n))" },
+    ifNotExists: { type: "boolean", description: "Return noop instead of error when a column with the same name already exists" }
   });
-  add2("update-column", "\uCEEC\uB7FC \uC18D\uC131 \uBCC0\uACBD", (p3) => {
+  add2("update-column", "Update properties of an existing column", { ko: "\uCEEC\uB7FC \uC218\uC815 \uC18D\uC131 \uBCC0\uACBD" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     const cr = resolveColumn(r4.table, p3.column);
@@ -87494,21 +87494,21 @@ function registerCommands(ctx, store) {
     store.getState().updateColumn(r4.id, cr.id, updates);
     return { ok: true, columnId: cr.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    column: { type: "string", required: true, description: "\uB300\uC0C1 \uCEEC\uB7FC \uC774\uB984 \uB610\uB294 id" },
-    name: { type: "string", description: "\uBCC0\uACBD\uD560 \uCEEC\uB7FC \uC774\uB984" },
-    dataType: { type: "string", description: "\uB370\uC774\uD130 \uD0C0\uC785" },
-    nullable: { type: "boolean", description: "NULL \uD5C8\uC6A9 \uC5EC\uBD80" },
-    isPrimaryKey: { type: "boolean", description: "PK \uC5EC\uBD80" },
-    isUnique: { type: "boolean", description: "UNIQUE \uC5EC\uBD80" },
-    autoIncrement: { type: "boolean", description: "\uC790\uB3D9 \uC99D\uAC00 \uC5EC\uBD80" },
-    defaultValue: { type: "string", description: "\uAE30\uBCF8\uAC12" },
-    comment: { type: "string", description: "\uCEEC\uB7FC \uC8FC\uC11D" },
-    length: { type: "number", description: "\uAE38\uC774" },
-    precision: { type: "number", description: "\uC815\uBC00\uB3C4(precision)" },
-    scale: { type: "number", description: "\uC18C\uC218 \uC790\uB9BF\uC218(scale)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    column: { type: "string", required: true, description: "Target column name or id" },
+    name: { type: "string", description: "New column name" },
+    dataType: { type: "string", description: "New data type" },
+    nullable: { type: "boolean", description: "Whether the column allows NULL" },
+    isPrimaryKey: { type: "boolean", description: "Whether this column is a primary key" },
+    isUnique: { type: "boolean", description: "Whether this column has a UNIQUE constraint" },
+    autoIncrement: { type: "boolean", description: "Whether this column auto-increments" },
+    defaultValue: { type: "string", description: "Default value expression" },
+    comment: { type: "string", description: "Column comment" },
+    length: { type: "number", description: "Column length" },
+    precision: { type: "number", description: "Numeric precision" },
+    scale: { type: "number", description: "Numeric scale (decimal places)" }
   });
-  add2("drop-column", "\uCEEC\uB7FC \uC0AD\uC81C(ifExists \uBA71\uB4F1)", (p3) => {
+  add2("drop-column", "Delete a column; idempotent when ifExists is true", { ko: "\uCEEC\uB7FC \uC0AD\uC81C \uC81C\uAC70" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     const cr = resolveColumn(r4.table, p3.column);
@@ -87519,11 +87519,11 @@ function registerCommands(ctx, store) {
     store.getState().removeColumn(r4.id, cr.id);
     return { ok: true, columnId: cr.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    column: { type: "string", required: true, description: "\uC0AD\uC81C\uD560 \uCEEC\uB7FC \uC774\uB984 \uB610\uB294 id" },
-    ifExists: { type: "boolean", description: "\uC5C6\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    column: { type: "string", required: true, description: "Column name or id to delete" },
+    ifExists: { type: "boolean", description: "Return noop instead of error when the column does not exist" }
   });
-  add2("reorder-columns", "\uCEEC\uB7FC \uC21C\uC11C \uC7AC\uBC30\uC5F4(\uC774\uB984/ id \uBC30\uC5F4)", (p3) => {
+  add2("reorder-columns", "Reorder columns of a table by providing column names/ids in the desired order", { ko: "\uCEEC\uB7FC \uC21C\uC11C \uBCC0\uACBD \uC7AC\uBC30\uC5F4" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     if (!Array.isArray(p3.columns)) return { ok: false, error: "columns array required" };
@@ -87536,10 +87536,10 @@ function registerCommands(ctx, store) {
     store.getState().reorderColumns(r4.id, ids2);
     return { ok: true };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    columns: { type: "json", required: true, description: "\uC7AC\uBC30\uC5F4\uD560 \uCEEC\uB7FC \uC774\uB984/ id \uBC30\uC5F4(\uC6D0\uD558\uB294 \uC21C\uC11C)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    columns: { type: "json", required: true, description: "Column names or ids in the desired order" }
   });
-  add2("set-pk", "\uCEEC\uB7FC PK \uC124\uC815/\uD574\uC81C", (p3) => {
+  add2("set-pk", "Set or clear the primary key flag on a column", { ko: "\uAE30\uBCF8\uD0A4 \uC124\uC815 PK \uC9C0\uC815 \uD574\uC81C" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     const cr = resolveColumn(r4.table, p3.column);
@@ -87548,11 +87548,11 @@ function registerCommands(ctx, store) {
     store.getState().updateColumn(r4.id, cr.id, value ? { isPrimaryKey: true, nullable: false } : { isPrimaryKey: false });
     return { ok: true };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    column: { type: "string", required: true, description: "\uB300\uC0C1 \uCEEC\uB7FC \uC774\uB984 \uB610\uB294 id" },
-    value: { type: "boolean", description: "PK \uC124\uC815(true, \uAE30\uBCF8)/\uD574\uC81C(false)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    column: { type: "string", required: true, description: "Target column name or id" },
+    value: { type: "boolean", description: "true to set PK (default), false to clear" }
   });
-  add2("set-unique", "\uCEEC\uB7FC UNIQUE \uC124\uC815/\uD574\uC81C", (p3) => {
+  add2("set-unique", "Set or clear the UNIQUE constraint on a column", { ko: "\uC720\uB2C8\uD06C \uC124\uC815 UNIQUE \uC81C\uC57D \uC9C0\uC815 \uD574\uC81C" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     const cr = resolveColumn(r4.table, p3.column);
@@ -87561,11 +87561,11 @@ function registerCommands(ctx, store) {
     store.getState().updateColumn(r4.id, cr.id, { isUnique: value });
     return { ok: true };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    column: { type: "string", required: true, description: "\uB300\uC0C1 \uCEEC\uB7FC \uC774\uB984 \uB610\uB294 id" },
-    value: { type: "boolean", description: "UNIQUE \uC124\uC815(true, \uAE30\uBCF8)/\uD574\uC81C(false)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    column: { type: "string", required: true, description: "Target column name or id" },
+    value: { type: "boolean", description: "true to set UNIQUE (default), false to clear" }
   });
-  add2("add-index", "\uC778\uB371\uC2A4 \uCD94\uAC00(\uCEEC\uB7FC \uC774\uB984/ id \uBC30\uC5F4, ifNotExists \uBA71\uB4F1)", (p3) => {
+  add2("add-index", "Add an index to a table; idempotent when ifNotExists is true", { ko: "\uC778\uB371\uC2A4 \uCD94\uAC00 \uC0C9\uC778 \uC0DD\uC131" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     if (!Array.isArray(p3.columns) || p3.columns.length === 0) {
@@ -87587,14 +87587,14 @@ function registerCommands(ctx, store) {
     });
     return { ok: true, indexId };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    columns: { type: "json", required: true, description: "\uC778\uB371\uC2A4 \uAD6C\uC131 \uCEEC\uB7FC \uC774\uB984/ id \uBC30\uC5F4" },
-    name: { type: "string", description: "\uC778\uB371\uC2A4 \uC774\uB984(\uC0DD\uB7B5 \uC2DC \uC790\uB3D9 \uC0DD\uC131)" },
-    unique: { type: "boolean", description: "UNIQUE \uC778\uB371\uC2A4 \uC5EC\uBD80" },
-    type: { type: "string", description: "\uC778\uB371\uC2A4 \uC885\uB958(\uC608: BTREE, HASH)" },
-    ifNotExists: { type: "boolean", description: "\uB3D9\uBA85 \uC778\uB371\uC2A4\uAC00 \uC788\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    columns: { type: "json", required: true, description: "Column names or ids that compose the index" },
+    name: { type: "string", description: "Index name (auto-generated when omitted)" },
+    unique: { type: "boolean", description: "Whether this is a UNIQUE index" },
+    type: { type: "string", description: "Index type (e.g. BTREE, HASH)" },
+    ifNotExists: { type: "boolean", description: "Return noop instead of error when an index with the same name already exists" }
   });
-  add2("drop-index", "\uC778\uB371\uC2A4 \uC0AD\uC81C(\uC774\uB984/ id, ifExists \uBA71\uB4F1)", (p3) => {
+  add2("drop-index", "Delete an index by name or id; idempotent when ifExists is true", { ko: "\uC778\uB371\uC2A4 \uC0AD\uC81C \uC0C9\uC778 \uC81C\uAC70" }, (p3) => {
     const r4 = getTable(store, p3.table);
     if (!r4.ok) return r4;
     const idx = r4.table.indexes.find((i3) => i3.name === p3.index || i3.id === p3.index);
@@ -87607,11 +87607,11 @@ function registerCommands(ctx, store) {
     });
     return { ok: true, indexId: idx.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    index: { type: "string", required: true, description: "\uC0AD\uC81C\uD560 \uC778\uB371\uC2A4 \uC774\uB984 \uB610\uB294 id" },
-    ifExists: { type: "boolean", description: "\uC5C6\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    index: { type: "string", required: true, description: "Index name or id to delete" },
+    ifExists: { type: "boolean", description: "Return noop instead of error when the index does not exist" }
   });
-  add2("add-relationship", "FK \uAD00\uACC4 \uCD94\uAC00(source=\uCC38\uC870PK\xB7target=FK\uBCF4\uC720, autoFk \uC2DC FK \uCEEC\uB7FC \uC790\uB3D9 \uC0DD\uC131)", (p3) => {
+  add2("add-relationship", "Add a FK relationship (source=referenced PK side, target=FK holder; autoFk generates the FK column automatically)", { ko: "\uAD00\uACC4 \uCD94\uAC00 \uC678\uB798\uD0A4 FK \uD14C\uC774\uBE14 \uC5F0\uACB0" }, (p3) => {
     const sr = getTable(store, p3.source);
     if (!sr.ok) return sr;
     const tr = getTable(store, p3.target);
@@ -87658,16 +87658,16 @@ function registerCommands(ctx, store) {
     const id = store.getState().addRelationship(rel);
     return { ok: true, id };
   }, {
-    source: { type: "string", required: true, description: "\uCC38\uC870 \uB300\uC0C1(PK \uBCF4\uC720) \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    target: { type: "string", required: true, description: "FK \uBCF4\uC720 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    type: { type: "string", enum: ["1:1", "1:N", "N:M"], description: "\uAD00\uACC4 \uCE74\uB514\uB110\uB9AC\uD2F0", default: "1:N" },
-    targetColumns: { type: "json", description: "target \uC758 FK \uCEEC\uB7FC \uC774\uB984/ id \uBC30\uC5F4(\uBA85\uC2DC \uC2DC autoFk \uBB34\uC2DC)" },
-    autoFk: { type: "boolean", description: "target \uC5D0 <source>_<pk> FK \uCEEC\uB7FC \uC790\uB3D9 \uC0DD\uC131" },
-    name: { type: "string", description: "\uAD00\uACC4(\uC81C\uC57D) \uC774\uB984" },
-    onDelete: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON DELETE \uB3D9\uC791", default: "NO ACTION" },
-    onUpdate: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON UPDATE \uB3D9\uC791", default: "NO ACTION" }
+    source: { type: "string", required: true, description: "Referenced (PK-holding) table name or id" },
+    target: { type: "string", required: true, description: "FK-holding table name or id" },
+    type: { type: "string", enum: ["1:1", "1:N", "N:M"], description: "Relationship cardinality", default: "1:N" },
+    targetColumns: { type: "json", description: "Explicit FK column names/ids on the target table (takes priority over autoFk)" },
+    autoFk: { type: "boolean", description: "Auto-create a <source>_<pk> FK column on the target table when no targetColumns are given" },
+    name: { type: "string", description: "Relationship (constraint) name" },
+    onDelete: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON DELETE referential action", default: "NO ACTION" },
+    onUpdate: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON UPDATE referential action", default: "NO ACTION" }
   });
-  add2("update-relationship", "\uAD00\uACC4 \uC18D\uC131 \uBCC0\uACBD", (p3) => {
+  add2("update-relationship", "Update properties of an existing FK relationship", { ko: "\uAD00\uACC4 \uC218\uC815 \uC678\uB798\uD0A4 \uC18D\uC131 \uBCC0\uACBD" }, (p3) => {
     if (!p3.id || !store.getState().relationships[p3.id]) {
       return { ok: false, error: `relationship not found: '${p3.id}'` };
     }
@@ -87678,14 +87678,14 @@ function registerCommands(ctx, store) {
     store.getState().updateRelationship(p3.id, updates);
     return { ok: true, id: p3.id };
   }, {
-    id: { type: "string", required: true, description: "\uB300\uC0C1 \uAD00\uACC4 id" },
-    name: { type: "string", description: "\uAD00\uACC4 \uC774\uB984" },
-    type: { type: "string", enum: ["1:1", "1:N", "N:M"], description: "\uAD00\uACC4 \uCE74\uB514\uB110\uB9AC\uD2F0" },
-    onDelete: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON DELETE \uB3D9\uC791" },
-    onUpdate: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON UPDATE \uB3D9\uC791" },
-    lineStyle: { type: "string", enum: ["dashed", "solid"], description: "\uAD00\uACC4 \uC120 \uC2A4\uD0C0\uC77C" }
+    id: { type: "string", required: true, description: "Relationship id to update" },
+    name: { type: "string", description: "Relationship name" },
+    type: { type: "string", enum: ["1:1", "1:N", "N:M"], description: "Relationship cardinality" },
+    onDelete: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON DELETE referential action" },
+    onUpdate: { type: "string", enum: ["CASCADE", "SET NULL", "RESTRICT", "NO ACTION", "SET DEFAULT"], description: "ON UPDATE referential action" },
+    lineStyle: { type: "string", enum: ["dashed", "solid"], description: "Visual line style for the relationship edge" }
   });
-  add2("drop-relationship", "\uAD00\uACC4 \uC0AD\uC81C(ifExists \uBA71\uB4F1)", (p3) => {
+  add2("drop-relationship", "Delete a FK relationship; idempotent when ifExists is true", { ko: "\uAD00\uACC4 \uC0AD\uC81C \uC678\uB798\uD0A4 \uC81C\uAC70" }, (p3) => {
     if (!p3.id || !store.getState().relationships[p3.id]) {
       if (p3.ifExists) return { ok: true, noop: true };
       return { ok: false, error: `relationship not found: '${p3.id}'` };
@@ -87693,19 +87693,19 @@ function registerCommands(ctx, store) {
     store.getState().removeRelationship(p3.id);
     return { ok: true, id: p3.id };
   }, {
-    id: { type: "string", required: true, description: "\uC0AD\uC81C\uD560 \uAD00\uACC4 id" },
-    ifExists: { type: "boolean", description: "\uC5C6\uC73C\uBA74 noop(\uBA71\uB4F1)" }
+    id: { type: "string", required: true, description: "Relationship id to delete" },
+    ifExists: { type: "boolean", description: "Return noop instead of error when the relationship does not exist" }
   });
-  add2("set-color", "\uD14C\uC774\uBE14 \uC0C9\uC0C1 \uC124\uC815(null \uB85C \uD574\uC81C)", (p3) => {
+  add2("set-color", "Set or clear the highlight color of a table", { ko: "\uD14C\uC774\uBE14 \uC0C9\uC0C1 \uC124\uC815 \uD558\uC774\uB77C\uC774\uD2B8 \uD574\uC81C" }, (p3) => {
     const r4 = resolveTable(store, p3.table);
     if (!r4.ok) return r4;
     store.getState().updateTable(r4.id, { color: p3.color ?? void 0 });
     return { ok: true, id: r4.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    color: { type: "string", description: "\uC0C9\uC0C1(\uC608: #RRGGBB). \uC0DD\uB7B5/null \uC774\uBA74 \uD574\uC81C" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    color: { type: "string", description: "Color value (e.g. #RRGGBB). Omit or pass null to clear" }
   });
-  add2("apply", "\uBC30\uCE58 \uC2E4\uD589({ops,atomic,title}). atomic \uBD80\uBD84 \uC2E4\uD328 \uC2DC \uC2A4\uB0C5\uC0F7 \uBCF5\uC6D0", async (p3) => {
+  add2("apply", "Execute a batch of commands sequentially; rolls back to a snapshot on failure when atomic is true", { ko: "\uBC30\uCE58 \uC2E4\uD589 \uC5EC\uB7EC \uBA85\uB839 \uC21C\uCC28 \uC6D0\uC790\uC801 \uB864\uBC31" }, async (p3) => {
     const ops = p3.ops;
     if (!Array.isArray(ops)) return { ok: false, error: "ops array required" };
     const atomic = p3.atomic !== false;
@@ -87747,20 +87747,20 @@ function registerCommands(ctx, store) {
     }
     return { ok: true, results };
   }, {
-    ops: { type: "json", required: true, description: "\uC2E4\uD589\uD560 \uC791\uC5C5 \uBC30\uC5F4([{ command, params }])" },
-    atomic: { type: "boolean", description: "\uBD80\uBD84 \uC2E4\uD328 \uC2DC \uC2DC\uC791 \uC2A4\uB0C5\uC0F7\uC73C\uB85C \uC804\uCCB4 \uBCF5\uC6D0(\uAE30\uBCF8 true)", default: true },
-    title: { type: "string", description: "\uC131\uACF5 \uC2DC \uCEE4\uBC0B\uD560 \uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC81C\uBAA9" }
+    ops: { type: "json", required: true, description: "Array of operations to execute ([{ command, params }])" },
+    atomic: { type: "boolean", description: "Roll back all changes to the pre-batch snapshot if any operation fails (default true)", default: true },
+    title: { type: "string", description: "Migration version title to commit on success" }
   });
-  add2("undo", "\uB9C8\uC9C0\uB9C9 \uBBF8\uCEE4\uBC0B \uC791\uC5C5 \uB418\uB3CC\uB9AC\uAE30(\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC2AC\uB77C\uC774\uC2A4 \uAE30\uBC18)", () => {
+  add2("undo", "Revert the last uncommitted operation using the migration slice", { ko: "\uC2E4\uD589 \uCDE8\uC18C \uB418\uB3CC\uB9AC\uAE30 undo" }, () => {
     const fn = store.getState().undoLastOperation;
     if (typeof fn !== "function") return { ok: false, error: "undo not available" };
     const inverse = fn();
     return { ok: true, inverse };
   });
-  add2("redo", "\uB418\uB3CC\uB9B0 \uC791\uC5C5 \uB2E4\uC2DC \uC801\uC6A9(P3/P4 \uD1B5\uD569 \uC608\uC815 stub)", () => {
+  add2("redo", "Re-apply the last undone operation (stub; wiring deferred to P3/P4)", { ko: "\uB2E4\uC2DC \uC2E4\uD589 redo \uBCF5\uC6D0" }, () => {
     return { ok: true, noop: true, todo: "redo wiring deferred to P3/P4" };
   });
-  add2("auto-layout", "\uC790\uB3D9 \uBC30\uCE58(dagre \uAE30\uBC18 \uC88C\uD45C \uACC4\uC0B0\xB7\uC801\uC6A9)", (p3) => {
+  add2("auto-layout", "Compute and apply automatic table positions using the dagre graph layout algorithm", { ko: "\uC790\uB3D9 \uBC30\uCE58 \uB808\uC774\uC544\uC6C3 dagre \uC704\uCE58 \uC815\uB82C" }, (p3) => {
     const schema = snapshotSchema(store);
     const positions = computeAutoLayout(schema, store.getState().nodePositions, {
       direction: p3.direction ?? "TB"
@@ -87768,9 +87768,9 @@ function registerCommands(ctx, store) {
     store.getState().setNodePositions(positions);
     return { ok: true, count: Object.keys(positions).length };
   }, {
-    direction: { type: "string", enum: ["TB", "LR", "BT", "RL"], description: "\uBC30\uCE58 \uBC29\uD5A5(dagre rankdir)", default: "TB" }
+    direction: { type: "string", enum: ["TB", "LR", "BT", "RL"], description: "Layout direction (dagre rankdir)", default: "TB" }
   });
-  add2("set-position", "\uD14C\uC774\uBE14 \uC88C\uD45C \uC124\uC815(\uC774\uB984/ id)", (p3) => {
+  add2("set-position", "Set the canvas position of a table by name or id", { ko: "\uD14C\uC774\uBE14 \uC704\uCE58 \uC124\uC815 \uC88C\uD45C \uC774\uB3D9" }, (p3) => {
     const r4 = resolveTable(store, p3.table);
     if (!r4.ok) return r4;
     if (typeof p3.x !== "number" || typeof p3.y !== "number") {
@@ -87779,14 +87779,14 @@ function registerCommands(ctx, store) {
     store.getState().setNodePosition(r4.id, { x: p3.x, y: p3.y });
     return { ok: true, id: r4.id };
   }, {
-    table: { type: "string", required: true, description: "\uB300\uC0C1 \uD14C\uC774\uBE14 \uC774\uB984 \uB610\uB294 id" },
-    x: { type: "number", required: true, description: "x \uC88C\uD45C" },
-    y: { type: "number", required: true, description: "y \uC88C\uD45C" }
+    table: { type: "string", required: true, description: "Target table name or id" },
+    x: { type: "number", required: true, description: "Canvas x coordinate" },
+    y: { type: "number", required: true, description: "Canvas y coordinate" }
   });
-  add2("get-viewport", "\uBDF0\uD3EC\uD2B8 \uC870\uD68C", () => {
+  add2("get-viewport", "Return the current canvas viewport (x, y, zoom)", { ko: "\uBDF0\uD3EC\uD2B8 \uC870\uD68C \uCE94\uBC84\uC2A4 \uC88C\uD45C \uC90C" }, () => {
     return { ok: true, viewport: store.getState().viewport };
   });
-  add2("set-viewport", "\uBDF0\uD3EC\uD2B8 \uC124\uC815(x/y/zoom)", (p3) => {
+  add2("set-viewport", "Set canvas viewport position and zoom; omitted fields keep their current value", { ko: "\uBDF0\uD3EC\uD2B8 \uC124\uC815 \uCE94\uBC84\uC2A4 \uC774\uB3D9 \uC90C" }, (p3) => {
     const v4 = store.getState().viewport;
     store.getState().setViewport({
       x: typeof p3.x === "number" ? p3.x : v4.x,
@@ -87795,11 +87795,11 @@ function registerCommands(ctx, store) {
     });
     return { ok: true, viewport: store.getState().viewport };
   }, {
-    x: { type: "number", description: "\uBDF0\uD3EC\uD2B8 x(\uC0DD\uB7B5 \uC2DC \uD604\uC7AC \uC720\uC9C0)" },
-    y: { type: "number", description: "\uBDF0\uD3EC\uD2B8 y(\uC0DD\uB7B5 \uC2DC \uD604\uC7AC \uC720\uC9C0)" },
-    zoom: { type: "number", description: "\uC90C \uBC30\uC728(\uC0DD\uB7B5 \uC2DC \uD604\uC7AC \uC720\uC9C0)" }
+    x: { type: "number", description: "Viewport x offset (keeps current value when omitted)" },
+    y: { type: "number", description: "Viewport y offset (keeps current value when omitted)" },
+    zoom: { type: "number", description: "Zoom scale factor (keeps current value when omitted)" }
   });
-  add2("select", "\uD14C\uC774\uBE14 \uC120\uD0DD(\uC774\uB984/ id \uBC30\uC5F4 \u2192 \uB178\uB4DC \uC120\uD0DD)", (p3) => {
+  add2("select", "Select table nodes on the canvas by name or id array", { ko: "\uD14C\uC774\uBE14 \uC120\uD0DD \uB178\uB4DC \uC120\uD0DD" }, (p3) => {
     const args = Array.isArray(p3.tables) ? p3.tables : [];
     const ids2 = [];
     for (const arg of args) {
@@ -87810,15 +87810,15 @@ function registerCommands(ctx, store) {
     store.getState().setSelectedNodeIds(ids2);
     return { ok: true, selected: ids2 };
   }, {
-    tables: { type: "json", description: "\uC120\uD0DD\uD560 \uD14C\uC774\uBE14 \uC774\uB984/ id \uBC30\uC5F4" }
+    tables: { type: "json", description: "Table names or ids to select" }
   });
-  add2("fit", "\uBDF0\uD3EC\uD2B8\uB97C \uC804\uCCB4 \uCF58\uD150\uCE20\uC5D0 \uB9DE\uCDA4(\uBDF0\uAC00 \uB9C8\uC6B4\uD2B8\uB41C \uACBD\uC6B0\uB9CC \u2014 \uD5E4\uB4DC\uB9AC\uC2A4\uC5D4 no-op)", () => {
+  add2("fit", "Fit the viewport to all content on the canvas (no-op in headless mode when the view is not mounted)", { ko: "\uBDF0\uD3EC\uD2B8 \uB9DE\uCDA4 \uC804\uCCB4 \uBCF4\uAE30 fit" }, () => {
     const fit = store.getState().fitViewFn;
     if (!fit) return { ok: true, applied: false, reason: "view not mounted" };
     fit();
     return { ok: true, applied: true, viewport: store.getState().viewport };
   });
-  add2("get-render-state", "\uB80C\uB354/\uBDF0 \uC0C1\uD0DC(\uB9C8\uC6B4\uD2B8 \uC5EC\uBD80\xB7\uB178\uB4DC\uC218\xB7\uBDF0\uD3EC\uD2B8 \u2014 \uBDF0 E2E \uB2E8\uC5B8\uC6A9)", () => {
+  add2("get-render-state", "Return render and view state for E2E assertions (mounted, node counts, viewport)", { ko: "\uB80C\uB354 \uC0C1\uD0DC \uC870\uD68C \uBDF0 E2E \uB2E8\uC5B8" }, () => {
     const s3 = store.getState();
     return {
       ok: true,
@@ -87832,7 +87832,7 @@ function registerCommands(ctx, store) {
       viewport: s3.viewport
     };
   });
-  add2("export-sql", "SQL DDL \uC0DD\uC131(dialect \uC120\uD0DD: sqlite/mysql/postgresql)", (p3) => {
+  add2("export-sql", "Generate SQL DDL from the current schema for the selected dialect", { ko: "SQL \uB0B4\uBCF4\uB0B4\uAE30 DDL \uC0DD\uC131 \uB370\uC774\uD130\uBCA0\uC774\uC2A4" }, (p3) => {
     const dialect = p3.dialect ?? "mysql";
     try {
       const sql = getDialect(dialect).generate(snapshotSchema(store));
@@ -87841,9 +87841,9 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `export-sql failed: ${e4.message}` };
     }
   }, {
-    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "\uB300\uC0C1 DB dialect", default: "mysql" }
+    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "Target database dialect", default: "mysql" }
   });
-  add2("import-sql", "SQL DDL \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(dialect \uC120\uD0DD, mode: merge/replace)", (p3) => {
+  add2("import-sql", "Parse SQL DDL text and load it into the schema", { ko: "SQL \uAC00\uC838\uC624\uAE30 DDL \uD30C\uC2F1 \uBD88\uB7EC\uC624\uAE30" }, (p3) => {
     if (!p3.text || typeof p3.text !== "string") return { ok: false, error: "text required" };
     const dialect = p3.dialect ?? "mysql";
     const mode = p3.mode === "replace" ? "replace" : "merge";
@@ -87855,18 +87855,18 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `import-sql failed: ${e4.message}` };
     }
   }, {
-    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 SQL DDL \uD14D\uC2A4\uD2B8" },
-    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "\uC785\uB825 DDL \uC758 dialect", default: "mysql" },
-    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+    text: { type: "string", required: true, description: "SQL DDL text to parse" },
+    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "Dialect of the input DDL", default: "mysql" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge: add on top of existing schema; replace: clear then load", default: "merge" }
   });
-  add2("export-dbml", "DBML \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+  add2("export-dbml", "Generate DBML from the current schema", { ko: "DBML \uB0B4\uBCF4\uB0B4\uAE30 \uC0DD\uC131" }, () => {
     try {
       return { ok: true, dbml: generateDbml(snapshotSchema(store)) };
     } catch (e4) {
       return { ok: false, error: `export-dbml failed: ${e4.message}` };
     }
   });
-  add2("import-dbml", "DBML \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p3) => {
+  add2("import-dbml", "Parse DBML text and load it into the schema", { ko: "DBML \uAC00\uC838\uC624\uAE30 \uD30C\uC2F1 \uBD88\uB7EC\uC624\uAE30" }, (p3) => {
     if (!p3.text || typeof p3.text !== "string") return { ok: false, error: "text required" };
     const mode = p3.mode === "replace" ? "replace" : "merge";
     try {
@@ -87877,17 +87877,17 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `import-dbml failed: ${e4.message}` };
     }
   }, {
-    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 DBML \uD14D\uC2A4\uD2B8" },
-    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+    text: { type: "string", required: true, description: "DBML text to parse" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge: add on top of existing schema; replace: clear then load", default: "merge" }
   });
-  add2("export-prisma", "Prisma \uC2A4\uD0A4\uB9C8 \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+  add2("export-prisma", "Generate a Prisma schema from the current ERD schema", { ko: "Prisma \uC2A4\uD0A4\uB9C8 \uB0B4\uBCF4\uB0B4\uAE30 \uC0DD\uC131" }, () => {
     try {
       return { ok: true, prisma: generatePrisma(snapshotSchema(store)) };
     } catch (e4) {
       return { ok: false, error: `export-prisma failed: ${e4.message}` };
     }
   });
-  add2("import-prisma", "Prisma \uC2A4\uD0A4\uB9C8 \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p3) => {
+  add2("import-prisma", "Parse a Prisma schema text and load it into the ERD schema", { ko: "Prisma \uC2A4\uD0A4\uB9C8 \uAC00\uC838\uC624\uAE30 \uD30C\uC2F1 \uBD88\uB7EC\uC624\uAE30" }, (p3) => {
     if (!p3.text || typeof p3.text !== "string") return { ok: false, error: "text required" };
     const mode = p3.mode === "replace" ? "replace" : "merge";
     try {
@@ -87898,17 +87898,17 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `import-prisma failed: ${e4.message}` };
     }
   }, {
-    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 Prisma \uC2A4\uD0A4\uB9C8 \uD14D\uC2A4\uD2B8" },
-    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+    text: { type: "string", required: true, description: "Prisma schema text to parse" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge: add on top of existing schema; replace: clear then load", default: "merge" }
   });
-  add2("export-mermaid", "Mermaid erDiagram \uC0DD\uC131(\uD604\uC7AC \uC2A4\uD0A4\uB9C8)", () => {
+  add2("export-mermaid", "Generate a Mermaid erDiagram from the current schema", { ko: "Mermaid \uB2E4\uC774\uC5B4\uADF8\uB7A8 \uB0B4\uBCF4\uB0B4\uAE30 \uC0DD\uC131" }, () => {
     try {
       return { ok: true, mermaid: generateMermaid(snapshotSchema(store)) };
     } catch (e4) {
       return { ok: false, error: `export-mermaid failed: ${e4.message}` };
     }
   });
-  add2("import-mermaid", "Mermaid erDiagram \uD30C\uC2F1 \uD6C4 \uC801\uC7AC(mode: merge/replace)", (p3) => {
+  add2("import-mermaid", "Parse a Mermaid erDiagram text and load it into the schema", { ko: "Mermaid \uB2E4\uC774\uC5B4\uADF8\uB7A8 \uAC00\uC838\uC624\uAE30 \uD30C\uC2F1 \uBD88\uB7EC\uC624\uAE30" }, (p3) => {
     if (!p3.text || typeof p3.text !== "string") return { ok: false, error: "text required" };
     const mode = p3.mode === "replace" ? "replace" : "merge";
     try {
@@ -87919,13 +87919,13 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `import-mermaid failed: ${e4.message}` };
     }
   }, {
-    text: { type: "string", required: true, description: "\uD30C\uC2F1\uD560 Mermaid erDiagram \uD14D\uC2A4\uD2B8" },
-    mode: { type: "string", enum: ["merge", "replace"], description: "merge(\uAE30\uC874 \uC704 \uD569\uCE68) | replace(\uAE30\uC874 \uBE44\uC6B0\uACE0 \uC801\uC7AC)", default: "merge" }
+    text: { type: "string", required: true, description: "Mermaid erDiagram text to parse" },
+    mode: { type: "string", enum: ["merge", "replace"], description: "merge: add on top of existing schema; replace: clear then load", default: "merge" }
   });
   const fs = ctx.app.fs;
   const needFs = () => fs ? null : { ok: false, error: "fs \uAD8C\uD55C \uD544\uC694" };
   const requireDir = (p3) => typeof p3.dir === "string" && p3.dir.length > 0 ? null : { ok: false, error: "dir(\uC808\uB300\uACBD\uB85C) required" };
-  add2("migration-status", "\uB300\uAE30 \uBCC0\uACBD \uBBF8\uB9AC\uBCF4\uAE30(\uBCA0\uC774\uC2A4\uB77C\uC778 vs \uD604\uC7AC working store diff)", async (p3) => {
+  add2("migration-status", "Preview pending changes by diffing the baseline (.mig files) against the current working schema", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC0C1\uD0DC \uB300\uAE30 \uBCC0\uACBD \uBBF8\uB9AC\uBCF4\uAE30" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -87945,9 +87945,9 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-status \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" }
   });
-  add2("migration-generate", "\uBCA0\uC774\uC2A4\uB77C\uC778\u2192\uD604\uC7AC diff \uB85C .mig \uC0DD\uC131(confirm \uC5C6\uC73C\uBA74 preview, confirm=true \uBA74 \uD30C\uC77C \uAE30\uB85D)", async (p3) => {
+  add2("migration-generate", "Generate a .mig file from the diff between the baseline and the current schema; previews only unless confirm is true", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC0DD\uC131 .mig \uD30C\uC77C diff \uC800\uC7A5" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -87969,11 +87969,11 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-generate \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
-    name: { type: "string", description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC774\uB984 \uBA54\uD0C0(\uD30C\uC77C\uC5D0 -- name: \uC73C\uB85C \uAE30\uB85D)" },
-    confirm: { type: "boolean", description: "true \uBA74 \uD30C\uC77C \uAE30\uB85D, \uC0DD\uB7B5 \uC2DC \uBBF8\uB9AC\uBCF4\uAE30(mig/ops \uB9CC)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
+    name: { type: "string", description: "Migration name written as a -- name: comment in the file" },
+    confirm: { type: "boolean", description: "Write the file to disk when true; return a preview (mig/ops) only when omitted" }
   });
-  add2("migration-list", "\uB514\uB809\uD1A0\uB9AC\uC758 .mig \uD30C\uC77C \uBAA9\uB85D(\uC774\uB984\uC21C)", async (p3) => {
+  add2("migration-list", "List .mig files in a directory sorted by name (chronological order)", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uBAA9\uB85D .mig \uD30C\uC77C \uC870\uD68C" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -87987,9 +87987,9 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-list \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" }
   });
-  add2("migration-show", "\uB2E8\uC77C .mig \uD30C\uC77C \uB0B4\uC6A9\xB7\uD30C\uC2F1 \uACB0\uACFC \uC870\uD68C", async (p3) => {
+  add2("migration-show", "Show the raw text and parsed content of a single .mig file", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC870\uD68C .mig \uB0B4\uC6A9 \uD30C\uC2F1 \uACB0\uACFC" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -88006,10 +88006,10 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-show \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
-    id: { type: "string", required: true, description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
+    id: { type: "string", required: true, description: ".mig filename (extension is optional)" }
   });
-  add2("migration-sql", "\uB2E8\uC77C .mig \uC758 up ops \u2192 \uD574\uB2F9 dialect DDL \uC0DD\uC131", async (p3) => {
+  add2("migration-sql", "Convert the up operations of a single .mig file into dialect-specific DDL statements", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 SQL \uBCC0\uD658 DDL \uC0DD\uC131 dialect" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -88031,11 +88031,11 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-sql \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
-    id: { type: "string", required: true, description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5)" },
-    dialect: { type: "string", enum: ["mysql", "postgresql"], description: "\uB300\uC0C1 DB dialect", default: "mysql" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
+    id: { type: "string", required: true, description: ".mig filename (extension is optional)" },
+    dialect: { type: "string", enum: ["mysql", "postgresql"], description: "Target database dialect", default: "mysql" }
   });
-  add2("migration-apply", ".mig \uC758 up ops \uB97C working store \uC5D0 \uC801\uC6A9(id \uC0DD\uB7B5 \uC2DC dir \uC804\uCCB4 fold)", async (p3) => {
+  add2("migration-apply", "Apply the up operations of a .mig file (or all files when id is omitted) to the working schema", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC801\uC6A9 up \uC2A4\uD0A4\uB9C8 \uBC18\uC601" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -88059,10 +88059,10 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-apply \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
-    id: { type: "string", description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5, \uC0DD\uB7B5 \uC2DC dir \uC804\uCCB4 \uBCA0\uC774\uC2A4\uB77C\uC778 \uC801\uC6A9)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
+    id: { type: "string", description: ".mig filename (extension optional); omit to fold all files in the directory" }
   });
-  add2("migration-revert", ".mig \uC758 down ops \uB97C working store \uC5D0 \uC801\uC6A9(\uC5ED\uC5F0\uC0B0 \u2014 id \uC0DD\uB7B5 \uC2DC \uB9C8\uC9C0\uB9C9 \uD30C\uC77C)", async (p3) => {
+  add2("migration-revert", "Apply the down operations of a .mig file to the working schema (defaults to the most recent file)", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB418\uB3CC\uB9AC\uAE30 down \uB864\uBC31 \uC5ED\uC5F0\uC0B0" }, async (p3) => {
     const g3 = needFs();
     if (g3) return g3;
     const d3 = requireDir(p3);
@@ -88088,15 +88088,15 @@ function registerCommands(ctx, store) {
       return { ok: false, error: `migration-revert \uC2E4\uD328: ${errMsg(e4)}` };
     }
   }, {
-    dir: { type: "string", required: true, description: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uB514\uB809\uD1A0\uB9AC(\uC808\uB300\uACBD\uB85C)" },
-    id: { type: "string", description: ".mig \uD30C\uC77C\uBA85(\uD655\uC7A5\uC790 \uC0DD\uB7B5 \uAC00\uB2A5, \uC0DD\uB7B5 \uC2DC \uAC00\uC7A5 \uCD5C\uC2E0 \uD30C\uC77C)" }
+    dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
+    id: { type: "string", description: ".mig filename (extension optional); omit to revert the most recent file" }
   });
-  add2("migration-lint", ".mig \uD14D\uC2A4\uD2B8 \uBB38\uBC95 \uAC80\uC99D(\uC5D0\uB7EC \uBAA9\uB85D, fs \uBD88\uC694)", (p3) => {
+  add2("migration-lint", "Validate .mig text syntax and return a list of errors (no fs access required)", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uBB38\uBC95 \uAC80\uC0AC lint .mig \uC624\uB958" }, (p3) => {
     if (typeof p3.text !== "string") return { ok: false, error: "text required" };
     const { errors } = lintMig(p3.text);
     return { ok: true, errors, valid: errors.length === 0 };
   }, {
-    text: { type: "string", required: true, description: "\uAC80\uC99D\uD560 .mig \uD14D\uC2A4\uD2B8" }
+    text: { type: "string", required: true, description: ".mig text to validate" }
   });
 }
 

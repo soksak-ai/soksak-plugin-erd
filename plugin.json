@@ -231,10 +231,16 @@
       {
         "id": "erd",
         "title": "ERD",
-        "path": { "ko": "유틸리티", "en": "Utility" },
+        "path": {
+          "ko": "유틸리티",
+          "en": "Utility"
+        },
         "kind": "view",
         "view": "canvas"
       }
-    ]
+    ],
+    "skill": {
+      "path": "skill/SKILL.md"
+    }
   }
 }
