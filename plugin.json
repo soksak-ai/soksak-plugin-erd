@@ -1,10 +1,10 @@
 {
   "spec": "soksak-plugin-spec@1",
   "id": "soksak-plugin-erd",
-  "name": "ERD",
+  "name": { "en": "ERD", "ko": "ERD" },
   "version": "0.1.0",
   "repo": "https://github.com/soksak-ai/soksak-plugin-erd.git",
-  "description": "멀티-DB ERD 에디터 — 스키마 설계·마이그레이션·SQL 생성을 GUI 와 CLI/MCP 로.",
+  "description": { "en": "Multi-DB ERD editor — schema design, migration, and SQL generation via GUI and CLI/MCP.", "ko": "멀티-DB ERD 에디터 — 스키마 설계·마이그레이션·SQL 생성을 GUI 와 CLI/MCP 로." },
   "entry": "main.js",
   "permissions": [
     "ui",
@@ -17,7 +17,7 @@
     "views": [
       {
         "id": "canvas",
-        "title": "ERD",
+        "title": { "en": "ERD", "ko": "ERD" },
         "icon": "▤",
         "placements": [
           "content"
@@ -28,203 +28,203 @@
     "commands": [
       {
         "name": "ping",
-        "title": "플러그인 적재/버전 확인(E2E)"
+        "title": { "en": "Plugin load / version check (E2E)", "ko": "플러그인 적재/버전 확인(E2E)" }
       },
       {
         "name": "add-column",
-        "title": "컬럼 추가"
+        "title": { "en": "Add column", "ko": "컬럼 추가" }
       },
       {
         "name": "add-index",
-        "title": "인덱스 추가"
+        "title": { "en": "Add index", "ko": "인덱스 추가" }
       },
       {
         "name": "add-relationship",
-        "title": "관계 추가"
+        "title": { "en": "Add relationship", "ko": "관계 추가" }
       },
       {
         "name": "apply",
-        "title": "배치 실행"
+        "title": { "en": "Apply batch", "ko": "배치 실행" }
       },
       {
         "name": "auto-layout",
-        "title": "자동 레이아웃"
+        "title": { "en": "Auto layout", "ko": "자동 레이아웃" }
       },
       {
         "name": "create-table",
-        "title": "테이블 생성"
+        "title": { "en": "Create table", "ko": "테이블 생성" }
       },
       {
         "name": "diff",
-        "title": "스키마 차이"
+        "title": { "en": "Schema diff", "ko": "스키마 차이" }
       },
       {
         "name": "drop-column",
-        "title": "컬럼 삭제"
+        "title": { "en": "Drop column", "ko": "컬럼 삭제" }
       },
       {
         "name": "drop-index",
-        "title": "인덱스 삭제"
+        "title": { "en": "Drop index", "ko": "인덱스 삭제" }
       },
       {
         "name": "drop-relationship",
-        "title": "관계 삭제"
+        "title": { "en": "Drop relationship", "ko": "관계 삭제" }
       },
       {
         "name": "drop-table",
-        "title": "테이블 삭제"
+        "title": { "en": "Drop table", "ko": "테이블 삭제" }
       },
       {
         "name": "export-sql",
-        "title": "SQL 내보내기"
+        "title": { "en": "Export SQL", "ko": "SQL 내보내기" }
       },
       {
         "name": "import-sql",
-        "title": "SQL 가져오기"
+        "title": { "en": "Import SQL", "ko": "SQL 가져오기" }
       },
       {
         "name": "export-dbml",
-        "title": "DBML 내보내기"
+        "title": { "en": "Export DBML", "ko": "DBML 내보내기" }
       },
       {
         "name": "import-dbml",
-        "title": "DBML 가져오기"
+        "title": { "en": "Import DBML", "ko": "DBML 가져오기" }
       },
       {
         "name": "export-prisma",
-        "title": "Prisma 내보내기"
+        "title": { "en": "Export Prisma", "ko": "Prisma 내보내기" }
       },
       {
         "name": "import-prisma",
-        "title": "Prisma 가져오기"
+        "title": { "en": "Import Prisma", "ko": "Prisma 가져오기" }
       },
       {
         "name": "export-mermaid",
-        "title": "Mermaid 내보내기"
+        "title": { "en": "Export Mermaid", "ko": "Mermaid 내보내기" }
       },
       {
         "name": "import-mermaid",
-        "title": "Mermaid 가져오기"
+        "title": { "en": "Import Mermaid", "ko": "Mermaid 가져오기" }
       },
       {
         "name": "fit",
-        "title": "뷰포트 맞춤"
+        "title": { "en": "Fit viewport", "ko": "뷰포트 맞춤" }
       },
       {
         "name": "get-render-state",
-        "title": "렌더 상태"
+        "title": { "en": "Render state", "ko": "렌더 상태" }
       },
       {
         "name": "get-columns",
-        "title": "컬럼 목록"
+        "title": { "en": "List columns", "ko": "컬럼 목록" }
       },
       {
         "name": "get-schema",
-        "title": "스키마 조회"
+        "title": { "en": "Get schema", "ko": "스키마 조회" }
       },
       {
         "name": "get-table",
-        "title": "테이블 조회"
+        "title": { "en": "Get table", "ko": "테이블 조회" }
       },
       {
         "name": "get-viewport",
-        "title": "뷰포트 조회"
+        "title": { "en": "Get viewport", "ko": "뷰포트 조회" }
       },
       {
         "name": "list-relationships",
-        "title": "관계 목록"
+        "title": { "en": "List relationships", "ko": "관계 목록" }
       },
       {
         "name": "list-tables",
-        "title": "테이블 목록"
+        "title": { "en": "List tables", "ko": "테이블 목록" }
       },
       {
         "name": "redo",
-        "title": "다시실행"
+        "title": { "en": "Redo", "ko": "다시실행" }
       },
       {
         "name": "rename-table",
-        "title": "테이블 이름변경"
+        "title": { "en": "Rename table", "ko": "테이블 이름변경" }
       },
       {
         "name": "reorder-columns",
-        "title": "컬럼 순서변경"
+        "title": { "en": "Reorder columns", "ko": "컬럼 순서변경" }
       },
       {
         "name": "select",
-        "title": "선택"
+        "title": { "en": "Select", "ko": "선택" }
       },
       {
         "name": "set-color",
-        "title": "색상 설정"
+        "title": { "en": "Set color", "ko": "색상 설정" }
       },
       {
         "name": "set-pk",
-        "title": "기본키 설정"
+        "title": { "en": "Set primary key", "ko": "기본키 설정" }
       },
       {
         "name": "set-position",
-        "title": "위치 설정"
+        "title": { "en": "Set position", "ko": "위치 설정" }
       },
       {
         "name": "set-unique",
-        "title": "UNIQUE 설정"
+        "title": { "en": "Set UNIQUE", "ko": "UNIQUE 설정" }
       },
       {
         "name": "set-viewport",
-        "title": "뷰포트 설정"
+        "title": { "en": "Set viewport", "ko": "뷰포트 설정" }
       },
       {
         "name": "stats",
-        "title": "통계"
+        "title": { "en": "Stats", "ko": "통계" }
       },
       {
         "name": "undo",
-        "title": "실행취소"
+        "title": { "en": "Undo", "ko": "실행취소" }
       },
       {
         "name": "update-column",
-        "title": "컬럼 수정"
+        "title": { "en": "Update column", "ko": "컬럼 수정" }
       },
       {
         "name": "update-relationship",
-        "title": "관계 수정"
+        "title": { "en": "Update relationship", "ko": "관계 수정" }
       },
       {
         "name": "validate",
-        "title": "스키마 검증"
+        "title": { "en": "Validate schema", "ko": "스키마 검증" }
       },
       {
         "name": "migration-status",
-        "title": "마이그레이션 상태"
+        "title": { "en": "Migration status", "ko": "마이그레이션 상태" }
       },
       {
         "name": "migration-generate",
-        "title": "마이그레이션 생성"
+        "title": { "en": "Generate migration", "ko": "마이그레이션 생성" }
       },
       {
         "name": "migration-list",
-        "title": "마이그레이션 목록"
+        "title": { "en": "List migrations", "ko": "마이그레이션 목록" }
       },
       {
         "name": "migration-show",
-        "title": "마이그레이션 조회"
+        "title": { "en": "Show migration", "ko": "마이그레이션 조회" }
       },
       {
         "name": "migration-sql",
-        "title": "마이그레이션 SQL"
+        "title": { "en": "Migration SQL", "ko": "마이그레이션 SQL" }
       },
       {
         "name": "migration-apply",
-        "title": "마이그레이션 적용"
+        "title": { "en": "Apply migration", "ko": "마이그레이션 적용" }
       },
       {
         "name": "migration-revert",
-        "title": "마이그레이션 되돌리기"
+        "title": { "en": "Revert migration", "ko": "마이그레이션 되돌리기" }
       },
       {
         "name": "migration-lint",
-        "title": "마이그레이션 린트"
+        "title": { "en": "Lint migration", "ko": "마이그레이션 린트" }
       }
     ],
     "programs": [
