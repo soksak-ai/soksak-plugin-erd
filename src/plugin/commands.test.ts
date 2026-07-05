@@ -129,6 +129,8 @@ describe('registerCommands — 카탈로그 등록', () => {
       expect(handlers.has(name), `missing command: ${name}`).toBe(true);
       expect(typeof specs.get(name).description).toBe('string');
       expect(specs.get(name).description.length).toBeGreaterThan(0);
+      // message 프로토콜: 전 카탈로그 커맨드가 결과 요약 message 함수를 갖는다.
+      expect(typeof specs.get(name).message, `${name} message`).toBe('function');
     }
     // ping 은 plugin-entry 소관 — 카탈로그에서 제외.
     expect(handlers.has('ping')).toBe(false);
@@ -168,7 +170,8 @@ describe('Mutation ↔ Introspection 동치', () => {
     // ifNotExists 없으면 동명 충돌은 에러.
     const c = await call('create-table', { name: 'orders' });
     expect(c.ok).toBe(false);
-    expect(c.error).toBeTruthy();
+    expect(c.message).toBeTruthy();
+    expect(c.code).toBe('ALREADY_EXISTS');
   });
 
   it('이름 기반 주소지정: rename/add-column/drop-table 가 이름으로 동작한다', async () => {
@@ -303,7 +306,7 @@ describe('Batch apply — atomic 스냅샷/복원', () => {
       ],
     });
     expect(res.ok).toBe(false);
-    expect(res.error).toBeTruthy();
+    expect(res.message).toBeTruthy();
 
     // 롤백: tmp1/tmp2 둘 다 없고 keep 만 남는다.
     const list = await call('list-tables');
@@ -437,7 +440,7 @@ describe('Import/Export — 라운드트립(엔진 배선)', () => {
       expect(exp.sql.length).toBeGreaterThan(0);
 
       const imp = await call('import-sql', { text: exp.sql, dialect, mode: 'replace' });
-      expect(imp.ok, `import-sql ${dialect}: ${imp.error}`).toBe(true);
+      expect(imp.ok, `import-sql ${dialect}: ${imp.message}`).toBe(true);
       expect(imp.added.tables).toBeGreaterThan(0);
 
       const after = await tableNames(call);
@@ -455,7 +458,7 @@ describe('Import/Export — 라운드트립(엔진 배선)', () => {
     expect(exp.dbml.length).toBeGreaterThan(0);
 
     const imp = await call('import-dbml', { text: exp.dbml, mode: 'replace' });
-    expect(imp.ok, `import-dbml: ${imp.error}`).toBe(true);
+    expect(imp.ok, `import-dbml: ${imp.message}`).toBe(true);
 
     const after = await tableNames(call);
     expect(after).toEqual(before);
@@ -471,7 +474,7 @@ describe('Import/Export — 라운드트립(엔진 배선)', () => {
     expect(exp.prisma.length).toBeGreaterThan(0);
 
     const imp = await call('import-prisma', { text: exp.prisma, mode: 'replace' });
-    expect(imp.ok, `import-prisma: ${imp.error}`).toBe(true);
+    expect(imp.ok, `import-prisma: ${imp.message}`).toBe(true);
 
     const after = await tableNames(call);
     expect(after).toEqual(before);
@@ -487,17 +490,18 @@ describe('Import/Export — 라운드트립(엔진 배선)', () => {
     expect(exp.mermaid.length).toBeGreaterThan(0);
 
     const imp = await call('import-mermaid', { text: exp.mermaid, mode: 'replace' });
-    expect(imp.ok, `import-mermaid: ${imp.error}`).toBe(true);
+    expect(imp.ok, `import-mermaid: ${imp.message}`).toBe(true);
 
     const after = await tableNames(call);
     expect(after).toEqual(before);
   });
 
-  it('import 실패 텍스트는 {ok:false,error}', async () => {
+  it('import 실패 텍스트는 {ok:false,code,message}', async () => {
     const { call } = setup();
     const res = await call('import-sql', { text: '', dialect: 'mysql' });
     expect(res.ok).toBe(false);
-    expect(res.error).toBeTruthy();
+    expect(res.message).toBeTruthy();
+    expect(res.code).toBeTruthy();
   });
 });
 
@@ -576,12 +580,13 @@ describe('Migration 순수 라운드트립 — diffSchemas → serializeMig → 
 describe('Migration 커맨드 — 파일 기반(.mig) 배선', () => {
   const DIR = '/proj/migrations';
 
-  it('fs 권한 미부여 시 write/read 계열은 {ok:false,error}', async () => {
+  it('fs 권한 미부여 시 write/read 계열은 {ok:false,code,message}', async () => {
     const { call } = setupFs(null); // fs 없음
     for (const name of ['migration-status', 'migration-generate', 'migration-list', 'migration-apply', 'migration-revert']) {
       const res = await call(name, { dir: DIR });
       expect(res.ok, name).toBe(false);
-      expect(res.error).toBe('fs 권한 필요');
+      expect(res.message).toBe('fs 권한 필요');
+      expect(res.code).toBe('GATE_REQUIRED');
     }
     // migration-show/sql 도 동일
     const show = await call('migration-show', { dir: DIR, id: 'x.mig' });
@@ -718,19 +723,19 @@ describe('Migration 커맨드 — 파일 기반(.mig) 배선', () => {
     const stem = filename.replace(/\.mig$/, ''); // .mig 제거한 형태(소켓이 넘긴 id)
 
     const pg = await call('migration-sql', { dir: DIR, id: stem, dialect: 'postgresql' });
-    expect(pg.ok, pg.error).toBe(true);
+    expect(pg.ok, pg.message).toBe(true);
     expect(pg.id).toBe(filename); // 실제 파일명으로 해석됨
     expect(typeof pg.up).toBe('string');
     expect(pg.up).toContain('CREATE TABLE');
   });
 
-  it('migration-show: 없는 id 는 throw 가 아니라 {ok:false,error}(undefined 메시지 금지)', async () => {
+  it('migration-show: 없는 id 는 throw 가 아니라 {ok:false,code,message}(undefined 메시지 금지)', async () => {
     const mem = makeMemFs();
     const { call } = setupFs(mem);
     const res = await call('migration-show', { dir: DIR, id: 'ghost' });
     expect(res.ok).toBe(false);
-    expect(res.error).toBeTruthy();
-    expect(res.error).not.toContain('undefined');
+    expect(res.message).toBeTruthy();
+    expect(res.message).not.toContain('undefined');
   });
 
   it('FK(autoFk) 스키마: generate(confirm) 후 status 가 clean(반전 spurious FK 없음 — 소켓 E2E 시나리오)', async () => {
@@ -779,12 +784,12 @@ describe('Migration 커맨드 — 파일 기반(.mig) 배선', () => {
     expect(bad.errors.length).toBeGreaterThan(0);
   });
 
-  it('write 계열은 dir 누락 시 {ok:false,error}', async () => {
+  it('write 계열은 dir 누락 시 {ok:false,code,message}', async () => {
     const mem = makeMemFs();
     const { call } = setupFs(mem);
     const res = await call('migration-generate', {});
     expect(res.ok).toBe(false);
-    expect(res.error).toContain('dir');
+    expect(res.message).toContain('dir');
   });
 
   it('params 4번째 인자(소켓 거부 방지): 전 migration 커맨드가 params 스펙을 갖는다', () => {

@@ -12,7 +12,7 @@ export interface ErdStore {
 // 해석 성공/실패 결과. 실패 시 사용자/LLM 이 바로 고칠 수 있게 단서를 동봉한다.
 export type ResolveResult =
   | { ok: true; id: string }
-  | { ok: false; error: string; did_you_mean?: string[]; candidates?: string[] };
+  | { ok: false; code: string; message: string; did_you_mean?: string[]; candidates?: string[] };
 
 // Levenshtein 편집거리 — 오타 근접 후보 산출용(헤드리스, 순수함수).
 function editDistance(a: string, b: string): number {
@@ -53,7 +53,7 @@ function nearMatches(arg: string, names: string[], limit = 3): string[] {
 // - 전부 실패 → did_you_mean(근접 이름)
 export function resolveTable(store: ErdStore, arg: string): ResolveResult {
   if (!arg || typeof arg !== 'string') {
-    return { ok: false, error: 'table identifier required' };
+    return { ok: false, code: 'INVALID_INPUT', message: 'table identifier required' };
   }
   const tables = store.getState().tables;
   const all = Object.values(tables);
@@ -64,7 +64,8 @@ export function resolveTable(store: ErdStore, arg: string): ResolveResult {
   if (byName.length > 1) {
     return {
       ok: false,
-      error: `ambiguous table name '${arg}' (${byName.length} matches)`,
+      code: 'AMBIGUOUS',
+      message: `ambiguous table name '${arg}' (${byName.length} matches)`,
       candidates: byName.map((t) => t.id),
     };
   }
@@ -77,7 +78,8 @@ export function resolveTable(store: ErdStore, arg: string): ResolveResult {
   const dym = nearMatches(arg, names);
   return {
     ok: false,
-    error: `table not found: '${arg}'`,
+    code: 'NOT_FOUND',
+    message: `table not found: '${arg}'`,
     ...(dym.length > 0 ? { did_you_mean: dym } : {}),
   };
 }
@@ -85,14 +87,15 @@ export function resolveTable(store: ErdStore, arg: string): ResolveResult {
 // 컬럼 이름/ id 해석(테이블 컨텍스트 내). 단일 진실 — 별도 구현 금지.
 export function resolveColumn(table: Table, arg: string): ResolveResult {
   if (!arg || typeof arg !== 'string') {
-    return { ok: false, error: 'column identifier required' };
+    return { ok: false, code: 'INVALID_INPUT', message: 'column identifier required' };
   }
   const byName = table.columns.filter((c) => c.name.toLowerCase() === arg.toLowerCase());
   if (byName.length === 1) return { ok: true, id: byName[0].id };
   if (byName.length > 1) {
     return {
       ok: false,
-      error: `ambiguous column name '${arg}' in '${table.name}'`,
+      code: 'AMBIGUOUS',
+      message: `ambiguous column name '${arg}' in '${table.name}'`,
       candidates: byName.map((c) => c.id),
     };
   }
@@ -102,7 +105,8 @@ export function resolveColumn(table: Table, arg: string): ResolveResult {
   const dym = nearMatches(arg, table.columns.map((c) => c.name));
   return {
     ok: false,
-    error: `column not found: '${arg}' in '${table.name}'`,
+    code: 'NOT_FOUND',
+    message: `column not found: '${arg}' in '${table.name}'`,
     ...(dym.length > 0 ? { did_you_mean: dym } : {}),
   };
 }
@@ -115,7 +119,7 @@ export function getTable(
   const r = resolveTable(store, arg);
   if (!r.ok) return r;
   const table = store.getState().tables[r.id];
-  if (!table) return { ok: false, error: `table not found: '${arg}'` };
+  if (!table) return { ok: false, code: 'NOT_FOUND', message: `table not found: '${arg}'` };
   return { ok: true, table, id: r.id };
 }
 
