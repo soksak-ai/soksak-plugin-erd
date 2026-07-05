@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "doctor": "soksak-plugin-doctor",
-    "prepublishOnly": "npm run build && npx --yes soksak-plugin-doctor ."
+    "prepublishOnly": "npm run build && npx --yes soksak-plugin-doctor .",
+    "test-unit": "npm run typecheck && vitest run"
   },
   "dependencies": {
     "@dagrejs/dagre": "^2.0.4",
