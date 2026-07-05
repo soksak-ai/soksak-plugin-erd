@@ -107,6 +107,7 @@ export default {
       ctx.subscriptions.push(
         app.commands.register("ping", {
           description: "플러그인 적재/버전 확인(E2E)",
+          message: (d: any) => `${d.plugin} v${d.version} 적재됨`,
           handler: async () => ({
             ok: true,
             plugin: "soksak-plugin-erd",
