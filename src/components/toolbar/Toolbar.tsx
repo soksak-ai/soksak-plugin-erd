@@ -16,11 +16,13 @@ import { EditMenu } from '@/components/toolbar/EditMenu';
 import { ViewMenu } from '@/components/toolbar/ViewMenu';
 import { ToolsMenu } from '@/components/toolbar/ToolsMenu';
 
-function QuickAction({ icon: Icon, label, onClick, disabled }: {
+function QuickAction({ icon: Icon, label, onClick, disabled, node }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   onClick?: () => void;
   disabled?: boolean;
+  // C2 노출 — data-node 로 ui.tree/ui.input.click 도달. 미지정 시 속성 없음(미노출).
+  node?: string;
 }) {
   return (
     <Tooltip>
@@ -30,6 +32,7 @@ function QuickAction({ icon: Icon, label, onClick, disabled }: {
           size="icon-xs"
           onClick={onClick}
           disabled={disabled}
+          data-node={node}
           className="text-gray-600 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-zinc-200"
         >
           <Icon className="size-3.5" />
@@ -70,17 +73,18 @@ export function Toolbar() {
 
         {/* Center: Quick Actions */}
         <div className="flex items-center gap-0.5">
-          <QuickAction icon={Plus} label="Add Table" onClick={() => setCreateTableDialogOpen(true)} />
-          <QuickAction icon={Undo2} label="Undo" onClick={() => useStore.getState().undoLastOperation()} />
+          <QuickAction icon={Plus} label="Add Table" node="add-table" onClick={() => setCreateTableDialogOpen(true)} />
+          <QuickAction icon={Undo2} label="Undo" node="undo" onClick={() => useStore.getState().undoLastOperation()} />
           <QuickAction icon={Redo2} label="Redo" disabled />
-          <QuickAction icon={LayoutDashboard} label="Auto Layout" onClick={() => useStore.getState().triggerAutoLayout()} />
-          <QuickAction icon={Maximize2} label="Fit View" onClick={() => useStore.getState().fitViewFn?.()} />
+          <QuickAction icon={LayoutDashboard} label="Auto Layout" node="auto-layout" onClick={() => useStore.getState().triggerAutoLayout()} />
+          <QuickAction icon={Maximize2} label="Fit View" node="fit-view" onClick={() => useStore.getState().fitViewFn?.()} />
         </div>
 
         {/* Right: Dialect, Zoom, Count, Export */}
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-md border border-gray-200 dark:border-zinc-700 overflow-hidden">
             <button
+              data-node="dialect-mysql"
               onClick={() => setDialect('mysql')}
               className={cn(
                 'px-2 py-1 text-[11px] font-medium transition-colors',
@@ -92,6 +96,7 @@ export function Toolbar() {
               MySQL
             </button>
             <button
+              data-node="dialect-postgresql"
               onClick={() => setDialect('postgresql')}
               className={cn(
                 'px-2 py-1 text-[11px] font-medium transition-colors',

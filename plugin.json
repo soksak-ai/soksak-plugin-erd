@@ -386,6 +386,32 @@
         }
       }
     ],
+    "nodes": [
+      {
+        "id": "add-table",
+        "description": "Toolbar: open the create-table dialog"
+      },
+      {
+        "id": "undo",
+        "description": "Toolbar: undo the last operation"
+      },
+      {
+        "id": "auto-layout",
+        "description": "Toolbar: auto-arrange table positions"
+      },
+      {
+        "id": "fit-view",
+        "description": "Toolbar: fit the viewport to all content"
+      },
+      {
+        "id": "dialect-mysql",
+        "description": "Toolbar: set the SQL dialect to MySQL"
+      },
+      {
+        "id": "dialect-postgresql",
+        "description": "Toolbar: set the SQL dialect to PostgreSQL"
+      }
+    ],
     "programs": [
       {
         "id": "erd",

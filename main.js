@@ -70794,7 +70794,7 @@ function ToolsMenu() {
 
 // src/components/toolbar/Toolbar.tsx
 var import_jsx_runtime31 = __toESM(require_jsx_runtime(), 1);
-function QuickAction({ icon: Icon2, label, onClick, disabled }) {
+function QuickAction({ icon: Icon2, label, onClick, disabled, node }) {
   return /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)(Tooltip2, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(TooltipTrigger2, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
       Button,
@@ -70803,6 +70803,7 @@ function QuickAction({ icon: Icon2, label, onClick, disabled }) {
         size: "icon-xs",
         onClick,
         disabled,
+        "data-node": node,
         className: "text-gray-600 dark:text-zinc-500 hover:text-gray-900 dark:hover:text-zinc-200",
         children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(Icon2, { className: "size-3.5" })
       }
@@ -70831,17 +70832,18 @@ function Toolbar() {
       /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(ToolsMenu, {})
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "flex items-center gap-0.5", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Plus, label: "Add Table", onClick: () => setCreateTableDialogOpen(true) }),
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Undo2, label: "Undo", onClick: () => useStore2.getState().undoLastOperation() }),
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Plus, label: "Add Table", node: "add-table", onClick: () => setCreateTableDialogOpen(true) }),
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Undo2, label: "Undo", node: "undo", onClick: () => useStore2.getState().undoLastOperation() }),
       /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Redo2, label: "Redo", disabled: true }),
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: LayoutDashboard, label: "Auto Layout", onClick: () => useStore2.getState().triggerAutoLayout() }),
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Maximize2, label: "Fit View", onClick: () => useStore2.getState().fitViewFn?.() })
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: LayoutDashboard, label: "Auto Layout", node: "auto-layout", onClick: () => useStore2.getState().triggerAutoLayout() }),
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Maximize2, label: "Fit View", node: "fit-view", onClick: () => useStore2.getState().fitViewFn?.() })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "flex items-center gap-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "flex items-center rounded-md border border-gray-200 dark:border-zinc-700 overflow-hidden", children: [
         /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
           "button",
           {
+            "data-node": "dialect-mysql",
             onClick: () => setDialect("mysql"),
             className: cn(
               "px-2 py-1 text-[11px] font-medium transition-colors",
@@ -70853,6 +70855,7 @@ function Toolbar() {
         /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(
           "button",
           {
+            "data-node": "dialect-postgresql",
             onClick: () => setDialect("postgresql"),
             className: cn(
               "px-2 py-1 text-[11px] font-medium transition-colors",
