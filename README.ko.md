@@ -40,6 +40,12 @@ sok plugin.soksak-plugin-erd.export-sql dialect=postgresql
 
 동봉된 `soksak-erd` 스킬(`contributes.skill`)이 AI 에이전트용 멘탈모델과 워크플로 전체를 담는다.
 
+## 투명성 (UI 노드)
+
+툴바 컨트롤은 DOM 요소다. 각각 `contributes.nodes` 로 선언하고 같은 이름의 `data-node` 로 배선한다 — `sok ui.tree` 가 주소로 노출하고 `sok ui.input.click` 이 클릭한다: `add-table`, `undo`, `auto-layout`, `fit-view`, `dialect-mysql`, `dialect-postgresql`.
+
+캔버스는 면제한다. 테이블과 관계 엣지는 DOM 이 아니라 Pixi/WebGL 로 그린다 — `data-node` 가 없으니 `ui.tree` 에도 뜨지 않는다. 캔버스 내부 개체에 노드 노출은 무의미하다. 캔버스 조작은 커맨드로 한다: `create-table`, `select`, `set-position`, `drop-table`, `add-relationship`, `set-viewport`, `get-render-state`. 이 경로는 헤드리스이며 모든 캔버스 동작을 덮는다.
+
 ## 개발
 
 ```

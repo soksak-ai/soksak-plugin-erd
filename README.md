@@ -40,6 +40,12 @@ Conventions: every command returns `{ok:true,…}` or `{ok:false,error}` — bra
 
 The bundled `soksak-erd` skill (`contributes.skill`) carries the full mental model and workflow for AI agents.
 
+## Transparency (UI nodes)
+
+The toolbar controls are DOM elements. Each is declared in `contributes.nodes` and wired with a matching `data-node`, so `sok ui.tree` addresses them and `sok ui.input.click` drives them: `add-table`, `undo`, `auto-layout`, `fit-view`, `dialect-mysql`, `dialect-postgresql`.
+
+The canvas is exempt. Tables and relationship edges are drawn in Pixi/WebGL, not the DOM — they carry no `data-node`, so `ui.tree` will not list them. Node exposure there is meaningless. Manipulate canvas content over commands instead: `create-table`, `select`, `set-position`, `drop-table`, `add-relationship`, `set-viewport`, `get-render-state`. That path is headless and covers every canvas operation.
+
 ## Development
 
 ```
