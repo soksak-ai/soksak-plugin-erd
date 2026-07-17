@@ -6,10 +6,9 @@
     "ko": "ERD"
   },
   "version": "0.0.1",
-  "repo": "https://github.com/soksak-ai/soksak-plugin-erd.git",
   "description": {
-    "en": "Multi-DB ERD editor — schema design, migration, and SQL generation via GUI and CLI/MCP.",
-    "ko": "멀티-DB ERD 에디터 — 스키마 설계·마이그레이션·SQL 생성을 GUI 와 CLI/MCP 로."
+    "en": "Multi-DB ERD editor \u2014 schema design, migration, and SQL generation via GUI and CLI/MCP.",
+    "ko": "\uba40\ud2f0-DB ERD \uc5d0\ub514\ud130 \u2014 \uc2a4\ud0a4\ub9c8 \uc124\uacc4\u00b7\ub9c8\uc774\uadf8\ub808\uc774\uc158\u00b7SQL \uc0dd\uc131\uc744 GUI \uc640 CLI/MCP \ub85c."
   },
   "entry": "main.js",
   "permissions": [
@@ -27,7 +26,7 @@
           "en": "ERD",
           "ko": "ERD"
         },
-        "icon": "▤",
+        "icon": "\u25a4",
         "placements": [
           "content"
         ],
@@ -40,350 +39,350 @@
         "name": "ping",
         "title": {
           "en": "Plugin load / version check (E2E)",
-          "ko": "플러그인 적재/버전 확인(E2E)"
+          "ko": "\ud50c\ub7ec\uadf8\uc778 \uc801\uc7ac/\ubc84\uc804 \ud655\uc778(E2E)"
         }
       },
       {
         "name": "add-column",
         "title": {
           "en": "Add column",
-          "ko": "컬럼 추가"
+          "ko": "\uceec\ub7fc \ucd94\uac00"
         }
       },
       {
         "name": "add-index",
         "title": {
           "en": "Add index",
-          "ko": "인덱스 추가"
+          "ko": "\uc778\ub371\uc2a4 \ucd94\uac00"
         }
       },
       {
         "name": "add-relationship",
         "title": {
           "en": "Add relationship",
-          "ko": "관계 추가"
+          "ko": "\uad00\uacc4 \ucd94\uac00"
         }
       },
       {
         "name": "apply",
         "title": {
           "en": "Apply batch",
-          "ko": "배치 실행"
+          "ko": "\ubc30\uce58 \uc2e4\ud589"
         }
       },
       {
         "name": "auto-layout",
         "title": {
           "en": "Auto layout",
-          "ko": "자동 레이아웃"
+          "ko": "\uc790\ub3d9 \ub808\uc774\uc544\uc6c3"
         }
       },
       {
         "name": "create-table",
         "title": {
           "en": "Create table",
-          "ko": "테이블 생성"
+          "ko": "\ud14c\uc774\ube14 \uc0dd\uc131"
         }
       },
       {
         "name": "diff",
         "title": {
           "en": "Schema diff",
-          "ko": "스키마 차이"
+          "ko": "\uc2a4\ud0a4\ub9c8 \ucc28\uc774"
         }
       },
       {
         "name": "drop-column",
         "title": {
           "en": "Drop column",
-          "ko": "컬럼 삭제"
+          "ko": "\uceec\ub7fc \uc0ad\uc81c"
         }
       },
       {
         "name": "drop-index",
         "title": {
           "en": "Drop index",
-          "ko": "인덱스 삭제"
+          "ko": "\uc778\ub371\uc2a4 \uc0ad\uc81c"
         }
       },
       {
         "name": "drop-relationship",
         "title": {
           "en": "Drop relationship",
-          "ko": "관계 삭제"
+          "ko": "\uad00\uacc4 \uc0ad\uc81c"
         }
       },
       {
         "name": "drop-table",
         "title": {
           "en": "Drop table",
-          "ko": "테이블 삭제"
+          "ko": "\ud14c\uc774\ube14 \uc0ad\uc81c"
         }
       },
       {
         "name": "export-sql",
         "title": {
           "en": "Export SQL",
-          "ko": "SQL 내보내기"
+          "ko": "SQL \ub0b4\ubcf4\ub0b4\uae30"
         }
       },
       {
         "name": "import-sql",
         "title": {
           "en": "Import SQL",
-          "ko": "SQL 가져오기"
+          "ko": "SQL \uac00\uc838\uc624\uae30"
         }
       },
       {
         "name": "export-dbml",
         "title": {
           "en": "Export DBML",
-          "ko": "DBML 내보내기"
+          "ko": "DBML \ub0b4\ubcf4\ub0b4\uae30"
         }
       },
       {
         "name": "import-dbml",
         "title": {
           "en": "Import DBML",
-          "ko": "DBML 가져오기"
+          "ko": "DBML \uac00\uc838\uc624\uae30"
         }
       },
       {
         "name": "export-prisma",
         "title": {
           "en": "Export Prisma",
-          "ko": "Prisma 내보내기"
+          "ko": "Prisma \ub0b4\ubcf4\ub0b4\uae30"
         }
       },
       {
         "name": "import-prisma",
         "title": {
           "en": "Import Prisma",
-          "ko": "Prisma 가져오기"
+          "ko": "Prisma \uac00\uc838\uc624\uae30"
         }
       },
       {
         "name": "export-mermaid",
         "title": {
           "en": "Export Mermaid",
-          "ko": "Mermaid 내보내기"
+          "ko": "Mermaid \ub0b4\ubcf4\ub0b4\uae30"
         }
       },
       {
         "name": "import-mermaid",
         "title": {
           "en": "Import Mermaid",
-          "ko": "Mermaid 가져오기"
+          "ko": "Mermaid \uac00\uc838\uc624\uae30"
         }
       },
       {
         "name": "fit",
         "title": {
           "en": "Fit viewport",
-          "ko": "뷰포트 맞춤"
+          "ko": "\ubdf0\ud3ec\ud2b8 \ub9de\ucda4"
         }
       },
       {
         "name": "get-render-state",
         "title": {
           "en": "Render state",
-          "ko": "렌더 상태"
+          "ko": "\ub80c\ub354 \uc0c1\ud0dc"
         }
       },
       {
         "name": "get-columns",
         "title": {
           "en": "List columns",
-          "ko": "컬럼 목록"
+          "ko": "\uceec\ub7fc \ubaa9\ub85d"
         }
       },
       {
         "name": "get-schema",
         "title": {
           "en": "Get schema",
-          "ko": "스키마 조회"
+          "ko": "\uc2a4\ud0a4\ub9c8 \uc870\ud68c"
         }
       },
       {
         "name": "get-table",
         "title": {
           "en": "Get table",
-          "ko": "테이블 조회"
+          "ko": "\ud14c\uc774\ube14 \uc870\ud68c"
         }
       },
       {
         "name": "get-viewport",
         "title": {
           "en": "Get viewport",
-          "ko": "뷰포트 조회"
+          "ko": "\ubdf0\ud3ec\ud2b8 \uc870\ud68c"
         }
       },
       {
         "name": "list-relationships",
         "title": {
           "en": "List relationships",
-          "ko": "관계 목록"
+          "ko": "\uad00\uacc4 \ubaa9\ub85d"
         }
       },
       {
         "name": "list-tables",
         "title": {
           "en": "List tables",
-          "ko": "테이블 목록"
+          "ko": "\ud14c\uc774\ube14 \ubaa9\ub85d"
         }
       },
       {
         "name": "redo",
         "title": {
           "en": "Redo",
-          "ko": "다시실행"
+          "ko": "\ub2e4\uc2dc\uc2e4\ud589"
         }
       },
       {
         "name": "rename-table",
         "title": {
           "en": "Rename table",
-          "ko": "테이블 이름변경"
+          "ko": "\ud14c\uc774\ube14 \uc774\ub984\ubcc0\uacbd"
         }
       },
       {
         "name": "reorder-columns",
         "title": {
           "en": "Reorder columns",
-          "ko": "컬럼 순서변경"
+          "ko": "\uceec\ub7fc \uc21c\uc11c\ubcc0\uacbd"
         }
       },
       {
         "name": "select",
         "title": {
           "en": "Select",
-          "ko": "선택"
+          "ko": "\uc120\ud0dd"
         }
       },
       {
         "name": "set-color",
         "title": {
           "en": "Set color",
-          "ko": "색상 설정"
+          "ko": "\uc0c9\uc0c1 \uc124\uc815"
         }
       },
       {
         "name": "set-pk",
         "title": {
           "en": "Set primary key",
-          "ko": "기본키 설정"
+          "ko": "\uae30\ubcf8\ud0a4 \uc124\uc815"
         }
       },
       {
         "name": "set-position",
         "title": {
           "en": "Set position",
-          "ko": "위치 설정"
+          "ko": "\uc704\uce58 \uc124\uc815"
         }
       },
       {
         "name": "set-unique",
         "title": {
           "en": "Set UNIQUE",
-          "ko": "UNIQUE 설정"
+          "ko": "UNIQUE \uc124\uc815"
         }
       },
       {
         "name": "set-viewport",
         "title": {
           "en": "Set viewport",
-          "ko": "뷰포트 설정"
+          "ko": "\ubdf0\ud3ec\ud2b8 \uc124\uc815"
         }
       },
       {
         "name": "stats",
         "title": {
           "en": "Stats",
-          "ko": "통계"
+          "ko": "\ud1b5\uacc4"
         }
       },
       {
         "name": "undo",
         "title": {
           "en": "Undo",
-          "ko": "실행취소"
+          "ko": "\uc2e4\ud589\ucde8\uc18c"
         }
       },
       {
         "name": "update-column",
         "title": {
           "en": "Update column",
-          "ko": "컬럼 수정"
+          "ko": "\uceec\ub7fc \uc218\uc815"
         }
       },
       {
         "name": "update-relationship",
         "title": {
           "en": "Update relationship",
-          "ko": "관계 수정"
+          "ko": "\uad00\uacc4 \uc218\uc815"
         }
       },
       {
         "name": "validate",
         "title": {
           "en": "Validate schema",
-          "ko": "스키마 검증"
+          "ko": "\uc2a4\ud0a4\ub9c8 \uac80\uc99d"
         }
       },
       {
         "name": "migration-status",
         "title": {
           "en": "Migration status",
-          "ko": "마이그레이션 상태"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc0c1\ud0dc"
         }
       },
       {
         "name": "migration-generate",
         "title": {
           "en": "Generate migration",
-          "ko": "마이그레이션 생성"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc0dd\uc131"
         }
       },
       {
         "name": "migration-list",
         "title": {
           "en": "List migrations",
-          "ko": "마이그레이션 목록"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \ubaa9\ub85d"
         }
       },
       {
         "name": "migration-show",
         "title": {
           "en": "Show migration",
-          "ko": "마이그레이션 조회"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc870\ud68c"
         }
       },
       {
         "name": "migration-sql",
         "title": {
           "en": "Migration SQL",
-          "ko": "마이그레이션 SQL"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 SQL"
         }
       },
       {
         "name": "migration-apply",
         "title": {
           "en": "Apply migration",
-          "ko": "마이그레이션 적용"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc801\uc6a9"
         }
       },
       {
         "name": "migration-revert",
         "title": {
           "en": "Revert migration",
-          "ko": "마이그레이션 되돌리기"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \ub418\ub3cc\ub9ac\uae30"
         }
       },
       {
         "name": "migration-lint",
         "title": {
           "en": "Lint migration",
-          "ko": "마이그레이션 린트"
+          "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \ub9b0\ud2b8"
         }
       }
     ],
@@ -418,7 +417,7 @@
         "id": "erd",
         "title": "ERD",
         "path": {
-          "ko": "유틸리티",
+          "ko": "\uc720\ud2f8\ub9ac\ud2f0",
           "en": "Utility"
         },
         "kind": "view",
