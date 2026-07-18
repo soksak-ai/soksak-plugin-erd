@@ -11,6 +11,7 @@ import App from "@/App";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
+import { registerNotificationCommands } from "@/plugin/notifications";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
 // console.error 로 원인도 남긴다(소켓/dev 진단).
@@ -132,6 +133,7 @@ export default {
     // 뷰 미오픈에도 sok plugin.soksak-plugin-erd.* / MCP / 소켓 E2E 로 전부 동작.
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
     registerPersistCommands(ctx, persistence);
+    registerNotificationCommands(ctx);
   },
   deactivate() {},
 };

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { generateDDL } from '@/features/sql';
 import { generateMermaid } from '@/features/mermaid';
 import { validateSchema } from '@/features/validation';
+import { toast } from '@/store/toast-store';
 import type { ERDSchema } from '@/types/schema';
 import type { ValidationIssue } from '@/features/validation';
 
@@ -40,9 +41,15 @@ export function BottomPanel() {
 
   const handleCopy = () => {
     if (activeTab === 'sql') {
-      navigator.clipboard.writeText(ddl);
+      navigator.clipboard.writeText(ddl).then(
+        () => toast('SQL 을 클립보드에 복사했습니다', 'success'),
+        () => toast('클립보드 복사에 실패했습니다', 'error'),
+      );
     } else if (activeTab === 'mermaid') {
-      navigator.clipboard.writeText(mermaidText);
+      navigator.clipboard.writeText(mermaidText).then(
+        () => toast('Mermaid 를 클립보드에 복사했습니다', 'success'),
+        () => toast('클립보드 복사에 실패했습니다', 'error'),
+      );
     }
   };
 
@@ -53,6 +60,7 @@ export function BottomPanel() {
           {TABS.map((tab) => (
             <button
               key={tab.id}
+              data-node={`panel-tab/${tab.id}`}
               onClick={() => setTab(tab.id)}
               className={cn(
                 'px-3 py-1.5 text-xs font-medium transition-colors',
@@ -69,10 +77,10 @@ export function BottomPanel() {
           ))}
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon-xs" className="text-gray-500 dark:text-zinc-500" onClick={handleCopy}>
+          <Button data-node="panel-copy" variant="ghost" size="icon-xs" className="text-gray-500 dark:text-zinc-500" onClick={handleCopy}>
             <Copy className="size-3" />
           </Button>
-          <Button variant="ghost" size="icon-xs" className="text-gray-500 dark:text-zinc-500" onClick={togglePanel}>
+          <Button data-node="panel-collapse" variant="ghost" size="icon-xs" className="text-gray-500 dark:text-zinc-500" onClick={togglePanel}>
             <ChevronDown className="size-3" />
           </Button>
         </div>

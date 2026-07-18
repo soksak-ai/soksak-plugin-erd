@@ -5,6 +5,7 @@ import { CreateTableDialog } from '@/components/dialogs/CreateTableDialog';
 import { ImportSQLDialog } from '@/components/dialogs/ImportSQLDialog';
 import { ImportMermaidDialog } from '@/components/dialogs/ImportMermaidDialog';
 import { ImportMWBDialog } from '@/components/dialogs/ImportMWBDialog';
+import { Toaster } from '@/components/Toaster';
 import { useThemeEffect } from '@/hooks/useTheme';
 import { useStore } from '@/store';
 import { PortalRootProvider } from '@/components/ui/portal-context';
@@ -38,11 +39,15 @@ function App({ portalRoot }: AppProps) {
 
   return (
     <PortalRootProvider value={portalRoot ?? null}>
-      <AppLayout canvas={<ERDCanvas />} />
-      <CreateTableDialog />
-      <ImportSQLDialog />
-      <ImportMermaidDialog />
-      <ImportMWBDialog />
+      {/* relative wrapper — 절대배치 Toaster 가 앱 콘텐츠 영역 우상단에 고정되게 한다. */}
+      <div className="relative h-full w-full">
+        <AppLayout canvas={<ERDCanvas />} />
+        <CreateTableDialog />
+        <ImportSQLDialog />
+        <ImportMermaidDialog />
+        <ImportMWBDialog />
+        <Toaster />
+      </div>
     </PortalRootProvider>
   );
 }

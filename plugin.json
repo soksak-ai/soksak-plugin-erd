@@ -399,6 +399,13 @@
           "en": "Durable persistence status",
           "ko": "\uc601\uc18d \uc0c1\ud0dc \ud655\uc778"
         }
+      },
+      {
+        "name": "notifications",
+        "title": {
+          "en": "Recent action-feedback log",
+          "ko": "\uc54c\ub9bc \ub85c\uadf8"
+        }
       }
     ],
     "nodes": [
@@ -409,6 +416,26 @@
       {
         "id": "rename-input",
         "description": "Inline table-rename input, present only while renaming"
+      },
+      {
+        "id": "toaster",
+        "description": "Action-feedback toast host (top-right)"
+      },
+      {
+        "id": "toast",
+        "description": "A single action-feedback toast (data-node toast/<id>)"
+      },
+      {
+        "id": "panel-tab",
+        "description": "Bottom panel tab (data-node panel-tab/<sql|mermaid|console>)"
+      },
+      {
+        "id": "panel-copy",
+        "description": "Bottom panel: copy the active output to clipboard"
+      },
+      {
+        "id": "panel-collapse",
+        "description": "Bottom panel: collapse toggle"
       },
       {
         "id": "add-table",

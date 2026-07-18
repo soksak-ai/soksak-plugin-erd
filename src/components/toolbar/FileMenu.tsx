@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useStore } from '@/store';
 import { generateDDL } from '@/features/sql';
 import { generateMermaid } from '@/features/mermaid';
+import { toast } from '@/store/toast-store';
 import type { ERDSchema } from '@/types/schema';
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -51,6 +52,7 @@ export function FileMenu() {
     };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
     downloadBlob(blob, 'project.erd.json');
+    toast('project.erd.json 을 저장했습니다', 'success');
   };
 
   const handleOpen = () => {
@@ -88,9 +90,12 @@ export function FileMenu() {
               uncommittedOps: project.migrations.uncommittedOps ?? [],
             });
           }
+          const n = Object.keys(project.schema?.tables ?? {}).length;
+          toast(`${file.name} 을 열었습니다 (테이블 ${n}개)`, 'success');
         } catch (err) {
           // 파싱 실패를 삼키지 않는다 — 파일은 그대로 두고 원인을 남긴다.
           console.error('[erd] .erd.json 열기 실패:', err);
+          toast(`${file.name} 열기 실패: 유효한 .erd.json 이 아닙니다`, 'error');
         }
       };
       reader.readAsText(file);
@@ -105,6 +110,7 @@ export function FileMenu() {
     const blob = new Blob([sql], { type: 'text/sql' });
     const ext = state.dialect === 'mysql' ? 'mysql' : 'pg';
     downloadBlob(blob, `schema.${ext}.sql`);
+    toast(`schema.${ext}.sql 을 내보냈습니다`, 'success');
   };
 
   const handleExportMermaid = () => {
@@ -113,6 +119,7 @@ export function FileMenu() {
     const text = generateMermaid(schema);
     const blob = new Blob([text], { type: 'text/plain' });
     downloadBlob(blob, 'schema.mermaid');
+    toast('schema.mermaid 를 내보냈습니다', 'success');
   };
 
   return (
