@@ -82183,7 +82183,16 @@ function PixiERDCanvas() {
     store.setZoomOutFn(doZoomOut);
     store.setSetZoomToFn(doZoomTo);
     store.setPanToFn(doPanTo);
-    store.setRenderStatsFn(() => ({ rendererCount: nodeRenderers.current.size }));
+    store.setRenderStatsFn(() => {
+      const canvas = appRef.current?.canvas ?? null;
+      const rect = canvas?.getBoundingClientRect();
+      return {
+        rendererCount: nodeRenderers.current.size,
+        canvasConnected: canvas?.isConnected ?? false,
+        canvasRect: rect ? { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) } : null,
+        documentCanvasCount: document.querySelectorAll("canvas").length
+      };
+    });
     return () => {
       const s3 = useStore2.getState();
       s3.setFitViewFn(null);

@@ -1786,9 +1786,20 @@ export function PixiERDCanvas() {
     store.setZoomOutFn(doZoomOut);
     store.setSetZoomToFn(doZoomTo);
     store.setPanToFn(doPanTo);
-    // 렌더러 수 introspection — get-render-state 가 store 수치가 아닌 캔버스 진실을 보고한다
-    // (복원 첫 페인트 회귀의 관측점).
-    store.setRenderStatsFn(() => ({ rendererCount: nodeRenderers.current.size }));
+    // 캔버스 introspection — get-render-state 가 store 수치가 아닌 캔버스 진실을 보고한다
+    // (복원 첫 페인트·잔존 캔버스·이탈 배치 회귀의 관측점).
+    store.setRenderStatsFn(() => {
+      const canvas = (appRef.current?.canvas as HTMLCanvasElement | undefined) ?? null;
+      const rect = canvas?.getBoundingClientRect();
+      return {
+        rendererCount: nodeRenderers.current.size,
+        canvasConnected: canvas?.isConnected ?? false,
+        canvasRect: rect
+          ? { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) }
+          : null,
+        documentCanvasCount: document.querySelectorAll('canvas').length,
+      };
+    });
 
     return () => {
       const s = useStore.getState();
