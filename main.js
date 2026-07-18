@@ -31,6 +31,10991 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// node_modules/pixi.js/lib/extensions/Extensions.mjs
+var ExtensionType, normalizeExtension, normalizeExtensionPriority, extensions;
+var init_Extensions = __esm({
+  "node_modules/pixi.js/lib/extensions/Extensions.mjs"() {
+    "use strict";
+    ExtensionType = /* @__PURE__ */ ((ExtensionType2) => {
+      ExtensionType2["Application"] = "application";
+      ExtensionType2["WebGLPipes"] = "webgl-pipes";
+      ExtensionType2["WebGLPipesAdaptor"] = "webgl-pipes-adaptor";
+      ExtensionType2["WebGLSystem"] = "webgl-system";
+      ExtensionType2["WebGPUPipes"] = "webgpu-pipes";
+      ExtensionType2["WebGPUPipesAdaptor"] = "webgpu-pipes-adaptor";
+      ExtensionType2["WebGPUSystem"] = "webgpu-system";
+      ExtensionType2["CanvasSystem"] = "canvas-system";
+      ExtensionType2["CanvasPipesAdaptor"] = "canvas-pipes-adaptor";
+      ExtensionType2["CanvasPipes"] = "canvas-pipes";
+      ExtensionType2["Asset"] = "asset";
+      ExtensionType2["LoadParser"] = "load-parser";
+      ExtensionType2["ResolveParser"] = "resolve-parser";
+      ExtensionType2["CacheParser"] = "cache-parser";
+      ExtensionType2["DetectionParser"] = "detection-parser";
+      ExtensionType2["MaskEffect"] = "mask-effect";
+      ExtensionType2["BlendMode"] = "blend-mode";
+      ExtensionType2["TextureSource"] = "texture-source";
+      ExtensionType2["TextureUploaderWebGL"] = "texture-uploader-webgl";
+      ExtensionType2["TextureUploaderWebGPU"] = "texture-uploader-webgpu";
+      ExtensionType2["Environment"] = "environment";
+      ExtensionType2["ShapeBuilder"] = "shape-builder";
+      ExtensionType2["Batcher"] = "batcher";
+      return ExtensionType2;
+    })(ExtensionType || {});
+    normalizeExtension = (ext) => {
+      if (typeof ext === "function" || typeof ext === "object" && ext.extension) {
+        if (!ext.extension) {
+          throw new Error("Extension class must have an extension object");
+        }
+        const metadata = typeof ext.extension !== "object" ? { type: ext.extension } : ext.extension;
+        ext = { ...metadata, ref: ext };
+      }
+      if (typeof ext === "object") {
+        ext = { ...ext };
+      } else {
+        throw new Error("Invalid extension type");
+      }
+      if (typeof ext.type === "string") {
+        ext.type = [ext.type];
+      }
+      return ext;
+    };
+    normalizeExtensionPriority = (ext, defaultPriority) => normalizeExtension(ext).priority ?? defaultPriority;
+    extensions = {
+      /** @ignore */
+      _addHandlers: {},
+      /** @ignore */
+      _removeHandlers: {},
+      /** @ignore */
+      _queue: {},
+      /**
+       * Remove extensions from PixiJS.
+       * @param extensions - Extensions to be removed. Can be:
+       * - Extension class with static `extension` property
+       * - Extension format object with `type` and `ref`
+       * - Multiple extensions as separate arguments
+       * @returns {extensions} this for chaining
+       * @example
+       * ```ts
+       * // Remove a single extension
+       * extensions.remove(MyRendererPlugin);
+       *
+       * // Remove multiple extensions
+       * extensions.remove(
+       *     MyRendererPlugin,
+       *     MySystemPlugin
+       * );
+       * ```
+       * @see {@link ExtensionType} For available extension types
+       * @see {@link ExtensionFormat} For extension format details
+       */
+      remove(...extensions2) {
+        extensions2.map(normalizeExtension).forEach((ext) => {
+          ext.type.forEach((type) => this._removeHandlers[type]?.(ext));
+        });
+        return this;
+      },
+      /**
+       * Register new extensions with PixiJS. Extensions can be registered in multiple formats:
+       * - As a class with a static `extension` property
+       * - As an extension format object
+       * - As multiple extensions passed as separate arguments
+       * @param extensions - Extensions to add to PixiJS. Each can be:
+       * - A class with static `extension` property
+       * - An extension format object with `type` and `ref`
+       * - Multiple extensions as separate arguments
+       * @returns This extensions instance for chaining
+       * @example
+       * ```ts
+       * // Register a simple extension
+       * extensions.add(MyRendererPlugin);
+       *
+       * // Register multiple extensions
+       * extensions.add(
+       *     MyRendererPlugin,
+       *     MySystemPlugin,
+       * });
+       * ```
+       * @see {@link ExtensionType} For available extension types
+       * @see {@link ExtensionFormat} For extension format details
+       * @see {@link extensions.remove} For removing registered extensions
+       */
+      add(...extensions2) {
+        extensions2.map(normalizeExtension).forEach((ext) => {
+          ext.type.forEach((type) => {
+            const handlers = this._addHandlers;
+            const queue = this._queue;
+            if (!handlers[type]) {
+              queue[type] = queue[type] || [];
+              queue[type]?.push(ext);
+            } else {
+              handlers[type]?.(ext);
+            }
+          });
+        });
+        return this;
+      },
+      /**
+       * Internal method to handle extensions by name.
+       * @param type - The extension type.
+       * @param onAdd  - Function handler when extensions are added/registered {@link StrictExtensionFormat}.
+       * @param onRemove  - Function handler when extensions are removed/unregistered {@link StrictExtensionFormat}.
+       * @returns this for chaining.
+       * @internal
+       * @ignore
+       */
+      handle(type, onAdd, onRemove) {
+        const addHandlers = this._addHandlers;
+        const removeHandlers = this._removeHandlers;
+        if (addHandlers[type] || removeHandlers[type]) {
+          throw new Error(`Extension type ${type} already has a handler`);
+        }
+        addHandlers[type] = onAdd;
+        removeHandlers[type] = onRemove;
+        const queue = this._queue;
+        if (queue[type]) {
+          queue[type]?.forEach((ext) => onAdd(ext));
+          delete queue[type];
+        }
+        return this;
+      },
+      /**
+       * Handle a type, but using a map by `name` property.
+       * @param type - Type of extension to handle.
+       * @param map - The object map of named extensions.
+       * @returns this for chaining.
+       * @ignore
+       */
+      handleByMap(type, map) {
+        return this.handle(
+          type,
+          (extension) => {
+            if (extension.name) {
+              map[extension.name] = extension.ref;
+            }
+          },
+          (extension) => {
+            if (extension.name) {
+              delete map[extension.name];
+            }
+          }
+        );
+      },
+      /**
+       * Handle a type, but using a list of extensions with a `name` property.
+       * @param type - Type of extension to handle.
+       * @param map - The array of named extensions.
+       * @param defaultPriority - Fallback priority if none is defined.
+       * @returns this for chaining.
+       * @ignore
+       */
+      handleByNamedList(type, map, defaultPriority = -1) {
+        return this.handle(
+          type,
+          (extension) => {
+            const index2 = map.findIndex((item) => item.name === extension.name);
+            if (index2 >= 0) return;
+            map.push({ name: extension.name, value: extension.ref });
+            map.sort((a3, b3) => normalizeExtensionPriority(b3.value, defaultPriority) - normalizeExtensionPriority(a3.value, defaultPriority));
+          },
+          (extension) => {
+            const index2 = map.findIndex((item) => item.name === extension.name);
+            if (index2 !== -1) {
+              map.splice(index2, 1);
+            }
+          }
+        );
+      },
+      /**
+       * Handle a type, but using a list of extensions.
+       * @param type - Type of extension to handle.
+       * @param list - The list of extensions.
+       * @param defaultPriority - The default priority to use if none is specified.
+       * @returns this for chaining.
+       * @ignore
+       */
+      handleByList(type, list, defaultPriority = -1) {
+        return this.handle(
+          type,
+          (extension) => {
+            if (list.includes(extension.ref)) {
+              return;
+            }
+            list.push(extension.ref);
+            list.sort((a3, b3) => normalizeExtensionPriority(b3, defaultPriority) - normalizeExtensionPriority(a3, defaultPriority));
+          },
+          (extension) => {
+            const index2 = list.indexOf(extension.ref);
+            if (index2 !== -1) {
+              list.splice(index2, 1);
+            }
+          }
+        );
+      },
+      /**
+       * Mixin the source object(s) properties into the target class's prototype.
+       * Copies all property descriptors from source objects to the target's prototype.
+       * @param Target - The target class to mix properties into
+       * @param sources - One or more source objects containing properties to mix in
+       * @example
+       * ```ts
+       * // Create a mixin with shared properties
+       * const moveable = {
+       *     x: 0,
+       *     y: 0,
+       *     move(x: number, y: number) {
+       *         this.x += x;
+       *         this.y += y;
+       *     }
+       * };
+       *
+       * // Create a mixin with computed properties
+       * const scalable = {
+       *     scale: 1,
+       *     get scaled() {
+       *         return this.scale > 1;
+       *     }
+       * };
+       *
+       * // Apply mixins to a class
+       * extensions.mixin(Sprite, moveable, scalable);
+       *
+       * // Use mixed-in properties
+       * const sprite = new Sprite();
+       * sprite.move(10, 20);
+       * console.log(sprite.x, sprite.y); // 10, 20
+       * ```
+       * @remarks
+       * - Copies all properties including getters/setters
+       * - Does not modify source objects
+       * - Preserves property descriptors
+       * @see {@link Object.defineProperties} For details on property descriptors
+       * @see {@link Object.getOwnPropertyDescriptors} For details on property copying
+       */
+      mixin(Target, ...sources2) {
+        for (const source3 of sources2) {
+          Object.defineProperties(Target.prototype, Object.getOwnPropertyDescriptors(source3));
+        }
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/browser/unsafeEvalSupported.mjs
+function unsafeEvalSupported() {
+  if (typeof unsafeEval === "boolean") {
+    return unsafeEval;
+  }
+  try {
+    const func = new Function("param1", "param2", "param3", "return param1[param2] === param3;");
+    unsafeEval = func({ a: "b" }, "a", "b") === true;
+  } catch (_e2) {
+    unsafeEval = false;
+  }
+  return unsafeEval;
+}
+var unsafeEval;
+var init_unsafeEvalSupported = __esm({
+  "node_modules/pixi.js/lib/utils/browser/unsafeEvalSupported.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/eventemitter3/index.js
+var require_eventemitter3 = __commonJS({
+  "node_modules/eventemitter3/index.js"(exports, module) {
+    "use strict";
+    var has2 = Object.prototype.hasOwnProperty;
+    var prefix = "~";
+    function Events() {
+    }
+    if (Object.create) {
+      Events.prototype = /* @__PURE__ */ Object.create(null);
+      if (!new Events().__proto__) prefix = false;
+    }
+    function EE(fn, context2, once) {
+      this.fn = fn;
+      this.context = context2;
+      this.once = once || false;
+    }
+    function addListener(emitter, event, fn, context2, once) {
+      if (typeof fn !== "function") {
+        throw new TypeError("The listener must be a function");
+      }
+      var listener = new EE(fn, context2 || emitter, once), evt = prefix ? prefix + event : event;
+      if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
+      else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
+      else emitter._events[evt] = [emitter._events[evt], listener];
+      return emitter;
+    }
+    function clearEvent(emitter, evt) {
+      if (--emitter._eventsCount === 0) emitter._events = new Events();
+      else delete emitter._events[evt];
+    }
+    function EventEmitter2() {
+      this._events = new Events();
+      this._eventsCount = 0;
+    }
+    EventEmitter2.prototype.eventNames = function eventNames() {
+      var names = [], events2, name;
+      if (this._eventsCount === 0) return names;
+      for (name in events2 = this._events) {
+        if (has2.call(events2, name)) names.push(prefix ? name.slice(1) : name);
+      }
+      if (Object.getOwnPropertySymbols) {
+        return names.concat(Object.getOwnPropertySymbols(events2));
+      }
+      return names;
+    };
+    EventEmitter2.prototype.listeners = function listeners(event) {
+      var evt = prefix ? prefix + event : event, handlers = this._events[evt];
+      if (!handlers) return [];
+      if (handlers.fn) return [handlers.fn];
+      for (var i3 = 0, l3 = handlers.length, ee2 = new Array(l3); i3 < l3; i3++) {
+        ee2[i3] = handlers[i3].fn;
+      }
+      return ee2;
+    };
+    EventEmitter2.prototype.listenerCount = function listenerCount(event) {
+      var evt = prefix ? prefix + event : event, listeners = this._events[evt];
+      if (!listeners) return 0;
+      if (listeners.fn) return 1;
+      return listeners.length;
+    };
+    EventEmitter2.prototype.emit = function emit(event, a1, a22, a3, a4, a5) {
+      var evt = prefix ? prefix + event : event;
+      if (!this._events[evt]) return false;
+      var listeners = this._events[evt], len = arguments.length, args, i3;
+      if (listeners.fn) {
+        if (listeners.once) this.removeListener(event, listeners.fn, void 0, true);
+        switch (len) {
+          case 1:
+            return listeners.fn.call(listeners.context), true;
+          case 2:
+            return listeners.fn.call(listeners.context, a1), true;
+          case 3:
+            return listeners.fn.call(listeners.context, a1, a22), true;
+          case 4:
+            return listeners.fn.call(listeners.context, a1, a22, a3), true;
+          case 5:
+            return listeners.fn.call(listeners.context, a1, a22, a3, a4), true;
+          case 6:
+            return listeners.fn.call(listeners.context, a1, a22, a3, a4, a5), true;
+        }
+        for (i3 = 1, args = new Array(len - 1); i3 < len; i3++) {
+          args[i3 - 1] = arguments[i3];
+        }
+        listeners.fn.apply(listeners.context, args);
+      } else {
+        var length2 = listeners.length, j4;
+        for (i3 = 0; i3 < length2; i3++) {
+          if (listeners[i3].once) this.removeListener(event, listeners[i3].fn, void 0, true);
+          switch (len) {
+            case 1:
+              listeners[i3].fn.call(listeners[i3].context);
+              break;
+            case 2:
+              listeners[i3].fn.call(listeners[i3].context, a1);
+              break;
+            case 3:
+              listeners[i3].fn.call(listeners[i3].context, a1, a22);
+              break;
+            case 4:
+              listeners[i3].fn.call(listeners[i3].context, a1, a22, a3);
+              break;
+            default:
+              if (!args) for (j4 = 1, args = new Array(len - 1); j4 < len; j4++) {
+                args[j4 - 1] = arguments[j4];
+              }
+              listeners[i3].fn.apply(listeners[i3].context, args);
+          }
+        }
+      }
+      return true;
+    };
+    EventEmitter2.prototype.on = function on(event, fn, context2) {
+      return addListener(this, event, fn, context2, false);
+    };
+    EventEmitter2.prototype.once = function once(event, fn, context2) {
+      return addListener(this, event, fn, context2, true);
+    };
+    EventEmitter2.prototype.removeListener = function removeListener(event, fn, context2, once) {
+      var evt = prefix ? prefix + event : event;
+      if (!this._events[evt]) return this;
+      if (!fn) {
+        clearEvent(this, evt);
+        return this;
+      }
+      var listeners = this._events[evt];
+      if (listeners.fn) {
+        if (listeners.fn === fn && (!once || listeners.once) && (!context2 || listeners.context === context2)) {
+          clearEvent(this, evt);
+        }
+      } else {
+        for (var i3 = 0, events2 = [], length2 = listeners.length; i3 < length2; i3++) {
+          if (listeners[i3].fn !== fn || once && !listeners[i3].once || context2 && listeners[i3].context !== context2) {
+            events2.push(listeners[i3]);
+          }
+        }
+        if (events2.length) this._events[evt] = events2.length === 1 ? events2[0] : events2;
+        else clearEvent(this, evt);
+      }
+      return this;
+    };
+    EventEmitter2.prototype.removeAllListeners = function removeAllListeners(event) {
+      var evt;
+      if (event) {
+        evt = prefix ? prefix + event : event;
+        if (this._events[evt]) clearEvent(this, evt);
+      } else {
+        this._events = new Events();
+        this._eventsCount = 0;
+      }
+      return this;
+    };
+    EventEmitter2.prototype.off = EventEmitter2.prototype.removeListener;
+    EventEmitter2.prototype.addListener = EventEmitter2.prototype.on;
+    EventEmitter2.prefixed = prefix;
+    EventEmitter2.EventEmitter = EventEmitter2;
+    if ("undefined" !== typeof module) {
+      module.exports = EventEmitter2;
+    }
+  }
+});
+
+// node_modules/eventemitter3/index.mjs
+var import_index, eventemitter3_default;
+var init_eventemitter3 = __esm({
+  "node_modules/eventemitter3/index.mjs"() {
+    import_index = __toESM(require_eventemitter3(), 1);
+    eventemitter3_default = import_index.default;
+  }
+});
+
+// node_modules/pixi.js/lib/utils/data/uid.mjs
+function uid(name = "default") {
+  if (uidCache[name] === void 0) {
+    uidCache[name] = -1;
+  }
+  return ++uidCache[name];
+}
+var uidCache;
+var init_uid = __esm({
+  "node_modules/pixi.js/lib/utils/data/uid.mjs"() {
+    "use strict";
+    uidCache = {
+      default: -1
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/const.mjs
+var BufferUsage;
+var init_const = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/const.mjs"() {
+    "use strict";
+    BufferUsage = /* @__PURE__ */ ((BufferUsage2) => {
+      BufferUsage2[BufferUsage2["MAP_READ"] = 1] = "MAP_READ";
+      BufferUsage2[BufferUsage2["MAP_WRITE"] = 2] = "MAP_WRITE";
+      BufferUsage2[BufferUsage2["COPY_SRC"] = 4] = "COPY_SRC";
+      BufferUsage2[BufferUsage2["COPY_DST"] = 8] = "COPY_DST";
+      BufferUsage2[BufferUsage2["INDEX"] = 16] = "INDEX";
+      BufferUsage2[BufferUsage2["VERTEX"] = 32] = "VERTEX";
+      BufferUsage2[BufferUsage2["UNIFORM"] = 64] = "UNIFORM";
+      BufferUsage2[BufferUsage2["STORAGE"] = 128] = "STORAGE";
+      BufferUsage2[BufferUsage2["INDIRECT"] = 256] = "INDIRECT";
+      BufferUsage2[BufferUsage2["QUERY_RESOLVE"] = 512] = "QUERY_RESOLVE";
+      BufferUsage2[BufferUsage2["STATIC"] = 1024] = "STATIC";
+      return BufferUsage2;
+    })(BufferUsage || {});
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/Buffer.mjs
+var Buffer2;
+var init_Buffer = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/Buffer.mjs"() {
+    init_eventemitter3();
+    init_uid();
+    init_const();
+    Buffer2 = class extends eventemitter3_default {
+      /**
+       * Creates a new Buffer with the given options
+       * @param options - the options for the buffer
+       */
+      constructor(options) {
+        let { data, size: size4 } = options;
+        const { usage, label, shrinkToFit } = options;
+        super();
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+        this._gcLastUsed = -1;
+        this.autoGarbageCollect = true;
+        this.uid = uid("buffer");
+        this._resourceType = "buffer";
+        this._resourceId = uid("resource");
+        this._touched = 0;
+        this._updateID = 1;
+        this._dataInt32 = null;
+        this.shrinkToFit = true;
+        this.destroyed = false;
+        if (data instanceof Array) {
+          data = new Float32Array(data);
+        }
+        this._data = data;
+        size4 ?? (size4 = data?.byteLength);
+        const mappedAtCreation = !!data;
+        this.descriptor = {
+          size: size4,
+          usage,
+          mappedAtCreation,
+          label
+        };
+        this.shrinkToFit = shrinkToFit ?? true;
+      }
+      /** the data in the buffer */
+      get data() {
+        return this._data;
+      }
+      set data(value) {
+        this.setDataWithSize(value, value.length, true);
+      }
+      get dataInt32() {
+        if (!this._dataInt32) {
+          this._dataInt32 = new Int32Array(this.data.buffer);
+        }
+        return this._dataInt32;
+      }
+      /** whether the buffer is static or not */
+      get static() {
+        return !!(this.descriptor.usage & BufferUsage.STATIC);
+      }
+      set static(value) {
+        if (value) {
+          this.descriptor.usage |= BufferUsage.STATIC;
+        } else {
+          this.descriptor.usage &= ~BufferUsage.STATIC;
+        }
+      }
+      /**
+       * Sets the data in the buffer to the given value. This will immediately update the buffer on the GPU.
+       * If you only want to update a subset of the buffer, you can pass in the size of the data.
+       * @param value - the data to set
+       * @param size - the size of the data in bytes
+       * @param syncGPU - should the buffer be updated on the GPU immediately?
+       */
+      setDataWithSize(value, size4, syncGPU) {
+        this._updateID++;
+        this._updateSize = size4 * value.BYTES_PER_ELEMENT;
+        if (this._data === value) {
+          if (syncGPU) this.emit("update", this);
+          return;
+        }
+        const oldData = this._data;
+        this._data = value;
+        this._dataInt32 = null;
+        if (!oldData || oldData.length !== value.length) {
+          if (!this.shrinkToFit && oldData && value.byteLength < oldData.byteLength) {
+            if (syncGPU) this.emit("update", this);
+          } else {
+            this.descriptor.size = value.byteLength;
+            this._resourceId = uid("resource");
+            this.emit("change", this);
+          }
+          return;
+        }
+        if (syncGPU) this.emit("update", this);
+      }
+      /**
+       * updates the buffer on the GPU to reflect the data in the buffer.
+       * By default it will update the entire buffer. If you only want to update a subset of the buffer,
+       * you can pass in the size of the buffer to update.
+       * @param sizeInBytes - the new size of the buffer in bytes
+       */
+      update(sizeInBytes) {
+        this._updateSize = sizeInBytes ?? this._updateSize;
+        this._updateID++;
+        this.emit("update", this);
+      }
+      /** Unloads the buffer from the GPU */
+      unload() {
+        this.emit("unload", this);
+        for (const key in this._gpuData) {
+          this._gpuData[key]?.destroy();
+        }
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+      }
+      /** Destroys the buffer */
+      destroy() {
+        this.destroyed = true;
+        this.unload();
+        this.emit("destroy", this);
+        this.emit("change", this);
+        this._data = null;
+        this.descriptor = null;
+        this.removeAllListeners();
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/UboSystem.mjs
+var UboSystem;
+var init_UboSystem = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/UboSystem.mjs"() {
+    init_unsafeEvalSupported();
+    init_Buffer();
+    init_const();
+    UboSystem = class {
+      constructor(adaptor) {
+        this._syncFunctionHash = /* @__PURE__ */ Object.create(null);
+        this._adaptor = adaptor;
+        this._systemCheck();
+      }
+      /**
+       * Overridable function by `pixi.js/unsafe-eval` to silence
+       * throwing an error if platform doesn't support unsafe-evals.
+       * @private
+       */
+      _systemCheck() {
+        if (!unsafeEvalSupported()) {
+          throw new Error("Current environment does not allow unsafe-eval, please use pixi.js/unsafe-eval module to enable support.");
+        }
+      }
+      ensureUniformGroup(uniformGroup) {
+        const uniformData = this.getUniformGroupData(uniformGroup);
+        uniformGroup.buffer || (uniformGroup.buffer = new Buffer2({
+          data: new Float32Array(uniformData.layout.size / 4),
+          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST
+        }));
+      }
+      getUniformGroupData(uniformGroup) {
+        return this._syncFunctionHash[uniformGroup._signature] || this._initUniformGroup(uniformGroup);
+      }
+      _initUniformGroup(uniformGroup) {
+        const uniformGroupSignature = uniformGroup._signature;
+        let uniformData = this._syncFunctionHash[uniformGroupSignature];
+        if (!uniformData) {
+          const elements = Object.keys(uniformGroup.uniformStructures).map((i3) => uniformGroup.uniformStructures[i3]);
+          const layout = this._adaptor.createUboElements(elements);
+          const syncFunction = this._generateUboSync(layout.uboElements);
+          uniformData = this._syncFunctionHash[uniformGroupSignature] = {
+            layout,
+            syncFunction
+          };
+        }
+        return this._syncFunctionHash[uniformGroupSignature];
+      }
+      _generateUboSync(uboElements) {
+        return this._adaptor.generateUboSync(uboElements);
+      }
+      syncUniformGroup(uniformGroup, data, offset4) {
+        const uniformGroupData = this.getUniformGroupData(uniformGroup);
+        uniformGroup.buffer || (uniformGroup.buffer = new Buffer2({
+          data: new Float32Array(uniformGroupData.layout.size / 4),
+          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST
+        }));
+        let dataInt32 = null;
+        if (!data) {
+          data = uniformGroup.buffer.data;
+          dataInt32 = uniformGroup.buffer.dataInt32;
+        }
+        offset4 || (offset4 = 0);
+        uniformGroupData.syncFunction(uniformGroup.uniforms, data, dataInt32, offset4);
+        return true;
+      }
+      updateUniformGroup(uniformGroup) {
+        if (uniformGroup.isStatic && !uniformGroup._dirtyId) return false;
+        uniformGroup._dirtyId = 0;
+        const synced = this.syncUniformGroup(uniformGroup);
+        uniformGroup.buffer.update();
+        return synced;
+      }
+      destroy() {
+        this._syncFunctionHash = null;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboElementsSTD40.mjs
+function createUboElementsSTD40(uniformData) {
+  const uboElements = uniformData.map((data) => ({
+    data,
+    offset: 0,
+    size: 0
+  }));
+  const chunkSize = 16;
+  let size4 = 0;
+  let offset4 = 0;
+  for (let i3 = 0; i3 < uboElements.length; i3++) {
+    const uboElement = uboElements[i3];
+    size4 = WGSL_TO_STD40_SIZE[uboElement.data.type];
+    if (!size4) {
+      throw new Error(`Unknown type ${uboElement.data.type}`);
+    }
+    if (uboElement.data.size > 1) {
+      size4 = Math.max(size4, chunkSize) * uboElement.data.size;
+    }
+    const boundary = size4 === 12 ? 16 : size4;
+    uboElement.size = size4;
+    const curOffset = offset4 % chunkSize;
+    if (curOffset > 0 && chunkSize - curOffset < boundary) {
+      offset4 += (chunkSize - curOffset) % 16;
+    } else {
+      offset4 += (size4 - curOffset % size4) % size4;
+    }
+    uboElement.offset = offset4;
+    offset4 += size4;
+  }
+  offset4 = Math.ceil(offset4 / 16) * 16;
+  return { uboElements, size: offset4 };
+}
+var WGSL_TO_STD40_SIZE;
+var init_createUboElementsSTD40 = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboElementsSTD40.mjs"() {
+    "use strict";
+    WGSL_TO_STD40_SIZE = {
+      f32: 4,
+      i32: 4,
+      "vec2<f32>": 8,
+      "vec3<f32>": 12,
+      "vec4<f32>": 16,
+      "vec2<i32>": 8,
+      "vec3<i32>": 12,
+      "vec4<i32>": 16,
+      "mat2x2<f32>": 16 * 2,
+      "mat3x3<f32>": 16 * 3,
+      "mat4x4<f32>": 16 * 4
+      // TODO - not essential for now but support these in the future
+      // int:      4,
+      // ivec2:    8,
+      // ivec3:    12,
+      // ivec4:    16,
+      // uint:     4,
+      // uvec2:    8,
+      // uvec3:    12,
+      // uvec4:    16,
+      // bool:     4,
+      // bvec2:    8,
+      // bvec3:    12,
+      // bvec4:    16,
+      // mat2:     16 * 2,
+      // mat3:     16 * 3,
+      // mat4:     16 * 4,
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uniformParsers.mjs
+var uniformParsers;
+var init_uniformParsers = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uniformParsers.mjs"() {
+    "use strict";
+    uniformParsers = [
+      // uploading pixi matrix object to mat3
+      {
+        type: "mat3x3<f32>",
+        test: (data) => {
+          const value = data.value;
+          return value.a !== void 0;
+        },
+        ubo: `
+            var matrix = uv[name].toArray(true);
+            data[offset] = matrix[0];
+            data[offset + 1] = matrix[1];
+            data[offset + 2] = matrix[2];
+            data[offset + 4] = matrix[3];
+            data[offset + 5] = matrix[4];
+            data[offset + 6] = matrix[5];
+            data[offset + 8] = matrix[6];
+            data[offset + 9] = matrix[7];
+            data[offset + 10] = matrix[8];
+        `,
+        uniform: `
+            gl.uniformMatrix3fv(ud[name].location, false, uv[name].toArray(true));
+        `
+      },
+      // uploading a pixi rectangle as a vec4
+      {
+        type: "vec4<f32>",
+        test: (data) => data.type === "vec4<f32>" && data.size === 1 && data.value.width !== void 0,
+        ubo: `
+            v = uv[name];
+            data[offset] = v.x;
+            data[offset + 1] = v.y;
+            data[offset + 2] = v.width;
+            data[offset + 3] = v.height;
+        `,
+        uniform: `
+            cv = ud[name].value;
+            v = uv[name];
+            if (cv[0] !== v.x || cv[1] !== v.y || cv[2] !== v.width || cv[3] !== v.height) {
+                cv[0] = v.x;
+                cv[1] = v.y;
+                cv[2] = v.width;
+                cv[3] = v.height;
+                gl.uniform4f(ud[name].location, v.x, v.y, v.width, v.height);
+            }
+        `
+      },
+      // uploading a pixi point as a vec2
+      {
+        type: "vec2<f32>",
+        test: (data) => data.type === "vec2<f32>" && data.size === 1 && data.value.x !== void 0,
+        ubo: `
+            v = uv[name];
+            data[offset] = v.x;
+            data[offset + 1] = v.y;
+        `,
+        uniform: `
+            cv = ud[name].value;
+            v = uv[name];
+            if (cv[0] !== v.x || cv[1] !== v.y) {
+                cv[0] = v.x;
+                cv[1] = v.y;
+                gl.uniform2f(ud[name].location, v.x, v.y);
+            }
+        `
+      },
+      // uploading a pixi color as a vec4
+      {
+        type: "vec4<f32>",
+        test: (data) => data.type === "vec4<f32>" && data.size === 1 && data.value.red !== void 0,
+        ubo: `
+            v = uv[name];
+            data[offset] = v.red;
+            data[offset + 1] = v.green;
+            data[offset + 2] = v.blue;
+            data[offset + 3] = v.alpha;
+        `,
+        uniform: `
+            cv = ud[name].value;
+            v = uv[name];
+            if (cv[0] !== v.red || cv[1] !== v.green || cv[2] !== v.blue || cv[3] !== v.alpha) {
+                cv[0] = v.red;
+                cv[1] = v.green;
+                cv[2] = v.blue;
+                cv[3] = v.alpha;
+                gl.uniform4f(ud[name].location, v.red, v.green, v.blue, v.alpha);
+            }
+        `
+      },
+      // uploading a pixi color as a vec3
+      {
+        type: "vec3<f32>",
+        test: (data) => data.type === "vec3<f32>" && data.size === 1 && data.value.red !== void 0,
+        ubo: `
+            v = uv[name];
+            data[offset] = v.red;
+            data[offset + 1] = v.green;
+            data[offset + 2] = v.blue;
+        `,
+        uniform: `
+            cv = ud[name].value;
+            v = uv[name];
+            if (cv[0] !== v.red || cv[1] !== v.green || cv[2] !== v.blue) {
+                cv[0] = v.red;
+                cv[1] = v.green;
+                cv[2] = v.blue;
+                gl.uniform3f(ud[name].location, v.red, v.green, v.blue);
+            }
+        `
+      }
+    ];
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/createUboSyncFunction.mjs
+function createUboSyncFunction(uboElements, parserCode, arrayGenerationFunction, singleSettersMap) {
+  const funcFragments = [`
+        var v = null;
+        var v2 = null;
+        var t = 0;
+        var index = 0;
+        var name = null;
+        var arrayOffset = null;
+    `];
+  let prev = 0;
+  for (let i3 = 0; i3 < uboElements.length; i3++) {
+    const uboElement = uboElements[i3];
+    const name = uboElement.data.name;
+    let parsed = false;
+    let offset4 = 0;
+    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
+      const uniformParser = uniformParsers[j4];
+      if (uniformParser.test(uboElement.data)) {
+        offset4 = uboElement.offset / 4;
+        funcFragments.push(
+          `name = "${name}";`,
+          `offset += ${offset4 - prev};`,
+          uniformParsers[j4][parserCode] || uniformParsers[j4].ubo
+        );
+        parsed = true;
+        break;
+      }
+    }
+    if (!parsed) {
+      if (uboElement.data.size > 1) {
+        offset4 = uboElement.offset / 4;
+        funcFragments.push(arrayGenerationFunction(uboElement, offset4 - prev));
+      } else {
+        const template = singleSettersMap[uboElement.data.type];
+        offset4 = uboElement.offset / 4;
+        funcFragments.push(
+          /* wgsl */
+          `
+                    v = uv.${name};
+                    offset += ${offset4 - prev};
+                    ${template};
+                `
+        );
+      }
+    }
+    prev = offset4;
+  }
+  const fragmentSrc = funcFragments.join("\n");
+  return new Function(
+    "uv",
+    "data",
+    "dataInt32",
+    "offset",
+    fragmentSrc
+  );
+}
+var init_createUboSyncFunction = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/createUboSyncFunction.mjs"() {
+    init_uniformParsers();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uboSyncFunctions.mjs
+function loopMatrix(col, row) {
+  const total = col * row;
+  return `
+        for (let i = 0; i < ${total}; i++) {
+            data[offset + (((i / ${col})|0) * 4) + (i % ${col})] = v[i];
+        }
+    `;
+}
+var uboSyncFunctionsSTD40, uboSyncFunctionsWGSL;
+var init_uboSyncFunctions = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uboSyncFunctions.mjs"() {
+    "use strict";
+    uboSyncFunctionsSTD40 = {
+      f32: `
+        data[offset] = v;`,
+      i32: `
+        dataInt32[offset] = v;`,
+      "vec2<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];`,
+      "vec3<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];
+        data[offset + 2] = v[2];`,
+      "vec4<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];
+        data[offset + 2] = v[2];
+        data[offset + 3] = v[3];`,
+      "vec2<i32>": `
+        dataInt32[offset] = v[0];
+        dataInt32[offset + 1] = v[1];`,
+      "vec3<i32>": `
+        dataInt32[offset] = v[0];
+        dataInt32[offset + 1] = v[1];
+        dataInt32[offset + 2] = v[2];`,
+      "vec4<i32>": `
+        dataInt32[offset] = v[0];
+        dataInt32[offset + 1] = v[1];
+        dataInt32[offset + 2] = v[2];
+        dataInt32[offset + 3] = v[3];`,
+      "mat2x2<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];
+        data[offset + 4] = v[2];
+        data[offset + 5] = v[3];`,
+      "mat3x3<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];
+        data[offset + 2] = v[2];
+        data[offset + 4] = v[3];
+        data[offset + 5] = v[4];
+        data[offset + 6] = v[5];
+        data[offset + 8] = v[6];
+        data[offset + 9] = v[7];
+        data[offset + 10] = v[8];`,
+      "mat4x4<f32>": `
+        for (let i = 0; i < 16; i++) {
+            data[offset + i] = v[i];
+        }`,
+      "mat3x2<f32>": loopMatrix(3, 2),
+      "mat4x2<f32>": loopMatrix(4, 2),
+      "mat2x3<f32>": loopMatrix(2, 3),
+      "mat4x3<f32>": loopMatrix(4, 3),
+      "mat2x4<f32>": loopMatrix(2, 4),
+      "mat3x4<f32>": loopMatrix(3, 4)
+    };
+    uboSyncFunctionsWGSL = {
+      ...uboSyncFunctionsSTD40,
+      "mat2x2<f32>": `
+        data[offset] = v[0];
+        data[offset + 1] = v[1];
+        data[offset + 2] = v[2];
+        data[offset + 3] = v[3];
+    `
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateArraySyncSTD40.mjs
+function generateArraySyncSTD40(uboElement, offsetToAdd) {
+  const rowSize = Math.max(WGSL_TO_STD40_SIZE[uboElement.data.type] / 16, 1);
+  const elementSize = uboElement.data.value.length / uboElement.data.size;
+  const remainder = (4 - elementSize % 4) % 4;
+  const data = uboElement.data.type.indexOf("i32") >= 0 ? "dataInt32" : "data";
+  return `
+        v = uv.${uboElement.data.name};
+        offset += ${offsetToAdd};
+
+        arrayOffset = offset;
+
+        t = 0;
+
+        for(var i=0; i < ${uboElement.data.size * rowSize}; i++)
+        {
+            for(var j = 0; j < ${elementSize}; j++)
+            {
+                ${data}[arrayOffset++] = v[t++];
+            }
+            ${remainder !== 0 ? `arrayOffset += ${remainder};` : ""}
+        }
+    `;
+}
+var init_generateArraySyncSTD40 = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateArraySyncSTD40.mjs"() {
+    init_createUboElementsSTD40();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboSyncSTD40.mjs
+function createUboSyncFunctionSTD40(uboElements) {
+  return createUboSyncFunction(
+    uboElements,
+    "uboStd40",
+    generateArraySyncSTD40,
+    uboSyncFunctionsSTD40
+  );
+}
+var init_createUboSyncSTD40 = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboSyncSTD40.mjs"() {
+    init_createUboSyncFunction();
+    init_uboSyncFunctions();
+    init_generateArraySyncSTD40();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/GlUboSystem.mjs
+var GlUboSystem;
+var init_GlUboSystem = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/GlUboSystem.mjs"() {
+    init_Extensions();
+    init_UboSystem();
+    init_createUboElementsSTD40();
+    init_createUboSyncSTD40();
+    GlUboSystem = class extends UboSystem {
+      constructor() {
+        super({
+          createUboElements: createUboElementsSTD40,
+          generateUboSync: createUboSyncFunctionSTD40
+        });
+      }
+    };
+    GlUboSystem.extension = {
+      type: [ExtensionType.WebGLSystem],
+      name: "ubo"
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/BufferResource.mjs
+var BufferResource;
+var init_BufferResource = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/BufferResource.mjs"() {
+    init_eventemitter3();
+    init_uid();
+    BufferResource = class extends eventemitter3_default {
+      /**
+       * Create a new Buffer Resource.
+       * @param options - The options for the buffer resource
+       * @param options.buffer - The underlying buffer that this resource is using
+       * @param options.offset - The offset of the buffer this resource is using.
+       * If not provided, then it will use the offset of the buffer.
+       * @param options.size - The size of the buffer this resource is using.
+       * If not provided, then it will use the size of the buffer.
+       */
+      constructor({ buffer, offset: offset4, size: size4 }) {
+        super();
+        this.uid = uid("buffer");
+        this._resourceType = "bufferResource";
+        this._touched = 0;
+        this._resourceId = uid("resource");
+        this._bufferResource = true;
+        this.destroyed = false;
+        this.buffer = buffer;
+        this.offset = offset4 | 0;
+        this.size = size4;
+        this.buffer.on("change", this.onBufferChange, this);
+      }
+      onBufferChange() {
+        this._resourceId = uid("resource");
+        this.emit("change", this);
+      }
+      /**
+       * Destroys this resource. Make sure the underlying buffer is not used anywhere else
+       * if you want to destroy it as well, or code will explode
+       * @param destroyBuffer - Should the underlying buffer be destroyed as well?
+       */
+      destroy(destroyBuffer = false) {
+        this.destroyed = true;
+        if (destroyBuffer) {
+          this.buffer.destroy();
+        }
+        this.emit("change", this);
+        this.buffer = null;
+        this.removeAllListeners();
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/utils/createIdFromString.mjs
+function createIdFromString(value, groupId) {
+  let id = idHash[value];
+  if (id === void 0) {
+    if (idCounts[groupId] === void 0) {
+      idCounts[groupId] = 1;
+    }
+    idHash[value] = id = idCounts[groupId]++;
+  }
+  return id;
+}
+var idCounts, idHash;
+var init_createIdFromString = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/utils/createIdFromString.mjs"() {
+    "use strict";
+    idCounts = /* @__PURE__ */ Object.create(null);
+    idHash = /* @__PURE__ */ Object.create(null);
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/types.mjs
+var UNIFORM_TYPES_VALUES, UNIFORM_TYPES_MAP;
+var init_types = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/types.mjs"() {
+    "use strict";
+    UNIFORM_TYPES_VALUES = [
+      "f32",
+      "i32",
+      "vec2<f32>",
+      "vec3<f32>",
+      "vec4<f32>",
+      "mat2x2<f32>",
+      "mat3x3<f32>",
+      "mat4x4<f32>",
+      "mat3x2<f32>",
+      "mat4x2<f32>",
+      "mat2x3<f32>",
+      "mat4x3<f32>",
+      "mat2x4<f32>",
+      "mat3x4<f32>",
+      "vec2<i32>",
+      "vec3<i32>",
+      "vec4<i32>"
+    ];
+    UNIFORM_TYPES_MAP = UNIFORM_TYPES_VALUES.reduce((acc, type) => {
+      acc[type] = true;
+      return acc;
+    }, {});
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/getDefaultUniformValue.mjs
+function getDefaultUniformValue(type, size4) {
+  switch (type) {
+    case "f32":
+      return 0;
+    case "vec2<f32>":
+      return new Float32Array(2 * size4);
+    case "vec3<f32>":
+      return new Float32Array(3 * size4);
+    case "vec4<f32>":
+      return new Float32Array(4 * size4);
+    case "mat2x2<f32>":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        1
+      ]);
+    case "mat3x3<f32>":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ]);
+    case "mat4x4<f32>":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]);
+  }
+  return null;
+}
+var init_getDefaultUniformValue = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/getDefaultUniformValue.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/shader/UniformGroup.mjs
+var _UniformGroup, UniformGroup;
+var init_UniformGroup = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/UniformGroup.mjs"() {
+    init_uid();
+    init_createIdFromString();
+    init_types();
+    init_getDefaultUniformValue();
+    _UniformGroup = class _UniformGroup2 {
+      /**
+       * Create a new Uniform group
+       * @param uniformStructures - The structures of the uniform group
+       * @param options - The optional parameters of this uniform group
+       */
+      constructor(uniformStructures, options) {
+        this._touched = 0;
+        this.uid = uid("uniform");
+        this._resourceType = "uniformGroup";
+        this._resourceId = uid("resource");
+        this.isUniformGroup = true;
+        this._dirtyId = 0;
+        this.destroyed = false;
+        options = { ..._UniformGroup2.defaultOptions, ...options };
+        this.uniformStructures = uniformStructures;
+        const uniforms = {};
+        for (const i3 in uniformStructures) {
+          const uniformData = uniformStructures[i3];
+          uniformData.name = i3;
+          uniformData.size = uniformData.size ?? 1;
+          if (!UNIFORM_TYPES_MAP[uniformData.type]) {
+            const arrayMatch = uniformData.type.match(/^array<(\w+(?:<\w+>)?),\s*(\d+)>$/);
+            if (arrayMatch) {
+              const [, innerType, size4] = arrayMatch;
+              throw new Error(
+                `Uniform type ${uniformData.type} is not supported. Use type: '${innerType}', size: ${size4} instead.`
+              );
+            }
+            throw new Error(`Uniform type ${uniformData.type} is not supported. Supported uniform types are: ${UNIFORM_TYPES_VALUES.join(", ")}`);
+          }
+          uniformData.value ?? (uniformData.value = getDefaultUniformValue(uniformData.type, uniformData.size));
+          uniforms[i3] = uniformData.value;
+        }
+        this.uniforms = uniforms;
+        this._dirtyId = 1;
+        this.ubo = options.ubo;
+        this.isStatic = options.isStatic;
+        this._signature = createIdFromString(Object.keys(uniforms).map(
+          (i3) => `${i3}-${uniformStructures[i3].type}`
+        ).join("-"), "uniform-group");
+      }
+      /** Call this if you want the uniform groups data to be uploaded to the GPU only useful if `isStatic` is true. */
+      update() {
+        this._dirtyId++;
+      }
+    };
+    _UniformGroup.defaultOptions = {
+      /** if true the UniformGroup is handled as an Uniform buffer object. */
+      ubo: false,
+      /** if true, then you are responsible for when the data is uploaded to the GPU by calling `update()` */
+      isStatic: false
+    };
+    UniformGroup = _UniformGroup;
+  }
+});
+
+// node_modules/pixi.js/lib/maths/misc/pow2.mjs
+function nextPow2(v4) {
+  v4 += v4 === 0 ? 1 : 0;
+  --v4;
+  v4 |= v4 >>> 1;
+  v4 |= v4 >>> 2;
+  v4 |= v4 >>> 4;
+  v4 |= v4 >>> 8;
+  v4 |= v4 >>> 16;
+  return v4 + 1;
+}
+function isPow2(v4) {
+  return !(v4 & v4 - 1) && !!v4;
+}
+var init_pow2 = __esm({
+  "node_modules/pixi.js/lib/maths/misc/pow2.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/utils/definedProps.mjs
+function definedProps(obj) {
+  const result = {};
+  for (const key in obj) {
+    if (obj[key] !== void 0) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+var init_definedProps = __esm({
+  "node_modules/pixi.js/lib/scene/container/utils/definedProps.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/utils/logging/deprecation.mjs
+var warnings, v8_0_0, v8_3_4, deprecationState, deprecation;
+var init_deprecation = __esm({
+  "node_modules/pixi.js/lib/utils/logging/deprecation.mjs"() {
+    "use strict";
+    warnings = /* @__PURE__ */ new Set();
+    v8_0_0 = "8.0.0";
+    v8_3_4 = "8.3.4";
+    deprecationState = {
+      quiet: false,
+      noColor: false
+    };
+    deprecation = (version, message, ignoreDepth = 3) => {
+      if (deprecationState.quiet || warnings.has(message)) return;
+      let stack = new Error().stack;
+      const deprecationMessage = `${message}
+Deprecated since v${version}`;
+      const useGroup = typeof console.groupCollapsed === "function" && !deprecationState.noColor;
+      if (typeof stack === "undefined") {
+        console.warn("PixiJS Deprecation Warning: ", deprecationMessage);
+      } else {
+        stack = stack.split("\n").splice(ignoreDepth).join("\n");
+        if (useGroup) {
+          console.groupCollapsed(
+            "%cPixiJS Deprecation Warning: %c%s",
+            "color:#614108;background:#fffbe6",
+            "font-weight:normal;color:#614108;background:#fffbe6",
+            deprecationMessage
+          );
+          console.warn(stack);
+          console.groupEnd();
+        } else {
+          console.warn("PixiJS Deprecation Warning: ", deprecationMessage);
+          console.warn(stack);
+        }
+      }
+      warnings.add(message);
+    };
+    Object.defineProperties(deprecation, {
+      quiet: {
+        get: () => deprecationState.quiet,
+        set: (value) => {
+          deprecationState.quiet = value;
+        },
+        enumerable: true,
+        configurable: false
+      },
+      noColor: {
+        get: () => deprecationState.noColor,
+        set: (value) => {
+          deprecationState.noColor = value;
+        },
+        enumerable: true,
+        configurable: false
+      }
+    });
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureStyle.mjs
+function createResourceIdFromString(value) {
+  const id = idHash2[value];
+  if (id === void 0) {
+    idHash2[value] = uid("resource");
+  }
+  return id;
+}
+var idHash2, _TextureStyle, TextureStyle;
+var init_TextureStyle = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureStyle.mjs"() {
+    init_eventemitter3();
+    init_uid();
+    init_deprecation();
+    idHash2 = /* @__PURE__ */ Object.create(null);
+    _TextureStyle = class _TextureStyle2 extends eventemitter3_default {
+      /**
+       * @param options - options for the style
+       */
+      constructor(options = {}) {
+        super();
+        this._resourceType = "textureSampler";
+        this._touched = 0;
+        this._maxAnisotropy = 1;
+        this.destroyed = false;
+        options = { ..._TextureStyle2.defaultOptions, ...options };
+        this.addressMode = options.addressMode;
+        this.addressModeU = options.addressModeU ?? this.addressModeU;
+        this.addressModeV = options.addressModeV ?? this.addressModeV;
+        this.addressModeW = options.addressModeW ?? this.addressModeW;
+        this.scaleMode = options.scaleMode;
+        this.magFilter = options.magFilter ?? this.magFilter;
+        this.minFilter = options.minFilter ?? this.minFilter;
+        this.mipmapFilter = options.mipmapFilter ?? this.mipmapFilter;
+        this.lodMinClamp = options.lodMinClamp;
+        this.lodMaxClamp = options.lodMaxClamp;
+        this.compare = options.compare;
+        this.maxAnisotropy = options.maxAnisotropy ?? 1;
+      }
+      set addressMode(value) {
+        this.addressModeU = value;
+        this.addressModeV = value;
+        this.addressModeW = value;
+      }
+      /** setting this will set wrapModeU,wrapModeV and wrapModeW all at once! */
+      get addressMode() {
+        return this.addressModeU;
+      }
+      set wrapMode(value) {
+        deprecation(v8_0_0, "TextureStyle.wrapMode is now TextureStyle.addressMode");
+        this.addressMode = value;
+      }
+      get wrapMode() {
+        return this.addressMode;
+      }
+      set scaleMode(value) {
+        this.magFilter = value;
+        this.minFilter = value;
+        this.mipmapFilter = value;
+      }
+      /** setting this will set magFilter,minFilter and mipmapFilter all at once!  */
+      get scaleMode() {
+        return this.magFilter;
+      }
+      /** Specifies the maximum anisotropy value clamp used by the sampler. */
+      set maxAnisotropy(value) {
+        this._maxAnisotropy = Math.min(value, 16);
+        if (this._maxAnisotropy > 1) {
+          this.scaleMode = "linear";
+        }
+      }
+      get maxAnisotropy() {
+        return this._maxAnisotropy;
+      }
+      // TODO - move this to WebGL?
+      get _resourceId() {
+        return this._sharedResourceId || this._generateResourceId();
+      }
+      update() {
+        this._sharedResourceId = null;
+        this.emit("change", this);
+      }
+      _generateResourceId() {
+        const bigKey = `${this.addressModeU}-${this.addressModeV}-${this.addressModeW}-${this.magFilter}-${this.minFilter}-${this.mipmapFilter}-${this.lodMinClamp}-${this.lodMaxClamp}-${this.compare}-${this._maxAnisotropy}`;
+        this._sharedResourceId = createResourceIdFromString(bigKey);
+        return this._resourceId;
+      }
+      /** Destroys the style */
+      destroy() {
+        this.destroyed = true;
+        this.emit("destroy", this);
+        this.emit("change", this);
+        this.removeAllListeners();
+      }
+    };
+    _TextureStyle.defaultOptions = {
+      addressMode: "clamp-to-edge",
+      scaleMode: "linear"
+    };
+    TextureStyle = _TextureStyle;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/TextureSource.mjs
+var _TextureSource, TextureSource;
+var init_TextureSource = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/TextureSource.mjs"() {
+    init_eventemitter3();
+    init_pow2();
+    init_definedProps();
+    init_uid();
+    init_TextureStyle();
+    _TextureSource = class _TextureSource2 extends eventemitter3_default {
+      /**
+       * @param options - options for creating a new TextureSource
+       */
+      constructor(options = {}) {
+        super();
+        this.options = options;
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+        this._gcLastUsed = -1;
+        this.uid = uid("textureSource");
+        this._resourceType = "textureSource";
+        this._resourceId = uid("resource");
+        this.uploadMethodId = "unknown";
+        this._resolution = 1;
+        this.pixelWidth = 1;
+        this.pixelHeight = 1;
+        this.width = 1;
+        this.height = 1;
+        this.sampleCount = 1;
+        this.mipLevelCount = 1;
+        this.autoGenerateMipmaps = false;
+        this.format = "rgba8unorm";
+        this.dimension = "2d";
+        this.viewDimension = "2d";
+        this.arrayLayerCount = 1;
+        this.antialias = false;
+        this.transient = false;
+        this._touched = 0;
+        this._batchTick = -1;
+        this._textureBindLocation = -1;
+        options = { ..._TextureSource2.defaultOptions, ...options };
+        this.label = options.label ?? "";
+        this.resource = options.resource;
+        this.autoGarbageCollect = options.autoGarbageCollect;
+        this._resolution = options.resolution;
+        if (options.width) {
+          this.pixelWidth = options.width * this._resolution;
+        } else {
+          this.pixelWidth = this.resource ? this.resourceWidth ?? 1 : 1;
+        }
+        if (options.height) {
+          this.pixelHeight = options.height * this._resolution;
+        } else {
+          this.pixelHeight = this.resource ? this.resourceHeight ?? 1 : 1;
+        }
+        this.width = this.pixelWidth / this._resolution;
+        this.height = this.pixelHeight / this._resolution;
+        this.format = options.format;
+        this.dimension = options.dimensions;
+        this.viewDimension = options.viewDimension ?? options.dimensions;
+        this.arrayLayerCount = options.arrayLayerCount;
+        this.mipLevelCount = options.mipLevelCount;
+        this.autoGenerateMipmaps = options.autoGenerateMipmaps;
+        this.sampleCount = options.sampleCount;
+        this.antialias = options.antialias;
+        this.transient = options.transient ?? false;
+        this.alphaMode = options.alphaMode;
+        this.style = new TextureStyle(definedProps(options));
+        this.destroyed = false;
+        this._refreshPOT();
+      }
+      /** returns itself */
+      get source() {
+        return this;
+      }
+      /** the style of the texture */
+      get style() {
+        return this._style;
+      }
+      set style(value) {
+        if (this.style === value) return;
+        this._style?.off("change", this._onStyleChange, this);
+        this._style = value;
+        this._style?.on("change", this._onStyleChange, this);
+        this._onStyleChange();
+      }
+      /** Specifies the maximum anisotropy value clamp used by the sampler. */
+      set maxAnisotropy(value) {
+        this._style.maxAnisotropy = value;
+      }
+      get maxAnisotropy() {
+        return this._style.maxAnisotropy;
+      }
+      /** setting this will set wrapModeU, wrapModeV and wrapModeW all at once! */
+      get addressMode() {
+        return this._style.addressMode;
+      }
+      set addressMode(value) {
+        this._style.addressMode = value;
+      }
+      /** setting this will set wrapModeU, wrapModeV and wrapModeW all at once! */
+      get repeatMode() {
+        return this._style.addressMode;
+      }
+      set repeatMode(value) {
+        this._style.addressMode = value;
+      }
+      /** Specifies the sampling behavior when the sample footprint is smaller than or equal to one texel. */
+      get magFilter() {
+        return this._style.magFilter;
+      }
+      set magFilter(value) {
+        this._style.magFilter = value;
+      }
+      /** Specifies the sampling behavior when the sample footprint is larger than one texel. */
+      get minFilter() {
+        return this._style.minFilter;
+      }
+      set minFilter(value) {
+        this._style.minFilter = value;
+      }
+      /** Specifies behavior for sampling between mipmap levels. */
+      get mipmapFilter() {
+        return this._style.mipmapFilter;
+      }
+      set mipmapFilter(value) {
+        this._style.mipmapFilter = value;
+      }
+      /** Specifies the minimum and maximum levels of detail, respectively, used internally when sampling a texture. */
+      get lodMinClamp() {
+        return this._style.lodMinClamp;
+      }
+      set lodMinClamp(value) {
+        this._style.lodMinClamp = value;
+      }
+      /** Specifies the minimum and maximum levels of detail, respectively, used internally when sampling a texture. */
+      get lodMaxClamp() {
+        return this._style.lodMaxClamp;
+      }
+      set lodMaxClamp(value) {
+        this._style.lodMaxClamp = value;
+      }
+      _onStyleChange() {
+        this.emit("styleChange", this);
+      }
+      /** call this if you have modified the texture outside of the constructor */
+      update() {
+        if (this.resource) {
+          const resolution = this._resolution;
+          const didResize = this.resize(this.resourceWidth / resolution, this.resourceHeight / resolution);
+          if (didResize) return;
+        }
+        this.emit("update", this);
+      }
+      /** Destroys this texture source */
+      destroy() {
+        this.destroyed = true;
+        this.unload();
+        this.emit("destroy", this);
+        if (this._style) {
+          this._style.destroy();
+          this._style = null;
+        }
+        this.uploadMethodId = null;
+        this.resource = null;
+        this.removeAllListeners();
+      }
+      /**
+       * This will unload the Texture source from the GPU. This will free up the GPU memory
+       * As soon as it is required fore rendering, it will be re-uploaded.
+       */
+      unload() {
+        this._resourceId = uid("resource");
+        this.emit("change", this);
+        this.emit("unload", this);
+        for (const key in this._gpuData) {
+          this._gpuData[key]?.destroy?.();
+        }
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+      }
+      /** the width of the resource. This is the REAL pure number, not accounting resolution   */
+      get resourceWidth() {
+        const { resource } = this;
+        return resource.naturalWidth || resource.videoWidth || resource.displayWidth || resource.width;
+      }
+      /** the height of the resource. This is the REAL pure number, not accounting resolution */
+      get resourceHeight() {
+        const { resource } = this;
+        return resource.naturalHeight || resource.videoHeight || resource.displayHeight || resource.height;
+      }
+      /**
+       * the resolution of the texture. Changing this number, will not change the number of pixels in the actual texture
+       * but will the size of the texture when rendered.
+       *
+       * changing the resolution of this texture to 2 for example will make it appear twice as small when rendered (as pixel
+       * density will have increased)
+       */
+      get resolution() {
+        return this._resolution;
+      }
+      set resolution(resolution) {
+        if (this._resolution === resolution) return;
+        this._resolution = resolution;
+        this.width = this.pixelWidth / resolution;
+        this.height = this.pixelHeight / resolution;
+      }
+      /**
+       * Resize the texture, this is handy if you want to use the texture as a render texture
+       * @param width - the new width of the texture
+       * @param height - the new height of the texture
+       * @param resolution - the new resolution of the texture
+       * @returns - if the texture was resized
+       */
+      resize(width, height, resolution) {
+        resolution || (resolution = this._resolution);
+        width || (width = this.width);
+        height || (height = this.height);
+        const newPixelWidth = Math.round(width * resolution);
+        const newPixelHeight = Math.round(height * resolution);
+        this.width = newPixelWidth / resolution;
+        this.height = newPixelHeight / resolution;
+        this._resolution = resolution;
+        if (this.pixelWidth === newPixelWidth && this.pixelHeight === newPixelHeight) {
+          return false;
+        }
+        this._refreshPOT();
+        this.pixelWidth = newPixelWidth;
+        this.pixelHeight = newPixelHeight;
+        this.emit("resize", this);
+        this._resourceId = uid("resource");
+        this.emit("change", this);
+        return true;
+      }
+      /**
+       * Lets the renderer know that this texture has been updated and its mipmaps should be re-generated.
+       * This is only important for RenderTexture instances, as standard Texture instances will have their
+       * mipmaps generated on upload. You should call this method after you make any change to the texture
+       *
+       * The reason for this is is can be quite expensive to update mipmaps for a texture. So by default,
+       * We want you, the developer to specify when this action should happen.
+       *
+       * Generally you don't want to have mipmaps generated on Render targets that are changed every frame,
+       */
+      updateMipmaps() {
+        if (this.autoGenerateMipmaps && this.mipLevelCount > 1) {
+          this.emit("updateMipmaps", this);
+        }
+      }
+      set wrapMode(value) {
+        this._style.wrapMode = value;
+      }
+      get wrapMode() {
+        return this._style.wrapMode;
+      }
+      set scaleMode(value) {
+        this._style.scaleMode = value;
+      }
+      /** setting this will set magFilter,minFilter and mipmapFilter all at once!  */
+      get scaleMode() {
+        return this._style.scaleMode;
+      }
+      /**
+       * Refresh check for isPowerOfTwo texture based on size
+       * @private
+       */
+      _refreshPOT() {
+        this.isPowerOfTwo = isPow2(this.pixelWidth) && isPow2(this.pixelHeight);
+      }
+      static test(_resource) {
+        throw new Error("Unimplemented");
+      }
+    };
+    _TextureSource.defaultOptions = {
+      resolution: 1,
+      format: "bgra8unorm",
+      alphaMode: "premultiply-alpha-on-upload",
+      dimensions: "2d",
+      viewDimension: "2d",
+      arrayLayerCount: 1,
+      mipLevelCount: 1,
+      autoGenerateMipmaps: false,
+      sampleCount: 1,
+      antialias: false,
+      autoGarbageCollect: false
+    };
+    TextureSource = _TextureSource;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GenerateShaderSyncCode.mjs
+function generateShaderSyncCode(shader, shaderSystem) {
+  const funcFragments = [];
+  const headerFragments = [`
+        var g = s.groups;
+        var sS = r.shader;
+        var p = s.glProgram;
+        var ugS = r.uniformGroup;
+        var resources;
+    `];
+  let addedTextreSystem = false;
+  let textureCount = 0;
+  const programData = shaderSystem._getProgramData(shader.glProgram);
+  for (const i3 in shader.groups) {
+    const group = shader.groups[i3];
+    funcFragments.push(`
+            resources = g[${i3}].resources;
+        `);
+    for (const j4 in group.resources) {
+      const resource = group.resources[j4];
+      if (resource instanceof UniformGroup) {
+        if (resource.ubo) {
+          const resName = shader._uniformBindMap[i3][Number(j4)];
+          funcFragments.push(`
+                        sS.bindUniformBlock(
+                            resources[${j4}],
+                            '${resName}',
+                            ${shader.glProgram._uniformBlockData[resName].index}
+                        );
+                    `);
+        } else {
+          funcFragments.push(`
+                        ugS.updateUniformGroup(resources[${j4}], p, sD);
+                    `);
+        }
+      } else if (resource instanceof BufferResource) {
+        const resName = shader._uniformBindMap[i3][Number(j4)];
+        funcFragments.push(`
+                    sS.bindUniformBlock(
+                        resources[${j4}],
+                        '${resName}',
+                        ${shader.glProgram._uniformBlockData[resName].index}
+                    );
+                `);
+      } else if (resource instanceof TextureSource) {
+        const uniformName = shader._uniformBindMap[i3][j4];
+        const uniformData = programData.uniformData[uniformName];
+        if (uniformData) {
+          if (!addedTextreSystem) {
+            addedTextreSystem = true;
+            headerFragments.push(`
+                        var tS = r.texture;
+                        `);
+          }
+          shaderSystem._gl.uniform1i(uniformData.location, textureCount);
+          funcFragments.push(`
+                        tS.bind(resources[${j4}], ${textureCount});
+                    `);
+          textureCount++;
+        }
+      }
+    }
+  }
+  const functionSource = [...headerFragments, ...funcFragments].join("\n");
+  return new Function("r", "s", "sD", functionSource);
+}
+var init_GenerateShaderSyncCode = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GenerateShaderSyncCode.mjs"() {
+    init_BufferResource();
+    init_UniformGroup();
+    init_TextureSource();
+  }
+});
+
+// node_modules/pixi.js/lib/utils/logging/warn.mjs
+function warn(...args) {
+  if (warnCount === maxWarnings) return;
+  warnCount++;
+  if (warnCount === maxWarnings) {
+    console.warn("PixiJS Warning: too many warnings, no more warnings will be reported to the console by PixiJS.");
+  } else {
+    console.warn("PixiJS Warning: ", ...args);
+  }
+}
+var warnCount, maxWarnings;
+var init_warn = __esm({
+  "node_modules/pixi.js/lib/utils/logging/warn.mjs"() {
+    "use strict";
+    warnCount = 0;
+    maxWarnings = 500;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlProgramData.mjs
+var GlProgramData;
+var init_GlProgramData = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlProgramData.mjs"() {
+    "use strict";
+    GlProgramData = class {
+      /**
+       * Makes a new Pixi program.
+       * @param program - webgl program
+       * @param uniformData - uniforms
+       */
+      constructor(program, uniformData) {
+        this.program = program;
+        this.uniformData = uniformData;
+        this.uniformGroups = {};
+        this.uniformDirtyGroups = {};
+        this.uniformBlockBindings = {};
+      }
+      /** Destroys this program. */
+      destroy() {
+        this.uniformData = null;
+        this.uniformGroups = null;
+        this.uniformDirtyGroups = null;
+        this.uniformBlockBindings = null;
+        this.program = null;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/compileShader.mjs
+function compileShader(gl, type, src) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, src);
+  gl.compileShader(shader);
+  return shader;
+}
+var init_compileShader = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/compileShader.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/defaultValue.mjs
+function booleanArray(size4) {
+  const array = new Array(size4);
+  for (let i3 = 0; i3 < array.length; i3++) {
+    array[i3] = false;
+  }
+  return array;
+}
+function defaultValue(type, size4) {
+  switch (type) {
+    case "float":
+      return 0;
+    case "vec2":
+      return new Float32Array(2 * size4);
+    case "vec3":
+      return new Float32Array(3 * size4);
+    case "vec4":
+      return new Float32Array(4 * size4);
+    case "int":
+    case "uint":
+    case "sampler2D":
+    case "sampler2DArray":
+      return 0;
+    case "ivec2":
+      return new Int32Array(2 * size4);
+    case "ivec3":
+      return new Int32Array(3 * size4);
+    case "ivec4":
+      return new Int32Array(4 * size4);
+    case "uvec2":
+      return new Uint32Array(2 * size4);
+    case "uvec3":
+      return new Uint32Array(3 * size4);
+    case "uvec4":
+      return new Uint32Array(4 * size4);
+    case "bool":
+      return false;
+    case "bvec2":
+      return booleanArray(2 * size4);
+    case "bvec3":
+      return booleanArray(3 * size4);
+    case "bvec4":
+      return booleanArray(4 * size4);
+    case "mat2":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        1
+      ]);
+    case "mat3":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ]);
+    case "mat4":
+      return new Float32Array([
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]);
+  }
+  return null;
+}
+var init_defaultValue = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/defaultValue.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getAttributeInfoFromFormat.mjs
+function getAttributeInfoFromFormat(format) {
+  return attributeFormatData[format] ?? attributeFormatData.float32;
+}
+var attributeFormatData;
+var init_getAttributeInfoFromFormat = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getAttributeInfoFromFormat.mjs"() {
+    "use strict";
+    attributeFormatData = {
+      uint8x2: { size: 2, stride: 2, normalised: false },
+      uint8x4: { size: 4, stride: 4, normalised: false },
+      sint8x2: { size: 2, stride: 2, normalised: false },
+      sint8x4: { size: 4, stride: 4, normalised: false },
+      unorm8x2: { size: 2, stride: 2, normalised: true },
+      unorm8x4: { size: 4, stride: 4, normalised: true },
+      snorm8x2: { size: 2, stride: 2, normalised: true },
+      snorm8x4: { size: 4, stride: 4, normalised: true },
+      uint16x2: { size: 2, stride: 4, normalised: false },
+      uint16x4: { size: 4, stride: 8, normalised: false },
+      sint16x2: { size: 2, stride: 4, normalised: false },
+      sint16x4: { size: 4, stride: 8, normalised: false },
+      unorm16x2: { size: 2, stride: 4, normalised: true },
+      unorm16x4: { size: 4, stride: 8, normalised: true },
+      snorm16x2: { size: 2, stride: 4, normalised: true },
+      snorm16x4: { size: 4, stride: 8, normalised: true },
+      float16x2: { size: 2, stride: 4, normalised: false },
+      float16x4: { size: 4, stride: 8, normalised: false },
+      float32: { size: 1, stride: 4, normalised: false },
+      float32x2: { size: 2, stride: 8, normalised: false },
+      float32x3: { size: 3, stride: 12, normalised: false },
+      float32x4: { size: 4, stride: 16, normalised: false },
+      uint32: { size: 1, stride: 4, normalised: false },
+      uint32x2: { size: 2, stride: 8, normalised: false },
+      uint32x3: { size: 3, stride: 12, normalised: false },
+      uint32x4: { size: 4, stride: 16, normalised: false },
+      sint32: { size: 1, stride: 4, normalised: false },
+      sint32x2: { size: 2, stride: 8, normalised: false },
+      sint32x3: { size: 3, stride: 12, normalised: false },
+      sint32x4: { size: 4, stride: 16, normalised: false }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/mapType.mjs
+function mapType(gl, type) {
+  if (!GL_TABLE) {
+    const typeNames = Object.keys(GL_TO_GLSL_TYPES);
+    GL_TABLE = {};
+    for (let i3 = 0; i3 < typeNames.length; ++i3) {
+      const tn = typeNames[i3];
+      GL_TABLE[gl[tn]] = GL_TO_GLSL_TYPES[tn];
+    }
+  }
+  return GL_TABLE[type];
+}
+function mapGlToVertexFormat(gl, type) {
+  const typeValue = mapType(gl, type);
+  return GLSL_TO_VERTEX_TYPES[typeValue] || "float32";
+}
+var GL_TABLE, GL_TO_GLSL_TYPES, GLSL_TO_VERTEX_TYPES;
+var init_mapType = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/mapType.mjs"() {
+    "use strict";
+    GL_TABLE = null;
+    GL_TO_GLSL_TYPES = {
+      FLOAT: "float",
+      FLOAT_VEC2: "vec2",
+      FLOAT_VEC3: "vec3",
+      FLOAT_VEC4: "vec4",
+      INT: "int",
+      INT_VEC2: "ivec2",
+      INT_VEC3: "ivec3",
+      INT_VEC4: "ivec4",
+      UNSIGNED_INT: "uint",
+      UNSIGNED_INT_VEC2: "uvec2",
+      UNSIGNED_INT_VEC3: "uvec3",
+      UNSIGNED_INT_VEC4: "uvec4",
+      BOOL: "bool",
+      BOOL_VEC2: "bvec2",
+      BOOL_VEC3: "bvec3",
+      BOOL_VEC4: "bvec4",
+      FLOAT_MAT2: "mat2",
+      FLOAT_MAT3: "mat3",
+      FLOAT_MAT4: "mat4",
+      SAMPLER_2D: "sampler2D",
+      INT_SAMPLER_2D: "sampler2D",
+      UNSIGNED_INT_SAMPLER_2D: "sampler2D",
+      SAMPLER_CUBE: "samplerCube",
+      INT_SAMPLER_CUBE: "samplerCube",
+      UNSIGNED_INT_SAMPLER_CUBE: "samplerCube",
+      SAMPLER_2D_ARRAY: "sampler2DArray",
+      INT_SAMPLER_2D_ARRAY: "sampler2DArray",
+      UNSIGNED_INT_SAMPLER_2D_ARRAY: "sampler2DArray"
+    };
+    GLSL_TO_VERTEX_TYPES = {
+      float: "float32",
+      vec2: "float32x2",
+      vec3: "float32x3",
+      vec4: "float32x4",
+      int: "sint32",
+      ivec2: "sint32x2",
+      ivec3: "sint32x3",
+      ivec4: "sint32x4",
+      uint: "uint32",
+      uvec2: "uint32x2",
+      uvec3: "uint32x3",
+      uvec4: "uint32x4",
+      bool: "uint32",
+      bvec2: "uint32x2",
+      bvec3: "uint32x3",
+      bvec4: "uint32x4"
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/extractAttributesFromGlProgram.mjs
+function extractAttributesFromGlProgram(program, gl, sortAttributes = false) {
+  const attributes = {};
+  const totalAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+  for (let i3 = 0; i3 < totalAttributes; i3++) {
+    const attribData = gl.getActiveAttrib(program, i3);
+    if (attribData.name.startsWith("gl_")) {
+      continue;
+    }
+    const format = mapGlToVertexFormat(gl, attribData.type);
+    attributes[attribData.name] = {
+      location: 0,
+      // set further down..
+      format,
+      stride: getAttributeInfoFromFormat(format).stride,
+      offset: 0,
+      instance: false,
+      start: 0
+    };
+  }
+  const keys = Object.keys(attributes);
+  if (sortAttributes) {
+    keys.sort((a3, b3) => a3 > b3 ? 1 : -1);
+    for (let i3 = 0; i3 < keys.length; i3++) {
+      attributes[keys[i3]].location = i3;
+      gl.bindAttribLocation(program, i3, keys[i3]);
+    }
+    gl.linkProgram(program);
+  } else {
+    for (let i3 = 0; i3 < keys.length; i3++) {
+      attributes[keys[i3]].location = gl.getAttribLocation(program, keys[i3]);
+    }
+  }
+  return attributes;
+}
+var init_extractAttributesFromGlProgram = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/extractAttributesFromGlProgram.mjs"() {
+    init_getAttributeInfoFromFormat();
+    init_mapType();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUboData.mjs
+function getUboData(program, gl) {
+  if (!gl.ACTIVE_UNIFORM_BLOCKS) return {};
+  const uniformBlocks = {};
+  const totalUniformsBlocks = gl.getProgramParameter(program, gl.ACTIVE_UNIFORM_BLOCKS);
+  for (let i3 = 0; i3 < totalUniformsBlocks; i3++) {
+    const name = gl.getActiveUniformBlockName(program, i3);
+    const uniformBlockIndex = gl.getUniformBlockIndex(program, name);
+    const size4 = gl.getActiveUniformBlockParameter(program, i3, gl.UNIFORM_BLOCK_DATA_SIZE);
+    uniformBlocks[name] = {
+      name,
+      index: uniformBlockIndex,
+      size: size4
+    };
+  }
+  return uniformBlocks;
+}
+var init_getUboData = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUboData.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUniformData.mjs
+function getUniformData(program, gl) {
+  const uniforms = {};
+  const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+  for (let i3 = 0; i3 < totalUniforms; i3++) {
+    const uniformData = gl.getActiveUniform(program, i3);
+    const name = uniformData.name.replace(/\[.*?\]$/, "");
+    const isArray2 = !!uniformData.name.match(/\[.*?\]$/);
+    const type = mapType(gl, uniformData.type);
+    uniforms[name] = {
+      name,
+      index: i3,
+      type,
+      size: uniformData.size,
+      isArray: isArray2,
+      value: defaultValue(type, uniformData.size)
+    };
+  }
+  return uniforms;
+}
+var init_getUniformData = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUniformData.mjs"() {
+    init_defaultValue();
+    init_mapType();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/logProgramError.mjs
+function logPrettyShaderError(gl, shader) {
+  const rawSource = gl.getShaderSource(shader);
+  if (rawSource === null) {
+    console.error("PixiJS Error: Could not retrieve shader source (WebGL context may be lost).");
+    return;
+  }
+  const shaderSrc = rawSource.split("\n").map((line, index2) => `${index2}: ${line}`);
+  const shaderLog = gl.getShaderInfoLog(shader) ?? "";
+  const splitShader = shaderLog.split("\n");
+  const dedupe = {};
+  const lineNumbers = splitShader.map((line) => parseFloat(line.replace(/^ERROR\: 0\:([\d]+)\:.*$/, "$1"))).filter((n3) => {
+    if (n3 && !dedupe[n3]) {
+      dedupe[n3] = true;
+      return true;
+    }
+    return false;
+  });
+  const logArgs = [""];
+  lineNumbers.forEach((number2) => {
+    shaderSrc[number2 - 1] = `%c${shaderSrc[number2 - 1]}%c`;
+    logArgs.push("background: #FF0000; color:#FFFFFF; font-size: 10px", "font-size: 10px");
+  });
+  const fragmentSourceToLog = shaderSrc.join("\n");
+  logArgs[0] = fragmentSourceToLog;
+  console.error(shaderLog);
+  console.groupCollapsed("click to view full shader code");
+  console.warn(...logArgs);
+  console.groupEnd();
+}
+function logProgramError(gl, program, vertexShader, fragmentShader) {
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      logPrettyShaderError(gl, vertexShader);
+    }
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      logPrettyShaderError(gl, fragmentShader);
+    }
+    console.error("PixiJS Error: Could not initialize shader.");
+    if (gl.getProgramInfoLog(program) !== "") {
+      console.warn("PixiJS Warning: gl.getProgramInfoLog()", gl.getProgramInfoLog(program));
+    }
+  }
+}
+var init_logProgramError = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/logProgramError.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/generateProgram.mjs
+function generateProgram(gl, program) {
+  const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertex);
+  const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragment);
+  const webGLProgram = gl.createProgram();
+  gl.attachShader(webGLProgram, glVertShader);
+  gl.attachShader(webGLProgram, glFragShader);
+  const transformFeedbackVaryings = program.transformFeedbackVaryings;
+  if (transformFeedbackVaryings) {
+    if (typeof gl.transformFeedbackVaryings !== "function") {
+      warn(`TransformFeedback is not supported but TransformFeedbackVaryings are given.`);
+    } else {
+      gl.transformFeedbackVaryings(
+        webGLProgram,
+        transformFeedbackVaryings.names,
+        transformFeedbackVaryings.bufferMode === "separate" ? gl.SEPARATE_ATTRIBS : gl.INTERLEAVED_ATTRIBS
+      );
+    }
+  }
+  gl.linkProgram(webGLProgram);
+  if (!gl.getProgramParameter(webGLProgram, gl.LINK_STATUS)) {
+    logProgramError(gl, webGLProgram, glVertShader, glFragShader);
+  }
+  program._attributeData = extractAttributesFromGlProgram(
+    webGLProgram,
+    gl,
+    !/^[ \t]*#[ \t]*version[ \t]+300[ \t]+es[ \t]*$/m.test(program.vertex)
+  );
+  program._uniformData = getUniformData(webGLProgram, gl);
+  program._uniformBlockData = getUboData(webGLProgram, gl);
+  gl.deleteShader(glVertShader);
+  gl.deleteShader(glFragShader);
+  const uniformData = {};
+  for (const i3 in program._uniformData) {
+    const data = program._uniformData[i3];
+    uniformData[i3] = {
+      location: gl.getUniformLocation(webGLProgram, i3),
+      value: defaultValue(data.type, data.size)
+    };
+  }
+  const glProgram = new GlProgramData(webGLProgram, uniformData);
+  return glProgram;
+}
+var init_generateProgram = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/generateProgram.mjs"() {
+    init_warn();
+    init_GlProgramData();
+    init_compileShader();
+    init_defaultValue();
+    init_extractAttributesFromGlProgram();
+    init_getUboData();
+    init_getUniformData();
+    init_logProgramError();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlShaderSystem.mjs
+var defaultSyncData, GlShaderSystem;
+var init_GlShaderSystem = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlShaderSystem.mjs"() {
+    init_Extensions();
+    init_GenerateShaderSyncCode();
+    init_generateProgram();
+    defaultSyncData = {
+      textureCount: 0,
+      blockIndex: 0
+    };
+    GlShaderSystem = class {
+      constructor(renderer) {
+        this._activeProgram = null;
+        this._programDataHash = /* @__PURE__ */ Object.create(null);
+        this._shaderSyncFunctions = /* @__PURE__ */ Object.create(null);
+        this._renderer = renderer;
+      }
+      contextChange(gl) {
+        this._gl = gl;
+        this._programDataHash = /* @__PURE__ */ Object.create(null);
+        this._shaderSyncFunctions = /* @__PURE__ */ Object.create(null);
+        this._activeProgram = null;
+      }
+      /**
+       * Changes the current shader to the one given in parameter.
+       * @param shader - the new shader
+       * @param skipSync - false if the shader should automatically sync its uniforms.
+       * @returns the glProgram that belongs to the shader.
+       */
+      bind(shader, skipSync) {
+        this._setProgram(shader.glProgram);
+        if (skipSync) return;
+        defaultSyncData.textureCount = 0;
+        defaultSyncData.blockIndex = 0;
+        let syncFunction = this._shaderSyncFunctions[shader.glProgram._key];
+        if (!syncFunction) {
+          syncFunction = this._shaderSyncFunctions[shader.glProgram._key] = this._generateShaderSync(shader, this);
+        }
+        this._renderer.buffer.nextBindBase(!!shader.glProgram.transformFeedbackVaryings);
+        syncFunction(this._renderer, shader, defaultSyncData);
+      }
+      /**
+       * Updates the uniform group.
+       * @param uniformGroup - the uniform group to update
+       */
+      updateUniformGroup(uniformGroup) {
+        this._renderer.uniformGroup.updateUniformGroup(uniformGroup, this._activeProgram, defaultSyncData);
+      }
+      /**
+       * Binds a uniform block to the shader.
+       * @param uniformGroup - the uniform group to bind
+       * @param name - the name of the uniform block
+       * @param index - the index of the uniform block
+       */
+      bindUniformBlock(uniformGroup, name, index2 = 0) {
+        const bufferSystem = this._renderer.buffer;
+        const programData = this._getProgramData(this._activeProgram);
+        const isBufferResource = uniformGroup._bufferResource;
+        if (!isBufferResource) {
+          this._renderer.ubo.updateUniformGroup(uniformGroup);
+        }
+        const buffer = uniformGroup.buffer;
+        const glBuffer = bufferSystem.updateBuffer(buffer);
+        const boundLocation = bufferSystem.freeLocationForBufferBase(glBuffer);
+        if (isBufferResource) {
+          const { offset: offset4, size: size4 } = uniformGroup;
+          if (offset4 === 0 && size4 === buffer.data.byteLength) {
+            bufferSystem.bindBufferBase(glBuffer, boundLocation);
+          } else {
+            bufferSystem.bindBufferRange(glBuffer, boundLocation, offset4);
+          }
+        } else if (bufferSystem.getLastBindBaseLocation(glBuffer) !== boundLocation) {
+          bufferSystem.bindBufferBase(glBuffer, boundLocation);
+        }
+        const uniformBlockIndex = this._activeProgram._uniformBlockData[name].index;
+        if (programData.uniformBlockBindings[index2] === boundLocation) return;
+        programData.uniformBlockBindings[index2] = boundLocation;
+        this._renderer.gl.uniformBlockBinding(programData.program, uniformBlockIndex, boundLocation);
+      }
+      _setProgram(program) {
+        if (this._activeProgram === program) return;
+        this._activeProgram = program;
+        const programData = this._getProgramData(program);
+        this._gl.useProgram(programData.program);
+      }
+      /**
+       * @param program - the program to get the data for
+       * @internal
+       */
+      _getProgramData(program) {
+        return this._programDataHash[program._key] || this._createProgramData(program);
+      }
+      _createProgramData(program) {
+        const key = program._key;
+        this._programDataHash[key] = generateProgram(this._gl, program);
+        return this._programDataHash[key];
+      }
+      destroy() {
+        for (const key of Object.keys(this._programDataHash)) {
+          this._programDataHash[key].destroy();
+        }
+        this._programDataHash = null;
+        this._shaderSyncFunctions = null;
+        this._activeProgram = null;
+        this._renderer = null;
+        this._gl = null;
+      }
+      /**
+       * Creates a function that can be executed that will sync the shader as efficiently as possible.
+       * Overridden by the unsafe eval package if you don't want eval used in your project.
+       * @param shader - the shader to generate the sync function for
+       * @param shaderSystem - the shader system to use
+       * @returns - the generated sync function
+       * @ignore
+       */
+      _generateShaderSync(shader, shaderSystem) {
+        return generateShaderSyncCode(shader, shaderSystem);
+      }
+      resetState() {
+        this._activeProgram = null;
+      }
+    };
+    GlShaderSystem.extension = {
+      type: [
+        ExtensionType.WebGLSystem
+      ],
+      name: "shader"
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSyncTypes.mjs
+var UNIFORM_TO_SINGLE_SETTERS, UNIFORM_TO_ARRAY_SETTERS;
+var init_generateUniformsSyncTypes = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSyncTypes.mjs"() {
+    "use strict";
+    UNIFORM_TO_SINGLE_SETTERS = {
+      f32: `if (cv !== v) {
+            cu.value = v;
+            gl.uniform1f(location, v);
+        }`,
+      "vec2<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            gl.uniform2f(location, v[0], v[1]);
+        }`,
+      "vec3<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            gl.uniform3f(location, v[0], v[1], v[2]);
+        }`,
+      "vec4<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            cv[3] = v[3];
+            gl.uniform4f(location, v[0], v[1], v[2], v[3]);
+        }`,
+      i32: `if (cv !== v) {
+            cu.value = v;
+            gl.uniform1i(location, v);
+        }`,
+      "vec2<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            gl.uniform2i(location, v[0], v[1]);
+        }`,
+      "vec3<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            gl.uniform3i(location, v[0], v[1], v[2]);
+        }`,
+      "vec4<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            cv[3] = v[3];
+            gl.uniform4i(location, v[0], v[1], v[2], v[3]);
+        }`,
+      u32: `if (cv !== v) {
+            cu.value = v;
+            gl.uniform1ui(location, v);
+        }`,
+      "vec2<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            gl.uniform2ui(location, v[0], v[1]);
+        }`,
+      "vec3<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            gl.uniform3ui(location, v[0], v[1], v[2]);
+        }`,
+      "vec4<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            cv[3] = v[3];
+            gl.uniform4ui(location, v[0], v[1], v[2], v[3]);
+        }`,
+      bool: `if (cv !== v) {
+            cu.value = v;
+            gl.uniform1i(location, v);
+        }`,
+      "vec2<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            gl.uniform2i(location, v[0], v[1]);
+        }`,
+      "vec3<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            gl.uniform3i(location, v[0], v[1], v[2]);
+        }`,
+      "vec4<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
+            cv[0] = v[0];
+            cv[1] = v[1];
+            cv[2] = v[2];
+            cv[3] = v[3];
+            gl.uniform4i(location, v[0], v[1], v[2], v[3]);
+        }`,
+      "mat2x2<f32>": `gl.uniformMatrix2fv(location, false, v);`,
+      "mat3x3<f32>": `gl.uniformMatrix3fv(location, false, v);`,
+      "mat4x4<f32>": `gl.uniformMatrix4fv(location, false, v);`
+    };
+    UNIFORM_TO_ARRAY_SETTERS = {
+      f32: `gl.uniform1fv(location, v);`,
+      "vec2<f32>": `gl.uniform2fv(location, v);`,
+      "vec3<f32>": `gl.uniform3fv(location, v);`,
+      "vec4<f32>": `gl.uniform4fv(location, v);`,
+      "mat2x2<f32>": `gl.uniformMatrix2fv(location, false, v);`,
+      "mat3x3<f32>": `gl.uniformMatrix3fv(location, false, v);`,
+      "mat4x4<f32>": `gl.uniformMatrix4fv(location, false, v);`,
+      i32: `gl.uniform1iv(location, v);`,
+      "vec2<i32>": `gl.uniform2iv(location, v);`,
+      "vec3<i32>": `gl.uniform3iv(location, v);`,
+      "vec4<i32>": `gl.uniform4iv(location, v);`,
+      u32: `gl.uniform1iv(location, v);`,
+      "vec2<u32>": `gl.uniform2iv(location, v);`,
+      "vec3<u32>": `gl.uniform3iv(location, v);`,
+      "vec4<u32>": `gl.uniform4iv(location, v);`,
+      bool: `gl.uniform1iv(location, v);`,
+      "vec2<bool>": `gl.uniform2iv(location, v);`,
+      "vec3<bool>": `gl.uniform3iv(location, v);`,
+      "vec4<bool>": `gl.uniform4iv(location, v);`
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSync.mjs
+function generateUniformsSync(group, uniformData) {
+  const funcFragments = [`
+        var v = null;
+        var cv = null;
+        var cu = null;
+        var t = 0;
+        var gl = renderer.gl;
+        var name = null;
+    `];
+  for (const i3 in group.uniforms) {
+    if (!uniformData[i3]) {
+      if (group.uniforms[i3] instanceof UniformGroup) {
+        if (group.uniforms[i3].ubo) {
+          funcFragments.push(`
+                        renderer.shader.bindUniformBlock(uv.${i3}, "${i3}");
+                    `);
+        } else {
+          funcFragments.push(`
+                        renderer.shader.updateUniformGroup(uv.${i3});
+                    `);
+        }
+      } else if (group.uniforms[i3] instanceof BufferResource) {
+        funcFragments.push(`
+                        renderer.shader.bindBufferResource(uv.${i3}, "${i3}");
+                    `);
+      }
+      continue;
+    }
+    const uniform = group.uniformStructures[i3];
+    let parsed = false;
+    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
+      const parser = uniformParsers[j4];
+      if (uniform.type === parser.type && parser.test(uniform)) {
+        funcFragments.push(`name = "${i3}";`, uniformParsers[j4].uniform);
+        parsed = true;
+        break;
+      }
+    }
+    if (!parsed) {
+      const templateType = uniform.size === 1 ? UNIFORM_TO_SINGLE_SETTERS : UNIFORM_TO_ARRAY_SETTERS;
+      const template = templateType[uniform.type].replace("location", `ud["${i3}"].location`);
+      funcFragments.push(`
+            cu = ud["${i3}"];
+            cv = cu.value;
+            v = uv["${i3}"];
+            ${template};`);
+    }
+  }
+  return new Function("ud", "uv", "renderer", "syncData", funcFragments.join("\n"));
+}
+var init_generateUniformsSync = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSync.mjs"() {
+    init_BufferResource();
+    init_UniformGroup();
+    init_uniformParsers();
+    init_generateUniformsSyncTypes();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlUniformGroupSystem.mjs
+var GlUniformGroupSystem;
+var init_GlUniformGroupSystem = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlUniformGroupSystem.mjs"() {
+    init_Extensions();
+    init_generateUniformsSync();
+    GlUniformGroupSystem = class {
+      /** @param renderer - The renderer this System works for. */
+      constructor(renderer) {
+        this._cache = {};
+        this._uniformGroupSyncHash = {};
+        this._renderer = renderer;
+        this.gl = null;
+        this._cache = {};
+      }
+      contextChange(gl) {
+        this.gl = gl;
+      }
+      /**
+       * Uploads the uniforms values to the currently bound shader.
+       * @param group - the uniforms values that be applied to the current shader
+       * @param program
+       * @param syncData
+       * @param syncData.textureCount
+       */
+      updateUniformGroup(group, program, syncData) {
+        const programData = this._renderer.shader._getProgramData(program);
+        if (!group.isStatic || group._dirtyId !== programData.uniformDirtyGroups[group.uid]) {
+          programData.uniformDirtyGroups[group.uid] = group._dirtyId;
+          const syncFunc = this._getUniformSyncFunction(group, program);
+          syncFunc(programData.uniformData, group.uniforms, this._renderer, syncData);
+        }
+      }
+      /**
+       * Overridable by the pixi.js/unsafe-eval package to use static syncUniforms instead.
+       * @param group
+       * @param program
+       */
+      _getUniformSyncFunction(group, program) {
+        return this._uniformGroupSyncHash[group._signature]?.[program._key] || this._createUniformSyncFunction(group, program);
+      }
+      _createUniformSyncFunction(group, program) {
+        const uniformGroupSyncHash = this._uniformGroupSyncHash[group._signature] || (this._uniformGroupSyncHash[group._signature] = {});
+        const id = this._getSignature(group, program._uniformData, "u");
+        if (!this._cache[id]) {
+          this._cache[id] = this._generateUniformsSync(group, program._uniformData);
+        }
+        uniformGroupSyncHash[program._key] = this._cache[id];
+        return uniformGroupSyncHash[program._key];
+      }
+      _generateUniformsSync(group, uniformData) {
+        return generateUniformsSync(group, uniformData);
+      }
+      /**
+       * Takes a uniform group and data and generates a unique signature for them.
+       * @param group - The uniform group to get signature of
+       * @param group.uniforms
+       * @param uniformData - Uniform information generated by the shader
+       * @param preFix
+       * @returns Unique signature of the uniform group
+       */
+      _getSignature(group, uniformData, preFix) {
+        const uniforms = group.uniforms;
+        const strings = [`${preFix}-`];
+        for (const i3 in uniforms) {
+          strings.push(i3);
+          if (uniformData[i3]) {
+            strings.push(uniformData[i3].type);
+          }
+        }
+        return strings.join("-");
+      }
+      /** Destroys this System and removes all its textures. */
+      destroy() {
+        this._renderer = null;
+        this._cache = null;
+      }
+    };
+    GlUniformGroupSystem.extension = {
+      type: [
+        ExtensionType.WebGLSystem
+      ],
+      name: "uniformGroup"
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboElementsWGSL.mjs
+function createUboElementsWGSL(uniformData) {
+  const uboElements = uniformData.map((data) => ({
+    data,
+    offset: 0,
+    size: 0
+  }));
+  let offset4 = 0;
+  for (let i3 = 0; i3 < uboElements.length; i3++) {
+    const uboElement = uboElements[i3];
+    let size4 = WGSL_ALIGN_SIZE_DATA[uboElement.data.type].size;
+    const align = WGSL_ALIGN_SIZE_DATA[uboElement.data.type].align;
+    if (!WGSL_ALIGN_SIZE_DATA[uboElement.data.type]) {
+      throw new Error(`[Pixi.js] WebGPU UniformBuffer: Unknown type ${uboElement.data.type}`);
+    }
+    if (uboElement.data.size > 1) {
+      size4 = Math.max(size4, align) * uboElement.data.size;
+    }
+    offset4 = Math.ceil(offset4 / align) * align;
+    uboElement.size = size4;
+    uboElement.offset = offset4;
+    offset4 += size4;
+  }
+  offset4 = Math.ceil(offset4 / 16) * 16;
+  return { uboElements, size: offset4 };
+}
+var WGSL_ALIGN_SIZE_DATA;
+var init_createUboElementsWGSL = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboElementsWGSL.mjs"() {
+    "use strict";
+    WGSL_ALIGN_SIZE_DATA = {
+      i32: { align: 4, size: 4 },
+      u32: { align: 4, size: 4 },
+      f32: { align: 4, size: 4 },
+      f16: { align: 2, size: 2 },
+      "vec2<i32>": { align: 8, size: 8 },
+      "vec2<u32>": { align: 8, size: 8 },
+      "vec2<f32>": { align: 8, size: 8 },
+      "vec2<f16>": { align: 4, size: 4 },
+      "vec3<i32>": { align: 16, size: 12 },
+      "vec3<u32>": { align: 16, size: 12 },
+      "vec3<f32>": { align: 16, size: 12 },
+      "vec3<f16>": { align: 8, size: 6 },
+      "vec4<i32>": { align: 16, size: 16 },
+      "vec4<u32>": { align: 16, size: 16 },
+      "vec4<f32>": { align: 16, size: 16 },
+      "vec4<f16>": { align: 8, size: 8 },
+      "mat2x2<f32>": { align: 8, size: 16 },
+      "mat2x2<f16>": { align: 4, size: 8 },
+      "mat3x2<f32>": { align: 8, size: 24 },
+      "mat3x2<f16>": { align: 4, size: 12 },
+      "mat4x2<f32>": { align: 8, size: 32 },
+      "mat4x2<f16>": { align: 4, size: 16 },
+      "mat2x3<f32>": { align: 16, size: 32 },
+      "mat2x3<f16>": { align: 8, size: 16 },
+      "mat3x3<f32>": { align: 16, size: 48 },
+      "mat3x3<f16>": { align: 8, size: 24 },
+      "mat4x3<f32>": { align: 16, size: 64 },
+      "mat4x3<f16>": { align: 8, size: 32 },
+      "mat2x4<f32>": { align: 16, size: 32 },
+      "mat2x4<f16>": { align: 8, size: 16 },
+      "mat3x4<f32>": { align: 16, size: 48 },
+      "mat3x4<f16>": { align: 8, size: 24 },
+      "mat4x4<f32>": { align: 16, size: 64 },
+      "mat4x4<f16>": { align: 8, size: 32 }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/generateArraySyncWGSL.mjs
+function generateArraySyncWGSL(uboElement, offsetToAdd) {
+  const { size: size4, align } = WGSL_ALIGN_SIZE_DATA[uboElement.data.type];
+  const remainder = (align - size4) / 4;
+  const data = uboElement.data.type.indexOf("i32") >= 0 ? "dataInt32" : "data";
+  return `
+         v = uv.${uboElement.data.name};
+         ${offsetToAdd !== 0 ? `offset += ${offsetToAdd};` : ""}
+
+         arrayOffset = offset;
+
+         t = 0;
+
+         for(var i=0; i < ${uboElement.data.size * (size4 / 4)}; i++)
+         {
+             for(var j = 0; j < ${size4 / 4}; j++)
+             {
+                 ${data}[arrayOffset++] = v[t++];
+             }
+             ${remainder !== 0 ? `arrayOffset += ${remainder};` : ""}
+         }
+     `;
+}
+var init_generateArraySyncWGSL = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/generateArraySyncWGSL.mjs"() {
+    init_createUboElementsWGSL();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboSyncFunctionWGSL.mjs
+function createUboSyncFunctionWGSL(uboElements) {
+  return createUboSyncFunction(
+    uboElements,
+    "uboWgsl",
+    generateArraySyncWGSL,
+    uboSyncFunctionsWGSL
+  );
+}
+var init_createUboSyncFunctionWGSL = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboSyncFunctionWGSL.mjs"() {
+    init_createUboSyncFunction();
+    init_uboSyncFunctions();
+    init_generateArraySyncWGSL();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gpu/GpuUboSystem.mjs
+var GpuUboSystem;
+var init_GpuUboSystem = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gpu/GpuUboSystem.mjs"() {
+    init_Extensions();
+    init_UboSystem();
+    init_createUboElementsWGSL();
+    init_createUboSyncFunctionWGSL();
+    GpuUboSystem = class extends UboSystem {
+      constructor() {
+        super({
+          createUboElements: createUboElementsWGSL,
+          generateUboSync: createUboSyncFunctionWGSL
+        });
+      }
+    };
+    GpuUboSystem.extension = {
+      type: [ExtensionType.WebGPUSystem],
+      name: "ubo"
+    };
+  }
+});
+
+// node_modules/@pixi/colord/index.mjs
+var r, t, n, e, u, a, o, i, s, h, b, g, d, f, c, l, p, v, m, y, N, x, M, H, $, j, w, S, k;
+var init_colord = __esm({
+  "node_modules/@pixi/colord/index.mjs"() {
+    r = { grad: 0.9, turn: 360, rad: 360 / (2 * Math.PI) };
+    t = function(r4) {
+      return "string" == typeof r4 ? r4.length > 0 : "number" == typeof r4;
+    };
+    n = function(r4, t3, n3) {
+      return void 0 === t3 && (t3 = 0), void 0 === n3 && (n3 = Math.pow(10, t3)), Math.round(n3 * r4) / n3 + 0;
+    };
+    e = function(r4, t3, n3) {
+      return void 0 === t3 && (t3 = 0), void 0 === n3 && (n3 = 1), r4 > n3 ? n3 : r4 > t3 ? r4 : t3;
+    };
+    u = function(r4) {
+      return (r4 = isFinite(r4) ? r4 % 360 : 0) > 0 ? r4 : r4 + 360;
+    };
+    a = function(r4) {
+      return { r: e(r4.r, 0, 255), g: e(r4.g, 0, 255), b: e(r4.b, 0, 255), a: e(r4.a) };
+    };
+    o = function(r4) {
+      return { r: n(r4.r), g: n(r4.g), b: n(r4.b), a: n(r4.a, 3) };
+    };
+    i = /^#([0-9a-f]{3,8})$/i;
+    s = function(r4) {
+      var t3 = r4.toString(16);
+      return t3.length < 2 ? "0" + t3 : t3;
+    };
+    h = function(r4) {
+      var t3 = r4.r, n3 = r4.g, e4 = r4.b, u3 = r4.a, a3 = Math.max(t3, n3, e4), o3 = a3 - Math.min(t3, n3, e4), i3 = o3 ? a3 === t3 ? (n3 - e4) / o3 : a3 === n3 ? 2 + (e4 - t3) / o3 : 4 + (t3 - n3) / o3 : 0;
+      return { h: 60 * (i3 < 0 ? i3 + 6 : i3), s: a3 ? o3 / a3 * 100 : 0, v: a3 / 255 * 100, a: u3 };
+    };
+    b = function(r4) {
+      var t3 = r4.h, n3 = r4.s, e4 = r4.v, u3 = r4.a;
+      t3 = t3 / 360 * 6, n3 /= 100, e4 /= 100;
+      var a3 = Math.floor(t3), o3 = e4 * (1 - n3), i3 = e4 * (1 - (t3 - a3) * n3), s3 = e4 * (1 - (1 - t3 + a3) * n3), h3 = a3 % 6;
+      return { r: 255 * [e4, i3, o3, o3, s3, e4][h3], g: 255 * [s3, e4, e4, i3, o3, o3][h3], b: 255 * [o3, o3, s3, e4, e4, i3][h3], a: u3 };
+    };
+    g = function(r4) {
+      return { h: u(r4.h), s: e(r4.s, 0, 100), l: e(r4.l, 0, 100), a: e(r4.a) };
+    };
+    d = function(r4) {
+      return { h: n(r4.h), s: n(r4.s), l: n(r4.l), a: n(r4.a, 3) };
+    };
+    f = function(r4) {
+      return b((n3 = (t3 = r4).s, { h: t3.h, s: (n3 *= ((e4 = t3.l) < 50 ? e4 : 100 - e4) / 100) > 0 ? 2 * n3 / (e4 + n3) * 100 : 0, v: e4 + n3, a: t3.a }));
+      var t3, n3, e4;
+    };
+    c = function(r4) {
+      return { h: (t3 = h(r4)).h, s: (u3 = (200 - (n3 = t3.s)) * (e4 = t3.v) / 100) > 0 && u3 < 200 ? n3 * e4 / 100 / (u3 <= 100 ? u3 : 200 - u3) * 100 : 0, l: u3 / 2, a: t3.a };
+      var t3, n3, e4, u3;
+    };
+    l = /^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
+    p = /^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
+    v = /^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
+    m = /^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
+    y = { string: [[function(r4) {
+      var t3 = i.exec(r4);
+      return t3 ? (r4 = t3[1]).length <= 4 ? { r: parseInt(r4[0] + r4[0], 16), g: parseInt(r4[1] + r4[1], 16), b: parseInt(r4[2] + r4[2], 16), a: 4 === r4.length ? n(parseInt(r4[3] + r4[3], 16) / 255, 2) : 1 } : 6 === r4.length || 8 === r4.length ? { r: parseInt(r4.substr(0, 2), 16), g: parseInt(r4.substr(2, 2), 16), b: parseInt(r4.substr(4, 2), 16), a: 8 === r4.length ? n(parseInt(r4.substr(6, 2), 16) / 255, 2) : 1 } : null : null;
+    }, "hex"], [function(r4) {
+      var t3 = v.exec(r4) || m.exec(r4);
+      return t3 ? t3[2] !== t3[4] || t3[4] !== t3[6] ? null : a({ r: Number(t3[1]) / (t3[2] ? 100 / 255 : 1), g: Number(t3[3]) / (t3[4] ? 100 / 255 : 1), b: Number(t3[5]) / (t3[6] ? 100 / 255 : 1), a: void 0 === t3[7] ? 1 : Number(t3[7]) / (t3[8] ? 100 : 1) }) : null;
+    }, "rgb"], [function(t3) {
+      var n3 = l.exec(t3) || p.exec(t3);
+      if (!n3) return null;
+      var e4, u3, a3 = g({ h: (e4 = n3[1], u3 = n3[2], void 0 === u3 && (u3 = "deg"), Number(e4) * (r[u3] || 1)), s: Number(n3[3]), l: Number(n3[4]), a: void 0 === n3[5] ? 1 : Number(n3[5]) / (n3[6] ? 100 : 1) });
+      return f(a3);
+    }, "hsl"]], object: [[function(r4) {
+      var n3 = r4.r, e4 = r4.g, u3 = r4.b, o3 = r4.a, i3 = void 0 === o3 ? 1 : o3;
+      return t(n3) && t(e4) && t(u3) ? a({ r: Number(n3), g: Number(e4), b: Number(u3), a: Number(i3) }) : null;
+    }, "rgb"], [function(r4) {
+      var n3 = r4.h, e4 = r4.s, u3 = r4.l, a3 = r4.a, o3 = void 0 === a3 ? 1 : a3;
+      if (!t(n3) || !t(e4) || !t(u3)) return null;
+      var i3 = g({ h: Number(n3), s: Number(e4), l: Number(u3), a: Number(o3) });
+      return f(i3);
+    }, "hsl"], [function(r4) {
+      var n3 = r4.h, a3 = r4.s, o3 = r4.v, i3 = r4.a, s3 = void 0 === i3 ? 1 : i3;
+      if (!t(n3) || !t(a3) || !t(o3)) return null;
+      var h3 = function(r5) {
+        return { h: u(r5.h), s: e(r5.s, 0, 100), v: e(r5.v, 0, 100), a: e(r5.a) };
+      }({ h: Number(n3), s: Number(a3), v: Number(o3), a: Number(s3) });
+      return b(h3);
+    }, "hsv"]] };
+    N = function(r4, t3) {
+      for (var n3 = 0; n3 < t3.length; n3++) {
+        var e4 = t3[n3][0](r4);
+        if (e4) return [e4, t3[n3][1]];
+      }
+      return [null, void 0];
+    };
+    x = function(r4) {
+      return "string" == typeof r4 ? N(r4.trim(), y.string) : "object" == typeof r4 && null !== r4 ? N(r4, y.object) : [null, void 0];
+    };
+    M = function(r4, t3) {
+      var n3 = c(r4);
+      return { h: n3.h, s: e(n3.s + 100 * t3, 0, 100), l: n3.l, a: n3.a };
+    };
+    H = function(r4) {
+      return (299 * r4.r + 587 * r4.g + 114 * r4.b) / 1e3 / 255;
+    };
+    $ = function(r4, t3) {
+      var n3 = c(r4);
+      return { h: n3.h, s: n3.s, l: e(n3.l + 100 * t3, 0, 100), a: n3.a };
+    };
+    j = function() {
+      function r4(r5) {
+        this.parsed = x(r5)[0], this.rgba = this.parsed || { r: 0, g: 0, b: 0, a: 1 };
+      }
+      return r4.prototype.isValid = function() {
+        return null !== this.parsed;
+      }, r4.prototype.brightness = function() {
+        return n(H(this.rgba), 2);
+      }, r4.prototype.isDark = function() {
+        return H(this.rgba) < 0.5;
+      }, r4.prototype.isLight = function() {
+        return H(this.rgba) >= 0.5;
+      }, r4.prototype.toHex = function() {
+        return r5 = o(this.rgba), t3 = r5.r, e4 = r5.g, u3 = r5.b, i3 = (a3 = r5.a) < 1 ? s(n(255 * a3)) : "", "#" + s(t3) + s(e4) + s(u3) + i3;
+        var r5, t3, e4, u3, a3, i3;
+      }, r4.prototype.toRgb = function() {
+        return o(this.rgba);
+      }, r4.prototype.toRgbString = function() {
+        return r5 = o(this.rgba), t3 = r5.r, n3 = r5.g, e4 = r5.b, (u3 = r5.a) < 1 ? "rgba(" + t3 + ", " + n3 + ", " + e4 + ", " + u3 + ")" : "rgb(" + t3 + ", " + n3 + ", " + e4 + ")";
+        var r5, t3, n3, e4, u3;
+      }, r4.prototype.toHsl = function() {
+        return d(c(this.rgba));
+      }, r4.prototype.toHslString = function() {
+        return r5 = d(c(this.rgba)), t3 = r5.h, n3 = r5.s, e4 = r5.l, (u3 = r5.a) < 1 ? "hsla(" + t3 + ", " + n3 + "%, " + e4 + "%, " + u3 + ")" : "hsl(" + t3 + ", " + n3 + "%, " + e4 + "%)";
+        var r5, t3, n3, e4, u3;
+      }, r4.prototype.toHsv = function() {
+        return r5 = h(this.rgba), { h: n(r5.h), s: n(r5.s), v: n(r5.v), a: n(r5.a, 3) };
+        var r5;
+      }, r4.prototype.invert = function() {
+        return w({ r: 255 - (r5 = this.rgba).r, g: 255 - r5.g, b: 255 - r5.b, a: r5.a });
+        var r5;
+      }, r4.prototype.saturate = function(r5) {
+        return void 0 === r5 && (r5 = 0.1), w(M(this.rgba, r5));
+      }, r4.prototype.desaturate = function(r5) {
+        return void 0 === r5 && (r5 = 0.1), w(M(this.rgba, -r5));
+      }, r4.prototype.grayscale = function() {
+        return w(M(this.rgba, -1));
+      }, r4.prototype.lighten = function(r5) {
+        return void 0 === r5 && (r5 = 0.1), w($(this.rgba, r5));
+      }, r4.prototype.darken = function(r5) {
+        return void 0 === r5 && (r5 = 0.1), w($(this.rgba, -r5));
+      }, r4.prototype.rotate = function(r5) {
+        return void 0 === r5 && (r5 = 15), this.hue(this.hue() + r5);
+      }, r4.prototype.alpha = function(r5) {
+        return "number" == typeof r5 ? w({ r: (t3 = this.rgba).r, g: t3.g, b: t3.b, a: r5 }) : n(this.rgba.a, 3);
+        var t3;
+      }, r4.prototype.hue = function(r5) {
+        var t3 = c(this.rgba);
+        return "number" == typeof r5 ? w({ h: r5, s: t3.s, l: t3.l, a: t3.a }) : n(t3.h);
+      }, r4.prototype.isEqual = function(r5) {
+        return this.toHex() === w(r5).toHex();
+      }, r4;
+    }();
+    w = function(r4) {
+      return r4 instanceof j ? r4 : new j(r4);
+    };
+    S = [];
+    k = function(r4) {
+      r4.forEach(function(r5) {
+        S.indexOf(r5) < 0 && (r5(j, y), S.push(r5));
+      });
+    };
+  }
+});
+
+// node_modules/@pixi/colord/plugins/names.mjs
+function names_default(e4, f3) {
+  var a3 = { white: "#ffffff", bisque: "#ffe4c4", blue: "#0000ff", cadetblue: "#5f9ea0", chartreuse: "#7fff00", chocolate: "#d2691e", coral: "#ff7f50", antiquewhite: "#faebd7", aqua: "#00ffff", azure: "#f0ffff", whitesmoke: "#f5f5f5", papayawhip: "#ffefd5", plum: "#dda0dd", blanchedalmond: "#ffebcd", black: "#000000", gold: "#ffd700", goldenrod: "#daa520", gainsboro: "#dcdcdc", cornsilk: "#fff8dc", cornflowerblue: "#6495ed", burlywood: "#deb887", aquamarine: "#7fffd4", beige: "#f5f5dc", crimson: "#dc143c", cyan: "#00ffff", darkblue: "#00008b", darkcyan: "#008b8b", darkgoldenrod: "#b8860b", darkkhaki: "#bdb76b", darkgray: "#a9a9a9", darkgreen: "#006400", darkgrey: "#a9a9a9", peachpuff: "#ffdab9", darkmagenta: "#8b008b", darkred: "#8b0000", darkorchid: "#9932cc", darkorange: "#ff8c00", darkslateblue: "#483d8b", gray: "#808080", darkslategray: "#2f4f4f", darkslategrey: "#2f4f4f", deeppink: "#ff1493", deepskyblue: "#00bfff", wheat: "#f5deb3", firebrick: "#b22222", floralwhite: "#fffaf0", ghostwhite: "#f8f8ff", darkviolet: "#9400d3", magenta: "#ff00ff", green: "#008000", dodgerblue: "#1e90ff", grey: "#808080", honeydew: "#f0fff0", hotpink: "#ff69b4", blueviolet: "#8a2be2", forestgreen: "#228b22", lawngreen: "#7cfc00", indianred: "#cd5c5c", indigo: "#4b0082", fuchsia: "#ff00ff", brown: "#a52a2a", maroon: "#800000", mediumblue: "#0000cd", lightcoral: "#f08080", darkturquoise: "#00ced1", lightcyan: "#e0ffff", ivory: "#fffff0", lightyellow: "#ffffe0", lightsalmon: "#ffa07a", lightseagreen: "#20b2aa", linen: "#faf0e6", mediumaquamarine: "#66cdaa", lemonchiffon: "#fffacd", lime: "#00ff00", khaki: "#f0e68c", mediumseagreen: "#3cb371", limegreen: "#32cd32", mediumspringgreen: "#00fa9a", lightskyblue: "#87cefa", lightblue: "#add8e6", midnightblue: "#191970", lightpink: "#ffb6c1", mistyrose: "#ffe4e1", moccasin: "#ffe4b5", mintcream: "#f5fffa", lightslategray: "#778899", lightslategrey: "#778899", navajowhite: "#ffdead", navy: "#000080", mediumvioletred: "#c71585", powderblue: "#b0e0e6", palegoldenrod: "#eee8aa", oldlace: "#fdf5e6", paleturquoise: "#afeeee", mediumturquoise: "#48d1cc", mediumorchid: "#ba55d3", rebeccapurple: "#663399", lightsteelblue: "#b0c4de", mediumslateblue: "#7b68ee", thistle: "#d8bfd8", tan: "#d2b48c", orchid: "#da70d6", mediumpurple: "#9370db", purple: "#800080", pink: "#ffc0cb", skyblue: "#87ceeb", springgreen: "#00ff7f", palegreen: "#98fb98", red: "#ff0000", yellow: "#ffff00", slateblue: "#6a5acd", lavenderblush: "#fff0f5", peru: "#cd853f", palevioletred: "#db7093", violet: "#ee82ee", teal: "#008080", slategray: "#708090", slategrey: "#708090", aliceblue: "#f0f8ff", darkseagreen: "#8fbc8f", darkolivegreen: "#556b2f", greenyellow: "#adff2f", seagreen: "#2e8b57", seashell: "#fff5ee", tomato: "#ff6347", silver: "#c0c0c0", sienna: "#a0522d", lavender: "#e6e6fa", lightgreen: "#90ee90", orange: "#ffa500", orangered: "#ff4500", steelblue: "#4682b4", royalblue: "#4169e1", turquoise: "#40e0d0", yellowgreen: "#9acd32", salmon: "#fa8072", saddlebrown: "#8b4513", sandybrown: "#f4a460", rosybrown: "#bc8f8f", darksalmon: "#e9967a", lightgoldenrodyellow: "#fafad2", snow: "#fffafa", lightgrey: "#d3d3d3", lightgray: "#d3d3d3", dimgray: "#696969", dimgrey: "#696969", olivedrab: "#6b8e23", olive: "#808000" }, r4 = {};
+  for (var d3 in a3) r4[a3[d3]] = d3;
+  var l3 = {};
+  e4.prototype.toName = function(f4) {
+    if (!(this.rgba.a || this.rgba.r || this.rgba.g || this.rgba.b)) return "transparent";
+    var d4, i3, n3 = r4[this.toHex()];
+    if (n3) return n3;
+    if (null == f4 ? void 0 : f4.closest) {
+      var o3 = this.toRgb(), t3 = 1 / 0, b3 = "black";
+      if (!l3.length) for (var c3 in a3) l3[c3] = new e4(a3[c3]).toRgb();
+      for (var g3 in a3) {
+        var u3 = (d4 = o3, i3 = l3[g3], Math.pow(d4.r - i3.r, 2) + Math.pow(d4.g - i3.g, 2) + Math.pow(d4.b - i3.b, 2));
+        u3 < t3 && (t3 = u3, b3 = g3);
+      }
+      return b3;
+    }
+  };
+  f3.string.push([function(f4) {
+    var r5 = f4.toLowerCase(), d4 = "transparent" === r5 ? "#0000" : a3[r5];
+    return d4 ? new e4(d4).toRgb() : null;
+  }, "name"]);
+}
+var init_names = __esm({
+  "node_modules/@pixi/colord/plugins/names.mjs"() {
+  }
+});
+
+// node_modules/pixi.js/lib/color/Color.mjs
+var _Color, Color;
+var init_Color = __esm({
+  "node_modules/pixi.js/lib/color/Color.mjs"() {
+    init_colord();
+    init_names();
+    k([names_default]);
+    _Color = class _Color2 {
+      /**
+       * @param {ColorSource} value - Optional value to use, if not provided, white is used.
+       */
+      constructor(value = 16777215) {
+        this._value = null;
+        this._components = new Float32Array(4);
+        this._components.fill(1);
+        this._int = 16777215;
+        this.value = value;
+      }
+      /**
+       * Get the red component of the color, normalized between 0 and 1.
+       * @example
+       * ```ts
+       * const color = new Color('red');
+       * console.log(color.red); // 1
+       *
+       * const green = new Color('#00ff00');
+       * console.log(green.red); // 0
+       * ```
+       */
+      get red() {
+        return this._components[0];
+      }
+      /**
+       * Get the green component of the color, normalized between 0 and 1.
+       * @example
+       * ```ts
+       * const color = new Color('lime');
+       * console.log(color.green); // 1
+       *
+       * const red = new Color('#ff0000');
+       * console.log(red.green); // 0
+       * ```
+       */
+      get green() {
+        return this._components[1];
+      }
+      /**
+       * Get the blue component of the color, normalized between 0 and 1.
+       * @example
+       * ```ts
+       * const color = new Color('blue');
+       * console.log(color.blue); // 1
+       *
+       * const yellow = new Color('#ffff00');
+       * console.log(yellow.blue); // 0
+       * ```
+       */
+      get blue() {
+        return this._components[2];
+      }
+      /**
+       * Get the alpha component of the color, normalized between 0 and 1.
+       * @example
+       * ```ts
+       * const color = new Color('red');
+       * console.log(color.alpha); // 1 (fully opaque)
+       *
+       * const transparent = new Color('rgba(255, 0, 0, 0.5)');
+       * console.log(transparent.alpha); // 0.5 (semi-transparent)
+       * ```
+       */
+      get alpha() {
+        return this._components[3];
+      }
+      /**
+       * Sets the color value and returns the instance for chaining.
+       *
+       * This is a chainable version of setting the `value` property.
+       * @param value - The color to set. Accepts various formats:
+       * - Hex strings/numbers (e.g., '#ff0000', 0xff0000)
+       * - RGB/RGBA values (arrays, objects)
+       * - CSS color names
+       * - HSL/HSLA values
+       * - HSV/HSVA values
+       * @returns The Color instance for chaining
+       * @example
+       * ```ts
+       * // Basic usage
+       * const color = new Color();
+       * color.setValue('#ff0000')
+       *     .setAlpha(0.5)
+       *     .premultiply(0.8);
+       *
+       * // Different formats
+       * color.setValue(0xff0000);          // Hex number
+       * color.setValue('#ff0000');         // Hex string
+       * color.setValue([1, 0, 0]);         // RGB array
+       * color.setValue([1, 0, 0, 0.5]);    // RGBA array
+       * color.setValue({ r: 1, g: 0, b: 0 }); // RGB object
+       *
+       * // Copy from another color
+       * const red = new Color('red');
+       * color.setValue(red);
+       * ```
+       * @throws {Error} If the color value is invalid or null
+       * @see {@link Color.value} For the underlying value property
+       */
+      setValue(value) {
+        this.value = value;
+        return this;
+      }
+      /**
+       * The current color source. This property allows getting and setting the color value
+       * while preserving the original format where possible.
+       * @remarks
+       * When setting:
+       * - Setting to a `Color` instance copies its source and components
+       * - Setting to other valid sources normalizes and stores the value
+       * - Setting to `null` throws an Error
+       * - The color remains unchanged if normalization fails
+       *
+       * When getting:
+       * - Returns `null` if color was modified by {@link Color.multiply} or {@link Color.premultiply}
+       * - Otherwise returns the original color source
+       * @example
+       * ```ts
+       * // Setting different color formats
+       * const color = new Color();
+       *
+       * color.value = 0xff0000;         // Hex number
+       * color.value = '#ff0000';        // Hex string
+       * color.value = [1, 0, 0];        // RGB array
+       * color.value = [1, 0, 0, 0.5];   // RGBA array
+       * color.value = { r: 1, g: 0, b: 0 }; // RGB object
+       *
+       * // Copying from another color
+       * const red = new Color('red');
+       * color.value = red;  // Copies red's components
+       *
+       * // Getting the value
+       * console.log(color.value);  // Returns original format
+       *
+       * // After modifications
+       * color.multiply([0.5, 0.5, 0.5]);
+       * console.log(color.value);  // Returns null
+       * ```
+       * @throws {Error} When attempting to set `null`
+       */
+      set value(value) {
+        if (value instanceof _Color2) {
+          this._value = this._cloneSource(value._value);
+          this._int = value._int;
+          this._components.set(value._components);
+        } else if (value === null) {
+          throw new Error("Cannot set Color#value to null");
+        } else if (this._value === null || !this._isSourceEqual(this._value, value)) {
+          this._value = this._cloneSource(value);
+          this._normalize(this._value);
+        }
+      }
+      get value() {
+        return this._value;
+      }
+      /**
+       * Copy a color source internally.
+       * @param value - Color source
+       */
+      _cloneSource(value) {
+        if (typeof value === "string" || typeof value === "number" || value instanceof Number || value === null) {
+          return value;
+        } else if (Array.isArray(value) || ArrayBuffer.isView(value)) {
+          return value.slice(0);
+        } else if (typeof value === "object" && value !== null) {
+          return { ...value };
+        }
+        return value;
+      }
+      /**
+       * Equality check for color sources.
+       * @param value1 - First color source
+       * @param value2 - Second color source
+       * @returns `true` if the color sources are equal, `false` otherwise.
+       */
+      _isSourceEqual(value1, value2) {
+        const type1 = typeof value1;
+        const type2 = typeof value2;
+        if (type1 !== type2) {
+          return false;
+        } else if (type1 === "number" || type1 === "string" || value1 instanceof Number) {
+          return value1 === value2;
+        } else if (Array.isArray(value1) && Array.isArray(value2) || ArrayBuffer.isView(value1) && ArrayBuffer.isView(value2)) {
+          if (value1.length !== value2.length) {
+            return false;
+          }
+          return value1.every((v4, i3) => v4 === value2[i3]);
+        } else if (value1 !== null && value2 !== null) {
+          const keys1 = Object.keys(value1);
+          const keys2 = Object.keys(value2);
+          if (keys1.length !== keys2.length) {
+            return false;
+          }
+          return keys1.every((key) => value1[key] === value2[key]);
+        }
+        return value1 === value2;
+      }
+      /**
+       * Convert to a RGBA color object with normalized components (0-1).
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Convert colors to RGBA objects
+       * new Color('white').toRgba();     // returns { r: 1, g: 1, b: 1, a: 1 }
+       * new Color('#ff0000').toRgba();   // returns { r: 1, g: 0, b: 0, a: 1 }
+       *
+       * // With transparency
+       * new Color('rgba(255,0,0,0.5)').toRgba(); // returns { r: 1, g: 0, b: 0, a: 0.5 }
+       * ```
+       * @returns An RGBA object with normalized components
+       */
+      toRgba() {
+        const [r4, g3, b3, a3] = this._components;
+        return { r: r4, g: g3, b: b3, a: a3 };
+      }
+      /**
+       * Convert to a RGB color object with normalized components (0-1).
+       *
+       * Alpha component is omitted in the output.
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Convert colors to RGB objects
+       * new Color('white').toRgb();     // returns { r: 1, g: 1, b: 1 }
+       * new Color('#ff0000').toRgb();   // returns { r: 1, g: 0, b: 0 }
+       *
+       * // Alpha is ignored
+       * new Color('rgba(255,0,0,0.5)').toRgb(); // returns { r: 1, g: 0, b: 0 }
+       * ```
+       * @returns An RGB object with normalized components
+       */
+      toRgb() {
+        const [r4, g3, b3] = this._components;
+        return { r: r4, g: g3, b: b3 };
+      }
+      /**
+       * Convert to a CSS-style rgba string representation.
+       *
+       * RGB components are scaled to 0-255 range, alpha remains 0-1.
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Convert colors to RGBA strings
+       * new Color('white').toRgbaString();     // returns "rgba(255,255,255,1)"
+       * new Color('#ff0000').toRgbaString();   // returns "rgba(255,0,0,1)"
+       *
+       * // With transparency
+       * new Color([1, 0, 0, 0.5]).toRgbaString(); // returns "rgba(255,0,0,0.5)"
+       * ```
+       * @returns A CSS-compatible rgba string
+       */
+      toRgbaString() {
+        const [r4, g3, b3] = this.toUint8RgbArray();
+        return `rgba(${r4},${g3},${b3},${this.alpha})`;
+      }
+      /**
+       * Convert to an [R, G, B] array of clamped uint8 values (0 to 255).
+       * @param {number[]|Uint8Array|Uint8ClampedArray} [out] - Optional output array. If not provided,
+       * a cached array will be used and returned.
+       * @returns Array containing RGB components as integers between 0-255
+       * @example
+       * ```ts
+       * // Basic usage
+       * new Color('white').toUint8RgbArray(); // returns [255, 255, 255]
+       * new Color('#ff0000').toUint8RgbArray(); // returns [255, 0, 0]
+       *
+       * // Using custom output array
+       * const rgb = new Uint8Array(3);
+       * new Color('blue').toUint8RgbArray(rgb); // rgb is now [0, 0, 255]
+       *
+       * // Using different array types
+       * new Color('red').toUint8RgbArray(new Uint8ClampedArray(3)); // [255, 0, 0]
+       * new Color('red').toUint8RgbArray([]); // [255, 0, 0]
+       * ```
+       * @remarks
+       * - Output values are always clamped between 0-255
+       * - Alpha component is not included in output
+       * - Reuses internal cache array if no output array provided
+       */
+      toUint8RgbArray(out2) {
+        const [r4, g3, b3] = this._components;
+        if (!this._arrayRgb) {
+          this._arrayRgb = [];
+        }
+        out2 || (out2 = this._arrayRgb);
+        out2[0] = Math.round(r4 * 255);
+        out2[1] = Math.round(g3 * 255);
+        out2[2] = Math.round(b3 * 255);
+        return out2;
+      }
+      /**
+       * Convert to an [R, G, B, A] array of normalized floats (numbers from 0.0 to 1.0).
+       * @param {number[]|Float32Array} [out] - Optional output array. If not provided,
+       * a cached array will be used and returned.
+       * @returns Array containing RGBA components as floats between 0-1
+       * @example
+       * ```ts
+       * // Basic usage
+       * new Color('white').toArray();  // returns [1, 1, 1, 1]
+       * new Color('red').toArray();    // returns [1, 0, 0, 1]
+       *
+       * // With alpha
+       * new Color('rgba(255,0,0,0.5)').toArray(); // returns [1, 0, 0, 0.5]
+       *
+       * // Using custom output array
+       * const rgba = new Float32Array(4);
+       * new Color('blue').toArray(rgba); // rgba is now [0, 0, 1, 1]
+       * ```
+       * @remarks
+       * - Output values are normalized between 0-1
+       * - Includes alpha component as the fourth value
+       * - Reuses internal cache array if no output array provided
+       */
+      toArray(out2) {
+        if (!this._arrayRgba) {
+          this._arrayRgba = [];
+        }
+        out2 || (out2 = this._arrayRgba);
+        const [r4, g3, b3, a3] = this._components;
+        out2[0] = r4;
+        out2[1] = g3;
+        out2[2] = b3;
+        out2[3] = a3;
+        return out2;
+      }
+      /**
+       * Convert to an [R, G, B] array of normalized floats (numbers from 0.0 to 1.0).
+       * @param {number[]|Float32Array} [out] - Optional output array. If not provided,
+       * a cached array will be used and returned.
+       * @returns Array containing RGB components as floats between 0-1
+       * @example
+       * ```ts
+       * // Basic usage
+       * new Color('white').toRgbArray(); // returns [1, 1, 1]
+       * new Color('red').toRgbArray();   // returns [1, 0, 0]
+       *
+       * // Using custom output array
+       * const rgb = new Float32Array(3);
+       * new Color('blue').toRgbArray(rgb); // rgb is now [0, 0, 1]
+       * ```
+       * @remarks
+       * - Output values are normalized between 0-1
+       * - Alpha component is omitted from output
+       * - Reuses internal cache array if no output array provided
+       */
+      toRgbArray(out2) {
+        if (!this._arrayRgb) {
+          this._arrayRgb = [];
+        }
+        out2 || (out2 = this._arrayRgb);
+        const [r4, g3, b3] = this._components;
+        out2[0] = r4;
+        out2[1] = g3;
+        out2[2] = b3;
+        return out2;
+      }
+      /**
+       * Convert to a hexadecimal number.
+       * @returns The color as a 24-bit RGB integer
+       * @example
+       * ```ts
+       * // Basic usage
+       * new Color('white').toNumber(); // returns 0xffffff
+       * new Color('red').toNumber();   // returns 0xff0000
+       *
+       * // Store as hex
+       * const color = new Color('blue');
+       * const hex = color.toNumber(); // 0x0000ff
+       * ```
+       */
+      toNumber() {
+        return this._int;
+      }
+      /**
+       * Convert to a BGR number.
+       *
+       * Useful for platforms that expect colors in BGR format.
+       * @returns The color as a 24-bit BGR integer
+       * @example
+       * ```ts
+       * // Convert RGB to BGR
+       * new Color(0xffcc99).toBgrNumber(); // returns 0x99ccff
+       *
+       * // Common use case: platform-specific color format
+       * const color = new Color('orange');
+       * const bgrColor = color.toBgrNumber(); // Color with swapped R/B channels
+       * ```
+       * @remarks
+       * This swaps the red and blue channels compared to the normal RGB format:
+       * - RGB 0xRRGGBB becomes BGR 0xBBGGRR
+       */
+      toBgrNumber() {
+        const [r4, g3, b3] = this.toUint8RgbArray();
+        return (b3 << 16) + (g3 << 8) + r4;
+      }
+      /**
+       * Convert to a hexadecimal number in little endian format (e.g., BBGGRR).
+       *
+       * Useful for platforms that expect colors in little endian byte order.
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Convert RGB color to little endian format
+       * new Color(0xffcc99).toLittleEndianNumber(); // returns 0x99ccff
+       *
+       * // Common use cases:
+       * const color = new Color('orange');
+       * const leColor = color.toLittleEndianNumber(); // Swaps byte order for LE systems
+       *
+       * // Multiple conversions
+       * const colors = {
+       *     normal: 0xffcc99,
+       *     littleEndian: new Color(0xffcc99).toLittleEndianNumber(), // 0x99ccff
+       *     backToNormal: new Color(0x99ccff).toLittleEndianNumber()  // 0xffcc99
+       * };
+       * ```
+       * @remarks
+       * - Swaps R and B channels in the color value
+       * - RGB 0xRRGGBB becomes 0xBBGGRR
+       * - Useful for systems that use little endian byte order
+       * - Can be used to convert back and forth between formats
+       * @returns The color as a number in little endian format (BBGGRR)
+       * @see {@link Color.toBgrNumber} For BGR format without byte swapping
+       */
+      toLittleEndianNumber() {
+        const value = this._int;
+        return (value >> 16) + (value & 65280) + ((value & 255) << 16);
+      }
+      /**
+       * Multiply with another color.
+       *
+       * This action is destructive and modifies the original color.
+       * @param {ColorSource} value - The color to multiply by. Accepts any valid color format:
+       * - Hex strings/numbers (e.g., '#ff0000', 0xff0000)
+       * - RGB/RGBA arrays ([1, 0, 0], [1, 0, 0, 1])
+       * - Color objects ({ r: 1, g: 0, b: 0 })
+       * - CSS color names ('red', 'blue')
+       * @returns this - The Color instance for chaining
+       * @example
+       * ```ts
+       * // Basic multiplication
+       * const color = new Color('#ff0000');
+       * color.multiply(0x808080); // 50% darker red
+       *
+       * // With transparency
+       * color.multiply([1, 1, 1, 0.5]); // 50% transparent
+       *
+       * // Chain operations
+       * color
+       *     .multiply('#808080')
+       *     .multiply({ r: 1, g: 1, b: 1, a: 0.5 });
+       * ```
+       * @remarks
+       * - Multiplies each RGB component and alpha separately
+       * - Values are clamped between 0-1
+       * - Original color format is lost (value becomes null)
+       * - Operation cannot be undone
+       */
+      multiply(value) {
+        const [r4, g3, b3, a3] = _Color2._temp.setValue(value)._components;
+        this._components[0] *= r4;
+        this._components[1] *= g3;
+        this._components[2] *= b3;
+        this._components[3] *= a3;
+        this._refreshInt();
+        this._value = null;
+        return this;
+      }
+      /**
+       * Converts color to a premultiplied alpha format.
+       *
+       * This action is destructive and modifies the original color.
+       * @param alpha - The alpha value to multiply by (0-1)
+       * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels
+       * @returns {Color} The Color instance for chaining
+       * @example
+       * ```ts
+       * // Basic premultiplication
+       * const color = new Color('red');
+       * color.premultiply(0.5); // 50% transparent red with premultiplied RGB
+       *
+       * // Alpha only (RGB unchanged)
+       * color.premultiply(0.5, false); // 50% transparent, original RGB
+       *
+       * // Chain with other operations
+       * color
+       *     .multiply(0x808080)
+       *     .premultiply(0.5)
+       *     .toNumber();
+       * ```
+       * @remarks
+       * - RGB channels are multiplied by alpha when applyToRGB is true
+       * - Alpha is always set to the provided value
+       * - Values are clamped between 0-1
+       * - Original color format is lost (value becomes null)
+       * - Operation cannot be undone
+       */
+      premultiply(alpha, applyToRGB = true) {
+        if (applyToRGB) {
+          this._components[0] *= alpha;
+          this._components[1] *= alpha;
+          this._components[2] *= alpha;
+        }
+        this._components[3] = alpha;
+        this._refreshInt();
+        this._value = null;
+        return this;
+      }
+      /**
+       * Returns the color as a 32-bit premultiplied alpha integer.
+       *
+       * Format: 0xAARRGGBB
+       * @param {number} alpha - The alpha value to multiply by (0-1)
+       * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels
+       * @returns {number} The premultiplied color as a 32-bit integer
+       * @example
+       * ```ts
+       * // Convert to premultiplied format
+       * const color = new Color('red');
+       *
+       * // Full opacity (0xFFRRGGBB)
+       * color.toPremultiplied(1.0); // 0xFFFF0000
+       *
+       * // 50% transparency with premultiplied RGB
+       * color.toPremultiplied(0.5); // 0x7F7F0000
+       *
+       * // 50% transparency without RGB premultiplication
+       * color.toPremultiplied(0.5, false); // 0x7FFF0000
+       * ```
+       * @remarks
+       * - Returns full opacity (0xFF000000) when alpha is 1.0
+       * - Returns 0 when alpha is 0.0 and applyToRGB is true
+       * - RGB values are rounded during premultiplication
+       */
+      toPremultiplied(alpha, applyToRGB = true) {
+        if (alpha === 1) {
+          return (255 << 24) + this._int;
+        }
+        if (alpha === 0) {
+          return applyToRGB ? 0 : this._int;
+        }
+        let r4 = this._int >> 16 & 255;
+        let g3 = this._int >> 8 & 255;
+        let b3 = this._int & 255;
+        if (applyToRGB) {
+          r4 = r4 * alpha + 0.5 | 0;
+          g3 = g3 * alpha + 0.5 | 0;
+          b3 = b3 * alpha + 0.5 | 0;
+        }
+        return (alpha * 255 << 24) + (r4 << 16) + (g3 << 8) + b3;
+      }
+      /**
+       * Convert to a hexadecimal string (6 characters).
+       * @returns A CSS-compatible hex color string (e.g., "#ff0000")
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Basic colors
+       * new Color('red').toHex();    // returns "#ff0000"
+       * new Color('white').toHex();  // returns "#ffffff"
+       * new Color('black').toHex();  // returns "#000000"
+       *
+       * // From different formats
+       * new Color(0xff0000).toHex(); // returns "#ff0000"
+       * new Color([1, 0, 0]).toHex(); // returns "#ff0000"
+       * new Color({ r: 1, g: 0, b: 0 }).toHex(); // returns "#ff0000"
+       * ```
+       * @remarks
+       * - Always returns a 6-character hex string
+       * - Includes leading "#" character
+       * - Alpha channel is ignored
+       * - Values are rounded to nearest hex value
+       */
+      toHex() {
+        const hexString = this._int.toString(16);
+        return `#${"000000".substring(0, 6 - hexString.length) + hexString}`;
+      }
+      /**
+       * Convert to a hexadecimal string with alpha (8 characters).
+       * @returns A CSS-compatible hex color string with alpha (e.g., "#ff0000ff")
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // Fully opaque colors
+       * new Color('red').toHexa();   // returns "#ff0000ff"
+       * new Color('white').toHexa(); // returns "#ffffffff"
+       *
+       * // With transparency
+       * new Color('rgba(255, 0, 0, 0.5)').toHexa(); // returns "#ff00007f"
+       * new Color([1, 0, 0, 0]).toHexa(); // returns "#ff000000"
+       * ```
+       * @remarks
+       * - Returns an 8-character hex string
+       * - Includes leading "#" character
+       * - Alpha is encoded in last two characters
+       * - Values are rounded to nearest hex value
+       */
+      toHexa() {
+        const alphaValue = Math.round(this._components[3] * 255);
+        const alphaString = alphaValue.toString(16);
+        return this.toHex() + "00".substring(0, 2 - alphaString.length) + alphaString;
+      }
+      /**
+       * Set alpha (transparency) value while preserving color components.
+       *
+       * Provides a chainable interface for setting alpha.
+       * @param alpha - Alpha value between 0 (fully transparent) and 1 (fully opaque)
+       * @returns The Color instance for chaining
+       * @example
+       * ```ts
+       * // Basic alpha setting
+       * const color = new Color('red');
+       * color.setAlpha(0.5);  // 50% transparent red
+       *
+       * // Chain with other operations
+       * color
+       *     .setValue('#ff0000')
+       *     .setAlpha(0.8)    // 80% opaque
+       *     .premultiply(0.5); // Further modify alpha
+       *
+       * // Reset to fully opaque
+       * color.setAlpha(1);
+       * ```
+       * @remarks
+       * - Alpha value is clamped between 0-1
+       * - Can be chained with other color operations
+       */
+      setAlpha(alpha) {
+        this._components[3] = this._clamp(alpha);
+        this._value = null;
+        return this;
+      }
+      /**
+       * Normalize the input value into rgba
+       * @param value - Input value
+       */
+      _normalize(value) {
+        let r4;
+        let g3;
+        let b3;
+        let a3;
+        if ((typeof value === "number" || value instanceof Number) && value >= 0 && value <= 16777215) {
+          const int = value;
+          r4 = (int >> 16 & 255) / 255;
+          g3 = (int >> 8 & 255) / 255;
+          b3 = (int & 255) / 255;
+          a3 = 1;
+        } else if ((Array.isArray(value) || value instanceof Float32Array) && value.length >= 3 && value.length <= 4) {
+          value = this._clamp(value);
+          [r4, g3, b3, a3 = 1] = value;
+        } else if ((value instanceof Uint8Array || value instanceof Uint8ClampedArray) && value.length >= 3 && value.length <= 4) {
+          value = this._clamp(value, 0, 255);
+          [r4, g3, b3, a3 = 255] = value;
+          r4 /= 255;
+          g3 /= 255;
+          b3 /= 255;
+          a3 /= 255;
+        } else if (typeof value === "string" || typeof value === "object") {
+          if (typeof value === "string") {
+            const match = _Color2.HEX_PATTERN.exec(value);
+            if (match) {
+              value = `#${match[2]}`;
+            }
+          }
+          const color = w(value);
+          if (color.isValid()) {
+            ({ r: r4, g: g3, b: b3, a: a3 } = color.rgba);
+            r4 /= 255;
+            g3 /= 255;
+            b3 /= 255;
+          }
+        }
+        if (r4 !== void 0) {
+          this._components[0] = r4;
+          this._components[1] = g3;
+          this._components[2] = b3;
+          this._components[3] = a3;
+          this._refreshInt();
+        } else {
+          throw new Error(`Unable to convert color ${value}`);
+        }
+      }
+      /** Refresh the internal color rgb number */
+      _refreshInt() {
+        this._clamp(this._components);
+        const [r4, g3, b3] = this._components;
+        this._int = (r4 * 255 << 16) + (g3 * 255 << 8) + (b3 * 255 | 0);
+      }
+      /**
+       * Clamps values to a range. Will override original values
+       * @param value - Value(s) to clamp
+       * @param min - Minimum value
+       * @param max - Maximum value
+       */
+      _clamp(value, min2 = 0, max2 = 1) {
+        if (typeof value === "number") {
+          return Math.min(Math.max(value, min2), max2);
+        }
+        value.forEach((v4, i3) => {
+          value[i3] = Math.min(Math.max(v4, min2), max2);
+        });
+        return value;
+      }
+      /**
+       * Check if a value can be interpreted as a valid color format.
+       * Supports all color formats that can be used with the Color class.
+       * @param value - Value to check
+       * @returns True if the value can be used as a color
+       * @example
+       * ```ts
+       * import { Color } from 'pixi.js';
+       *
+       * // CSS colors and hex values
+       * Color.isColorLike('red');          // true
+       * Color.isColorLike('#ff0000');      // true
+       * Color.isColorLike(0xff0000);       // true
+       *
+       * // Arrays (RGB/RGBA)
+       * Color.isColorLike([1, 0, 0]);      // true
+       * Color.isColorLike([1, 0, 0, 0.5]); // true
+       *
+       * // TypedArrays
+       * Color.isColorLike(new Float32Array([1, 0, 0]));          // true
+       * Color.isColorLike(new Uint8Array([255, 0, 0]));          // true
+       * Color.isColorLike(new Uint8ClampedArray([255, 0, 0]));   // true
+       *
+       * // Object formats
+       * Color.isColorLike({ r: 1, g: 0, b: 0 });            // true (RGB)
+       * Color.isColorLike({ r: 1, g: 0, b: 0, a: 0.5 });    // true (RGBA)
+       * Color.isColorLike({ h: 0, s: 100, l: 50 });         // true (HSL)
+       * Color.isColorLike({ h: 0, s: 100, l: 50, a: 0.5 }); // true (HSLA)
+       * Color.isColorLike({ h: 0, s: 100, v: 100 });        // true (HSV)
+       * Color.isColorLike({ h: 0, s: 100, v: 100, a: 0.5 });// true (HSVA)
+       *
+       * // Color instances
+       * Color.isColorLike(new Color('red')); // true
+       *
+       * // Invalid values
+       * Color.isColorLike(null);           // false
+       * Color.isColorLike(undefined);      // false
+       * Color.isColorLike({});             // false
+       * Color.isColorLike([]);             // false
+       * Color.isColorLike('not-a-color');  // false
+       * ```
+       * @remarks
+       * Checks for the following formats:
+       * - Numbers (0x000000 to 0xffffff)
+       * - CSS color strings
+       * - RGB/RGBA arrays and objects
+       * - HSL/HSLA objects
+       * - HSV/HSVA objects
+       * - TypedArrays (Float32Array, Uint8Array, Uint8ClampedArray)
+       * - Color instances
+       * @see {@link ColorSource} For supported color format types
+       * @see {@link Color.setValue} For setting color values
+       * @category utility
+       */
+      static isColorLike(value) {
+        return typeof value === "number" || typeof value === "string" || value instanceof Number || value instanceof _Color2 || Array.isArray(value) || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Float32Array || value.r !== void 0 && value.g !== void 0 && value.b !== void 0 || value.r !== void 0 && value.g !== void 0 && value.b !== void 0 && value.a !== void 0 || value.h !== void 0 && value.s !== void 0 && value.l !== void 0 || value.h !== void 0 && value.s !== void 0 && value.l !== void 0 && value.a !== void 0 || value.h !== void 0 && value.s !== void 0 && value.v !== void 0 || value.h !== void 0 && value.s !== void 0 && value.v !== void 0 && value.a !== void 0;
+      }
+    };
+    _Color.shared = new _Color();
+    _Color._temp = new _Color();
+    _Color.HEX_PATTERN = /^(#|0x)?(([a-f0-9]{3}){1,2}([a-f0-9]{2})?)$/i;
+    Color = _Color;
+  }
+});
+
+// node_modules/pixi.js/lib/environment/autoDetectEnvironment.mjs
+async function loadEnvironmentExtensions(skip) {
+  if (skip) return;
+  for (let i3 = 0; i3 < environments.length; i3++) {
+    const env = environments[i3];
+    if (env.value.test()) {
+      await env.value.load();
+      return;
+    }
+  }
+}
+var environments;
+var init_autoDetectEnvironment = __esm({
+  "node_modules/pixi.js/lib/environment/autoDetectEnvironment.mjs"() {
+    init_Extensions();
+    environments = [];
+    extensions.handleByNamedList(ExtensionType.Environment, environments);
+  }
+});
+
+// node_modules/pixi.js/lib/culling/cullingMixin.mjs
+var cullingMixin;
+var init_cullingMixin = __esm({
+  "node_modules/pixi.js/lib/culling/cullingMixin.mjs"() {
+    "use strict";
+    cullingMixin = {
+      cullArea: null,
+      cullable: false,
+      cullableChildren: true
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/maths/misc/const.mjs
+var PI_2, RAD_TO_DEG, DEG_TO_RAD;
+var init_const2 = __esm({
+  "node_modules/pixi.js/lib/maths/misc/const.mjs"() {
+    "use strict";
+    PI_2 = Math.PI * 2;
+    RAD_TO_DEG = 180 / Math.PI;
+    DEG_TO_RAD = Math.PI / 180;
+  }
+});
+
+// node_modules/pixi.js/lib/maths/point/Point.mjs
+var Point, tempPoint;
+var init_Point = __esm({
+  "node_modules/pixi.js/lib/maths/point/Point.mjs"() {
+    "use strict";
+    Point = class _Point {
+      /**
+       * Creates a new `Point`
+       * @param {number} [x=0] - position of the point on the x axis
+       * @param {number} [y=0] - position of the point on the y axis
+       */
+      constructor(x3 = 0, y4 = 0) {
+        this.x = 0;
+        this.y = 0;
+        this.x = x3;
+        this.y = y4;
+      }
+      /**
+       * Creates a clone of this point, which is a new instance with the same `x` and `y` values.
+       * @example
+       * ```ts
+       * // Basic point cloning
+       * const original = new Point(100, 200);
+       * const copy = original.clone();
+       *
+       * // Clone and modify
+       * const modified = original.clone();
+       * modified.set(300, 400);
+       *
+       * // Verify independence
+       * console.log(original); // Point(100, 200)
+       * console.log(modified); // Point(300, 400)
+       * ```
+       * @remarks
+       * - Creates new Point instance
+       * - Deep copies x and y values
+       * - Independent from original
+       * - Useful for preserving values
+       * @returns A clone of this point
+       * @see {@link Point.copyFrom} For copying into existing point
+       * @see {@link Point.copyTo} For copying to existing point
+       */
+      clone() {
+        return new _Point(this.x, this.y);
+      }
+      /**
+       * Copies x and y from the given point into this point.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new Point(100, 200);
+       * const target = new Point();
+       * target.copyFrom(source);
+       *
+       * // Copy and chain operations
+       * const point = new Point()
+       *     .copyFrom(source)
+       *     .set(x + 50, y + 50);
+       *
+       * // Copy from any PointData
+       * const data = { x: 10, y: 20 };
+       * point.copyFrom(data);
+       * ```
+       * @param p - The point to copy from
+       * @returns The point instance itself
+       * @see {@link Point.copyTo} For copying to another point
+       * @see {@link Point.clone} For creating new point copy
+       */
+      copyFrom(p3) {
+        this.set(p3.x, p3.y);
+        return this;
+      }
+      /**
+       * Copies this point's x and y into the given point.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new Point(100, 200);
+       * const target = new Point();
+       * source.copyTo(target);
+       * ```
+       * @param p - The point to copy to. Can be any type that is or extends `PointLike`
+       * @returns The point (`p`) with values updated
+       * @see {@link Point.copyFrom} For copying from another point
+       * @see {@link Point.clone} For creating new point copy
+       */
+      copyTo(p3) {
+        p3.set(this.x, this.y);
+        return p3;
+      }
+      /**
+       * Checks if another point is equal to this point.
+       *
+       * Compares x and y values using strict equality.
+       * @example
+       * ```ts
+       * // Basic equality check
+       * const p1 = new Point(100, 200);
+       * const p2 = new Point(100, 200);
+       * console.log(p1.equals(p2)); // true
+       *
+       * // Compare with PointData
+       * const data = { x: 100, y: 200 };
+       * console.log(p1.equals(data)); // true
+       *
+       * // Check different points
+       * const p3 = new Point(200, 300);
+       * console.log(p1.equals(p3)); // false
+       * ```
+       * @param p - The point to check
+       * @returns `true` if both `x` and `y` are equal
+       * @see {@link Point.copyFrom} For making points equal
+       * @see {@link PointData} For point data interface
+       */
+      equals(p3) {
+        return p3.x === this.x && p3.y === this.y;
+      }
+      /**
+       * Sets the point to a new x and y position.
+       *
+       * If y is omitted, both x and y will be set to x.
+       * @example
+       * ```ts
+       * // Basic position setting
+       * const point = new Point();
+       * point.set(100, 200);
+       *
+       * // Set both x and y to same value
+       * point.set(50); // x=50, y=50
+       *
+       * // Chain with other operations
+       * point
+       *     .set(10, 20)
+       *     .copyTo(otherPoint);
+       * ```
+       * @param x - Position on the x axis
+       * @param y - Position on the y axis, defaults to x
+       * @returns The point instance itself
+       * @see {@link Point.copyFrom} For copying from another point
+       * @see {@link Point.equals} For comparing positions
+       */
+      set(x3 = 0, y4 = x3) {
+        this.x = x3;
+        this.y = y4;
+        return this;
+      }
+      toString() {
+        return `[pixi.js/math:Point x=${this.x} y=${this.y}]`;
+      }
+      /**
+       * A static Point object with `x` and `y` values of `0`.
+       *
+       * This shared instance is reset to zero values when accessed.
+       *
+       * > [!IMPORTANT] This point is shared and temporary. Do not store references to it.
+       * @example
+       * ```ts
+       * // Use for temporary calculations
+       * const tempPoint = Point.shared;
+       * tempPoint.set(100, 200);
+       * matrix.apply(tempPoint);
+       *
+       * // Will be reset to (0,0) on next access
+       * const fresh = Point.shared; // x=0, y=0
+       * ```
+       * @readonly
+       * @returns A fresh zeroed point for temporary use
+       * @see {@link Point.constructor} For creating new points
+       * @see {@link PointData} For basic point interface
+       */
+      static get shared() {
+        tempPoint.x = 0;
+        tempPoint.y = 0;
+        return tempPoint;
+      }
+    };
+    tempPoint = new Point();
+  }
+});
+
+// node_modules/pixi.js/lib/maths/matrix/Matrix.mjs
+var Matrix, tempMatrix, identityMatrix;
+var init_Matrix = __esm({
+  "node_modules/pixi.js/lib/maths/matrix/Matrix.mjs"() {
+    init_const2();
+    init_Point();
+    Matrix = class _Matrix {
+      /**
+       * @param a - x scale
+       * @param b - y skew
+       * @param c - x skew
+       * @param d - y scale
+       * @param tx - x translation
+       * @param ty - y translation
+       */
+      constructor(a3 = 1, b3 = 0, c3 = 0, d3 = 1, tx = 0, ty = 0) {
+        this.array = null;
+        this.a = a3;
+        this.b = b3;
+        this.c = c3;
+        this.d = d3;
+        this.tx = tx;
+        this.ty = ty;
+      }
+      /**
+       * Creates a Matrix object based on the given array.
+       * Populates matrix components from a flat array in column-major order.
+       *
+       * > [!NOTE] Array mapping order:
+       * > ```
+       * > array[0] = a  (x scale)
+       * > array[1] = b  (y skew)
+       * > array[2] = tx (x translation)
+       * > array[3] = c  (x skew)
+       * > array[4] = d  (y scale)
+       * > array[5] = ty (y translation)
+       * > ```
+       * @example
+       * ```ts
+       * // Create matrix from array
+       * const matrix = new Matrix();
+       * matrix.fromArray([
+       *     2, 0,  100,  // a, b, tx
+       *     0, 2,  100   // c, d, ty
+       * ]);
+       *
+       * // Create matrix from typed array
+       * const float32Array = new Float32Array([
+       *     1, 0, 0,     // Scale x1, no skew
+       *     0, 1, 0      // No skew, scale x1
+       * ]);
+       * matrix.fromArray(float32Array);
+       * ```
+       * @param array - The array to populate the matrix from
+       * @see {@link Matrix.toArray} For converting matrix to array
+       * @see {@link Matrix.set} For setting values directly
+       */
+      fromArray(array) {
+        this.a = array[0];
+        this.b = array[1];
+        this.c = array[3];
+        this.d = array[4];
+        this.tx = array[2];
+        this.ty = array[5];
+      }
+      /**
+       * Sets the matrix properties directly.
+       * All matrix components can be set in one call.
+       * @example
+       * ```ts
+       * // Set to identity matrix
+       * matrix.set(1, 0, 0, 1, 0, 0);
+       *
+       * // Set to scale matrix
+       * matrix.set(2, 0, 0, 2, 0, 0); // Scale 2x
+       *
+       * // Set to translation matrix
+       * matrix.set(1, 0, 0, 1, 100, 50); // Move 100,50
+       * ```
+       * @param a - Scale on x axis
+       * @param b - Shear on y axis
+       * @param c - Shear on x axis
+       * @param d - Scale on y axis
+       * @param tx - Translation on x axis
+       * @param ty - Translation on y axis
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.identity} For resetting to identity
+       * @see {@link Matrix.fromArray} For setting from array
+       */
+      set(a3, b3, c3, d3, tx, ty) {
+        this.a = a3;
+        this.b = b3;
+        this.c = c3;
+        this.d = d3;
+        this.tx = tx;
+        this.ty = ty;
+        return this;
+      }
+      /**
+       * Creates an array from the current Matrix object.
+       *
+       * > [!NOTE] The array format is:
+       * > ```
+       * > Non-transposed:
+       * > [a, c, tx,
+       * > b, d, ty,
+       * > 0, 0, 1]
+       * >
+       * > Transposed:
+       * > [a, b, 0,
+       * > c, d, 0,
+       * > tx,ty,1]
+       * > ```
+       * @example
+       * ```ts
+       * // Basic array conversion
+       * const matrix = new Matrix(2, 0, 0, 2, 100, 100);
+       * const array = matrix.toArray();
+       *
+       * // Using existing array
+       * const float32Array = new Float32Array(9);
+       * matrix.toArray(false, float32Array);
+       *
+       * // Get transposed array
+       * const transposed = matrix.toArray(true);
+       * ```
+       * @param transpose - Whether to transpose the matrix
+       * @param out - Optional Float32Array to store the result
+       * @returns The array containing the matrix values
+       * @see {@link Matrix.fromArray} For creating matrix from array
+       * @see {@link Matrix.array} For cached array storage
+       */
+      toArray(transpose, out2) {
+        if (!this.array) {
+          this.array = new Float32Array(9);
+        }
+        const array = out2 || this.array;
+        if (transpose) {
+          array[0] = this.a;
+          array[1] = this.b;
+          array[2] = 0;
+          array[3] = this.c;
+          array[4] = this.d;
+          array[5] = 0;
+          array[6] = this.tx;
+          array[7] = this.ty;
+          array[8] = 1;
+        } else {
+          array[0] = this.a;
+          array[1] = this.c;
+          array[2] = this.tx;
+          array[3] = this.b;
+          array[4] = this.d;
+          array[5] = this.ty;
+          array[6] = 0;
+          array[7] = 0;
+          array[8] = 1;
+        }
+        return array;
+      }
+      /**
+       * Get a new position with the current transformation applied.
+       *
+       * Can be used to go from a child's coordinate space to the world coordinate space. (e.g. rendering)
+       * @example
+       * ```ts
+       * // Basic point transformation
+       * const matrix = new Matrix().translate(100, 50).rotate(Math.PI / 4);
+       * const point = new Point(10, 20);
+       * const transformed = matrix.apply(point);
+       *
+       * // Reuse existing point
+       * const output = new Point();
+       * matrix.apply(point, output);
+       * ```
+       * @param pos - The origin point to transform
+       * @param newPos - Optional point to store the result
+       * @returns The transformed point
+       * @see {@link Matrix.applyInverse} For inverse transformation
+       * @see {@link Point} For point operations
+       */
+      apply(pos, newPos) {
+        newPos = newPos || new Point();
+        const x3 = pos.x;
+        const y4 = pos.y;
+        newPos.x = this.a * x3 + this.c * y4 + this.tx;
+        newPos.y = this.b * x3 + this.d * y4 + this.ty;
+        return newPos;
+      }
+      /**
+       * Get a new position with the inverse of the current transformation applied.
+       *
+       * Can be used to go from the world coordinate space to a child's coordinate space. (e.g. input)
+       * @example
+       * ```ts
+       * // Basic inverse transformation
+       * const matrix = new Matrix().translate(100, 50).rotate(Math.PI / 4);
+       * const worldPoint = new Point(150, 100);
+       * const localPoint = matrix.applyInverse(worldPoint);
+       *
+       * // Reuse existing point
+       * const output = new Point();
+       * matrix.applyInverse(worldPoint, output);
+       *
+       * // Convert mouse position to local space
+       * const mousePoint = new Point(mouseX, mouseY);
+       * const localMouse = matrix.applyInverse(mousePoint);
+       * ```
+       * @param pos - The origin point to inverse-transform
+       * @param newPos - Optional point to store the result
+       * @returns The inverse-transformed point
+       * @see {@link Matrix.apply} For forward transformation
+       * @see {@link Matrix.invert} For getting inverse matrix
+       */
+      applyInverse(pos, newPos) {
+        newPos = newPos || new Point();
+        const a3 = this.a;
+        const b3 = this.b;
+        const c3 = this.c;
+        const d3 = this.d;
+        const tx = this.tx;
+        const ty = this.ty;
+        const id = 1 / (a3 * d3 + c3 * -b3);
+        const x3 = pos.x;
+        const y4 = pos.y;
+        newPos.x = d3 * id * x3 + -c3 * id * y4 + (ty * c3 - tx * d3) * id;
+        newPos.y = a3 * id * y4 + -b3 * id * x3 + (-ty * a3 + tx * b3) * id;
+        return newPos;
+      }
+      /**
+       * Translates the matrix on the x and y axes.
+       * Adds to the position values while preserving scale, rotation and skew.
+       * @example
+       * ```ts
+       * // Basic translation
+       * const matrix = new Matrix();
+       * matrix.translate(100, 50); // Move right 100, down 50
+       *
+       * // Chain with other transformations
+       * matrix
+       *     .scale(2, 2)
+       *     .translate(100, 0)
+       *     .rotate(Math.PI / 4);
+       * ```
+       * @param x - How much to translate on the x axis
+       * @param y - How much to translate on the y axis
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.set} For setting position directly
+       * @see {@link Matrix.setTransform} For complete transform setup
+       */
+      translate(x3, y4) {
+        this.tx += x3;
+        this.ty += y4;
+        return this;
+      }
+      /**
+       * Applies a scale transformation to the matrix.
+       * Multiplies the scale values with existing matrix components.
+       * @example
+       * ```ts
+       * // Basic scaling
+       * const matrix = new Matrix();
+       * matrix.scale(2, 3); // Scale 2x horizontally, 3x vertically
+       *
+       * // Chain with other transformations
+       * matrix
+       *     .translate(100, 100)
+       *     .scale(2, 2)     // Scales after translation
+       *     .rotate(Math.PI / 4);
+       * ```
+       * @param x - The amount to scale horizontally
+       * @param y - The amount to scale vertically
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.setTransform} For setting scale directly
+       * @see {@link Matrix.append} For combining transformations
+       */
+      scale(x3, y4) {
+        this.a *= x3;
+        this.d *= y4;
+        this.c *= x3;
+        this.b *= y4;
+        this.tx *= x3;
+        this.ty *= y4;
+        return this;
+      }
+      /**
+       * Applies a rotation transformation to the matrix.
+       *
+       * Rotates around the origin (0,0) by the given angle in radians.
+       * @example
+       * ```ts
+       * // Basic rotation
+       * const matrix = new Matrix();
+       * matrix.rotate(Math.PI / 4); // Rotate 45 degrees
+       *
+       * // Chain with other transformations
+       * matrix
+       *     .translate(100, 100) // Move to rotation center
+       *     .rotate(Math.PI)     // Rotate 180 degrees
+       *     .scale(2, 2);        // Scale after rotation
+       *
+       * // Common angles
+       * matrix.rotate(Math.PI / 2);  // 90 degrees
+       * matrix.rotate(Math.PI);      // 180 degrees
+       * matrix.rotate(Math.PI * 2);  // 360 degrees
+       * ```
+       * @remarks
+       * - Rotates around origin point (0,0)
+       * - Affects position if translation was set
+       * - Uses counter-clockwise rotation
+       * - Order of operations matters when chaining
+       * @param angle - The angle in radians
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.setTransform} For setting rotation directly
+       * @see {@link Matrix.append} For combining transformations
+       */
+      rotate(angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const a1 = this.a;
+        const c1 = this.c;
+        const tx1 = this.tx;
+        this.a = a1 * cos - this.b * sin;
+        this.b = a1 * sin + this.b * cos;
+        this.c = c1 * cos - this.d * sin;
+        this.d = c1 * sin + this.d * cos;
+        this.tx = tx1 * cos - this.ty * sin;
+        this.ty = tx1 * sin + this.ty * cos;
+        return this;
+      }
+      /**
+       * Appends the given Matrix to this Matrix.
+       * Combines two matrices by multiplying them together: this = this * matrix
+       * @example
+       * ```ts
+       * // Basic matrix combination
+       * const matrix = new Matrix();
+       * const other = new Matrix().translate(100, 0).rotate(Math.PI / 4);
+       * matrix.append(other);
+       * ```
+       * @remarks
+       * - Order matters: A.append(B) !== B.append(A)
+       * - Modifies current matrix
+       * - Preserves transformation order
+       * - Commonly used for combining transforms
+       * @param matrix - The matrix to append
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.prepend} For prepending transformations
+       * @see {@link Matrix.appendFrom} For appending two external matrices
+       */
+      append(matrix) {
+        const a1 = this.a;
+        const b1 = this.b;
+        const c1 = this.c;
+        const d1 = this.d;
+        this.a = matrix.a * a1 + matrix.b * c1;
+        this.b = matrix.a * b1 + matrix.b * d1;
+        this.c = matrix.c * a1 + matrix.d * c1;
+        this.d = matrix.c * b1 + matrix.d * d1;
+        this.tx = matrix.tx * a1 + matrix.ty * c1 + this.tx;
+        this.ty = matrix.tx * b1 + matrix.ty * d1 + this.ty;
+        return this;
+      }
+      /**
+       * Appends two matrices and sets the result to this matrix.
+       * Performs matrix multiplication: this = A * B
+       * @example
+       * ```ts
+       * // Basic matrix multiplication
+       * const result = new Matrix();
+       * const matrixA = new Matrix().scale(2, 2);
+       * const matrixB = new Matrix().rotate(Math.PI / 4);
+       * result.appendFrom(matrixA, matrixB);
+       * ```
+       * @remarks
+       * - Order matters: A * B !== B * A
+       * - Creates a new transformation from two others
+       * - More efficient than append() for multiple operations
+       * - Does not modify input matrices
+       * @param a - The first matrix to multiply
+       * @param b - The second matrix to multiply
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.append} For single matrix combination
+       * @see {@link Matrix.prepend} For reverse order multiplication
+       */
+      appendFrom(a3, b3) {
+        const a1 = a3.a;
+        const b1 = a3.b;
+        const c1 = a3.c;
+        const d1 = a3.d;
+        const tx = a3.tx;
+        const ty = a3.ty;
+        const a22 = b3.a;
+        const b22 = b3.b;
+        const c22 = b3.c;
+        const d22 = b3.d;
+        this.a = a1 * a22 + b1 * c22;
+        this.b = a1 * b22 + b1 * d22;
+        this.c = c1 * a22 + d1 * c22;
+        this.d = c1 * b22 + d1 * d22;
+        this.tx = tx * a22 + ty * c22 + b3.tx;
+        this.ty = tx * b22 + ty * d22 + b3.ty;
+        return this;
+      }
+      /**
+       * Sets the matrix based on all the available properties.
+       * Combines position, scale, rotation, skew and pivot in a single operation.
+       * @example
+       * ```ts
+       * // Basic transform setup
+       * const matrix = new Matrix();
+       * matrix.setTransform(
+       *     100, 100,    // position
+       *     0, 0,        // pivot
+       *     2, 2,        // scale
+       *     Math.PI / 4, // rotation (45 degrees)
+       *     0, 0         // skew
+       * );
+       * ```
+       * @remarks
+       * - Updates all matrix components at once
+       * - More efficient than separate transform calls
+       * - Uses radians for rotation and skew
+       * - Pivot affects rotation center
+       * @param x - Position on the x axis
+       * @param y - Position on the y axis
+       * @param pivotX - Pivot on the x axis
+       * @param pivotY - Pivot on the y axis
+       * @param scaleX - Scale on the x axis
+       * @param scaleY - Scale on the y axis
+       * @param rotation - Rotation in radians
+       * @param skewX - Skew on the x axis
+       * @param skewY - Skew on the y axis
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.decompose} For extracting transform properties
+       * @see {@link TransformableObject} For transform data structure
+       */
+      setTransform(x3, y4, pivotX, pivotY, scaleX, scaleY, rotation, skewX, skewY) {
+        this.a = Math.cos(rotation + skewY) * scaleX;
+        this.b = Math.sin(rotation + skewY) * scaleX;
+        this.c = -Math.sin(rotation - skewX) * scaleY;
+        this.d = Math.cos(rotation - skewX) * scaleY;
+        this.tx = x3 - (pivotX * this.a + pivotY * this.c);
+        this.ty = y4 - (pivotX * this.b + pivotY * this.d);
+        return this;
+      }
+      /**
+       * Prepends the given Matrix to this Matrix.
+       * Combines two matrices by multiplying them together: this = matrix * this
+       * @example
+       * ```ts
+       * // Basic matrix prepend
+       * const matrix = new Matrix().scale(2, 2);
+       * const other = new Matrix().translate(100, 0);
+       * matrix.prepend(other); // Translation happens before scaling
+       * ```
+       * @remarks
+       * - Order matters: A.prepend(B) !== B.prepend(A)
+       * - Modifies current matrix
+       * - Reverses transformation order compared to append()
+       * @param matrix - The matrix to prepend
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.append} For appending transformations
+       * @see {@link Matrix.appendFrom} For combining external matrices
+       */
+      prepend(matrix) {
+        const tx1 = this.tx;
+        if (matrix.a !== 1 || matrix.b !== 0 || matrix.c !== 0 || matrix.d !== 1) {
+          const a1 = this.a;
+          const c1 = this.c;
+          this.a = a1 * matrix.a + this.b * matrix.c;
+          this.b = a1 * matrix.b + this.b * matrix.d;
+          this.c = c1 * matrix.a + this.d * matrix.c;
+          this.d = c1 * matrix.b + this.d * matrix.d;
+        }
+        this.tx = tx1 * matrix.a + this.ty * matrix.c + matrix.tx;
+        this.ty = tx1 * matrix.b + this.ty * matrix.d + matrix.ty;
+        return this;
+      }
+      /**
+       * Decomposes the matrix into its individual transform components.
+       * Extracts position, scale, rotation and skew values from the matrix.
+       * @example
+       * ```ts
+       * // Basic decomposition
+       * const matrix = new Matrix()
+       *     .translate(100, 100)
+       *     .rotate(Math.PI / 4)
+       *     .scale(2, 2);
+       *
+       * const transform = {
+       *     position: new Point(),
+       *     scale: new Point(),
+       *     pivot: new Point(),
+       *     skew: new Point(),
+       *     rotation: 0
+       * };
+       *
+       * matrix.decompose(transform);
+       * console.log(transform.position); // Point(100, 100)
+       * console.log(transform.rotation); // ~0.785 (PI/4)
+       * console.log(transform.scale); // Point(2, 2)
+       * ```
+       * @remarks
+       * - Handles combined transformations
+       * - Accounts for pivot points
+       * - Chooses between rotation/skew based on transform type
+       * - Uses radians for rotation and skew
+       * @param transform - The transform object to store the decomposed values
+       * @returns The transform with the newly applied properties
+       * @see {@link Matrix.setTransform} For composing from components
+       * @see {@link TransformableObject} For transform structure
+       */
+      decompose(transform) {
+        const a3 = this.a;
+        const b3 = this.b;
+        const c3 = this.c;
+        const d3 = this.d;
+        const pivot = transform.pivot;
+        const skewX = -Math.atan2(-c3, d3);
+        const skewY = Math.atan2(b3, a3);
+        const delta = Math.abs(skewX + skewY);
+        if (delta < 1e-5 || Math.abs(PI_2 - delta) < 1e-5) {
+          transform.rotation = skewY;
+          transform.skew.x = transform.skew.y = 0;
+        } else {
+          transform.rotation = 0;
+          transform.skew.x = skewX;
+          transform.skew.y = skewY;
+        }
+        transform.scale.x = Math.sqrt(a3 * a3 + b3 * b3);
+        transform.scale.y = Math.sqrt(c3 * c3 + d3 * d3);
+        transform.position.x = this.tx + (pivot.x * a3 + pivot.y * c3);
+        transform.position.y = this.ty + (pivot.x * b3 + pivot.y * d3);
+        return transform;
+      }
+      /**
+       * Inverts this matrix.
+       * Creates the matrix that when multiplied with this matrix results in an identity matrix.
+       * @example
+       * ```ts
+       * // Basic matrix inversion
+       * const matrix = new Matrix()
+       *     .translate(100, 50)
+       *     .scale(2, 2);
+       *
+       * matrix.invert(); // Now transforms in opposite direction
+       *
+       * // Verify inversion
+       * const point = new Point(50, 50);
+       * const transformed = matrix.apply(point);
+       * const original = matrix.invert().apply(transformed);
+       * // original ≈ point
+       * ```
+       * @remarks
+       * - Modifies the current matrix
+       * - Useful for reversing transformations
+       * - Cannot invert matrices with zero determinant
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.identity} For resetting to identity
+       * @see {@link Matrix.applyInverse} For inverse transformations
+       */
+      invert() {
+        const a1 = this.a;
+        const b1 = this.b;
+        const c1 = this.c;
+        const d1 = this.d;
+        const tx1 = this.tx;
+        const n3 = a1 * d1 - b1 * c1;
+        this.a = d1 / n3;
+        this.b = -b1 / n3;
+        this.c = -c1 / n3;
+        this.d = a1 / n3;
+        this.tx = (c1 * this.ty - d1 * tx1) / n3;
+        this.ty = -(a1 * this.ty - b1 * tx1) / n3;
+        return this;
+      }
+      /**
+       * Checks if this matrix is an identity matrix.
+       *
+       * An identity matrix has no transformations applied (default state).
+       * @example
+       * ```ts
+       * // Check if matrix is identity
+       * const matrix = new Matrix();
+       * console.log(matrix.isIdentity()); // true
+       *
+       * // Check after transformations
+       * matrix.translate(100, 0);
+       * console.log(matrix.isIdentity()); // false
+       *
+       * // Reset and verify
+       * matrix.identity();
+       * console.log(matrix.isIdentity()); // true
+       * ```
+       * @remarks
+       * - Verifies a = 1, d = 1 (no scale)
+       * - Verifies b = 0, c = 0 (no skew)
+       * - Verifies tx = 0, ty = 0 (no translation)
+       * @returns True if matrix has no transformations
+       * @see {@link Matrix.identity} For resetting to identity
+       * @see {@link Matrix.IDENTITY} For constant identity matrix
+       */
+      isIdentity() {
+        return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.tx === 0 && this.ty === 0;
+      }
+      /**
+       * Resets this Matrix to an identity (default) matrix.
+       * Sets all components to their default values: scale=1, no skew, no translation.
+       * @example
+       * ```ts
+       * // Reset transformed matrix
+       * const matrix = new Matrix()
+       *     .scale(2, 2)
+       *     .rotate(Math.PI / 4);
+       * matrix.identity(); // Back to default state
+       *
+       * // Chain after reset
+       * matrix
+       *     .identity()
+       *     .translate(100, 100)
+       *     .scale(2, 2);
+       *
+       * // Compare with identity constant
+       * const isDefault = matrix.equals(Matrix.IDENTITY);
+       * ```
+       * @remarks
+       * - Sets a=1, d=1 (default scale)
+       * - Sets b=0, c=0 (no skew)
+       * - Sets tx=0, ty=0 (no translation)
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.IDENTITY} For constant identity matrix
+       * @see {@link Matrix.isIdentity} For checking identity state
+       */
+      identity() {
+        this.a = 1;
+        this.b = 0;
+        this.c = 0;
+        this.d = 1;
+        this.tx = 0;
+        this.ty = 0;
+        return this;
+      }
+      /**
+       * Creates a new Matrix object with the same values as this one.
+       * @returns A copy of this matrix. Good for chaining method calls.
+       */
+      clone() {
+        const matrix = new _Matrix();
+        matrix.a = this.a;
+        matrix.b = this.b;
+        matrix.c = this.c;
+        matrix.d = this.d;
+        matrix.tx = this.tx;
+        matrix.ty = this.ty;
+        return matrix;
+      }
+      /**
+       * Creates a new Matrix object with the same values as this one.
+       * @param matrix
+       * @example
+       * ```ts
+       * // Basic matrix cloning
+       * const matrix = new Matrix()
+       *     .translate(100, 100)
+       *     .rotate(Math.PI / 4);
+       * const copy = matrix.clone();
+       *
+       * // Clone and modify
+       * const modified = matrix.clone()
+       *     .scale(2, 2);
+       *
+       * // Compare matrices
+       * console.log(matrix.equals(copy));     // true
+       * console.log(matrix.equals(modified)); // false
+       * ```
+       * @returns A copy of this matrix. Good for chaining method calls.
+       * @see {@link Matrix.copyTo} For copying to existing matrix
+       * @see {@link Matrix.copyFrom} For copying from another matrix
+       */
+      copyTo(matrix) {
+        matrix.a = this.a;
+        matrix.b = this.b;
+        matrix.c = this.c;
+        matrix.d = this.d;
+        matrix.tx = this.tx;
+        matrix.ty = this.ty;
+        return matrix;
+      }
+      /**
+       * Changes the values of the matrix to be the same as the ones in given matrix.
+       * @example
+       * ```ts
+       * // Basic matrix copying
+       * const source = new Matrix()
+       *     .translate(100, 100)
+       *     .rotate(Math.PI / 4);
+       * const target = new Matrix();
+       * target.copyFrom(source);
+       * ```
+       * @param matrix - The matrix to copy from
+       * @returns This matrix. Good for chaining method calls.
+       * @see {@link Matrix.clone} For creating new matrix copy
+       * @see {@link Matrix.copyTo} For copying to another matrix
+       */
+      copyFrom(matrix) {
+        this.a = matrix.a;
+        this.b = matrix.b;
+        this.c = matrix.c;
+        this.d = matrix.d;
+        this.tx = matrix.tx;
+        this.ty = matrix.ty;
+        return this;
+      }
+      /**
+       * Checks if this matrix equals another matrix.
+       * Compares all components for exact equality.
+       * @example
+       * ```ts
+       * // Basic equality check
+       * const m1 = new Matrix();
+       * const m2 = new Matrix();
+       * console.log(m1.equals(m2)); // true
+       *
+       * // Compare transformed matrices
+       * const transform = new Matrix()
+       *     .translate(100, 100)
+       * const clone = new Matrix()
+       *     .scale(2, 2);
+       * console.log(transform.equals(clone)); // false
+       * ```
+       * @param matrix - The matrix to compare to
+       * @returns True if matrices are identical
+       * @see {@link Matrix.copyFrom} For copying matrix values
+       * @see {@link Matrix.isIdentity} For identity comparison
+       */
+      equals(matrix) {
+        return matrix.a === this.a && matrix.b === this.b && matrix.c === this.c && matrix.d === this.d && matrix.tx === this.tx && matrix.ty === this.ty;
+      }
+      toString() {
+        return `[pixi.js:Matrix a=${this.a} b=${this.b} c=${this.c} d=${this.d} tx=${this.tx} ty=${this.ty}]`;
+      }
+      /**
+       * A default (identity) matrix with no transformations applied.
+       *
+       * > [!IMPORTANT] This is a shared read-only object. Create a new Matrix if you need to modify it.
+       * @example
+       * ```ts
+       * // Get identity matrix reference
+       * const identity = Matrix.IDENTITY;
+       * console.log(identity.isIdentity()); // true
+       *
+       * // Compare with identity
+       * const matrix = new Matrix();
+       * console.log(matrix.equals(Matrix.IDENTITY)); // true
+       *
+       * // Create new matrix instead of modifying IDENTITY
+       * const transform = new Matrix()
+       *     .copyFrom(Matrix.IDENTITY)
+       *     .translate(100, 100);
+       * ```
+       * @readonly
+       * @returns A read-only identity matrix
+       * @see {@link Matrix.shared} For temporary calculations
+       * @see {@link Matrix.identity} For resetting matrices
+       */
+      static get IDENTITY() {
+        return identityMatrix.identity();
+      }
+      /**
+       * A static Matrix that can be used to avoid creating new objects.
+       * Will always ensure the matrix is reset to identity when requested.
+       *
+       * > [!IMPORTANT] This matrix is shared and temporary. Do not store references to it.
+       * @example
+       * ```ts
+       * // Use for temporary calculations
+       * const tempMatrix = Matrix.shared;
+       * tempMatrix.translate(100, 100).rotate(Math.PI / 4);
+       * const point = tempMatrix.apply({ x: 10, y: 20 });
+       *
+       * // Will be reset to identity on next access
+       * const fresh = Matrix.shared; // Back to identity
+       * ```
+       * @remarks
+       * - Always returns identity matrix
+       * - Safe to modify temporarily
+       * - Not safe to store references
+       * - Useful for one-off calculations
+       * @readonly
+       * @returns A fresh identity matrix for temporary use
+       * @see {@link Matrix.IDENTITY} For immutable identity matrix
+       * @see {@link Matrix.identity} For resetting matrices
+       */
+      static get shared() {
+        return tempMatrix.identity();
+      }
+    };
+    tempMatrix = new Matrix();
+    identityMatrix = new Matrix();
+  }
+});
+
+// node_modules/pixi.js/lib/maths/point/ObservablePoint.mjs
+var ObservablePoint;
+var init_ObservablePoint = __esm({
+  "node_modules/pixi.js/lib/maths/point/ObservablePoint.mjs"() {
+    "use strict";
+    ObservablePoint = class _ObservablePoint {
+      /**
+       * Creates a new `ObservablePoint`
+       * @param observer - Observer to pass to listen for change events.
+       * @param {number} [x=0] - position of the point on the x axis
+       * @param {number} [y=0] - position of the point on the y axis
+       */
+      constructor(observer, x3, y4) {
+        this._x = x3 || 0;
+        this._y = y4 || 0;
+        this._observer = observer;
+      }
+      /**
+       * Creates a clone of this point.
+       * @example
+       * ```ts
+       * // Basic cloning
+       * const point = new ObservablePoint(observer, 100, 200);
+       * const copy = point.clone();
+       *
+       * // Clone with new observer
+       * const newObserver = {
+       *     _onUpdate: (p) => console.log(`Clone updated: (${p.x}, ${p.y})`)
+       * };
+       * const watched = point.clone(newObserver);
+       *
+       * // Verify independence
+       * watched.set(300, 400); // Only triggers new observer
+       * ```
+       * @param observer - Optional observer to pass to the new observable point
+       * @returns A copy of this observable point
+       * @see {@link ObservablePoint.copyFrom} For copying into existing point
+       * @see {@link Observer} For observer interface details
+       */
+      clone(observer) {
+        return new _ObservablePoint(observer ?? this._observer, this._x, this._y);
+      }
+      /**
+       * Sets the point to a new x and y position.
+       *
+       * If y is omitted, both x and y will be set to x.
+       * @example
+       * ```ts
+       * // Basic position setting
+       * const point = new ObservablePoint(observer);
+       * point.set(100, 200);
+       *
+       * // Set both x and y to same value
+       * point.set(50); // x=50, y=50
+       * ```
+       * @param x - Position on the x axis
+       * @param y - Position on the y axis, defaults to x
+       * @returns The point instance itself
+       * @see {@link ObservablePoint.copyFrom} For copying from another point
+       * @see {@link ObservablePoint.equals} For comparing positions
+       */
+      set(x3 = 0, y4 = x3) {
+        if (this._x !== x3 || this._y !== y4) {
+          this._x = x3;
+          this._y = y4;
+          this._observer._onUpdate(this);
+        }
+        return this;
+      }
+      /**
+       * Copies x and y from the given point into this point.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new ObservablePoint(observer, 100, 200);
+       * const target = new ObservablePoint();
+       * target.copyFrom(source);
+       *
+       * // Copy and chain operations
+       * const point = new ObservablePoint()
+       *     .copyFrom(source)
+       *     .set(x + 50, y + 50);
+       *
+       * // Copy from any PointData
+       * const data = { x: 10, y: 20 };
+       * point.copyFrom(data);
+       * ```
+       * @param p - The point to copy from
+       * @returns The point instance itself
+       * @see {@link ObservablePoint.copyTo} For copying to another point
+       * @see {@link ObservablePoint.clone} For creating new point copy
+       */
+      copyFrom(p3) {
+        if (this._x !== p3.x || this._y !== p3.y) {
+          this._x = p3.x;
+          this._y = p3.y;
+          this._observer._onUpdate(this);
+        }
+        return this;
+      }
+      /**
+       * Copies this point's x and y into the given point.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new ObservablePoint(100, 200);
+       * const target = new ObservablePoint();
+       * source.copyTo(target);
+       * ```
+       * @param p - The point to copy to. Can be any type that is or extends `PointLike`
+       * @returns The point (`p`) with values updated
+       * @see {@link ObservablePoint.copyFrom} For copying from another point
+       * @see {@link ObservablePoint.clone} For creating new point copy
+       */
+      copyTo(p3) {
+        p3.set(this._x, this._y);
+        return p3;
+      }
+      /**
+       * Checks if another point is equal to this point.
+       *
+       * Compares x and y values using strict equality.
+       * @example
+       * ```ts
+       * // Basic equality check
+       * const p1 = new ObservablePoint(100, 200);
+       * const p2 = new ObservablePoint(100, 200);
+       * console.log(p1.equals(p2)); // true
+       *
+       * // Compare with PointData
+       * const data = { x: 100, y: 200 };
+       * console.log(p1.equals(data)); // true
+       *
+       * // Check different points
+       * const p3 = new ObservablePoint(200, 300);
+       * console.log(p1.equals(p3)); // false
+       * ```
+       * @param p - The point to check
+       * @returns `true` if both `x` and `y` are equal
+       * @see {@link ObservablePoint.copyFrom} For making points equal
+       * @see {@link PointData} For point data interface
+       */
+      equals(p3) {
+        return p3.x === this._x && p3.y === this._y;
+      }
+      toString() {
+        return `[pixi.js/math:ObservablePoint x=${this._x} y=${this._y} scope=${this._observer}]`;
+      }
+      /**
+       * Position of the observable point on the x axis.
+       * Triggers observer callback when value changes.
+       * @example
+       * ```ts
+       * // Basic x position
+       * const point = new ObservablePoint(observer);
+       * point.x = 100; // Triggers observer
+       *
+       * // Use in calculations
+       * const width = rightPoint.x - leftPoint.x;
+       * ```
+       * @default 0
+       */
+      get x() {
+        return this._x;
+      }
+      set x(value) {
+        if (this._x !== value) {
+          this._x = value;
+          this._observer._onUpdate(this);
+        }
+      }
+      /**
+       * Position of the observable point on the y axis.
+       * Triggers observer callback when value changes.
+       * @example
+       * ```ts
+       * // Basic y position
+       * const point = new ObservablePoint(observer);
+       * point.y = 200; // Triggers observer
+       *
+       * // Use in calculations
+       * const height = bottomPoint.y - topPoint.y;
+       * ```
+       * @default 0
+       */
+      get y() {
+        return this._y;
+      }
+      set y(value) {
+        if (this._y !== value) {
+          this._y = value;
+          this._observer._onUpdate(this);
+        }
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/pool/GlobalResourceRegistry.mjs
+var GlobalResourceRegistry;
+var init_GlobalResourceRegistry = __esm({
+  "node_modules/pixi.js/lib/utils/pool/GlobalResourceRegistry.mjs"() {
+    "use strict";
+    GlobalResourceRegistry = {
+      /**
+       * Set of registered pools and cleanable objects.
+       * @private
+       */
+      _registeredResources: /* @__PURE__ */ new Set(),
+      /**
+       * Registers a pool or cleanable object for cleanup.
+       * @param {Cleanable} pool - The pool or object to register.
+       */
+      register(pool) {
+        this._registeredResources.add(pool);
+      },
+      /**
+       * Unregisters a pool or cleanable object from cleanup.
+       * @param {Cleanable} pool - The pool or object to unregister.
+       */
+      unregister(pool) {
+        this._registeredResources.delete(pool);
+      },
+      /** Clears all registered pools and cleanable objects. This will call clear() on each registered item. */
+      release() {
+        this._registeredResources.forEach((pool) => pool.clear());
+      },
+      /**
+       * Gets the number of registered pools and cleanable objects.
+       * @returns {number} The count of registered items.
+       */
+      get registeredCount() {
+        return this._registeredResources.size;
+      },
+      /**
+       * Checks if a specific pool or cleanable object is registered.
+       * @param {Cleanable} pool - The pool or object to check.
+       * @returns {boolean} True if the item is registered, false otherwise.
+       */
+      isRegistered(pool) {
+        return this._registeredResources.has(pool);
+      },
+      /**
+       * Removes all registrations without clearing the pools.
+       * Useful if you want to reset the collector without affecting the pools.
+       */
+      reset() {
+        this._registeredResources.clear();
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/pool/Pool.mjs
+var Pool;
+var init_Pool = __esm({
+  "node_modules/pixi.js/lib/utils/pool/Pool.mjs"() {
+    "use strict";
+    Pool = class {
+      /**
+       * Constructs a new Pool.
+       * @param ClassType - The constructor of the items in the pool.
+       * @param {number} [initialSize] - The initial size of the pool.
+       */
+      constructor(ClassType, initialSize) {
+        this._pool = [];
+        this._count = 0;
+        this._index = 0;
+        this._classType = ClassType;
+        if (initialSize) {
+          this.prepopulate(initialSize);
+        }
+      }
+      /**
+       * Prepopulates the pool with a given number of items.
+       * @param total - The number of items to add to the pool.
+       */
+      prepopulate(total) {
+        for (let i3 = 0; i3 < total; i3++) {
+          this._pool[this._index++] = new this._classType();
+        }
+        this._count += total;
+      }
+      /**
+       * Gets an item from the pool. Calls the item's `init` method if it exists.
+       * If there are no items left in the pool, a new one will be created.
+       * @param {I} [data] - Optional data to pass to the item's constructor.
+       * @returns {T} The item from the pool.
+       */
+      get(data) {
+        let item;
+        if (this._index > 0) {
+          item = this._pool[--this._index];
+        } else {
+          item = new this._classType();
+          this._count++;
+        }
+        item.init?.(data);
+        return item;
+      }
+      /**
+       * Returns an item to the pool. Calls the item's `reset` method if it exists.
+       * @param {T} item - The item to return to the pool.
+       */
+      return(item) {
+        item.reset?.();
+        this._pool[this._index++] = item;
+      }
+      /**
+       * Gets the number of items in the pool.
+       * @readonly
+       */
+      get totalSize() {
+        return this._count;
+      }
+      /**
+       * Gets the number of items in the pool that are free to use without needing to create more.
+       * @readonly
+       */
+      get totalFree() {
+        return this._index;
+      }
+      /**
+       * Gets the number of items in the pool that are currently in use.
+       * @readonly
+       */
+      get totalUsed() {
+        return this._count - this._index;
+      }
+      /** clears the pool */
+      clear() {
+        if (this._pool.length > 0 && this._pool[0].destroy) {
+          for (let i3 = 0; i3 < this._index; i3++) {
+            this._pool[i3].destroy();
+          }
+        }
+        this._pool.length = 0;
+        this._count = 0;
+        this._index = 0;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/pool/PoolGroup.mjs
+var PoolGroupClass, BigPool;
+var init_PoolGroup = __esm({
+  "node_modules/pixi.js/lib/utils/pool/PoolGroup.mjs"() {
+    init_GlobalResourceRegistry();
+    init_Pool();
+    PoolGroupClass = class {
+      constructor() {
+        this._poolsByClass = /* @__PURE__ */ new Map();
+      }
+      /**
+       * Prepopulates a specific pool with a given number of items.
+       * @template T The type of items in the pool. Must extend PoolItem.
+       * @param {PoolItemConstructor<T>} Class - The constructor of the items in the pool.
+       * @param {number} total - The number of items to add to the pool.
+       */
+      prepopulate(Class, total) {
+        const classPool = this.getPool(Class);
+        classPool.prepopulate(total);
+      }
+      /**
+       * Gets an item from a specific pool.
+       * @template T The type of items in the pool. Must extend PoolItem.
+       * @param {PoolItemConstructor<T>} Class - The constructor of the items in the pool.
+       * @param {unknown} [data] - Optional data to pass to the item's constructor.
+       * @returns {T} The item from the pool.
+       */
+      get(Class, data) {
+        const pool = this.getPool(Class);
+        return pool.get(data);
+      }
+      /**
+       * Returns an item to its respective pool.
+       * @param {PoolItem} item - The item to return to the pool.
+       */
+      return(item) {
+        const pool = this.getPool(item.constructor);
+        pool.return(item);
+      }
+      /**
+       * Gets a specific pool based on the class type.
+       * @template T The type of items in the pool. Must extend PoolItem.
+       * @param {PoolItemConstructor<T>} ClassType - The constructor of the items in the pool.
+       * @returns {Pool<T>} The pool of the given class type.
+       */
+      getPool(ClassType) {
+        if (!this._poolsByClass.has(ClassType)) {
+          this._poolsByClass.set(ClassType, new Pool(ClassType));
+        }
+        return this._poolsByClass.get(ClassType);
+      }
+      /** gets the usage stats of each pool in the system */
+      stats() {
+        const stats = {};
+        this._poolsByClass.forEach((pool) => {
+          const name = stats[pool._classType.name] ? pool._classType.name + pool._classType.ID : pool._classType.name;
+          stats[name] = {
+            free: pool.totalFree,
+            used: pool.totalUsed,
+            size: pool.totalSize
+          };
+        });
+        return stats;
+      }
+      /** Clears all pools in the group. This will reset all pools and free their resources. */
+      clear() {
+        this._poolsByClass.forEach((pool) => pool.clear());
+        this._poolsByClass.clear();
+      }
+    };
+    BigPool = new PoolGroupClass();
+    GlobalResourceRegistry.register(BigPool);
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/cacheAsTextureMixin.mjs
+var cacheAsTextureMixin;
+var init_cacheAsTextureMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/cacheAsTextureMixin.mjs"() {
+    init_deprecation();
+    cacheAsTextureMixin = {
+      get isCachedAsTexture() {
+        return !!this.renderGroup?.isCachedAsTexture;
+      },
+      cacheAsTexture(val) {
+        if (typeof val === "boolean" && val === false) {
+          this.disableRenderGroup();
+        } else {
+          this.enableRenderGroup();
+          this.renderGroup.enableCacheAsTexture(val === true ? {} : val);
+        }
+      },
+      updateCacheTexture() {
+        this.renderGroup?.updateCacheTexture();
+      },
+      get cacheAsBitmap() {
+        return this.isCachedAsTexture;
+      },
+      set cacheAsBitmap(val) {
+        deprecation("v8.6.0", "cacheAsBitmap is deprecated, use cacheAsTexture instead.");
+        this.cacheAsTexture(val);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/data/removeItems.mjs
+function removeItems(arr, startIdx, removeCount) {
+  const length2 = arr.length;
+  let i3;
+  if (startIdx >= length2 || removeCount === 0) {
+    return;
+  }
+  removeCount = startIdx + removeCount > length2 ? length2 - startIdx : removeCount;
+  const len = length2 - removeCount;
+  for (i3 = startIdx; i3 < len; ++i3) {
+    arr[i3] = arr[i3 + removeCount];
+  }
+  arr.length = len;
+}
+var init_removeItems = __esm({
+  "node_modules/pixi.js/lib/utils/data/removeItems.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/childrenHelperMixin.mjs
+var childrenHelperMixin;
+var init_childrenHelperMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/childrenHelperMixin.mjs"() {
+    init_removeItems();
+    init_deprecation();
+    childrenHelperMixin = {
+      allowChildren: true,
+      removeChildren(beginIndex = 0, endIndex) {
+        const end = endIndex ?? this.children.length;
+        const range = end - beginIndex;
+        const removed = [];
+        if (range > 0 && range <= end) {
+          for (let i3 = end - 1; i3 >= beginIndex; i3--) {
+            const child = this.children[i3];
+            if (!child) continue;
+            removed.push(child);
+            child.parent = null;
+          }
+          removeItems(this.children, beginIndex, end);
+          const renderGroup = this.renderGroup || this.parentRenderGroup;
+          if (renderGroup) {
+            renderGroup.removeChildren(removed);
+          }
+          for (let i3 = 0; i3 < removed.length; ++i3) {
+            const child = removed[i3];
+            child.parentRenderLayer?.detach(child);
+            this.emit("childRemoved", child, this, i3);
+            removed[i3].emit("removed", this);
+          }
+          if (removed.length > 0) {
+            this._didViewChangeTick++;
+          }
+          return removed;
+        } else if (range === 0 && this.children.length === 0) {
+          return removed;
+        }
+        throw new RangeError("removeChildren: numeric values are outside the acceptable range.");
+      },
+      removeChildAt(index2) {
+        const child = this.getChildAt(index2);
+        return this.removeChild(child);
+      },
+      getChildAt(index2) {
+        if (index2 < 0 || index2 >= this.children.length) {
+          throw new Error(`getChildAt: Index (${index2}) does not exist.`);
+        }
+        return this.children[index2];
+      },
+      setChildIndex(child, index2) {
+        if (index2 < 0 || index2 >= this.children.length) {
+          throw new Error(`The index ${index2} supplied is out of bounds ${this.children.length}`);
+        }
+        this.getChildIndex(child);
+        this.addChildAt(child, index2);
+      },
+      getChildIndex(child) {
+        const index2 = this.children.indexOf(child);
+        if (index2 === -1) {
+          throw new Error("The supplied Container must be a child of the caller");
+        }
+        return index2;
+      },
+      addChildAt(child, index2) {
+        if (!this.allowChildren) {
+          deprecation(v8_0_0, "addChildAt: Only Containers will be allowed to add children in v8.0.0");
+        }
+        const { children } = this;
+        if (index2 < 0 || index2 > children.length) {
+          throw new Error(`${child}addChildAt: The index ${index2} supplied is out of bounds ${children.length}`);
+        }
+        const sameParent = child.parent === this;
+        if (child.parent) {
+          const currentIndex = child.parent.children.indexOf(child);
+          if (sameParent) {
+            if (currentIndex === index2) {
+              return child;
+            }
+            child.parent.children.splice(currentIndex, 1);
+          } else {
+            child.removeFromParent();
+          }
+        }
+        if (index2 === children.length) {
+          children.push(child);
+        } else {
+          children.splice(index2, 0, child);
+        }
+        child.parent = this;
+        child.didChange = true;
+        child._updateFlags = 15;
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        if (renderGroup) {
+          renderGroup.addChild(child);
+        }
+        if (this.sortableChildren) this.sortDirty = true;
+        if (sameParent) {
+          return child;
+        }
+        this.emit("childAdded", child, this, index2);
+        child.emit("added", this);
+        return child;
+      },
+      swapChildren(child, child2) {
+        if (child === child2) {
+          return;
+        }
+        const index1 = this.getChildIndex(child);
+        const index2 = this.getChildIndex(child2);
+        this.children[index1] = child2;
+        this.children[index2] = child;
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        if (renderGroup) {
+          renderGroup.structureDidChange = true;
+        }
+        this._didContainerChangeTick++;
+      },
+      removeFromParent() {
+        this.parent?.removeChild(this);
+      },
+      reparentChild(...child) {
+        if (child.length === 1) {
+          return this.reparentChildAt(child[0], this.children.length);
+        }
+        child.forEach((c3) => this.reparentChildAt(c3, this.children.length));
+        return child[0];
+      },
+      reparentChildAt(child, index2) {
+        if (child.parent === this) {
+          this.setChildIndex(child, index2);
+          return child;
+        }
+        const childMat = child.worldTransform.clone();
+        child.removeFromParent();
+        this.addChildAt(child, index2);
+        const newMatrix = this.worldTransform.clone();
+        newMatrix.invert();
+        childMat.prepend(newMatrix);
+        child.setFromMatrix(childMat);
+        return child;
+      },
+      replaceChild(oldChild, newChild) {
+        oldChild.updateLocalTransform();
+        this.addChildAt(newChild, this.getChildIndex(oldChild));
+        newChild.setFromMatrix(oldChild.localTransform);
+        newChild.updateLocalTransform();
+        this.removeChild(oldChild);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/collectRenderablesMixin.mjs
+var collectRenderablesMixin;
+var init_collectRenderablesMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/collectRenderablesMixin.mjs"() {
+    "use strict";
+    collectRenderablesMixin = {
+      collectRenderables(instructionSet, renderer, currentLayer) {
+        if (this.parentRenderLayer && this.parentRenderLayer !== currentLayer || this.globalDisplayStatus < 7 || !this.includeInBuild) return;
+        if (this.sortableChildren) {
+          this.sortChildren();
+        }
+        if (this.isSimple) {
+          this.collectRenderablesSimple(instructionSet, renderer, currentLayer);
+        } else if (this.renderGroup) {
+          renderer.renderPipes.renderGroup.addRenderGroup(this.renderGroup, instructionSet);
+        } else {
+          this.collectRenderablesWithEffects(instructionSet, renderer, currentLayer);
+        }
+      },
+      collectRenderablesSimple(instructionSet, renderer, currentLayer) {
+        const children = this.children;
+        const length2 = children.length;
+        for (let i3 = 0; i3 < length2; i3++) {
+          children[i3].collectRenderables(instructionSet, renderer, currentLayer);
+        }
+      },
+      collectRenderablesWithEffects(instructionSet, renderer, currentLayer) {
+        const { renderPipes: renderPipes4 } = renderer;
+        for (let i3 = 0; i3 < this.effects.length; i3++) {
+          const effect = this.effects[i3];
+          const pipe = renderPipes4[effect.pipe];
+          pipe.push(effect, this, instructionSet);
+        }
+        this.collectRenderablesSimple(instructionSet, renderer, currentLayer);
+        for (let i3 = this.effects.length - 1; i3 >= 0; i3--) {
+          const effect = this.effects[i3];
+          const pipe = renderPipes4[effect.pipe];
+          pipe.pop(effect, this, instructionSet);
+        }
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/filters/FilterEffect.mjs
+var FilterEffect;
+var init_FilterEffect = __esm({
+  "node_modules/pixi.js/lib/filters/FilterEffect.mjs"() {
+    "use strict";
+    FilterEffect = class {
+      constructor() {
+        this.pipe = "filter";
+        this.priority = 1;
+      }
+      destroy() {
+        for (let i3 = 0; i3 < this.filters.length; i3++) {
+          this.filters[i3].destroy();
+        }
+        this.filters = null;
+        this.filterArea = null;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/mask/MaskEffectManager.mjs
+var MaskEffectManagerClass, MaskEffectManager;
+var init_MaskEffectManager = __esm({
+  "node_modules/pixi.js/lib/rendering/mask/MaskEffectManager.mjs"() {
+    init_Extensions();
+    init_PoolGroup();
+    MaskEffectManagerClass = class {
+      constructor() {
+        this._effectClasses = [];
+        this._tests = [];
+        this._initialized = false;
+      }
+      init() {
+        if (this._initialized) return;
+        this._initialized = true;
+        this._effectClasses.forEach((test) => {
+          this.add({
+            test: test.test,
+            maskClass: test
+          });
+        });
+      }
+      add(test) {
+        this._tests.push(test);
+      }
+      getMaskEffect(item) {
+        if (!this._initialized) this.init();
+        for (let i3 = 0; i3 < this._tests.length; i3++) {
+          const test = this._tests[i3];
+          if (test.test(item)) {
+            return BigPool.get(test.maskClass, item);
+          }
+        }
+        return item;
+      }
+      returnMaskEffect(effect) {
+        BigPool.return(effect);
+      }
+    };
+    MaskEffectManager = new MaskEffectManagerClass();
+    extensions.handleByList(ExtensionType.MaskEffect, MaskEffectManager._effectClasses);
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/effectsMixin.mjs
+var effectsMixin;
+var init_effectsMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/effectsMixin.mjs"() {
+    init_FilterEffect();
+    init_MaskEffectManager();
+    effectsMixin = {
+      _maskEffect: null,
+      _maskOptions: {
+        inverse: false,
+        channel: "red"
+      },
+      _filterEffect: null,
+      effects: [],
+      _markStructureAsChanged() {
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        if (renderGroup) {
+          renderGroup.structureDidChange = true;
+        }
+      },
+      addEffect(effect) {
+        const index2 = this.effects.indexOf(effect);
+        if (index2 !== -1) return;
+        this.effects.push(effect);
+        this.effects.sort((a3, b3) => a3.priority - b3.priority);
+        this._markStructureAsChanged();
+        this._updateIsSimple();
+      },
+      removeEffect(effect) {
+        const index2 = this.effects.indexOf(effect);
+        if (index2 === -1) return;
+        this.effects.splice(index2, 1);
+        this._markStructureAsChanged();
+        this._updateIsSimple();
+      },
+      set mask(value) {
+        const effect = this._maskEffect;
+        if (effect?.mask === value) return;
+        if (effect) {
+          this.removeEffect(effect);
+          MaskEffectManager.returnMaskEffect(effect);
+          this._maskEffect = null;
+        }
+        if (value === null || value === void 0) return;
+        this._maskEffect = MaskEffectManager.getMaskEffect(value);
+        this.addEffect(this._maskEffect);
+      },
+      get mask() {
+        return this._maskEffect?.mask;
+      },
+      setMask(options) {
+        this._maskOptions = {
+          ...this._maskOptions,
+          ...options
+        };
+        if (options.mask) {
+          this.mask = options.mask;
+        }
+        this._markStructureAsChanged();
+      },
+      set filters(value) {
+        if (!Array.isArray(value) && value) value = [value];
+        const effect = this._filterEffect || (this._filterEffect = new FilterEffect());
+        value = value;
+        const hasFilters = value?.length > 0;
+        const hadFilters = effect.filters?.length > 0;
+        const didChange = hasFilters !== hadFilters;
+        value = Array.isArray(value) ? value.slice(0) : value;
+        effect.filters = Object.freeze(value);
+        if (didChange) {
+          if (hasFilters) {
+            this.addEffect(effect);
+          } else {
+            this.removeEffect(effect);
+            effect.filters = value ?? null;
+          }
+        }
+      },
+      get filters() {
+        return this._filterEffect?.filters;
+      },
+      set filterArea(value) {
+        this._filterEffect || (this._filterEffect = new FilterEffect());
+        this._filterEffect.filterArea = value;
+      },
+      get filterArea() {
+        return this._filterEffect?.filterArea;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/findMixin.mjs
+var findMixin;
+var init_findMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/findMixin.mjs"() {
+    init_deprecation();
+    findMixin = {
+      label: null,
+      get name() {
+        deprecation(v8_0_0, "Container.name property has been removed, use Container.label instead");
+        return this.label;
+      },
+      set name(value) {
+        deprecation(v8_0_0, "Container.name property has been removed, use Container.label instead");
+        this.label = value;
+      },
+      getChildByName(name, deep = false) {
+        return this.getChildByLabel(name, deep);
+      },
+      getChildByLabel(label, deep = false) {
+        const children = this.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          const child = children[i3];
+          if (child.label === label || label instanceof RegExp && label.test(child.label)) return child;
+        }
+        if (deep) {
+          for (let i3 = 0; i3 < children.length; i3++) {
+            const child = children[i3];
+            const found = child.getChildByLabel(label, true);
+            if (found) {
+              return found;
+            }
+          }
+        }
+        return null;
+      },
+      getChildrenByLabel(label, deep = false, out2 = []) {
+        const children = this.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          const child = children[i3];
+          if (child.label === label || label instanceof RegExp && label.test(child.label)) {
+            out2.push(child);
+          }
+        }
+        if (deep) {
+          for (let i3 = 0; i3 < children.length; i3++) {
+            children[i3].getChildrenByLabel(label, true, out2);
+          }
+        }
+        return out2;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/maths/shapes/Rectangle.mjs
+var tempPoints, Rectangle;
+var init_Rectangle = __esm({
+  "node_modules/pixi.js/lib/maths/shapes/Rectangle.mjs"() {
+    init_Point();
+    tempPoints = [new Point(), new Point(), new Point(), new Point()];
+    Rectangle = class _Rectangle {
+      /**
+       * @param x - The X coordinate of the upper-left corner of the rectangle
+       * @param y - The Y coordinate of the upper-left corner of the rectangle
+       * @param width - The overall width of the rectangle
+       * @param height - The overall height of the rectangle
+       */
+      constructor(x3 = 0, y4 = 0, width = 0, height = 0) {
+        this.type = "rectangle";
+        this.x = Number(x3);
+        this.y = Number(y4);
+        this.width = Number(width);
+        this.height = Number(height);
+      }
+      /**
+       * Returns the left edge (x-coordinate) of the rectangle.
+       * @example
+       * ```ts
+       * // Get left edge position
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * console.log(rect.left); // 100
+       *
+       * // Use in alignment calculations
+       * sprite.x = rect.left + padding;
+       *
+       * // Compare positions
+       * if (point.x > rect.left) {
+       *     console.log('Point is right of rectangle');
+       * }
+       * ```
+       * @readonly
+       * @returns The x-coordinate of the left edge
+       * @see {@link Rectangle.right} For right edge position
+       * @see {@link Rectangle.x} For direct x-coordinate access
+       */
+      get left() {
+        return this.x;
+      }
+      /**
+       * Returns the right edge (x + width) of the rectangle.
+       * @example
+       * ```ts
+       * // Get right edge position
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * console.log(rect.right); // 300
+       *
+       * // Align to right edge
+       * sprite.x = rect.right - sprite.width;
+       *
+       * // Check boundaries
+       * if (point.x < rect.right) {
+       *     console.log('Point is inside right bound');
+       * }
+       * ```
+       * @readonly
+       * @returns The x-coordinate of the right edge
+       * @see {@link Rectangle.left} For left edge position
+       * @see {@link Rectangle.width} For width value
+       */
+      get right() {
+        return this.x + this.width;
+      }
+      /**
+       * Returns the top edge (y-coordinate) of the rectangle.
+       * @example
+       * ```ts
+       * // Get top edge position
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * console.log(rect.top); // 100
+       *
+       * // Position above rectangle
+       * sprite.y = rect.top - sprite.height;
+       *
+       * // Check vertical position
+       * if (point.y > rect.top) {
+       *     console.log('Point is below top edge');
+       * }
+       * ```
+       * @readonly
+       * @returns The y-coordinate of the top edge
+       * @see {@link Rectangle.bottom} For bottom edge position
+       * @see {@link Rectangle.y} For direct y-coordinate access
+       */
+      get top() {
+        return this.y;
+      }
+      /**
+       * Returns the bottom edge (y + height) of the rectangle.
+       * @example
+       * ```ts
+       * // Get bottom edge position
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * console.log(rect.bottom); // 250
+       *
+       * // Stack below rectangle
+       * sprite.y = rect.bottom + margin;
+       *
+       * // Check vertical bounds
+       * if (point.y < rect.bottom) {
+       *     console.log('Point is above bottom edge');
+       * }
+       * ```
+       * @readonly
+       * @returns The y-coordinate of the bottom edge
+       * @see {@link Rectangle.top} For top edge position
+       * @see {@link Rectangle.height} For height value
+       */
+      get bottom() {
+        return this.y + this.height;
+      }
+      /**
+       * Determines whether the Rectangle is empty (has no area).
+       * @example
+       * ```ts
+       * // Check zero dimensions
+       * const rect = new Rectangle(100, 100, 0, 50);
+       * console.log(rect.isEmpty()); // true
+       * ```
+       * @returns True if the rectangle has no area
+       * @see {@link Rectangle.width} For width value
+       * @see {@link Rectangle.height} For height value
+       */
+      isEmpty() {
+        return this.left === this.right || this.top === this.bottom;
+      }
+      /**
+       * A constant empty rectangle. This is a new object every time the property is accessed.
+       * @example
+       * ```ts
+       * // Get fresh empty rectangle
+       * const empty = Rectangle.EMPTY;
+       * console.log(empty.isEmpty()); // true
+       * ```
+       * @returns A new empty rectangle instance
+       * @see {@link Rectangle.isEmpty} For empty state testing
+       */
+      static get EMPTY() {
+        return new _Rectangle(0, 0, 0, 0);
+      }
+      /**
+       * Creates a clone of this Rectangle
+       * @example
+       * ```ts
+       * // Basic cloning
+       * const original = new Rectangle(100, 100, 200, 150);
+       * const copy = original.clone();
+       *
+       * // Clone and modify
+       * const modified = original.clone();
+       * modified.width *= 2;
+       * modified.height += 50;
+       *
+       * // Verify independence
+       * console.log(original.width);  // 200
+       * console.log(modified.width);  // 400
+       * ```
+       * @returns A copy of the rectangle
+       * @see {@link Rectangle.copyFrom} For copying into existing rectangle
+       * @see {@link Rectangle.copyTo} For copying to another rectangle
+       */
+      clone() {
+        return new _Rectangle(this.x, this.y, this.width, this.height);
+      }
+      /**
+       * Converts a Bounds object to a Rectangle object.
+       * @example
+       * ```ts
+       * // Convert bounds to rectangle
+       * const bounds = container.getBounds();
+       * const rect = new Rectangle().copyFromBounds(bounds);
+       * ```
+       * @param bounds - The bounds to copy and convert to a rectangle
+       * @returns Returns itself
+       * @see {@link Bounds} For bounds object structure
+       * @see {@link Rectangle.getBounds} For getting rectangle bounds
+       */
+      copyFromBounds(bounds) {
+        this.x = bounds.minX;
+        this.y = bounds.minY;
+        this.width = bounds.maxX - bounds.minX;
+        this.height = bounds.maxY - bounds.minY;
+        return this;
+      }
+      /**
+       * Copies another rectangle to this one.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new Rectangle(100, 100, 200, 150);
+       * const target = new Rectangle();
+       * target.copyFrom(source);
+       *
+       * // Chain with other operations
+       * const rect = new Rectangle()
+       *     .copyFrom(source)
+       *     .pad(10);
+       * ```
+       * @param rectangle - The rectangle to copy from
+       * @returns Returns itself
+       * @see {@link Rectangle.copyTo} For copying to another rectangle
+       * @see {@link Rectangle.clone} For creating new rectangle copy
+       */
+      copyFrom(rectangle) {
+        this.x = rectangle.x;
+        this.y = rectangle.y;
+        this.width = rectangle.width;
+        this.height = rectangle.height;
+        return this;
+      }
+      /**
+       * Copies this rectangle to another one.
+       * @example
+       * ```ts
+       * // Basic copying
+       * const source = new Rectangle(100, 100, 200, 150);
+       * const target = new Rectangle();
+       * source.copyTo(target);
+       *
+       * // Chain with other operations
+       * const result = source
+       *     .copyTo(new Rectangle())
+       *     .getBounds();
+       * ```
+       * @param rectangle - The rectangle to copy to
+       * @returns Returns given parameter
+       * @see {@link Rectangle.copyFrom} For copying from another rectangle
+       * @see {@link Rectangle.clone} For creating new rectangle copy
+       */
+      copyTo(rectangle) {
+        rectangle.copyFrom(this);
+        return rectangle;
+      }
+      /**
+       * Checks whether the x and y coordinates given are contained within this Rectangle
+       * @example
+       * ```ts
+       * // Basic containment check
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * const isInside = rect.contains(150, 125); // true
+       * // Check edge cases
+       * console.log(rect.contains(100, 100)); // true (on edge)
+       * console.log(rect.contains(300, 250)); // false (outside)
+       * ```
+       * @param x - The X coordinate of the point to test
+       * @param y - The Y coordinate of the point to test
+       * @returns Whether the x/y coordinates are within this Rectangle
+       * @see {@link Rectangle.containsRect} For rectangle containment
+       * @see {@link Rectangle.strokeContains} For checking stroke intersection
+       */
+      contains(x3, y4) {
+        if (this.width <= 0 || this.height <= 0) {
+          return false;
+        }
+        if (x3 >= this.x && x3 < this.x + this.width) {
+          if (y4 >= this.y && y4 < this.y + this.height) {
+            return true;
+          }
+        }
+        return false;
+      }
+      /**
+       * Checks whether the x and y coordinates given are contained within this rectangle including the stroke.
+       * @example
+       * ```ts
+       * // Basic stroke check
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * const isOnStroke = rect.strokeContains(150, 100, 4); // 4px line width
+       *
+       * // Check with different alignments
+       * const innerStroke = rect.strokeContains(150, 100, 4, 1);   // Inside
+       * const centerStroke = rect.strokeContains(150, 100, 4, 0.5); // Centered
+       * const outerStroke = rect.strokeContains(150, 100, 4, 0);   // Outside
+       * ```
+       * @param x - The X coordinate of the point to test
+       * @param y - The Y coordinate of the point to test
+       * @param strokeWidth - The width of the line to check
+       * @param alignment - The alignment of the stroke (1 = inner, 0.5 = centered, 0 = outer)
+       * @returns Whether the x/y coordinates are within this rectangle's stroke
+       * @see {@link Rectangle.contains} For checking fill containment
+       * @see {@link Rectangle.getBounds} For getting stroke bounds
+       */
+      strokeContains(x3, y4, strokeWidth, alignment = 0.5) {
+        const { width, height } = this;
+        if (width <= 0 || height <= 0) return false;
+        const _x = this.x;
+        const _y = this.y;
+        const strokeWidthOuter = strokeWidth * (1 - alignment);
+        const strokeWidthInner = strokeWidth - strokeWidthOuter;
+        const outerLeft = _x - strokeWidthOuter;
+        const outerRight = _x + width + strokeWidthOuter;
+        const outerTop = _y - strokeWidthOuter;
+        const outerBottom = _y + height + strokeWidthOuter;
+        const innerLeft = _x + strokeWidthInner;
+        const innerRight = _x + width - strokeWidthInner;
+        const innerTop = _y + strokeWidthInner;
+        const innerBottom = _y + height - strokeWidthInner;
+        return x3 >= outerLeft && x3 <= outerRight && y4 >= outerTop && y4 <= outerBottom && !(x3 > innerLeft && x3 < innerRight && y4 > innerTop && y4 < innerBottom);
+      }
+      /**
+       * Determines whether the `other` Rectangle transformed by `transform` intersects with `this` Rectangle object.
+       * Returns true only if the area of the intersection is >0, this means that Rectangles
+       * sharing a side are not overlapping. Another side effect is that an arealess rectangle
+       * (width or height equal to zero) can't intersect any other rectangle.
+       * @param {Rectangle} other - The Rectangle to intersect with `this`.
+       * @param {Matrix} transform - The transformation matrix of `other`.
+       * @returns {boolean} A value of `true` if the transformed `other` Rectangle intersects with `this`; otherwise `false`.
+       */
+      /**
+       * Determines whether the `other` Rectangle transformed by `transform` intersects with `this` Rectangle object.
+       *
+       * Returns true only if the area of the intersection is greater than 0.
+       * This means that rectangles sharing only a side are not considered intersecting.
+       * @example
+       * ```ts
+       * // Basic intersection check
+       * const rect1 = new Rectangle(0, 0, 100, 100);
+       * const rect2 = new Rectangle(50, 50, 100, 100);
+       * console.log(rect1.intersects(rect2)); // true
+       *
+       * // With transformation matrix
+       * const matrix = new Matrix();
+       * matrix.rotate(Math.PI / 4); // 45 degrees
+       * console.log(rect1.intersects(rect2, matrix)); // Checks with rotation
+       *
+       * // Edge cases
+       * const zeroWidth = new Rectangle(0, 0, 0, 100);
+       * console.log(rect1.intersects(zeroWidth)); // false (no area)
+       * ```
+       * @remarks
+       * - Returns true only if intersection area is > 0
+       * - Rectangles sharing only a side are not intersecting
+       * - Zero-area rectangles cannot intersect anything
+       * - Supports optional transformation matrix
+       * @param other - The Rectangle to intersect with `this`
+       * @param transform - Optional transformation matrix of `other`
+       * @returns True if the transformed `other` Rectangle intersects with `this`
+       * @see {@link Rectangle.containsRect} For containment testing
+       * @see {@link Rectangle.contains} For point testing
+       */
+      intersects(other, transform) {
+        if (!transform) {
+          const x02 = this.x < other.x ? other.x : this.x;
+          const x12 = this.right > other.right ? other.right : this.right;
+          if (x12 <= x02) {
+            return false;
+          }
+          const y02 = this.y < other.y ? other.y : this.y;
+          const y12 = this.bottom > other.bottom ? other.bottom : this.bottom;
+          return y12 > y02;
+        }
+        const x0 = this.left;
+        const x1 = this.right;
+        const y0 = this.top;
+        const y1 = this.bottom;
+        if (x1 <= x0 || y1 <= y0) {
+          return false;
+        }
+        const lt = tempPoints[0].set(other.left, other.top);
+        const lb = tempPoints[1].set(other.left, other.bottom);
+        const rt = tempPoints[2].set(other.right, other.top);
+        const rb = tempPoints[3].set(other.right, other.bottom);
+        if (rt.x <= lt.x || lb.y <= lt.y) {
+          return false;
+        }
+        const s3 = Math.sign(transform.a * transform.d - transform.b * transform.c);
+        if (s3 === 0) {
+          return false;
+        }
+        transform.apply(lt, lt);
+        transform.apply(lb, lb);
+        transform.apply(rt, rt);
+        transform.apply(rb, rb);
+        if (Math.max(lt.x, lb.x, rt.x, rb.x) <= x0 || Math.min(lt.x, lb.x, rt.x, rb.x) >= x1 || Math.max(lt.y, lb.y, rt.y, rb.y) <= y0 || Math.min(lt.y, lb.y, rt.y, rb.y) >= y1) {
+          return false;
+        }
+        const nx = s3 * (lb.y - lt.y);
+        const ny = s3 * (lt.x - lb.x);
+        const n00 = nx * x0 + ny * y0;
+        const n10 = nx * x1 + ny * y0;
+        const n01 = nx * x0 + ny * y1;
+        const n11 = nx * x1 + ny * y1;
+        if (Math.max(n00, n10, n01, n11) <= nx * lt.x + ny * lt.y || Math.min(n00, n10, n01, n11) >= nx * rb.x + ny * rb.y) {
+          return false;
+        }
+        const mx = s3 * (lt.y - rt.y);
+        const my = s3 * (rt.x - lt.x);
+        const m00 = mx * x0 + my * y0;
+        const m10 = mx * x1 + my * y0;
+        const m01 = mx * x0 + my * y1;
+        const m11 = mx * x1 + my * y1;
+        if (Math.max(m00, m10, m01, m11) <= mx * lt.x + my * lt.y || Math.min(m00, m10, m01, m11) >= mx * rb.x + my * rb.y) {
+          return false;
+        }
+        return true;
+      }
+      /**
+       * Pads the rectangle making it grow in all directions.
+       *
+       * If paddingY is omitted, both paddingX and paddingY will be set to paddingX.
+       * @example
+       * ```ts
+       * // Basic padding
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * rect.pad(10); // Adds 10px padding on all sides
+       *
+       * // Different horizontal and vertical padding
+       * const uiRect = new Rectangle(0, 0, 100, 50);
+       * uiRect.pad(20, 10); // 20px horizontal, 10px vertical
+       * ```
+       * @remarks
+       * - Adjusts x/y by subtracting padding
+       * - Increases width/height by padding * 2
+       * - Common in UI layout calculations
+       * - Chainable with other methods
+       * @param paddingX - The horizontal padding amount
+       * @param paddingY - The vertical padding amount
+       * @returns Returns itself
+       * @see {@link Rectangle.enlarge} For growing to include another rectangle
+       * @see {@link Rectangle.fit} For shrinking to fit within another rectangle
+       */
+      pad(paddingX = 0, paddingY = paddingX) {
+        this.x -= paddingX;
+        this.y -= paddingY;
+        this.width += paddingX * 2;
+        this.height += paddingY * 2;
+        return this;
+      }
+      /**
+       * Fits this rectangle around the passed one.
+       * @example
+       * ```ts
+       * // Basic fitting
+       * const container = new Rectangle(0, 0, 100, 100);
+       * const content = new Rectangle(25, 25, 200, 200);
+       * content.fit(container); // Clips to container bounds
+       * ```
+       * @param rectangle - The rectangle to fit around
+       * @returns Returns itself
+       * @see {@link Rectangle.enlarge} For growing to include another rectangle
+       * @see {@link Rectangle.pad} For adding padding around the rectangle
+       */
+      fit(rectangle) {
+        const x1 = Math.max(this.x, rectangle.x);
+        const x22 = Math.min(this.x + this.width, rectangle.x + rectangle.width);
+        const y1 = Math.max(this.y, rectangle.y);
+        const y22 = Math.min(this.y + this.height, rectangle.y + rectangle.height);
+        this.x = x1;
+        this.width = Math.max(x22 - x1, 0);
+        this.y = y1;
+        this.height = Math.max(y22 - y1, 0);
+        return this;
+      }
+      /**
+       * Enlarges rectangle so that its corners lie on a grid defined by resolution.
+       * @example
+       * ```ts
+       * // Basic grid alignment
+       * const rect = new Rectangle(10.2, 10.6, 100.8, 100.4);
+       * rect.ceil(); // Aligns to whole pixels
+       *
+       * // Custom resolution grid
+       * const uiRect = new Rectangle(5.3, 5.7, 50.2, 50.8);
+       * uiRect.ceil(0.5); // Aligns to half pixels
+       *
+       * // Use with precision value
+       * const preciseRect = new Rectangle(20.001, 20.999, 100.001, 100.999);
+       * preciseRect.ceil(1, 0.01); // Handles small decimal variations
+       * ```
+       * @param resolution - The grid size to align to (1 = whole pixels)
+       * @param eps - Small number to prevent floating point errors
+       * @returns Returns itself
+       * @see {@link Rectangle.fit} For constraining to bounds
+       * @see {@link Rectangle.enlarge} For growing dimensions
+       */
+      ceil(resolution = 1, eps = 1e-3) {
+        const x22 = Math.ceil((this.x + this.width - eps) * resolution) / resolution;
+        const y22 = Math.ceil((this.y + this.height - eps) * resolution) / resolution;
+        this.x = Math.floor((this.x + eps) * resolution) / resolution;
+        this.y = Math.floor((this.y + eps) * resolution) / resolution;
+        this.width = x22 - this.x;
+        this.height = y22 - this.y;
+        return this;
+      }
+      /**
+       * Scales the rectangle's dimensions and position by the specified factors.
+       * @example
+       * ```ts
+       * const rect = new Rectangle(50, 50, 100, 100);
+       *
+       * // Scale uniformly
+       * rect.scale(0.5, 0.5);
+       * // rect is now: x=25, y=25, width=50, height=50
+       *
+       * // non-uniformly
+       * rect.scale(0.5, 1);
+       * // rect is now: x=25, y=50, width=50, height=100
+       * ```
+       * @param x - The factor by which to scale the horizontal properties (x, width).
+       * @param y - The factor by which to scale the vertical properties (y, height).
+       * @returns Returns itself
+       */
+      scale(x3, y4 = x3) {
+        this.x *= x3;
+        this.y *= y4;
+        this.width *= x3;
+        this.height *= y4;
+        return this;
+      }
+      /**
+       * Enlarges this rectangle to include the passed rectangle.
+       * @example
+       * ```ts
+       * // Basic enlargement
+       * const rect = new Rectangle(50, 50, 100, 100);
+       * const other = new Rectangle(0, 0, 200, 75);
+       * rect.enlarge(other);
+       * // rect is now: x=0, y=0, width=200, height=150
+       *
+       * // Use for bounding box calculation
+       * const bounds = new Rectangle();
+       * objects.forEach((obj) => {
+       *     bounds.enlarge(obj.getBounds());
+       * });
+       * ```
+       * @param rectangle - The rectangle to include
+       * @returns Returns itself
+       * @see {@link Rectangle.fit} For shrinking to fit within another rectangle
+       * @see {@link Rectangle.pad} For adding padding around the rectangle
+       */
+      enlarge(rectangle) {
+        const x1 = Math.min(this.x, rectangle.x);
+        const x22 = Math.max(this.x + this.width, rectangle.x + rectangle.width);
+        const y1 = Math.min(this.y, rectangle.y);
+        const y22 = Math.max(this.y + this.height, rectangle.y + rectangle.height);
+        this.x = x1;
+        this.width = x22 - x1;
+        this.y = y1;
+        this.height = y22 - y1;
+        return this;
+      }
+      /**
+       * Returns the framing rectangle of the rectangle as a Rectangle object
+       * @example
+       * ```ts
+       * // Basic bounds retrieval
+       * const rect = new Rectangle(100, 100, 200, 150);
+       * const bounds = rect.getBounds();
+       *
+       * // Reuse existing rectangle
+       * const out = new Rectangle();
+       * rect.getBounds(out);
+       * ```
+       * @param out - Optional rectangle to store the result
+       * @returns The framing rectangle
+       * @see {@link Rectangle.copyFrom} For direct copying
+       * @see {@link Rectangle.clone} For creating new copy
+       */
+      getBounds(out2) {
+        out2 || (out2 = new _Rectangle());
+        out2.copyFrom(this);
+        return out2;
+      }
+      /**
+       * Determines whether another Rectangle is fully contained within this Rectangle.
+       *
+       * Rectangles that occupy the same space are considered to be containing each other.
+       *
+       * Rectangles without area (width or height equal to zero) can't contain anything,
+       * not even other arealess rectangles.
+       * @example
+       * ```ts
+       * // Check if one rectangle contains another
+       * const container = new Rectangle(0, 0, 100, 100);
+       * const inner = new Rectangle(25, 25, 50, 50);
+       *
+       * console.log(container.containsRect(inner)); // true
+       *
+       * // Check overlapping rectangles
+       * const partial = new Rectangle(75, 75, 50, 50);
+       * console.log(container.containsRect(partial)); // false
+       *
+       * // Zero-area rectangles
+       * const empty = new Rectangle(0, 0, 0, 100);
+       * console.log(container.containsRect(empty)); // false
+       * ```
+       * @param other - The Rectangle to check for containment
+       * @returns True if other is fully contained within this Rectangle
+       * @see {@link Rectangle.contains} For point containment
+       * @see {@link Rectangle.intersects} For overlap testing
+       */
+      containsRect(other) {
+        if (this.width <= 0 || this.height <= 0) return false;
+        const x1 = other.x;
+        const y1 = other.y;
+        const x22 = other.x + other.width;
+        const y22 = other.y + other.height;
+        return x1 >= this.x && x1 < this.x + this.width && y1 >= this.y && y1 < this.y + this.height && x22 >= this.x && x22 < this.x + this.width && y22 >= this.y && y22 < this.y + this.height;
+      }
+      /**
+       * Sets the position and dimensions of the rectangle.
+       * @example
+       * ```ts
+       * // Basic usage
+       * const rect = new Rectangle();
+       * rect.set(100, 100, 200, 150);
+       *
+       * // Chain with other operations
+       * const bounds = new Rectangle()
+       *     .set(0, 0, 100, 100)
+       *     .pad(10);
+       * ```
+       * @param x - The X coordinate of the upper-left corner of the rectangle
+       * @param y - The Y coordinate of the upper-left corner of the rectangle
+       * @param width - The overall width of the rectangle
+       * @param height - The overall height of the rectangle
+       * @returns Returns itself for method chaining
+       * @see {@link Rectangle.copyFrom} For copying from another rectangle
+       * @see {@link Rectangle.clone} For creating a new copy
+       */
+      set(x3, y4, width, height) {
+        this.x = x3;
+        this.y = y4;
+        this.width = width;
+        this.height = height;
+        return this;
+      }
+      toString() {
+        return `[pixi.js/math:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/bounds/Bounds.mjs
+var defaultMatrix, Bounds;
+var init_Bounds = __esm({
+  "node_modules/pixi.js/lib/scene/container/bounds/Bounds.mjs"() {
+    init_Matrix();
+    init_Rectangle();
+    defaultMatrix = new Matrix();
+    Bounds = class _Bounds {
+      /**
+       * Creates a new Bounds object.
+       * @param minX - The minimum X coordinate of the bounds.
+       * @param minY - The minimum Y coordinate of the bounds.
+       * @param maxX - The maximum X coordinate of the bounds.
+       * @param maxY - The maximum Y coordinate of the bounds.
+       */
+      constructor(minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity) {
+        this.minX = Infinity;
+        this.minY = Infinity;
+        this.maxX = -Infinity;
+        this.maxY = -Infinity;
+        this.matrix = defaultMatrix;
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+      }
+      /**
+       * Checks if bounds are empty, meaning either width or height is zero or negative.
+       * Empty bounds occur when min values exceed max values on either axis.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       *
+       * // Check if newly created bounds are empty
+       * console.log(bounds.isEmpty()); // true, default bounds are empty
+       *
+       * // Add frame and check again
+       * bounds.addFrame(0, 0, 100, 100);
+       * console.log(bounds.isEmpty()); // false, bounds now have area
+       *
+       * // Clear bounds
+       * bounds.clear();
+       * console.log(bounds.isEmpty()); // true, bounds are empty again
+       * ```
+       * @returns True if bounds are empty (have no area)
+       * @see {@link Bounds#clear} For resetting bounds
+       * @see {@link Bounds#isValid} For checking validity
+       */
+      isEmpty() {
+        return this.minX > this.maxX || this.minY > this.maxY;
+      }
+      /**
+       * The bounding rectangle representation of these bounds.
+       * Lazily creates and updates a Rectangle instance based on the current bounds.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       *
+       * // Get rectangle representation
+       * const rect = bounds.rectangle;
+       * console.log(rect.x, rect.y, rect.width, rect.height);
+       *
+       * // Use for hit testing
+       * if (bounds.rectangle.contains(mouseX, mouseY)) {
+       *     console.log('Mouse is inside bounds!');
+       * }
+       * ```
+       * @see {@link Rectangle} For rectangle methods
+       * @see {@link Bounds.isEmpty} For bounds validation
+       */
+      get rectangle() {
+        if (!this._rectangle) {
+          this._rectangle = new Rectangle();
+        }
+        const rectangle = this._rectangle;
+        if (this.minX > this.maxX || this.minY > this.maxY) {
+          rectangle.x = 0;
+          rectangle.y = 0;
+          rectangle.width = 0;
+          rectangle.height = 0;
+        } else {
+          rectangle.copyFromBounds(this);
+        }
+        return rectangle;
+      }
+      /**
+       * Clears the bounds and resets all coordinates to their default values.
+       * Resets the transformation matrix back to identity.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * console.log(bounds.isEmpty()); // false
+       * // Clear the bounds
+       * bounds.clear();
+       * console.log(bounds.isEmpty()); // true
+       * ```
+       * @returns This bounds object for chaining
+       */
+      clear() {
+        this.minX = Infinity;
+        this.minY = Infinity;
+        this.maxX = -Infinity;
+        this.maxY = -Infinity;
+        this.matrix = defaultMatrix;
+        return this;
+      }
+      /**
+       * Sets the bounds directly using coordinate values.
+       * Provides a way to set all bounds values at once.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       * bounds.set(0, 0, 100, 100);
+       * ```
+       * @param x0 - Left X coordinate of frame
+       * @param y0 - Top Y coordinate of frame
+       * @param x1 - Right X coordinate of frame
+       * @param y1 - Bottom Y coordinate of frame
+       * @see {@link Bounds#addFrame} For matrix-aware bounds setting
+       * @see {@link Bounds#clear} For resetting bounds
+       */
+      set(x0, y0, x1, y1) {
+        this.minX = x0;
+        this.minY = y0;
+        this.maxX = x1;
+        this.maxY = y1;
+      }
+      /**
+       * Adds a rectangular frame to the bounds, optionally transformed by a matrix.
+       * Updates the bounds to encompass the new frame coordinates.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       * bounds.addFrame(0, 0, 100, 100);
+       *
+       * // Add transformed frame
+       * const matrix = new Matrix()
+       *     .translate(50, 50)
+       *     .rotate(Math.PI / 4);
+       * bounds.addFrame(0, 0, 100, 100, matrix);
+       * ```
+       * @param x0 - Left X coordinate of frame
+       * @param y0 - Top Y coordinate of frame
+       * @param x1 - Right X coordinate of frame
+       * @param y1 - Bottom Y coordinate of frame
+       * @param matrix - Optional transformation matrix
+       * @see {@link Bounds#addRect} For adding Rectangle objects
+       * @see {@link Bounds#addBounds} For adding other Bounds
+       */
+      addFrame(x0, y0, x1, y1, matrix) {
+        matrix || (matrix = this.matrix);
+        const a3 = matrix.a;
+        const b3 = matrix.b;
+        const c3 = matrix.c;
+        const d3 = matrix.d;
+        const tx = matrix.tx;
+        const ty = matrix.ty;
+        let minX = this.minX;
+        let minY = this.minY;
+        let maxX = this.maxX;
+        let maxY = this.maxY;
+        let x3 = a3 * x0 + c3 * y0 + tx;
+        let y4 = b3 * x0 + d3 * y0 + ty;
+        if (x3 < minX) minX = x3;
+        if (y4 < minY) minY = y4;
+        if (x3 > maxX) maxX = x3;
+        if (y4 > maxY) maxY = y4;
+        x3 = a3 * x1 + c3 * y0 + tx;
+        y4 = b3 * x1 + d3 * y0 + ty;
+        if (x3 < minX) minX = x3;
+        if (y4 < minY) minY = y4;
+        if (x3 > maxX) maxX = x3;
+        if (y4 > maxY) maxY = y4;
+        x3 = a3 * x0 + c3 * y1 + tx;
+        y4 = b3 * x0 + d3 * y1 + ty;
+        if (x3 < minX) minX = x3;
+        if (y4 < minY) minY = y4;
+        if (x3 > maxX) maxX = x3;
+        if (y4 > maxY) maxY = y4;
+        x3 = a3 * x1 + c3 * y1 + tx;
+        y4 = b3 * x1 + d3 * y1 + ty;
+        if (x3 < minX) minX = x3;
+        if (y4 < minY) minY = y4;
+        if (x3 > maxX) maxX = x3;
+        if (y4 > maxY) maxY = y4;
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+      }
+      /**
+       * Adds a rectangle to the bounds, optionally transformed by a matrix.
+       * Updates the bounds to encompass the given rectangle.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       * // Add simple rectangle
+       * const rect = new Rectangle(0, 0, 100, 100);
+       * bounds.addRect(rect);
+       *
+       * // Add transformed rectangle
+       * const matrix = new Matrix()
+       *     .translate(50, 50)
+       *     .rotate(Math.PI / 4);
+       * bounds.addRect(rect, matrix);
+       * ```
+       * @param rect - The rectangle to be added
+       * @param matrix - Optional transformation matrix
+       * @see {@link Bounds#addFrame} For adding raw coordinates
+       * @see {@link Bounds#addBounds} For adding other bounds
+       */
+      addRect(rect, matrix) {
+        this.addFrame(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, matrix);
+      }
+      /**
+       * Adds another bounds object to this one, optionally transformed by a matrix.
+       * Expands the bounds to include the given bounds' area.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       *
+       * // Add child bounds
+       * const childBounds = sprite.getBounds();
+       * bounds.addBounds(childBounds);
+       *
+       * // Add transformed bounds
+       * const matrix = new Matrix()
+       *     .scale(2, 2);
+       * bounds.addBounds(childBounds, matrix);
+       * ```
+       * @param bounds - The bounds to be added
+       * @param matrix - Optional transformation matrix
+       * @see {@link Bounds#addFrame} For adding raw coordinates
+       * @see {@link Bounds#addRect} For adding rectangles
+       */
+      addBounds(bounds, matrix) {
+        this.addFrame(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY, matrix);
+      }
+      /**
+       * Adds other Bounds as a mask, creating an intersection of the two bounds.
+       * Only keeps the overlapping region between current bounds and mask bounds.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Create mask bounds
+       * const mask = new Bounds();
+       * mask.addFrame(50, 50, 150, 150);
+       * // Apply mask - results in bounds of (50,50,100,100)
+       * bounds.addBoundsMask(mask);
+       * ```
+       * @param mask - The Bounds to use as a mask
+       * @see {@link Bounds#addBounds} For union operation
+       * @see {@link Bounds#fit} For fitting to rectangle
+       */
+      addBoundsMask(mask) {
+        this.minX = this.minX > mask.minX ? this.minX : mask.minX;
+        this.minY = this.minY > mask.minY ? this.minY : mask.minY;
+        this.maxX = this.maxX < mask.maxX ? this.maxX : mask.maxX;
+        this.maxY = this.maxY < mask.maxY ? this.maxY : mask.maxY;
+      }
+      /**
+       * Applies a transformation matrix to the bounds, updating its coordinates.
+       * Transforms all corners of the bounds using the given matrix.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Apply translation
+       * const translateMatrix = new Matrix()
+       *     .translate(50, 50);
+       * bounds.applyMatrix(translateMatrix);
+       * ```
+       * @param matrix - The matrix to apply to the bounds
+       * @see {@link Matrix} For matrix operations
+       * @see {@link Bounds#addFrame} For adding transformed frames
+       */
+      applyMatrix(matrix) {
+        const minX = this.minX;
+        const minY = this.minY;
+        const maxX = this.maxX;
+        const maxY = this.maxY;
+        const { a: a3, b: b3, c: c3, d: d3, tx, ty } = matrix;
+        let x3 = a3 * minX + c3 * minY + tx;
+        let y4 = b3 * minX + d3 * minY + ty;
+        this.minX = x3;
+        this.minY = y4;
+        this.maxX = x3;
+        this.maxY = y4;
+        x3 = a3 * maxX + c3 * minY + tx;
+        y4 = b3 * maxX + d3 * minY + ty;
+        this.minX = x3 < this.minX ? x3 : this.minX;
+        this.minY = y4 < this.minY ? y4 : this.minY;
+        this.maxX = x3 > this.maxX ? x3 : this.maxX;
+        this.maxY = y4 > this.maxY ? y4 : this.maxY;
+        x3 = a3 * minX + c3 * maxY + tx;
+        y4 = b3 * minX + d3 * maxY + ty;
+        this.minX = x3 < this.minX ? x3 : this.minX;
+        this.minY = y4 < this.minY ? y4 : this.minY;
+        this.maxX = x3 > this.maxX ? x3 : this.maxX;
+        this.maxY = y4 > this.maxY ? y4 : this.maxY;
+        x3 = a3 * maxX + c3 * maxY + tx;
+        y4 = b3 * maxX + d3 * maxY + ty;
+        this.minX = x3 < this.minX ? x3 : this.minX;
+        this.minY = y4 < this.minY ? y4 : this.minY;
+        this.maxX = x3 > this.maxX ? x3 : this.maxX;
+        this.maxY = y4 > this.maxY ? y4 : this.maxY;
+      }
+      /**
+       * Resizes the bounds object to fit within the given rectangle.
+       * Clips the bounds if they extend beyond the rectangle's edges.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 200, 200);
+       * // Fit within viewport
+       * const viewport = new Rectangle(50, 50, 100, 100);
+       * bounds.fit(viewport);
+       * // bounds are now (50, 50, 150, 150)
+       * ```
+       * @param rect - The rectangle to fit within
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#addBoundsMask} For intersection
+       * @see {@link Bounds#pad} For expanding bounds
+       */
+      fit(rect) {
+        if (this.minX < rect.left) this.minX = rect.left;
+        if (this.maxX > rect.right) this.maxX = rect.right;
+        if (this.minY < rect.top) this.minY = rect.top;
+        if (this.maxY > rect.bottom) this.maxY = rect.bottom;
+        return this;
+      }
+      /**
+       * Resizes the bounds object to include the given bounds.
+       * Similar to fit() but works with raw coordinate values instead of a Rectangle.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 200, 200);
+       * // Fit to specific coordinates
+       * bounds.fitBounds(50, 150, 50, 150);
+       * // bounds are now (50, 50, 150, 150)
+       * ```
+       * @param left - The left value of the bounds
+       * @param right - The right value of the bounds
+       * @param top - The top value of the bounds
+       * @param bottom - The bottom value of the bounds
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#fit} For fitting to Rectangle
+       * @see {@link Bounds#addBoundsMask} For intersection
+       */
+      fitBounds(left, right, top, bottom) {
+        if (this.minX < left) this.minX = left;
+        if (this.maxX > right) this.maxX = right;
+        if (this.minY < top) this.minY = top;
+        if (this.maxY > bottom) this.maxY = bottom;
+        return this;
+      }
+      /**
+       * Pads bounds object, making it grow in all directions.
+       * If paddingY is omitted, both paddingX and paddingY will be set to paddingX.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       *
+       * // Add equal padding
+       * bounds.pad(10);
+       * // bounds are now (-10, -10, 110, 110)
+       *
+       * // Add different padding for x and y
+       * bounds.pad(20, 10);
+       * // bounds are now (-30, -20, 130, 120)
+       * ```
+       * @param paddingX - The horizontal padding amount
+       * @param paddingY - The vertical padding amount
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#fit} For constraining bounds
+       * @see {@link Bounds#scale} For uniform scaling
+       */
+      pad(paddingX, paddingY = paddingX) {
+        this.minX -= paddingX;
+        this.maxX += paddingX;
+        this.minY -= paddingY;
+        this.maxY += paddingY;
+        return this;
+      }
+      /**
+       * Ceils the bounds by rounding up max values and rounding down min values.
+       * Useful for pixel-perfect calculations and avoiding fractional pixels.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       * bounds.set(10.2, 10.9, 50.1, 50.8);
+       *
+       * // Round to whole pixels
+       * bounds.ceil();
+       * // bounds are now (10, 10, 51, 51)
+       * ```
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#scale} For size adjustments
+       * @see {@link Bounds#fit} For constraining bounds
+       */
+      ceil() {
+        this.minX = Math.floor(this.minX);
+        this.minY = Math.floor(this.minY);
+        this.maxX = Math.ceil(this.maxX);
+        this.maxY = Math.ceil(this.maxY);
+        return this;
+      }
+      /**
+       * Creates a new Bounds instance with the same values.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       *
+       * // Create a copy
+       * const copy = bounds.clone();
+       *
+       * // Original and copy are independent
+       * bounds.pad(10);
+       * console.log(copy.width === bounds.width); // false
+       * ```
+       * @returns A new Bounds instance with the same values
+       * @see {@link Bounds#copyFrom} For reusing existing bounds
+       */
+      clone() {
+        return new _Bounds(this.minX, this.minY, this.maxX, this.maxY);
+      }
+      /**
+       * Scales the bounds by the given values, adjusting all edges proportionally.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       *
+       * // Scale uniformly
+       * bounds.scale(2);
+       * // bounds are now (0, 0, 200, 200)
+       *
+       * // Scale non-uniformly
+       * bounds.scale(0.5, 2);
+       * // bounds are now (0, 0, 100, 400)
+       * ```
+       * @param x - The X value to scale by
+       * @param y - The Y value to scale by (defaults to x)
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#pad} For adding padding
+       * @see {@link Bounds#fit} For constraining size
+       */
+      scale(x3, y4 = x3) {
+        this.minX *= x3;
+        this.minY *= y4;
+        this.maxX *= x3;
+        this.maxY *= y4;
+        return this;
+      }
+      /**
+       * The x position of the bounds in local space.
+       * Setting this value will move the bounds while maintaining its width.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Get x position
+       * console.log(bounds.x); // 0
+       *
+       * // Move bounds horizontally
+       * bounds.x = 50;
+       * console.log(bounds.minX, bounds.maxX); // 50, 150
+       *
+       * // Width stays the same
+       * console.log(bounds.width); // Still 100
+       * ```
+       */
+      get x() {
+        return this.minX;
+      }
+      set x(value) {
+        const width = this.maxX - this.minX;
+        this.minX = value;
+        this.maxX = value + width;
+      }
+      /**
+       * The y position of the bounds in local space.
+       * Setting this value will move the bounds while maintaining its height.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Get y position
+       * console.log(bounds.y); // 0
+       *
+       * // Move bounds vertically
+       * bounds.y = 50;
+       * console.log(bounds.minY, bounds.maxY); // 50, 150
+       *
+       * // Height stays the same
+       * console.log(bounds.height); // Still 100
+       * ```
+       */
+      get y() {
+        return this.minY;
+      }
+      set y(value) {
+        const height = this.maxY - this.minY;
+        this.minY = value;
+        this.maxY = value + height;
+      }
+      /**
+       * The width value of the bounds.
+       * Represents the distance between minX and maxX coordinates.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Get width
+       * console.log(bounds.width); // 100
+       * // Resize width
+       * bounds.width = 200;
+       * console.log(bounds.maxX - bounds.minX); // 200
+       * ```
+       */
+      get width() {
+        return this.maxX - this.minX;
+      }
+      set width(value) {
+        this.maxX = this.minX + value;
+      }
+      /**
+       * The height value of the bounds.
+       * Represents the distance between minY and maxY coordinates.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Get height
+       * console.log(bounds.height); // 100
+       * // Resize height
+       * bounds.height = 150;
+       * console.log(bounds.maxY - bounds.minY); // 150
+       * ```
+       */
+      get height() {
+        return this.maxY - this.minY;
+      }
+      set height(value) {
+        this.maxY = this.minY + value;
+      }
+      /**
+       * The left edge coordinate of the bounds.
+       * Alias for minX.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(50, 0, 150, 100);
+       * console.log(bounds.left); // 50
+       * console.log(bounds.left === bounds.minX); // true
+       * ```
+       * @readonly
+       */
+      get left() {
+        return this.minX;
+      }
+      /**
+       * The right edge coordinate of the bounds.
+       * Alias for maxX.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * console.log(bounds.right); // 100
+       * console.log(bounds.right === bounds.maxX); // true
+       * ```
+       * @readonly
+       */
+      get right() {
+        return this.maxX;
+      }
+      /**
+       * The top edge coordinate of the bounds.
+       * Alias for minY.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 25, 100, 125);
+       * console.log(bounds.top); // 25
+       * console.log(bounds.top === bounds.minY); // true
+       * ```
+       * @readonly
+       */
+      get top() {
+        return this.minY;
+      }
+      /**
+       * The bottom edge coordinate of the bounds.
+       * Alias for maxY.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 200);
+       * console.log(bounds.bottom); // 200
+       * console.log(bounds.bottom === bounds.maxY); // true
+       * ```
+       * @readonly
+       */
+      get bottom() {
+        return this.maxY;
+      }
+      /**
+       * Whether the bounds has positive width and height.
+       * Checks if both dimensions are greater than zero.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Check if bounds are positive
+       * console.log(bounds.isPositive); // true
+       *
+       * // Negative bounds
+       * bounds.maxX = bounds.minX;
+       * console.log(bounds.isPositive); // false, width is 0
+       * ```
+       * @readonly
+       * @see {@link Bounds#isEmpty} For checking empty state
+       * @see {@link Bounds#isValid} For checking validity
+       */
+      get isPositive() {
+        return this.maxX - this.minX > 0 && this.maxY - this.minY > 0;
+      }
+      /**
+       * Whether the bounds has valid coordinates.
+       * Checks if the bounds has been initialized with real values.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       * console.log(bounds.isValid); // false, default state
+       *
+       * // Set valid bounds
+       * bounds.addFrame(0, 0, 100, 100);
+       * console.log(bounds.isValid); // true
+       * ```
+       * @readonly
+       * @see {@link Bounds#isEmpty} For checking empty state
+       * @see {@link Bounds#isPositive} For checking dimensions
+       */
+      get isValid() {
+        return this.minX + this.minY !== Infinity;
+      }
+      /**
+       * Adds vertices from a Float32Array to the bounds, optionally transformed by a matrix.
+       * Used for efficiently updating bounds from raw vertex data.
+       * @example
+       * ```ts
+       * const bounds = new Bounds();
+       *
+       * // Add vertices from geometry
+       * const vertices = new Float32Array([
+       *     0, 0,    // Vertex 1
+       *     100, 0,  // Vertex 2
+       *     100, 100 // Vertex 3
+       * ]);
+       * bounds.addVertexData(vertices, 0, 6);
+       *
+       * // Add transformed vertices
+       * const matrix = new Matrix()
+       *     .translate(50, 50)
+       *     .rotate(Math.PI / 4);
+       * bounds.addVertexData(vertices, 0, 6, matrix);
+       *
+       * // Add subset of vertices
+       * bounds.addVertexData(vertices, 2, 4); // Only second vertex
+       * ```
+       * @param vertexData - The array of vertices to add
+       * @param beginOffset - Starting index in the vertex array
+       * @param endOffset - Ending index in the vertex array (excluded)
+       * @param matrix - Optional transformation matrix
+       * @see {@link Bounds#addFrame} For adding rectangular frames
+       * @see {@link Matrix} For transformation details
+       */
+      addVertexData(vertexData, beginOffset, endOffset, matrix) {
+        let minX = this.minX;
+        let minY = this.minY;
+        let maxX = this.maxX;
+        let maxY = this.maxY;
+        matrix || (matrix = this.matrix);
+        const a3 = matrix.a;
+        const b3 = matrix.b;
+        const c3 = matrix.c;
+        const d3 = matrix.d;
+        const tx = matrix.tx;
+        const ty = matrix.ty;
+        for (let i3 = beginOffset; i3 < endOffset; i3 += 2) {
+          const localX = vertexData[i3];
+          const localY = vertexData[i3 + 1];
+          const x3 = a3 * localX + c3 * localY + tx;
+          const y4 = b3 * localX + d3 * localY + ty;
+          minX = x3 < minX ? x3 : minX;
+          minY = y4 < minY ? y4 : minY;
+          maxX = x3 > maxX ? x3 : maxX;
+          maxY = y4 > maxY ? y4 : maxY;
+        }
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+      }
+      /**
+       * Checks if a point is contained within the bounds.
+       * Returns true if the point's coordinates fall within the bounds' area.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * // Basic point check
+       * console.log(bounds.containsPoint(50, 50)); // true
+       * console.log(bounds.containsPoint(150, 150)); // false
+       *
+       * // Check edges
+       * console.log(bounds.containsPoint(0, 0));   // true, includes edges
+       * console.log(bounds.containsPoint(100, 100)); // true, includes edges
+       * ```
+       * @param x - x coordinate to check
+       * @param y - y coordinate to check
+       * @returns True if the point is inside the bounds
+       * @see {@link Bounds#isPositive} For valid bounds check
+       * @see {@link Bounds#rectangle} For Rectangle representation
+       */
+      containsPoint(x3, y4) {
+        if (this.minX <= x3 && this.minY <= y4 && this.maxX >= x3 && this.maxY >= y4) {
+          return true;
+        }
+        return false;
+      }
+      /**
+       * Returns a string representation of the bounds.
+       * Useful for debugging and logging bounds information.
+       * @example
+       * ```ts
+       * const bounds = new Bounds(0, 0, 100, 100);
+       * console.log(bounds.toString()); // "[pixi.js:Bounds minX=0 minY=0 maxX=100 maxY=100 width=100 height=100]"
+       * ```
+       * @returns A string describing the bounds
+       * @see {@link Bounds#copyFrom} For copying bounds
+       * @see {@link Bounds#clone} For creating a new instance
+       */
+      toString() {
+        return `[pixi.js:Bounds minX=${this.minX} minY=${this.minY} maxX=${this.maxX} maxY=${this.maxY} width=${this.width} height=${this.height}]`;
+      }
+      /**
+       * Copies the bounds from another bounds object.
+       * Useful for reusing bounds objects and avoiding allocations.
+       * @example
+       * ```ts
+       * const sourceBounds = new Bounds(0, 0, 100, 100);
+       * // Copy bounds
+       * const targetBounds = new Bounds();
+       * targetBounds.copyFrom(sourceBounds);
+       * ```
+       * @param bounds - The bounds to copy from
+       * @returns This bounds object for chaining
+       * @see {@link Bounds#clone} For creating new instances
+       */
+      copyFrom(bounds) {
+        this.minX = bounds.minX;
+        this.minY = bounds.minY;
+        this.maxX = bounds.maxX;
+        this.maxY = bounds.maxY;
+        return this;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/bounds/utils/matrixAndBoundsPool.mjs
+var matrixPool, boundsPool;
+var init_matrixAndBoundsPool = __esm({
+  "node_modules/pixi.js/lib/scene/container/bounds/utils/matrixAndBoundsPool.mjs"() {
+    init_Matrix();
+    init_PoolGroup();
+    init_Bounds();
+    matrixPool = BigPool.getPool(Matrix);
+    boundsPool = BigPool.getPool(Bounds);
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/getFastGlobalBoundsMixin.mjs
+var tempMatrix2, getFastGlobalBoundsMixin;
+var init_getFastGlobalBoundsMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/getFastGlobalBoundsMixin.mjs"() {
+    init_Matrix();
+    init_Bounds();
+    init_matrixAndBoundsPool();
+    tempMatrix2 = new Matrix();
+    getFastGlobalBoundsMixin = {
+      getFastGlobalBounds(factorRenderLayers, bounds) {
+        bounds || (bounds = new Bounds());
+        bounds.clear();
+        this._getGlobalBoundsRecursive(!!factorRenderLayers, bounds, this.parentRenderLayer);
+        if (!bounds.isValid) {
+          bounds.set(0, 0, 0, 0);
+        }
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        bounds.applyMatrix(renderGroup.worldTransform);
+        return bounds;
+      },
+      _getGlobalBoundsRecursive(factorRenderLayers, bounds, currentLayer) {
+        let localBounds = bounds;
+        if (factorRenderLayers && this.parentRenderLayer && this.parentRenderLayer !== currentLayer) return;
+        if (this.localDisplayStatus !== 7 || !this.measurable) {
+          return;
+        }
+        const manageEffects = !!this.effects.length;
+        if (this.renderGroup || manageEffects) {
+          localBounds = boundsPool.get().clear();
+        }
+        if (this.boundsArea) {
+          bounds.addRect(this.boundsArea, this.worldTransform);
+        } else {
+          if (this.renderPipeId) {
+            const viewBounds = this.bounds;
+            localBounds.addFrame(
+              viewBounds.minX,
+              viewBounds.minY,
+              viewBounds.maxX,
+              viewBounds.maxY,
+              this.groupTransform
+            );
+          }
+          const children = this.children;
+          for (let i3 = 0; i3 < children.length; i3++) {
+            children[i3]._getGlobalBoundsRecursive(factorRenderLayers, localBounds, currentLayer);
+          }
+        }
+        if (manageEffects) {
+          let advanced = false;
+          const renderGroup = this.renderGroup || this.parentRenderGroup;
+          for (let i3 = 0; i3 < this.effects.length; i3++) {
+            if (this.effects[i3].addBounds) {
+              if (!advanced) {
+                advanced = true;
+                localBounds.applyMatrix(renderGroup.worldTransform);
+              }
+              this.effects[i3].addBounds(localBounds, true);
+            }
+          }
+          if (advanced) {
+            localBounds.applyMatrix(renderGroup.worldTransform.copyTo(tempMatrix2).invert());
+          }
+          bounds.addBounds(localBounds);
+          boundsPool.return(localBounds);
+        } else if (this.renderGroup) {
+          bounds.addBounds(localBounds, this.relativeGroupTransform);
+          boundsPool.return(localBounds);
+        }
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/bounds/getGlobalBounds.mjs
+function getGlobalBounds(target, skipUpdateTransform, bounds) {
+  bounds.clear();
+  let parentTransform;
+  let pooledMatrix;
+  if (target.parent) {
+    if (!skipUpdateTransform) {
+      pooledMatrix = matrixPool.get().identity();
+      parentTransform = updateTransformBackwards(target, pooledMatrix);
+    } else {
+      parentTransform = target.parent.worldTransform;
+    }
+  } else {
+    parentTransform = Matrix.IDENTITY;
+  }
+  _getGlobalBounds(target, bounds, parentTransform, skipUpdateTransform);
+  if (pooledMatrix) {
+    matrixPool.return(pooledMatrix);
+  }
+  if (!bounds.isValid) {
+    bounds.set(0, 0, 0, 0);
+  }
+  return bounds;
+}
+function _getGlobalBounds(target, bounds, parentTransform, skipUpdateTransform) {
+  if (!target.visible || !target.measurable) return;
+  let worldTransform;
+  if (!skipUpdateTransform) {
+    target.updateLocalTransform();
+    worldTransform = matrixPool.get();
+    worldTransform.appendFrom(target.localTransform, parentTransform);
+  } else {
+    worldTransform = target.worldTransform;
+  }
+  const parentBounds = bounds;
+  const preserveBounds = !!target.effects.length;
+  if (preserveBounds) {
+    bounds = boundsPool.get().clear();
+  }
+  if (target.boundsArea) {
+    bounds.addRect(target.boundsArea, worldTransform);
+  } else {
+    const renderableBounds = target.bounds;
+    if (renderableBounds && !renderableBounds.isEmpty()) {
+      bounds.matrix = worldTransform;
+      bounds.addBounds(renderableBounds);
+    }
+    for (let i3 = 0; i3 < target.children.length; i3++) {
+      _getGlobalBounds(target.children[i3], bounds, worldTransform, skipUpdateTransform);
+    }
+  }
+  if (preserveBounds) {
+    for (let i3 = 0; i3 < target.effects.length; i3++) {
+      target.effects[i3].addBounds?.(bounds);
+    }
+    parentBounds.addBounds(bounds, Matrix.IDENTITY);
+    boundsPool.return(bounds);
+  }
+  if (!skipUpdateTransform) {
+    matrixPool.return(worldTransform);
+  }
+}
+function updateTransformBackwards(target, parentTransform) {
+  const parent = target.parent;
+  if (parent) {
+    updateTransformBackwards(parent, parentTransform);
+    parent.updateLocalTransform();
+    parentTransform.append(parent.localTransform);
+  }
+  return parentTransform;
+}
+var init_getGlobalBounds = __esm({
+  "node_modules/pixi.js/lib/scene/container/bounds/getGlobalBounds.mjs"() {
+    init_Matrix();
+    init_matrixAndBoundsPool();
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/utils/multiplyHexColors.mjs
+function multiplyHexColors(color1, color2) {
+  if (color1 === 16777215 || !color2) return color2;
+  if (color2 === 16777215 || !color1) return color1;
+  const r1 = color1 >> 16 & 255;
+  const g1 = color1 >> 8 & 255;
+  const b1 = color1 & 255;
+  const r22 = color2 >> 16 & 255;
+  const g22 = color2 >> 8 & 255;
+  const b22 = color2 & 255;
+  const r4 = r1 * r22 / 255 | 0;
+  const g3 = g1 * g22 / 255 | 0;
+  const b3 = b1 * b22 / 255 | 0;
+  return (r4 << 16) + (g3 << 8) + b3;
+}
+var init_multiplyHexColors = __esm({
+  "node_modules/pixi.js/lib/scene/container/utils/multiplyHexColors.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/utils/multiplyColors.mjs
+function multiplyColors(localBGRColor, parentBGRColor) {
+  if (localBGRColor === WHITE_BGR) {
+    return parentBGRColor;
+  }
+  if (parentBGRColor === WHITE_BGR) {
+    return localBGRColor;
+  }
+  return multiplyHexColors(localBGRColor, parentBGRColor);
+}
+var WHITE_BGR;
+var init_multiplyColors = __esm({
+  "node_modules/pixi.js/lib/scene/container/utils/multiplyColors.mjs"() {
+    init_multiplyHexColors();
+    WHITE_BGR = 16777215;
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/getGlobalMixin.mjs
+function bgr2rgb(color) {
+  return ((color & 255) << 16) + (color & 65280) + (color >> 16 & 255);
+}
+var getGlobalMixin;
+var init_getGlobalMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/getGlobalMixin.mjs"() {
+    init_Matrix();
+    init_getGlobalBounds();
+    init_matrixAndBoundsPool();
+    init_multiplyColors();
+    getGlobalMixin = {
+      getGlobalAlpha(skipUpdate) {
+        if (skipUpdate) {
+          if (this.renderGroup) {
+            return this.renderGroup.worldAlpha;
+          }
+          if (this.parentRenderGroup) {
+            return this.parentRenderGroup.worldAlpha * this.alpha;
+          }
+          return this.alpha;
+        }
+        let alpha = this.alpha;
+        let current2 = this.parent;
+        while (current2) {
+          alpha *= current2.alpha;
+          current2 = current2.parent;
+        }
+        return alpha;
+      },
+      getGlobalTransform(matrix = new Matrix(), skipUpdate) {
+        if (skipUpdate) {
+          return matrix.copyFrom(this.worldTransform);
+        }
+        this.updateLocalTransform();
+        const parentTransform = updateTransformBackwards(this, matrixPool.get().identity());
+        matrix.appendFrom(this.localTransform, parentTransform);
+        matrixPool.return(parentTransform);
+        return matrix;
+      },
+      getGlobalTint(skipUpdate) {
+        if (skipUpdate) {
+          if (this.renderGroup) {
+            return bgr2rgb(this.renderGroup.worldColor);
+          }
+          if (this.parentRenderGroup) {
+            return bgr2rgb(
+              multiplyColors(this.localColor, this.parentRenderGroup.worldColor)
+            );
+          }
+          return this.tint;
+        }
+        let color = this.localColor;
+        let parent = this.parent;
+        while (parent) {
+          color = multiplyColors(color, parent.localColor);
+          parent = parent.parent;
+        }
+        return bgr2rgb(color);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/bounds/getLocalBounds.mjs
+function getLocalBounds(target, bounds, relativeMatrix) {
+  bounds.clear();
+  relativeMatrix || (relativeMatrix = Matrix.IDENTITY);
+  _getLocalBounds(target, bounds, relativeMatrix, target, true);
+  if (!bounds.isValid) {
+    bounds.set(0, 0, 0, 0);
+  }
+  return bounds;
+}
+function _getLocalBounds(target, bounds, parentTransform, rootContainer, isRoot) {
+  let relativeTransform;
+  if (!isRoot) {
+    if (!target.visible || !target.measurable) return;
+    target.updateLocalTransform();
+    const localTransform = target.localTransform;
+    relativeTransform = matrixPool.get();
+    relativeTransform.appendFrom(localTransform, parentTransform);
+  } else {
+    relativeTransform = matrixPool.get();
+    relativeTransform = parentTransform.copyTo(relativeTransform);
+  }
+  const parentBounds = bounds;
+  const preserveBounds = !!target.effects.length;
+  if (preserveBounds) {
+    bounds = boundsPool.get().clear();
+  }
+  if (target.boundsArea) {
+    bounds.addRect(target.boundsArea, relativeTransform);
+  } else {
+    if (target.renderPipeId) {
+      bounds.matrix = relativeTransform;
+      bounds.addBounds(target.bounds);
+    }
+    const children = target.children;
+    for (let i3 = 0; i3 < children.length; i3++) {
+      _getLocalBounds(children[i3], bounds, relativeTransform, rootContainer, false);
+    }
+  }
+  if (preserveBounds) {
+    for (let i3 = 0; i3 < target.effects.length; i3++) {
+      target.effects[i3].addLocalBounds?.(bounds, rootContainer);
+    }
+    parentBounds.addBounds(bounds, Matrix.IDENTITY);
+    boundsPool.return(bounds);
+  }
+  matrixPool.return(relativeTransform);
+}
+var init_getLocalBounds = __esm({
+  "node_modules/pixi.js/lib/scene/container/bounds/getLocalBounds.mjs"() {
+    init_Matrix();
+    init_matrixAndBoundsPool();
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/utils/checkChildrenDidChange.mjs
+function checkChildrenDidChange(container, previousData) {
+  const children = container.children;
+  for (let i3 = 0; i3 < children.length; i3++) {
+    const child = children[i3];
+    const uid3 = child.uid;
+    const didChange = (child._didViewChangeTick & 65535) << 16 | child._didContainerChangeTick & 65535;
+    const index2 = previousData.index;
+    if (previousData.data[index2] !== uid3 || previousData.data[index2 + 1] !== didChange) {
+      previousData.data[previousData.index] = uid3;
+      previousData.data[previousData.index + 1] = didChange;
+      previousData.didChange = true;
+    }
+    previousData.index = index2 + 2;
+    if (child.children.length) {
+      checkChildrenDidChange(child, previousData);
+    }
+  }
+  return previousData.didChange;
+}
+var init_checkChildrenDidChange = __esm({
+  "node_modules/pixi.js/lib/scene/container/utils/checkChildrenDidChange.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/measureMixin.mjs
+var tempMatrix3, measureMixin;
+var init_measureMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/measureMixin.mjs"() {
+    init_Matrix();
+    init_Bounds();
+    init_getGlobalBounds();
+    init_getLocalBounds();
+    init_checkChildrenDidChange();
+    tempMatrix3 = new Matrix();
+    measureMixin = {
+      _localBoundsCacheId: -1,
+      _localBoundsCacheData: null,
+      _setWidth(value, localWidth) {
+        const sign2 = Math.sign(this.scale.x) || 1;
+        if (localWidth !== 0) {
+          this.scale.x = value / localWidth * sign2;
+        } else {
+          this.scale.x = sign2;
+        }
+      },
+      _setHeight(value, localHeight) {
+        const sign2 = Math.sign(this.scale.y) || 1;
+        if (localHeight !== 0) {
+          this.scale.y = value / localHeight * sign2;
+        } else {
+          this.scale.y = sign2;
+        }
+      },
+      getLocalBounds() {
+        if (!this._localBoundsCacheData) {
+          this._localBoundsCacheData = {
+            data: [],
+            index: 1,
+            didChange: false,
+            localBounds: new Bounds()
+          };
+        }
+        const localBoundsCacheData = this._localBoundsCacheData;
+        localBoundsCacheData.index = 1;
+        localBoundsCacheData.didChange = false;
+        if (localBoundsCacheData.data[0] !== this._didViewChangeTick) {
+          localBoundsCacheData.didChange = true;
+          localBoundsCacheData.data[0] = this._didViewChangeTick;
+        }
+        checkChildrenDidChange(this, localBoundsCacheData);
+        if (localBoundsCacheData.didChange) {
+          getLocalBounds(this, localBoundsCacheData.localBounds, tempMatrix3);
+        }
+        return localBoundsCacheData.localBounds;
+      },
+      getBounds(skipUpdate, bounds) {
+        return getGlobalBounds(this, skipUpdate, bounds || new Bounds());
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/onRenderMixin.mjs
+var onRenderMixin;
+var init_onRenderMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/onRenderMixin.mjs"() {
+    "use strict";
+    onRenderMixin = {
+      _onRender: null,
+      set onRender(func) {
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        if (!func) {
+          if (this._onRender) {
+            renderGroup?.removeOnRender(this);
+          }
+          this._onRender = null;
+          return;
+        }
+        if (!this._onRender) {
+          renderGroup?.addOnRender(this);
+        }
+        this._onRender = func;
+      },
+      get onRender() {
+        return this._onRender;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/sortMixin.mjs
+function sortChildren(a3, b3) {
+  return a3._zIndex - b3._zIndex;
+}
+var sortMixin;
+var init_sortMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/sortMixin.mjs"() {
+    "use strict";
+    sortMixin = {
+      _zIndex: 0,
+      sortDirty: false,
+      sortableChildren: false,
+      get zIndex() {
+        return this._zIndex;
+      },
+      set zIndex(value) {
+        if (this._zIndex === value) return;
+        this._zIndex = value;
+        this.depthOfChildModified();
+      },
+      depthOfChildModified() {
+        if (this.parent) {
+          this.parent.sortableChildren = true;
+          this.parent.sortDirty = true;
+        }
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true;
+        }
+      },
+      sortChildren() {
+        if (!this.sortDirty) return;
+        this.sortDirty = false;
+        this.children.sort(sortChildren);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/container-mixins/toLocalGlobalMixin.mjs
+var toLocalGlobalMixin;
+var init_toLocalGlobalMixin = __esm({
+  "node_modules/pixi.js/lib/scene/container/container-mixins/toLocalGlobalMixin.mjs"() {
+    init_Point();
+    init_matrixAndBoundsPool();
+    toLocalGlobalMixin = {
+      getGlobalPosition(point = new Point(), skipUpdate = false) {
+        if (this.parent) {
+          this.parent.toGlobal(this._position, point, skipUpdate);
+        } else {
+          point.x = this._position.x;
+          point.y = this._position.y;
+        }
+        return point;
+      },
+      toGlobal(position, point, skipUpdate = false) {
+        const globalMatrix = this.getGlobalTransform(matrixPool.get(), skipUpdate);
+        point = globalMatrix.apply(position, point);
+        matrixPool.return(globalMatrix);
+        return point;
+      },
+      toLocal(position, from, point, skipUpdate) {
+        if (from) {
+          position = from.toGlobal(position, point, skipUpdate);
+        }
+        const globalMatrix = this.getGlobalTransform(matrixPool.get(), skipUpdate);
+        point = globalMatrix.applyInverse(position, point);
+        matrixPool.return(globalMatrix);
+        return point;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/instructions/InstructionSet.mjs
+var InstructionSet;
+var init_InstructionSet = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/instructions/InstructionSet.mjs"() {
+    init_uid();
+    InstructionSet = class {
+      constructor() {
+        this.uid = uid("instructionSet");
+        this.instructions = [];
+        this.instructionSize = 0;
+        this.renderables = [];
+        this.gcTick = 0;
+      }
+      /** reset the instruction set so it can be reused set size back to 0 */
+      reset() {
+        this.instructionSize = 0;
+      }
+      /**
+       * Destroy the instruction set, clearing the instructions and renderables.
+       * @internal
+       */
+      destroy() {
+        this.instructions.length = 0;
+        this.renderables.length = 0;
+        this.renderPipes = null;
+        this.gcTick = 0;
+      }
+      /**
+       * Add an instruction to the set
+       * @param instruction - add an instruction to the set
+       */
+      add(instruction) {
+        this.instructions[this.instructionSize++] = instruction;
+      }
+      /**
+       * Log the instructions to the console (for debugging)
+       * @internal
+       */
+      log() {
+        this.instructions.length = this.instructionSize;
+        console.table(this.instructions, ["type", "action"]);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/maths/matrix/groupD8.mjs
+function init() {
+  for (let i3 = 0; i3 < 16; i3++) {
+    const row = [];
+    rotationCayley.push(row);
+    for (let j4 = 0; j4 < 16; j4++) {
+      const _ux = signum(ux[i3] * ux[j4] + vx[i3] * uy[j4]);
+      const _uy = signum(uy[i3] * ux[j4] + vy[i3] * uy[j4]);
+      const _vx = signum(ux[i3] * vx[j4] + vx[i3] * vy[j4]);
+      const _vy = signum(uy[i3] * vx[j4] + vy[i3] * vy[j4]);
+      for (let k3 = 0; k3 < 16; k3++) {
+        if (ux[k3] === _ux && uy[k3] === _uy && vx[k3] === _vx && vy[k3] === _vy) {
+          row.push(k3);
+          break;
+        }
+      }
+    }
+  }
+  for (let i3 = 0; i3 < 16; i3++) {
+    const mat = new Matrix();
+    mat.set(ux[i3], uy[i3], vx[i3], vy[i3], 0, 0);
+    rotationMatrices.push(mat);
+  }
+}
+var ux, uy, vx, vy, rotationCayley, rotationMatrices, signum, groupD8;
+var init_groupD8 = __esm({
+  "node_modules/pixi.js/lib/maths/matrix/groupD8.mjs"() {
+    init_Matrix();
+    ux = [1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1];
+    uy = [0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1];
+    vx = [0, -1, -1, -1, 0, 1, 1, 1, 0, 1, 1, 1, 0, -1, -1, -1];
+    vy = [1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, 1, 1, 1, 0, -1];
+    rotationCayley = [];
+    rotationMatrices = [];
+    signum = Math.sign;
+    init();
+    groupD8 = {
+      /**
+       * | Rotation | Direction |
+       * |----------|-----------|
+       * | 0°       | East      |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      E: 0,
+      /**
+       * | Rotation | Direction |
+       * |----------|-----------|
+       * | 45°↻     | Southeast |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      SE: 1,
+      /**
+       * | Rotation | Direction |
+       * |----------|-----------|
+       * | 90°↻     | South     |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      S: 2,
+      /**
+       * | Rotation | Direction |
+       * |----------|-----------|
+       * | 135°↻    | Southwest |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      SW: 3,
+      /**
+       * | Rotation | Direction |
+       * |----------|-----------|
+       * | 180°     | West      |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      W: 4,
+      /**
+       * | Rotation    | Direction    |
+       * |-------------|--------------|
+       * | -135°/225°↻ | Northwest    |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      NW: 5,
+      /**
+       * | Rotation    | Direction    |
+       * |-------------|--------------|
+       * | -90°/270°↻  | North        |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      N: 6,
+      /**
+       * | Rotation    | Direction    |
+       * |-------------|--------------|
+       * | -45°/315°↻  | Northeast    |
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      NE: 7,
+      /**
+       * Reflection about Y-axis.
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      MIRROR_VERTICAL: 8,
+      /**
+       * Reflection about the main diagonal.
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      MAIN_DIAGONAL: 10,
+      /**
+       * Reflection about X-axis.
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      MIRROR_HORIZONTAL: 12,
+      /**
+       * Reflection about reverse diagonal.
+       * @group groupD8
+       * @type {GD8Symmetry}
+       */
+      REVERSE_DIAGONAL: 14,
+      /**
+       * @group groupD8
+       * @param {GD8Symmetry} ind - sprite rotation angle.
+       * @returns {GD8Symmetry} The X-component of the U-axis
+       *    after rotating the axes.
+       */
+      uX: (ind) => ux[ind],
+      /**
+       * @group groupD8
+       * @param {GD8Symmetry} ind - sprite rotation angle.
+       * @returns {GD8Symmetry} The Y-component of the U-axis
+       *    after rotating the axes.
+       */
+      uY: (ind) => uy[ind],
+      /**
+       * @group groupD8
+       * @param {GD8Symmetry} ind - sprite rotation angle.
+       * @returns {GD8Symmetry} The X-component of the V-axis
+       *    after rotating the axes.
+       */
+      vX: (ind) => vx[ind],
+      /**
+       * @group groupD8
+       * @param {GD8Symmetry} ind - sprite rotation angle.
+       * @returns {GD8Symmetry} The Y-component of the V-axis
+       *    after rotating the axes.
+       */
+      vY: (ind) => vy[ind],
+      /**
+       * @group groupD8
+       * @param {GD8Symmetry} rotation - symmetry whose opposite
+       *   is needed. Only rotations have opposite symmetries while
+       *   reflections don't.
+       * @returns {GD8Symmetry} The opposite symmetry of `rotation`
+       */
+      inv: (rotation) => {
+        if (rotation & 8) {
+          return rotation & 15;
+        }
+        return -rotation & 7;
+      },
+      /**
+       * Composes the two D8 operations.
+       *
+       * Taking `^` as reflection:
+       *
+       * |       | E=0 | S=2 | W=4 | N=6 | E^=8 | S^=10 | W^=12 | N^=14 |
+       * |-------|-----|-----|-----|-----|------|-------|-------|-------|
+       * | E=0   | E   | S   | W   | N   | E^   | S^    | W^    | N^    |
+       * | S=2   | S   | W   | N   | E   | S^   | W^    | N^    | E^    |
+       * | W=4   | W   | N   | E   | S   | W^   | N^    | E^    | S^    |
+       * | N=6   | N   | E   | S   | W   | N^   | E^    | S^    | W^    |
+       * | E^=8  | E^  | N^  | W^  | S^  | E    | N     | W     | S     |
+       * | S^=10 | S^  | E^  | N^  | W^  | S    | E     | N     | W     |
+       * | W^=12 | W^  | S^  | E^  | N^  | W    | S     | E     | N     |
+       * | N^=14 | N^  | W^  | S^  | E^  | N    | W     | S     | E     |
+       *
+       * [This is a Cayley table]{@link https://en.wikipedia.org/wiki/Cayley_table}
+       * @group groupD8
+       * @param {GD8Symmetry} rotationSecond - Second operation, which
+       *   is the row in the above cayley table.
+       * @param {GD8Symmetry} rotationFirst - First operation, which
+       *   is the column in the above cayley table.
+       * @returns {GD8Symmetry} Composed operation
+       */
+      add: (rotationSecond, rotationFirst) => rotationCayley[rotationSecond][rotationFirst],
+      /**
+       * Reverse of `add`.
+       * @group groupD8
+       * @param {GD8Symmetry} rotationSecond - Second operation
+       * @param {GD8Symmetry} rotationFirst - First operation
+       * @returns {GD8Symmetry} Result
+       */
+      sub: (rotationSecond, rotationFirst) => rotationCayley[rotationSecond][groupD8.inv(rotationFirst)],
+      /**
+       * Adds 180 degrees to rotation, which is a commutative
+       * operation.
+       * @group groupD8
+       * @param {number} rotation - The number to rotate.
+       * @returns {number} Rotated number
+       */
+      rotate180: (rotation) => rotation ^ 4,
+      /**
+       * Checks if the rotation angle is vertical, i.e. south
+       * or north. It doesn't work for reflections.
+       * @group groupD8
+       * @param {GD8Symmetry} rotation - The number to check.
+       * @returns {boolean} Whether or not the direction is vertical
+       */
+      isVertical: (rotation) => (rotation & 3) === 2,
+      // rotation % 4 === 2
+      /**
+       * Approximates the vector `V(dx,dy)` into one of the
+       * eight directions provided by `groupD8`.
+       * @group groupD8
+       * @param {number} dx - X-component of the vector
+       * @param {number} dy - Y-component of the vector
+       * @returns {GD8Symmetry} Approximation of the vector into
+       *  one of the eight symmetries.
+       */
+      byDirection: (dx, dy) => {
+        if (Math.abs(dx) * 2 <= Math.abs(dy)) {
+          if (dy >= 0) {
+            return groupD8.S;
+          }
+          return groupD8.N;
+        } else if (Math.abs(dy) * 2 <= Math.abs(dx)) {
+          if (dx > 0) {
+            return groupD8.E;
+          }
+          return groupD8.W;
+        } else if (dy > 0) {
+          if (dx > 0) {
+            return groupD8.SE;
+          }
+          return groupD8.SW;
+        } else if (dx > 0) {
+          return groupD8.NE;
+        }
+        return groupD8.NW;
+      },
+      /**
+       * Helps sprite to compensate texture packer rotation.
+       * @group groupD8
+       * @param {Matrix} matrix - sprite world matrix
+       * @param {GD8Symmetry} rotation - The rotation factor to use.
+       * @param {number} tx - sprite anchoring
+       * @param {number} ty - sprite anchoring
+       * @param {number} dw - sprite width
+       * @param {number} dh - sprite height
+       */
+      matrixAppendRotationInv: (matrix, rotation, tx = 0, ty = 0, dw = 0, dh = 0) => {
+        const mat = rotationMatrices[groupD8.inv(rotation)];
+        const a3 = mat.a;
+        const b3 = mat.b;
+        const c3 = mat.c;
+        const d3 = mat.d;
+        const finalTx = tx - Math.min(0, a3 * dw, c3 * dh, a3 * dw + c3 * dh);
+        const finalTy = ty - Math.min(0, b3 * dw, d3 * dh, b3 * dw + d3 * dh);
+        const a1 = matrix.a;
+        const b1 = matrix.b;
+        const c1 = matrix.c;
+        const d1 = matrix.d;
+        matrix.a = a3 * a1 + b3 * c1;
+        matrix.b = a3 * b1 + b3 * d1;
+        matrix.c = c3 * a1 + d3 * c1;
+        matrix.d = c3 * b1 + d3 * d1;
+        matrix.tx = finalTx * a1 + finalTy * c1 + matrix.tx;
+        matrix.ty = finalTx * b1 + finalTy * d1 + matrix.ty;
+      },
+      /**
+       * Transforms rectangle coordinates based on texture packer rotation.
+       * Used when texture atlas pages are rotated and coordinates need to be adjusted.
+       * @group groupD8
+       * @param {RectangleLike} rect - Rectangle with original coordinates to transform
+       * @param {RectangleLike} sourceFrame - Source texture frame (includes offset and dimensions)
+       * @param {GD8Symmetry} rotation - The groupD8 rotation value
+       * @param {Rectangle} out - Rectangle to store the result
+       * @returns {Rectangle} Transformed coordinates (includes source frame offset)
+       */
+      transformRectCoords: (rect, sourceFrame, rotation, out2) => {
+        const { x: x3, y: y4, width, height } = rect;
+        const { x: frameX, y: frameY, width: frameWidth, height: frameHeight } = sourceFrame;
+        if (rotation === groupD8.E) {
+          out2.set(x3 + frameX, y4 + frameY, width, height);
+          return out2;
+        } else if (rotation === groupD8.S) {
+          return out2.set(
+            frameWidth - y4 - height + frameX,
+            x3 + frameY,
+            height,
+            width
+          );
+        } else if (rotation === groupD8.W) {
+          return out2.set(
+            frameWidth - x3 - width + frameX,
+            frameHeight - y4 - height + frameY,
+            width,
+            height
+          );
+        } else if (rotation === groupD8.N) {
+          return out2.set(
+            y4 + frameX,
+            frameHeight - x3 - width + frameY,
+            height,
+            width
+          );
+        }
+        return out2.set(x3 + frameX, y4 + frameY, width, height);
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/misc/NOOP.mjs
+var NOOP;
+var init_NOOP = __esm({
+  "node_modules/pixi.js/lib/utils/misc/NOOP.mjs"() {
+    "use strict";
+    NOOP = () => {
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/BufferImageSource.mjs
+var BufferImageSource;
+var init_BufferImageSource = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/BufferImageSource.mjs"() {
+    init_Extensions();
+    init_TextureSource();
+    BufferImageSource = class extends TextureSource {
+      constructor(options) {
+        const buffer = options.resource || new Float32Array(options.width * options.height * 4);
+        let format = options.format;
+        if (!format) {
+          if (buffer instanceof Float32Array) {
+            format = "rgba32float";
+          } else if (buffer instanceof Int32Array) {
+            format = "rgba32uint";
+          } else if (buffer instanceof Uint32Array) {
+            format = "rgba32uint";
+          } else if (buffer instanceof Int16Array) {
+            format = "rgba16uint";
+          } else if (buffer instanceof Uint16Array) {
+            format = "rgba16uint";
+          } else if (buffer instanceof Int8Array) {
+            format = "bgra8unorm";
+          } else {
+            format = "bgra8unorm";
+          }
+        }
+        super({
+          ...options,
+          resource: buffer,
+          format
+        });
+        this.uploadMethodId = "buffer";
+      }
+      static test(resource) {
+        return resource instanceof Int8Array || resource instanceof Uint8Array || resource instanceof Uint8ClampedArray || resource instanceof Int16Array || resource instanceof Uint16Array || resource instanceof Int32Array || resource instanceof Uint32Array || resource instanceof Float32Array;
+      }
+    };
+    BufferImageSource.extension = ExtensionType.TextureSource;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureMatrix.mjs
+var tempMat, TextureMatrix;
+var init_TextureMatrix = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureMatrix.mjs"() {
+    init_Matrix();
+    tempMat = new Matrix();
+    TextureMatrix = class {
+      /**
+       * @param texture - observed texture
+       * @param clampMargin - Changes frame clamping, 0.5 by default. Use -0.5 for extra border.
+       */
+      constructor(texture, clampMargin) {
+        this.mapCoord = new Matrix();
+        this.uClampFrame = new Float32Array(4);
+        this.uClampOffset = new Float32Array(2);
+        this._updateID = 0;
+        this.clampOffset = 0;
+        if (typeof clampMargin === "undefined") {
+          this.clampMargin = texture.width < 10 ? 0 : 0.5;
+        } else {
+          this.clampMargin = clampMargin;
+        }
+        this.isSimple = false;
+        this.texture = texture;
+      }
+      /** Texture property. */
+      get texture() {
+        return this._texture;
+      }
+      set texture(value) {
+        if (this._texture !== value) {
+          this._texture?.removeListener("update", this.update, this);
+          this._texture = value;
+          this._texture.addListener("update", this.update, this);
+        }
+        this.update();
+      }
+      /**
+       * Multiplies uvs array to transform
+       * @param uvs - mesh uvs
+       * @param [out=uvs] - output
+       * @returns - output
+       */
+      multiplyUvs(uvs, out2) {
+        if (out2 === void 0) {
+          out2 = uvs;
+        }
+        const mat = this.mapCoord;
+        for (let i3 = 0; i3 < uvs.length; i3 += 2) {
+          const x3 = uvs[i3];
+          const y4 = uvs[i3 + 1];
+          out2[i3] = x3 * mat.a + y4 * mat.c + mat.tx;
+          out2[i3 + 1] = x3 * mat.b + y4 * mat.d + mat.ty;
+        }
+        return out2;
+      }
+      /**
+       * Updates matrices if texture was changed
+       * @returns - whether or not it was updated
+       */
+      update() {
+        const tex = this._texture;
+        this._updateID++;
+        const uvs = tex.uvs;
+        this.mapCoord.set(uvs.x1 - uvs.x0, uvs.y1 - uvs.y0, uvs.x3 - uvs.x0, uvs.y3 - uvs.y0, uvs.x0, uvs.y0);
+        const orig = tex.orig;
+        const trim = tex.trim;
+        if (trim) {
+          tempMat.set(
+            orig.width / trim.width,
+            0,
+            0,
+            orig.height / trim.height,
+            -trim.x / trim.width,
+            -trim.y / trim.height
+          );
+          this.mapCoord.append(tempMat);
+        }
+        const texBase = tex.source;
+        const frame = this.uClampFrame;
+        const margin = this.clampMargin / texBase._resolution;
+        const offset4 = this.clampOffset / texBase._resolution;
+        frame[0] = (tex.frame.x + margin + offset4) / texBase.width;
+        frame[1] = (tex.frame.y + margin + offset4) / texBase.height;
+        frame[2] = (tex.frame.x + tex.frame.width - margin + offset4) / texBase.width;
+        frame[3] = (tex.frame.y + tex.frame.height - margin + offset4) / texBase.height;
+        this.uClampOffset[0] = this.clampOffset / texBase.pixelWidth;
+        this.uClampOffset[1] = this.clampOffset / texBase.pixelHeight;
+        this.isSimple = tex.frame.width === texBase.width && tex.frame.height === texBase.height && tex.rotate === 0;
+        return true;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/Texture.mjs
+var Texture;
+var init_Texture = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/Texture.mjs"() {
+    init_eventemitter3();
+    init_groupD8();
+    init_Rectangle();
+    init_uid();
+    init_deprecation();
+    init_NOOP();
+    init_BufferImageSource();
+    init_TextureSource();
+    init_TextureMatrix();
+    Texture = class extends eventemitter3_default {
+      /**
+       * @param {TextureOptions} options - Options for the texture
+       */
+      constructor({
+        source: source3,
+        label,
+        frame,
+        orig,
+        trim,
+        defaultAnchor,
+        defaultBorders,
+        rotate,
+        dynamic
+      } = {}) {
+        super();
+        this.uid = uid("texture");
+        this.uvs = { x0: 0, y0: 0, x1: 0, y1: 0, x2: 0, y2: 0, x3: 0, y3: 0 };
+        this.frame = new Rectangle();
+        this.noFrame = false;
+        this.dynamic = false;
+        this.isTexture = true;
+        this.label = label;
+        this.source = source3?.source ?? new TextureSource();
+        this.noFrame = !frame;
+        if (frame) {
+          this.frame.copyFrom(frame);
+        } else {
+          const { width, height } = this._source;
+          this.frame.width = width;
+          this.frame.height = height;
+        }
+        this.orig = orig || this.frame;
+        this.trim = trim;
+        this.rotate = rotate ?? 0;
+        this.defaultAnchor = defaultAnchor;
+        this.defaultBorders = defaultBorders;
+        this.destroyed = false;
+        this.dynamic = dynamic || false;
+        this.updateUvs();
+      }
+      set source(value) {
+        if (this._source) {
+          this._source.off("resize", this.update, this);
+        }
+        this._source = value;
+        value.on("resize", this.update, this);
+        this.emit("update", this);
+      }
+      /** the underlying source of the texture (equivalent of baseTexture in v7) */
+      get source() {
+        return this._source;
+      }
+      /** returns a TextureMatrix instance for this texture. By default, that object is not created because its heavy. */
+      get textureMatrix() {
+        if (!this._textureMatrix) {
+          this._textureMatrix = new TextureMatrix(this);
+        }
+        return this._textureMatrix;
+      }
+      /** The width of the Texture in pixels. */
+      get width() {
+        return this.orig.width;
+      }
+      /** The height of the Texture in pixels. */
+      get height() {
+        return this.orig.height;
+      }
+      /** Call this function when you have modified the frame of this texture. */
+      updateUvs() {
+        const { uvs, frame } = this;
+        const { width, height } = this._source;
+        const nX = frame.x / width;
+        const nY = frame.y / height;
+        const nW = frame.width / width;
+        const nH = frame.height / height;
+        let rotate = this.rotate;
+        if (rotate) {
+          const w22 = nW / 2;
+          const h22 = nH / 2;
+          const cX = nX + w22;
+          const cY = nY + h22;
+          rotate = groupD8.add(rotate, groupD8.NW);
+          uvs.x0 = cX + w22 * groupD8.uX(rotate);
+          uvs.y0 = cY + h22 * groupD8.uY(rotate);
+          rotate = groupD8.add(rotate, 2);
+          uvs.x1 = cX + w22 * groupD8.uX(rotate);
+          uvs.y1 = cY + h22 * groupD8.uY(rotate);
+          rotate = groupD8.add(rotate, 2);
+          uvs.x2 = cX + w22 * groupD8.uX(rotate);
+          uvs.y2 = cY + h22 * groupD8.uY(rotate);
+          rotate = groupD8.add(rotate, 2);
+          uvs.x3 = cX + w22 * groupD8.uX(rotate);
+          uvs.y3 = cY + h22 * groupD8.uY(rotate);
+        } else {
+          uvs.x0 = nX;
+          uvs.y0 = nY;
+          uvs.x1 = nX + nW;
+          uvs.y1 = nY;
+          uvs.x2 = nX + nW;
+          uvs.y2 = nY + nH;
+          uvs.x3 = nX;
+          uvs.y3 = nY + nH;
+        }
+      }
+      /**
+       * Destroys this texture
+       * @param destroySource - Destroy the source when the texture is destroyed.
+       */
+      destroy(destroySource = false) {
+        if (this._source) {
+          this._source.off("resize", this.update, this);
+          if (destroySource) {
+            this._source.destroy();
+            this._source = null;
+          }
+        }
+        this._textureMatrix = null;
+        this.destroyed = true;
+        this.emit("destroy", this);
+        this.removeAllListeners();
+      }
+      /**
+       * Call this if you have modified the `texture outside` of the constructor.
+       *
+       * If you have modified this texture's source, you must separately call `texture.source.update()` to see those changes.
+       */
+      update() {
+        if (this.noFrame) {
+          this.frame.width = this._source.width;
+          this.frame.height = this._source.height;
+        }
+        this.updateUvs();
+        this.emit("update", this);
+      }
+      /** @deprecated since 8.0.0 */
+      get baseTexture() {
+        deprecation(v8_0_0, "Texture.baseTexture is now Texture.source");
+        return this._source;
+      }
+    };
+    Texture.EMPTY = new Texture({
+      label: "EMPTY",
+      source: new TextureSource({
+        label: "EMPTY"
+      })
+    });
+    Texture.EMPTY.destroy = NOOP;
+    Texture.WHITE = new Texture({
+      source: new BufferImageSource({
+        resource: new Uint8Array([255, 255, 255, 255]),
+        width: 1,
+        height: 1,
+        alphaMode: "premultiply-alpha-on-upload",
+        label: "WHITE"
+      }),
+      label: "WHITE"
+    });
+    Texture.WHITE.destroy = NOOP;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TexturePool.mjs
+var count, TexturePoolClass, TexturePool;
+var init_TexturePool = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TexturePool.mjs"() {
+    init_pow2();
+    init_GlobalResourceRegistry();
+    init_TextureSource();
+    init_Texture();
+    init_TextureStyle();
+    count = 0;
+    TexturePoolClass = class {
+      /**
+       * @param textureOptions - options that will be passed to BaseRenderTexture constructor
+       * @param {SCALE_MODE} [textureOptions.scaleMode] - See {@link SCALE_MODE} for possible values.
+       */
+      constructor(textureOptions) {
+        this._poolKeyHash = /* @__PURE__ */ Object.create(null);
+        this._texturePool = {};
+        this.textureOptions = textureOptions || {};
+        this.enableFullScreen = false;
+        this.textureStyle = new TextureStyle(this.textureOptions);
+      }
+      /**
+       * Creates texture with params that were specified in pool constructor.
+       * @param pixelWidth - Width of texture in pixels.
+       * @param pixelHeight - Height of texture in pixels.
+       * @param antialias
+       * @param autoGenerateMipmaps - Whether to automatically generate mipmaps for this texture
+       */
+      createTexture(pixelWidth, pixelHeight, antialias, autoGenerateMipmaps) {
+        const textureSource = new TextureSource({
+          ...this.textureOptions,
+          width: pixelWidth,
+          height: pixelHeight,
+          resolution: 1,
+          antialias,
+          autoGarbageCollect: false,
+          autoGenerateMipmaps
+        });
+        return new Texture({
+          source: textureSource,
+          label: `texturePool_${count++}`
+        });
+      }
+      /**
+       * Gets a Power-of-Two render texture or fullScreen texture
+       * @param frameWidth - The minimum width of the render texture.
+       * @param frameHeight - The minimum height of the render texture.
+       * @param resolution - The resolution of the render texture.
+       * @param antialias
+       * @param autoGenerateMipmaps - Whether to automatically generate mipmaps. Defaults to false.
+       * @returns The new render texture.
+       */
+      getOptimalTexture(frameWidth, frameHeight, resolution = 1, antialias, autoGenerateMipmaps = false) {
+        let po2Width = Math.ceil(frameWidth * resolution - 1e-6);
+        let po2Height = Math.ceil(frameHeight * resolution - 1e-6);
+        po2Width = nextPow2(po2Width);
+        po2Height = nextPow2(po2Height);
+        const antialiasFlag = antialias ? 1 : 0;
+        const mipmapFlag = autoGenerateMipmaps ? 1 : 0;
+        const key = (po2Width << 17) + (po2Height << 2) + (mipmapFlag << 1) + antialiasFlag;
+        if (!this._texturePool[key]) {
+          this._texturePool[key] = [];
+        }
+        let texture = this._texturePool[key].pop();
+        if (!texture) {
+          texture = this.createTexture(po2Width, po2Height, antialias, autoGenerateMipmaps);
+        }
+        texture.source._resolution = resolution;
+        texture.source.width = po2Width / resolution;
+        texture.source.height = po2Height / resolution;
+        texture.source.pixelWidth = po2Width;
+        texture.source.pixelHeight = po2Height;
+        texture.frame.x = 0;
+        texture.frame.y = 0;
+        texture.frame.width = frameWidth;
+        texture.frame.height = frameHeight;
+        texture.updateUvs();
+        this._poolKeyHash[texture.uid] = key;
+        return texture;
+      }
+      /**
+       * Gets a pooled texture matching the dimensions and resolution of the given texture.
+       *
+       * This is a convenience wrapper around {@link TexturePoolClass#getOptimalTexture|getOptimalTexture}
+       * that copies width, height, and resolution from an existing texture. Useful when a filter needs
+       * a temporary texture the same size as its input (e.g., for multi-pass blur).
+       * @param texture - The texture whose dimensions to match.
+       * @param antialias - Whether to use antialias on the pooled texture. Defaults to `false`.
+       * @returns A pooled texture with power-of-two backing dimensions at the source resolution.
+       */
+      getSameSizeTexture(texture, antialias = false) {
+        const source3 = texture.source;
+        return this.getOptimalTexture(texture.width, texture.height, source3._resolution, antialias);
+      }
+      /**
+       * Returns a texture to the pool so it can be reused by future
+       * {@link TexturePoolClass#getOptimalTexture|getOptimalTexture}
+       * or {@link TexturePoolClass#getSameSizeTexture|getSameSizeTexture} calls.
+       *
+       * If you modified the texture's style after obtaining it (e.g., changed filtering or wrapping),
+       * pass `resetStyle = true` to restore the pool's default {@link TexturePoolClass#textureStyle|textureStyle}.
+       * This prevents style changes from leaking into subsequent consumers of the same pooled texture.
+       * @param renderTexture - The texture to return to the pool.
+       * @param resetStyle - When `true`, replaces the texture source's style with the pool default. Defaults to `false`.
+       */
+      returnTexture(renderTexture, resetStyle = false) {
+        const key = this._poolKeyHash[renderTexture.uid];
+        if (resetStyle) {
+          renderTexture.source.style = this.textureStyle;
+        }
+        this._texturePool[key].push(renderTexture);
+      }
+      /**
+       * Clears the pool.
+       * @param destroyTextures - Destroy all stored textures.
+       */
+      clear(destroyTextures) {
+        destroyTextures = destroyTextures !== false;
+        if (destroyTextures) {
+          for (const i3 in this._texturePool) {
+            const textures = this._texturePool[i3];
+            if (textures) {
+              for (let j4 = 0; j4 < textures.length; j4++) {
+                textures[j4].destroy(true);
+              }
+            }
+          }
+        }
+        this._texturePool = {};
+      }
+    };
+    TexturePool = new TexturePoolClass();
+    GlobalResourceRegistry.register(TexturePool);
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/RenderGroup.mjs
+var RenderGroup;
+var init_RenderGroup = __esm({
+  "node_modules/pixi.js/lib/scene/container/RenderGroup.mjs"() {
+    init_Matrix();
+    init_InstructionSet();
+    init_TexturePool();
+    RenderGroup = class {
+      constructor() {
+        this.renderPipeId = "renderGroup";
+        this.root = null;
+        this.canBundle = false;
+        this.renderGroupParent = null;
+        this.renderGroupChildren = [];
+        this.worldTransform = new Matrix();
+        this.worldColorAlpha = 4294967295;
+        this.worldColor = 16777215;
+        this.worldAlpha = 1;
+        this.childrenToUpdate = /* @__PURE__ */ Object.create(null);
+        this.updateTick = 0;
+        this.gcTick = 0;
+        this.childrenRenderablesToUpdate = { list: [], index: 0 };
+        this.structureDidChange = true;
+        this.instructionSet = new InstructionSet();
+        this._onRenderContainers = [];
+        this.textureNeedsUpdate = true;
+        this.isCachedAsTexture = false;
+        this._matrixDirty = 7;
+      }
+      init(root) {
+        this.root = root;
+        if (root._onRender) this.addOnRender(root);
+        root.didChange = true;
+        const children = root.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          const child = children[i3];
+          child._updateFlags = 15;
+          this.addChild(child);
+        }
+      }
+      enableCacheAsTexture(options = {}) {
+        this.textureOptions = options;
+        this.isCachedAsTexture = true;
+        this.textureNeedsUpdate = true;
+      }
+      disableCacheAsTexture() {
+        this.isCachedAsTexture = false;
+        if (this.texture) {
+          TexturePool.returnTexture(this.texture, true);
+          this.texture = null;
+        }
+      }
+      updateCacheTexture() {
+        this.textureNeedsUpdate = true;
+        const cachedParent = this._parentCacheAsTextureRenderGroup;
+        if (cachedParent && !cachedParent.textureNeedsUpdate) {
+          cachedParent.updateCacheTexture();
+        }
+      }
+      reset() {
+        this.renderGroupChildren.length = 0;
+        for (const i3 in this.childrenToUpdate) {
+          const childrenAtDepth = this.childrenToUpdate[i3];
+          childrenAtDepth.list.fill(null);
+          childrenAtDepth.index = 0;
+        }
+        this.childrenRenderablesToUpdate.index = 0;
+        this.childrenRenderablesToUpdate.list.fill(null);
+        this.root = null;
+        this.updateTick = 0;
+        this.structureDidChange = true;
+        this._onRenderContainers.length = 0;
+        this.renderGroupParent = null;
+        this.disableCacheAsTexture();
+      }
+      get localTransform() {
+        return this.root.localTransform;
+      }
+      addRenderGroupChild(renderGroupChild) {
+        if (renderGroupChild.renderGroupParent) {
+          renderGroupChild.renderGroupParent._removeRenderGroupChild(renderGroupChild);
+        }
+        renderGroupChild.renderGroupParent = this;
+        this.renderGroupChildren.push(renderGroupChild);
+      }
+      _removeRenderGroupChild(renderGroupChild) {
+        const index2 = this.renderGroupChildren.indexOf(renderGroupChild);
+        if (index2 > -1) {
+          this.renderGroupChildren.splice(index2, 1);
+        }
+        renderGroupChild.renderGroupParent = null;
+      }
+      addChild(child) {
+        this.structureDidChange = true;
+        child.parentRenderGroup = this;
+        child.updateTick = -1;
+        if (child.parent === this.root) {
+          child.relativeRenderGroupDepth = 1;
+        } else {
+          child.relativeRenderGroupDepth = child.parent.relativeRenderGroupDepth + 1;
+        }
+        child.didChange = true;
+        this.onChildUpdate(child);
+        if (child.renderGroup) {
+          this.addRenderGroupChild(child.renderGroup);
+          return;
+        }
+        if (child._onRender) this.addOnRender(child);
+        const children = child.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          this.addChild(children[i3]);
+        }
+      }
+      removeChild(child) {
+        this.structureDidChange = true;
+        if (child._onRender) {
+          if (!child.renderGroup) {
+            this.removeOnRender(child);
+          }
+        }
+        child.parentRenderGroup = null;
+        if (child.renderGroup) {
+          this._removeRenderGroupChild(child.renderGroup);
+          return;
+        }
+        const children = child.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          this.removeChild(children[i3]);
+        }
+      }
+      removeChildren(children) {
+        for (let i3 = 0; i3 < children.length; i3++) {
+          this.removeChild(children[i3]);
+        }
+      }
+      onChildUpdate(child) {
+        let childrenToUpdate = this.childrenToUpdate[child.relativeRenderGroupDepth];
+        if (!childrenToUpdate) {
+          childrenToUpdate = this.childrenToUpdate[child.relativeRenderGroupDepth] = {
+            index: 0,
+            list: []
+          };
+        }
+        childrenToUpdate.list[childrenToUpdate.index++] = child;
+      }
+      updateRenderable(renderable) {
+        if (renderable.globalDisplayStatus < 7) return;
+        this.instructionSet.renderPipes[renderable.renderPipeId].updateRenderable(renderable);
+        renderable.didViewUpdate = false;
+      }
+      onChildViewUpdate(child) {
+        this.childrenRenderablesToUpdate.list[this.childrenRenderablesToUpdate.index++] = child;
+      }
+      get isRenderable() {
+        return this.root.localDisplayStatus === 7 && this.worldAlpha > 0;
+      }
+      /**
+       * adding a container to the onRender list will make sure the user function
+       * passed in to the user defined 'onRender` callBack
+       * @param container - the container to add to the onRender list
+       */
+      addOnRender(container) {
+        this._onRenderContainers.push(container);
+      }
+      removeOnRender(container) {
+        this._onRenderContainers.splice(this._onRenderContainers.indexOf(container), 1);
+      }
+      runOnRender(renderer) {
+        for (let i3 = 0; i3 < this._onRenderContainers.length; i3++) {
+          this._onRenderContainers[i3]._onRender(renderer);
+        }
+      }
+      destroy() {
+        this.disableCacheAsTexture();
+        this.renderGroupParent = null;
+        this.root = null;
+        this.childrenRenderablesToUpdate = null;
+        this.childrenToUpdate = null;
+        this.renderGroupChildren = null;
+        this._onRenderContainers = null;
+        this.instructionSet = null;
+      }
+      getChildren(out2 = []) {
+        const children = this.root.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          this._getChildren(children[i3], out2);
+        }
+        return out2;
+      }
+      _getChildren(container, out2 = []) {
+        out2.push(container);
+        if (container.renderGroup) return out2;
+        const children = container.children;
+        for (let i3 = 0; i3 < children.length; i3++) {
+          this._getChildren(children[i3], out2);
+        }
+        return out2;
+      }
+      invalidateMatrices() {
+        this._matrixDirty = 7;
+      }
+      /**
+       * Returns the inverse of the world transform matrix.
+       * @returns {Matrix} The inverse of the world transform matrix.
+       */
+      get inverseWorldTransform() {
+        if ((this._matrixDirty & 1) === 0) return this._inverseWorldTransform;
+        this._matrixDirty &= ~1;
+        this._inverseWorldTransform || (this._inverseWorldTransform = new Matrix());
+        return this._inverseWorldTransform.copyFrom(this.worldTransform).invert();
+      }
+      /**
+       * Returns the inverse of the texture offset transform matrix.
+       * @returns {Matrix} The inverse of the texture offset transform matrix.
+       */
+      get textureOffsetInverseTransform() {
+        if ((this._matrixDirty & 2) === 0) return this._textureOffsetInverseTransform;
+        this._matrixDirty &= ~2;
+        this._textureOffsetInverseTransform || (this._textureOffsetInverseTransform = new Matrix());
+        return this._textureOffsetInverseTransform.copyFrom(this.inverseWorldTransform).translate(
+          -this._textureBounds.x,
+          -this._textureBounds.y
+        );
+      }
+      /**
+       * Returns the inverse of the parent texture transform matrix.
+       * This is used to properly transform coordinates when rendering into cached textures.
+       * @returns {Matrix} The inverse of the parent texture transform matrix.
+       */
+      get inverseParentTextureTransform() {
+        if ((this._matrixDirty & 4) === 0) return this._inverseParentTextureTransform;
+        this._matrixDirty &= ~4;
+        const parentCacheAsTexture = this._parentCacheAsTextureRenderGroup;
+        if (parentCacheAsTexture) {
+          this._inverseParentTextureTransform || (this._inverseParentTextureTransform = new Matrix());
+          return this._inverseParentTextureTransform.copyFrom(this.worldTransform).prepend(parentCacheAsTexture.inverseWorldTransform).translate(
+            -parentCacheAsTexture._textureBounds.x,
+            -parentCacheAsTexture._textureBounds.y
+          );
+        }
+        return this.worldTransform;
+      }
+      /**
+       * Returns a matrix that transforms coordinates to the correct coordinate space of the texture being rendered to.
+       * This is the texture offset inverse transform of the closest parent RenderGroup that is cached as a texture.
+       * @returns {Matrix | null} The transform matrix for the cached texture coordinate space,
+       * or null if no parent is cached as texture.
+       */
+      get cacheToLocalTransform() {
+        if (this.isCachedAsTexture) {
+          return this.textureOffsetInverseTransform;
+        }
+        if (!this._parentCacheAsTextureRenderGroup) return null;
+        return this._parentCacheAsTextureRenderGroup.textureOffsetInverseTransform;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/utils/assignWithIgnore.mjs
+function assignWithIgnore(target, options, ignore = {}) {
+  for (const key in options) {
+    if (!ignore[key] && options[key] !== void 0) {
+      target[key] = options[key];
+    }
+  }
+}
+var init_assignWithIgnore = __esm({
+  "node_modules/pixi.js/lib/scene/container/utils/assignWithIgnore.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/scene/container/Container.mjs
+var defaultSkew, defaultPivot, defaultScale, defaultOrigin, UPDATE_COLOR, UPDATE_BLEND, UPDATE_VISIBLE, Container;
+var init_Container = __esm({
+  "node_modules/pixi.js/lib/scene/container/Container.mjs"() {
+    init_eventemitter3();
+    init_Color();
+    init_cullingMixin();
+    init_Extensions();
+    init_Matrix();
+    init_const2();
+    init_ObservablePoint();
+    init_uid();
+    init_deprecation();
+    init_warn();
+    init_PoolGroup();
+    init_cacheAsTextureMixin();
+    init_childrenHelperMixin();
+    init_collectRenderablesMixin();
+    init_effectsMixin();
+    init_findMixin();
+    init_getFastGlobalBoundsMixin();
+    init_getGlobalMixin();
+    init_measureMixin();
+    init_onRenderMixin();
+    init_sortMixin();
+    init_toLocalGlobalMixin();
+    init_RenderGroup();
+    init_assignWithIgnore();
+    defaultSkew = new ObservablePoint(null);
+    defaultPivot = new ObservablePoint(null);
+    defaultScale = new ObservablePoint(null, 1, 1);
+    defaultOrigin = new ObservablePoint(null);
+    UPDATE_COLOR = 1;
+    UPDATE_BLEND = 2;
+    UPDATE_VISIBLE = 4;
+    Container = class _Container extends eventemitter3_default {
+      constructor(options = {}) {
+        super();
+        this.uid = uid("renderable");
+        this._updateFlags = 15;
+        this.renderGroup = null;
+        this.parentRenderGroup = null;
+        this.parentRenderGroupIndex = 0;
+        this.didChange = false;
+        this.didViewUpdate = false;
+        this.relativeRenderGroupDepth = 0;
+        this.children = [];
+        this.parent = null;
+        this.includeInBuild = true;
+        this.measurable = true;
+        this.isSimple = true;
+        this.parentRenderLayer = null;
+        this.updateTick = -1;
+        this.localTransform = new Matrix();
+        this.relativeGroupTransform = new Matrix();
+        this.groupTransform = this.relativeGroupTransform;
+        this.destroyed = false;
+        this._position = new ObservablePoint(this, 0, 0);
+        this._scale = defaultScale;
+        this._pivot = defaultPivot;
+        this._origin = defaultOrigin;
+        this._skew = defaultSkew;
+        this._cx = 1;
+        this._sx = 0;
+        this._cy = 0;
+        this._sy = 1;
+        this._rotation = 0;
+        this.localColor = 16777215;
+        this.localAlpha = 1;
+        this.groupAlpha = 1;
+        this.groupColor = 16777215;
+        this.groupColorAlpha = 4294967295;
+        this.localBlendMode = "inherit";
+        this.groupBlendMode = "normal";
+        this.localDisplayStatus = 7;
+        this.globalDisplayStatus = 7;
+        this._didContainerChangeTick = 0;
+        this._didViewChangeTick = 0;
+        this._didLocalTransformChangeId = -1;
+        this.effects = [];
+        assignWithIgnore(this, options, {
+          children: true,
+          parent: true,
+          effects: true
+        });
+        options.children?.forEach((child) => this.addChild(child));
+        options.parent?.addChild(this);
+      }
+      /**
+       * Mixes all enumerable properties and methods from a source object to Container.
+       * @param source - The source of properties and methods to mix in.
+       * @deprecated since 8.8.0
+       */
+      static mixin(source3) {
+        deprecation("8.8.0", "Container.mixin is deprecated, please use extensions.mixin instead.");
+        extensions.mixin(_Container, source3);
+      }
+      // = 'default';
+      /**
+       * We now use the _didContainerChangeTick and _didViewChangeTick to track changes
+       * @deprecated since 8.2.6
+       * @ignore
+       */
+      set _didChangeId(value) {
+        this._didViewChangeTick = value >> 12 & 4095;
+        this._didContainerChangeTick = value & 4095;
+      }
+      /** @ignore */
+      get _didChangeId() {
+        return this._didContainerChangeTick & 4095 | (this._didViewChangeTick & 4095) << 12;
+      }
+      /**
+       * Adds one or more children to the container.
+       * The children will be rendered as part of this container's display list.
+       * @example
+       * ```ts
+       * // Add a single child
+       * container.addChild(sprite);
+       *
+       * // Add multiple children
+       * container.addChild(background, player, foreground);
+       *
+       * // Add with type checking
+       * const sprite = container.addChild<Sprite>(new Sprite(texture));
+       * sprite.tint = 'red';
+       * ```
+       * @param children - The Container(s) to add to the container
+       * @returns The first child that was added
+       * @see {@link Container#removeChild} For removing children
+       * @see {@link Container#addChildAt} For adding at specific index
+       */
+      addChild(...children) {
+        if (!this.allowChildren) {
+          deprecation(v8_0_0, "addChild: Only Containers will be allowed to add children in v8.0.0");
+        }
+        if (children.length > 1) {
+          for (let i3 = 0; i3 < children.length; i3++) {
+            this.addChild(children[i3]);
+          }
+          return children[0];
+        }
+        const child = children[0];
+        const renderGroup = this.renderGroup || this.parentRenderGroup;
+        if (child.parent === this) {
+          this.children.splice(this.children.indexOf(child), 1);
+          this.children.push(child);
+          if (renderGroup) {
+            renderGroup.structureDidChange = true;
+          }
+          return child;
+        }
+        if (child.parent) {
+          child.parent.removeChild(child);
+        }
+        this.children.push(child);
+        if (this.sortableChildren) this.sortDirty = true;
+        child.parent = this;
+        child.didChange = true;
+        child._updateFlags = 15;
+        if (renderGroup) {
+          renderGroup.addChild(child);
+        }
+        this.emit("childAdded", child, this, this.children.length - 1);
+        child.emit("added", this);
+        this._didViewChangeTick++;
+        if (child._zIndex !== 0) {
+          child.depthOfChildModified();
+        }
+        return child;
+      }
+      /**
+       * Removes one or more children from the container.
+       * When removing multiple children, events will be triggered for each child in sequence.
+       * @example
+       * ```ts
+       * // Remove a single child
+       * const removed = container.removeChild(sprite);
+       *
+       * // Remove multiple children
+       * const bg = container.removeChild(background, player, userInterface);
+       *
+       * // Remove with type checking
+       * const sprite = container.removeChild<Sprite>(childSprite);
+       * sprite.texture = newTexture;
+       * ```
+       * @param children - The Container(s) to remove
+       * @returns The first child that was removed
+       * @see {@link Container#addChild} For adding children
+       * @see {@link Container#removeChildren} For removing multiple children
+       */
+      removeChild(...children) {
+        if (children.length > 1) {
+          for (let i3 = 0; i3 < children.length; i3++) {
+            this.removeChild(children[i3]);
+          }
+          return children[0];
+        }
+        const child = children[0];
+        const index2 = this.children.indexOf(child);
+        if (index2 > -1) {
+          this._didViewChangeTick++;
+          this.children.splice(index2, 1);
+          if (this.renderGroup) {
+            this.renderGroup.removeChild(child);
+          } else if (this.parentRenderGroup) {
+            this.parentRenderGroup.removeChild(child);
+          }
+          if (child.parentRenderLayer) {
+            child.parentRenderLayer.detach(child);
+          }
+          child.parent = null;
+          this.emit("childRemoved", child, this, index2);
+          child.emit("removed", this);
+        }
+        return child;
+      }
+      /** @ignore */
+      _onUpdate(point) {
+        if (point) {
+          if (point === this._skew) {
+            this._updateSkew();
+          }
+        }
+        this._didContainerChangeTick++;
+        if (this.didChange) return;
+        this.didChange = true;
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.onChildUpdate(this);
+        }
+      }
+      set isRenderGroup(value) {
+        if (!!this.renderGroup === value) return;
+        if (value) {
+          this.enableRenderGroup();
+        } else {
+          this.disableRenderGroup();
+        }
+      }
+      /**
+       * Returns true if this container is a render group.
+       * This means that it will be rendered as a separate pass, with its own set of instructions
+       * @advanced
+       */
+      get isRenderGroup() {
+        return !!this.renderGroup;
+      }
+      /**
+       * Calling this enables a render group for this container.
+       * This means it will be rendered as a separate set of instructions.
+       * The transform of the container will also be handled on the GPU rather than the CPU.
+       * @advanced
+       */
+      enableRenderGroup() {
+        if (this.renderGroup) return;
+        const parentRenderGroup = this.parentRenderGroup;
+        parentRenderGroup?.removeChild(this);
+        this.renderGroup = BigPool.get(RenderGroup, this);
+        this.groupTransform = Matrix.IDENTITY;
+        parentRenderGroup?.addChild(this);
+        this._updateIsSimple();
+      }
+      /**
+       * This will disable the render group for this container.
+       * @advanced
+       */
+      disableRenderGroup() {
+        if (!this.renderGroup) return;
+        const parentRenderGroup = this.parentRenderGroup;
+        parentRenderGroup?.removeChild(this);
+        BigPool.return(this.renderGroup);
+        this.renderGroup = null;
+        this.groupTransform = this.relativeGroupTransform;
+        parentRenderGroup?.addChild(this);
+        this._updateIsSimple();
+      }
+      /** @ignore */
+      _updateIsSimple() {
+        this.isSimple = !this.renderGroup && this.effects.length === 0;
+      }
+      /**
+       * Current transform of the object based on world (parent) factors.
+       *
+       * This matrix represents the absolute transformation in the scene graph.
+       * @example
+       * ```ts
+       * // Get world position
+       * const worldPos = container.worldTransform;
+       * console.log(`World position: (${worldPos.tx}, ${worldPos.ty})`);
+       * ```
+       * @readonly
+       * @see {@link Container#localTransform} For local space transform
+       */
+      get worldTransform() {
+        this._worldTransform || (this._worldTransform = new Matrix());
+        if (this.renderGroup) {
+          this._worldTransform.copyFrom(this.renderGroup.worldTransform);
+        } else if (this.parentRenderGroup) {
+          this._worldTransform.appendFrom(this.relativeGroupTransform, this.parentRenderGroup.worldTransform);
+        }
+        return this._worldTransform;
+      }
+      /**
+       * The position of the container on the x axis relative to the local coordinates of the parent.
+       *
+       * An alias to position.x
+       * @example
+       * ```ts
+       * // Basic position
+       * container.x = 100;
+       * ```
+       */
+      get x() {
+        return this._position.x;
+      }
+      set x(value) {
+        this._position.x = value;
+      }
+      /**
+       * The position of the container on the y axis relative to the local coordinates of the parent.
+       *
+       * An alias to position.y
+       * @example
+       * ```ts
+       * // Basic position
+       * container.y = 200;
+       * ```
+       */
+      get y() {
+        return this._position.y;
+      }
+      set y(value) {
+        this._position.y = value;
+      }
+      /**
+       * The coordinate of the object relative to the local coordinates of the parent.
+       * @example
+       * ```ts
+       * // Basic position setting
+       * container.position.set(100, 200);
+       * container.position.set(100); // Sets both x and y to 100
+       * // Using point data
+       * container.position = { x: 50, y: 75 };
+       * ```
+       * @since 4.0.0
+       */
+      get position() {
+        return this._position;
+      }
+      set position(value) {
+        this._position.copyFrom(value);
+      }
+      /**
+       * The rotation of the object in radians.
+       *
+       * > [!NOTE] 'rotation' and 'angle' have the same effect on a display object;
+       * > rotation is in radians, angle is in degrees.
+       * @example
+       * ```ts
+       * // Basic rotation
+       * container.rotation = Math.PI / 4; // 45 degrees
+       *
+       * // Convert from degrees
+       * const degrees = 45;
+       * container.rotation = degrees * Math.PI / 180;
+       *
+       * // Rotate around center
+       * container.pivot.set(container.width / 2, container.height / 2);
+       * container.rotation = Math.PI; // 180 degrees
+       *
+       * // Rotate around center with origin
+       * container.origin.set(container.width / 2, container.height / 2);
+       * container.rotation = Math.PI; // 180 degrees
+       * ```
+       */
+      get rotation() {
+        return this._rotation;
+      }
+      set rotation(value) {
+        if (this._rotation !== value) {
+          this._rotation = value;
+          this._onUpdate(this._skew);
+        }
+      }
+      /**
+       * The angle of the object in degrees.
+       *
+       * > [!NOTE] 'rotation' and 'angle' have the same effect on a display object;
+       * > rotation is in radians, angle is in degrees.
+       * @example
+       * ```ts
+       * // Basic angle rotation
+       * sprite.angle = 45; // 45 degrees
+       *
+       * // Rotate around center
+       * sprite.pivot.set(sprite.width / 2, sprite.height / 2);
+       * sprite.angle = 180; // Half rotation
+       *
+       * // Rotate around center with origin
+       * sprite.origin.set(sprite.width / 2, sprite.height / 2);
+       * sprite.angle = 180; // Half rotation
+       *
+       * // Reset rotation
+       * sprite.angle = 0;
+       * ```
+       */
+      get angle() {
+        return this.rotation * RAD_TO_DEG;
+      }
+      set angle(value) {
+        this.rotation = value * DEG_TO_RAD;
+      }
+      /**
+       * The center of rotation, scaling, and skewing for this display object in its local space.
+       * The `position` is the projection of `pivot` in the parent's local space.
+       *
+       * By default, the pivot is the origin (0, 0).
+       * @example
+       * ```ts
+       * // Rotate around center
+       * container.pivot.set(container.width / 2, container.height / 2);
+       * container.rotation = Math.PI; // Rotates around center
+       * ```
+       * @since 4.0.0
+       */
+      get pivot() {
+        if (this._pivot === defaultPivot) {
+          this._pivot = new ObservablePoint(this, 0, 0);
+        }
+        return this._pivot;
+      }
+      set pivot(value) {
+        if (this._pivot === defaultPivot) {
+          this._pivot = new ObservablePoint(this, 0, 0);
+          if (this._origin !== defaultOrigin) {
+            warn(`Setting both a pivot and origin on a Container is not recommended. This can lead to unexpected behavior if not handled carefully.`);
+          }
+        }
+        typeof value === "number" ? this._pivot.set(value) : this._pivot.copyFrom(value);
+      }
+      /**
+       * The skew factor for the object in radians. Skewing is a transformation that distorts
+       * the object by rotating it differently at each point, creating a non-uniform shape.
+       * @example
+       * ```ts
+       * // Basic skewing
+       * container.skew.set(0.5, 0); // Skew horizontally
+       * container.skew.set(0, 0.5); // Skew vertically
+       *
+       * // Skew with point data
+       * container.skew = { x: 0.3, y: 0.3 }; // Diagonal skew
+       *
+       * // Reset skew
+       * container.skew.set(0, 0);
+       *
+       * // Animate skew
+       * app.ticker.add(() => {
+       *     // Create wave effect
+       *     container.skew.x = Math.sin(Date.now() / 1000) * 0.3;
+       * });
+       *
+       * // Combine with rotation
+       * container.rotation = Math.PI / 4; // 45 degrees
+       * container.skew.set(0.2, 0.2); // Skew the rotated object
+       * ```
+       * @since 4.0.0
+       * @type {ObservablePoint} Point-like object with x/y properties in radians
+       * @default {x: 0, y: 0}
+       */
+      get skew() {
+        if (this._skew === defaultSkew) {
+          this._skew = new ObservablePoint(this, 0, 0);
+        }
+        return this._skew;
+      }
+      set skew(value) {
+        if (this._skew === defaultSkew) {
+          this._skew = new ObservablePoint(this, 0, 0);
+        }
+        this._skew.copyFrom(value);
+      }
+      /**
+       * The scale factors of this object along the local coordinate axes.
+       *
+       * The default scale is (1, 1).
+       * @example
+       * ```ts
+       * // Basic scaling
+       * container.scale.set(2, 2); // Scales to double size
+       * container.scale.set(2); // Scales uniformly to double size
+       * container.scale = 2; // Scales uniformly to double size
+       * // Scale to a specific width and height
+       * container.setSize(200, 100); // Sets width to 200 and height to 100
+       * ```
+       * @since 4.0.0
+       */
+      get scale() {
+        if (this._scale === defaultScale) {
+          this._scale = new ObservablePoint(this, 1, 1);
+        }
+        return this._scale;
+      }
+      set scale(value) {
+        if (this._scale === defaultScale) {
+          this._scale = new ObservablePoint(this, 0, 0);
+        }
+        if (typeof value === "string") {
+          value = parseFloat(value);
+        }
+        typeof value === "number" ? this._scale.set(value) : this._scale.copyFrom(value);
+      }
+      /**
+       * @experimental
+       * The origin point around which the container rotates and scales without affecting its position.
+       * Unlike pivot, changing the origin will not move the container's position.
+       * @example
+       * ```ts
+       * // Rotate around center point
+       * container.origin.set(container.width / 2, container.height / 2);
+       * container.rotation = Math.PI; // Rotates around center
+       *
+       * // Reset origin
+       * container.origin.set(0, 0);
+       * ```
+       */
+      get origin() {
+        if (this._origin === defaultOrigin) {
+          this._origin = new ObservablePoint(this, 0, 0);
+        }
+        return this._origin;
+      }
+      set origin(value) {
+        if (this._origin === defaultOrigin) {
+          this._origin = new ObservablePoint(this, 0, 0);
+          if (this._pivot !== defaultPivot) {
+            warn(`Setting both a pivot and origin on a Container is not recommended. This can lead to unexpected behavior if not handled carefully.`);
+          }
+        }
+        typeof value === "number" ? this._origin.set(value) : this._origin.copyFrom(value);
+      }
+      /**
+       * The width of the Container, setting this will actually modify the scale to achieve the value set.
+       * > [!NOTE] Changing the width will adjust the scale.x property of the container while maintaining its aspect ratio.
+       * > [!NOTE] If you want to set both width and height at the same time, use {@link Container#setSize}
+       * as it is more optimized by not recalculating the local bounds twice.
+       * @example
+       * ```ts
+       * // Basic width setting
+       * container.width = 100;
+       * // Optimized width setting
+       * container.setSize(100, 100);
+       * ```
+       */
+      get width() {
+        return Math.abs(this.scale.x * this.getLocalBounds().width);
+      }
+      set width(value) {
+        const localWidth = this.getLocalBounds().width;
+        this._setWidth(value, localWidth);
+      }
+      /**
+       * The height of the Container,
+       * > [!NOTE] Changing the height will adjust the scale.y property of the container while maintaining its aspect ratio.
+       * > [!NOTE] If you want to set both width and height at the same time, use {@link Container#setSize}
+       * as it is more optimized by not recalculating the local bounds twice.
+       * @example
+       * ```ts
+       * // Basic height setting
+       * container.height = 200;
+       * // Optimized height setting
+       * container.setSize(100, 200);
+       * ```
+       */
+      get height() {
+        return Math.abs(this.scale.y * this.getLocalBounds().height);
+      }
+      set height(value) {
+        const localHeight = this.getLocalBounds().height;
+        this._setHeight(value, localHeight);
+      }
+      /**
+       * Retrieves the size of the container as a [Size]{@link Size} object.
+       *
+       * This is faster than get the width and height separately.
+       * @example
+       * ```ts
+       * // Basic size retrieval
+       * const size = container.getSize();
+       * console.log(`Size: ${size.width}x${size.height}`);
+       *
+       * // Reuse existing size object
+       * const reuseSize = { width: 0, height: 0 };
+       * container.getSize(reuseSize);
+       * ```
+       * @param out - Optional object to store the size in.
+       * @returns The size of the container.
+       */
+      getSize(out2) {
+        if (!out2) {
+          out2 = {};
+        }
+        const bounds = this.getLocalBounds();
+        out2.width = Math.abs(this.scale.x * bounds.width);
+        out2.height = Math.abs(this.scale.y * bounds.height);
+        return out2;
+      }
+      /**
+       * Sets the size of the container to the specified width and height.
+       * This is more efficient than setting width and height separately as it only recalculates bounds once.
+       * @example
+       * ```ts
+       * // Basic size setting
+       * container.setSize(100, 200);
+       *
+       * // Set uniform size
+       * container.setSize(100); // Sets both width and height to 100
+       * ```
+       * @param value - This can be either a number or a [Size]{@link Size} object.
+       * @param height - The height to set. Defaults to the value of `width` if not provided.
+       */
+      setSize(value, height) {
+        const size4 = this.getLocalBounds();
+        if (typeof value === "object") {
+          height = value.height ?? value.width;
+          value = value.width;
+        } else {
+          height ?? (height = value);
+        }
+        value !== void 0 && this._setWidth(value, size4.width);
+        height !== void 0 && this._setHeight(height, size4.height);
+      }
+      /** Called when the skew or the rotation changes. */
+      _updateSkew() {
+        const rotation = this._rotation;
+        const skew = this._skew;
+        this._cx = Math.cos(rotation + skew._y);
+        this._sx = Math.sin(rotation + skew._y);
+        this._cy = -Math.sin(rotation - skew._x);
+        this._sy = Math.cos(rotation - skew._x);
+      }
+      /**
+       * Updates the transform properties of the container.
+       * Allows partial updates of transform properties for optimized manipulation.
+       * @example
+       * ```ts
+       * // Basic transform update
+       * container.updateTransform({
+       *     x: 100,
+       *     y: 200,
+       *     rotation: Math.PI / 4
+       * });
+       *
+       * // Scale and rotate around center
+       * sprite.updateTransform({
+       *     pivotX: sprite.width / 2,
+       *     pivotY: sprite.height / 2,
+       *     scaleX: 2,
+       *     scaleY: 2,
+       *     rotation: Math.PI
+       * });
+       *
+       * // Update position only
+       * button.updateTransform({
+       *     x: button.x + 10, // Move right
+       *     y: button.y      // Keep same y
+       * });
+       * ```
+       * @param opts - Transform options to update
+       * @param opts.x - The x position
+       * @param opts.y - The y position
+       * @param opts.scaleX - The x-axis scale factor
+       * @param opts.scaleY - The y-axis scale factor
+       * @param opts.rotation - The rotation in radians
+       * @param opts.skewX - The x-axis skew factor
+       * @param opts.skewY - The y-axis skew factor
+       * @param opts.pivotX - The x-axis pivot point
+       * @param opts.pivotY - The y-axis pivot point
+       * @returns This container, for chaining
+       * @see {@link Container#setFromMatrix} For matrix-based transforms
+       * @see {@link Container#position} For direct position access
+       */
+      updateTransform(opts) {
+        this.position.set(
+          typeof opts.x === "number" ? opts.x : this.position.x,
+          typeof opts.y === "number" ? opts.y : this.position.y
+        );
+        this.scale.set(
+          typeof opts.scaleX === "number" ? opts.scaleX : this.scale.x,
+          typeof opts.scaleY === "number" ? opts.scaleY : this.scale.y
+        );
+        this.rotation = typeof opts.rotation === "number" ? opts.rotation : this.rotation;
+        this.skew.set(
+          typeof opts.skewX === "number" ? opts.skewX : this.skew.x,
+          typeof opts.skewY === "number" ? opts.skewY : this.skew.y
+        );
+        this.pivot.set(
+          typeof opts.pivotX === "number" ? opts.pivotX : this.pivot.x,
+          typeof opts.pivotY === "number" ? opts.pivotY : this.pivot.y
+        );
+        this.origin.set(
+          typeof opts.originX === "number" ? opts.originX : this.origin.x,
+          typeof opts.originY === "number" ? opts.originY : this.origin.y
+        );
+        return this;
+      }
+      /**
+       * Updates the local transform properties by decomposing the given matrix.
+       * Extracts position, scale, rotation, and skew from a transformation matrix.
+       * @example
+       * ```ts
+       * // Basic matrix transform
+       * const matrix = new Matrix()
+       *     .translate(100, 100)
+       *     .rotate(Math.PI / 4)
+       *     .scale(2, 2);
+       *
+       * container.setFromMatrix(matrix);
+       *
+       * // Copy transform from another container
+       * const source = new Container();
+       * source.position.set(100, 100);
+       * source.rotation = Math.PI / 2;
+       *
+       * target.setFromMatrix(source.localTransform);
+       *
+       * // Reset transform
+       * container.setFromMatrix(Matrix.IDENTITY);
+       * ```
+       * @param matrix - The matrix to use for updating the transform
+       * @see {@link Container#updateTransform} For property-based updates
+       * @see {@link Matrix#decompose} For matrix decomposition details
+       */
+      setFromMatrix(matrix) {
+        matrix.decompose(this);
+      }
+      /** Updates the local transform. */
+      updateLocalTransform() {
+        const localTransformChangeId = this._didContainerChangeTick;
+        if (this._didLocalTransformChangeId === localTransformChangeId) return;
+        this._didLocalTransformChangeId = localTransformChangeId;
+        const lt = this.localTransform;
+        const scale = this._scale;
+        const pivot = this._pivot;
+        const origin = this._origin;
+        const position = this._position;
+        const sx = scale._x;
+        const sy = scale._y;
+        const px = pivot._x;
+        const py = pivot._y;
+        const ox = -origin._x;
+        const oy = -origin._y;
+        lt.a = this._cx * sx;
+        lt.b = this._sx * sx;
+        lt.c = this._cy * sy;
+        lt.d = this._sy * sy;
+        lt.tx = position._x - (px * lt.a + py * lt.c) + (ox * lt.a + oy * lt.c) - ox;
+        lt.ty = position._y - (px * lt.b + py * lt.d) + (ox * lt.b + oy * lt.d) - oy;
+      }
+      // / ///// color related stuff
+      set alpha(value) {
+        if (value === this.localAlpha) return;
+        this.localAlpha = value;
+        this._updateFlags |= UPDATE_COLOR;
+        this._onUpdate();
+      }
+      /**
+       * The opacity of the object relative to its parent's opacity.
+       * Value ranges from 0 (fully transparent) to 1 (fully opaque).
+       * @example
+       * ```ts
+       * // Basic transparency
+       * sprite.alpha = 0.5; // 50% opacity
+       *
+       * // Inherited opacity
+       * container.alpha = 0.5;
+       * const child = new Sprite(texture);
+       * child.alpha = 0.5;
+       * container.addChild(child);
+       * // child's effective opacity is 0.25 (0.5 * 0.5)
+       * ```
+       * @default 1
+       * @see {@link Container#visible} For toggling visibility
+       * @see {@link Container#renderable} For render control
+       */
+      get alpha() {
+        return this.localAlpha;
+      }
+      set tint(value) {
+        const tempColor = Color.shared.setValue(value ?? 16777215);
+        const bgr = tempColor.toBgrNumber();
+        if (bgr === this.localColor) return;
+        this.localColor = bgr;
+        this._updateFlags |= UPDATE_COLOR;
+        this._onUpdate();
+      }
+      /**
+       * The tint applied to the sprite.
+       *
+       * This can be any valid {@link ColorSource}.
+       * @example
+       * ```ts
+       * // Basic color tinting
+       * container.tint = 0xff0000; // Red tint
+       * container.tint = 'red';    // Same as above
+       * container.tint = '#00ff00'; // Green
+       * container.tint = 'rgb(0,0,255)'; // Blue
+       *
+       * // Remove tint
+       * container.tint = 0xffffff; // White = no tint
+       * container.tint = null;     // Also removes tint
+       * ```
+       * @default 0xFFFFFF
+       * @see {@link Container#alpha} For transparency
+       * @see {@link Container#visible} For visibility control
+       */
+      get tint() {
+        return bgr2rgb(this.localColor);
+      }
+      // / //////////////// blend related stuff
+      set blendMode(value) {
+        if (this.localBlendMode === value) return;
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true;
+        }
+        this._updateFlags |= UPDATE_BLEND;
+        this.localBlendMode = value;
+        this._onUpdate();
+      }
+      /**
+       * The blend mode to be applied to the sprite. Controls how pixels are blended when rendering.
+       *
+       * Setting to 'normal' will reset to default blending.
+       * > [!NOTE] More blend modes are available after importing the `pixi.js/advanced-blend-modes` sub-export.
+       * @example
+       * ```ts
+       * // Basic blend modes
+       * sprite.blendMode = 'add';        // Additive blending
+       * sprite.blendMode = 'multiply';   // Multiply colors
+       * sprite.blendMode = 'screen';     // Screen blend
+       *
+       * // Reset blend mode
+       * sprite.blendMode = 'normal';     // Normal blending
+       * ```
+       * @default 'normal'
+       * @see {@link Container#alpha} For transparency
+       * @see {@link Container#tint} For color adjustments
+       */
+      get blendMode() {
+        return this.localBlendMode;
+      }
+      // / ///////// VISIBILITY / RENDERABLE /////////////////
+      /**
+       * The visibility of the object. If false the object will not be drawn,
+       * and the transform will not be updated.
+       * @example
+       * ```ts
+       * // Basic visibility toggle
+       * sprite.visible = false; // Hide sprite
+       * sprite.visible = true;  // Show sprite
+       * ```
+       * @default true
+       * @see {@link Container#renderable} For render-only control
+       * @see {@link Container#alpha} For transparency
+       */
+      get visible() {
+        return !!(this.localDisplayStatus & 2);
+      }
+      set visible(value) {
+        const valueNumber = value ? 2 : 0;
+        if ((this.localDisplayStatus & 2) === valueNumber) return;
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true;
+        }
+        this._updateFlags |= UPDATE_VISIBLE;
+        this.localDisplayStatus ^= 2;
+        this._onUpdate();
+        this.emit("visibleChanged", value);
+      }
+      /** @ignore */
+      get culled() {
+        return !(this.localDisplayStatus & 4);
+      }
+      /** @ignore */
+      set culled(value) {
+        const valueNumber = value ? 0 : 4;
+        if ((this.localDisplayStatus & 4) === valueNumber) return;
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true;
+        }
+        this._updateFlags |= UPDATE_VISIBLE;
+        this.localDisplayStatus ^= 4;
+        this._onUpdate();
+      }
+      /**
+       * Controls whether this object can be rendered. If false the object will not be drawn,
+       * but the transform will still be updated. This is different from visible, which skips
+       * transform updates.
+       * @example
+       * ```ts
+       * // Basic render control
+       * sprite.renderable = false; // Skip rendering
+       * sprite.renderable = true;  // Enable rendering
+       * ```
+       * @default true
+       * @see {@link Container#visible} For skipping transform updates
+       * @see {@link Container#alpha} For transparency
+       */
+      get renderable() {
+        return !!(this.localDisplayStatus & 1);
+      }
+      set renderable(value) {
+        const valueNumber = value ? 1 : 0;
+        if ((this.localDisplayStatus & 1) === valueNumber) return;
+        this._updateFlags |= UPDATE_VISIBLE;
+        this.localDisplayStatus ^= 1;
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true;
+        }
+        this._onUpdate();
+      }
+      /**
+       * Whether or not the object should be rendered.
+       * @advanced
+       */
+      get isRenderable() {
+        return this.localDisplayStatus === 7 && this.groupAlpha > 0;
+      }
+      /**
+       * Removes all internal references and listeners as well as removes children from the display list.
+       * Do not use a Container after calling `destroy`.
+       * @param options - Options parameter. A boolean will act as if all options
+       *  have been set to that value
+       * @example
+       * ```ts
+       * container.destroy();
+       * container.destroy(true);
+       * container.destroy({ children: true });
+       * container.destroy({ children: true, texture: true, textureSource: true });
+       * ```
+       */
+      destroy(options = false) {
+        if (this.destroyed) return;
+        this.destroyed = true;
+        let oldChildren;
+        if (this.children.length) {
+          oldChildren = this.removeChildren(0, this.children.length);
+        }
+        this.removeFromParent();
+        this.parent = null;
+        this._maskEffect = null;
+        this._filterEffect = null;
+        this.effects = null;
+        this._position = null;
+        this._scale = null;
+        this._pivot = null;
+        this._origin = null;
+        this._skew = null;
+        this.emit("destroyed", this);
+        this.removeAllListeners();
+        const destroyChildren = typeof options === "boolean" ? options : options?.children;
+        if (destroyChildren && oldChildren) {
+          for (let i3 = 0; i3 < oldChildren.length; ++i3) {
+            oldChildren[i3].destroy(options);
+          }
+        }
+        this.renderGroup?.destroy();
+        this.renderGroup = null;
+      }
+    };
+    extensions.mixin(
+      Container,
+      childrenHelperMixin,
+      getFastGlobalBoundsMixin,
+      toLocalGlobalMixin,
+      onRenderMixin,
+      measureMixin,
+      effectsMixin,
+      findMixin,
+      sortMixin,
+      cullingMixin,
+      cacheAsTextureMixin,
+      getGlobalMixin,
+      collectRenderablesMixin
+    );
+  }
+});
+
+// node_modules/earcut/src/earcut.js
+function earcut(data, holeIndices, dim = 2) {
+  const hasHoles = holeIndices && holeIndices.length;
+  const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
+  let outerNode = linkedList(data, 0, outerLen, dim, true);
+  const triangles = [];
+  if (!outerNode || outerNode.next === outerNode.prev) return triangles;
+  let minX, minY, invSize;
+  if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
+  if (data.length > 80 * dim) {
+    minX = data[0];
+    minY = data[1];
+    let maxX = minX;
+    let maxY = minY;
+    for (let i3 = dim; i3 < outerLen; i3 += dim) {
+      const x3 = data[i3];
+      const y4 = data[i3 + 1];
+      if (x3 < minX) minX = x3;
+      if (y4 < minY) minY = y4;
+      if (x3 > maxX) maxX = x3;
+      if (y4 > maxY) maxY = y4;
+    }
+    invSize = Math.max(maxX - minX, maxY - minY);
+    invSize = invSize !== 0 ? 32767 / invSize : 0;
+  }
+  earcutLinked(outerNode, triangles, dim, minX, minY, invSize, 0);
+  return triangles;
+}
+function linkedList(data, start, end, dim, clockwise) {
+  let last;
+  if (clockwise === signedArea(data, start, end, dim) > 0) {
+    for (let i3 = start; i3 < end; i3 += dim) last = insertNode(i3 / dim | 0, data[i3], data[i3 + 1], last);
+  } else {
+    for (let i3 = end - dim; i3 >= start; i3 -= dim) last = insertNode(i3 / dim | 0, data[i3], data[i3 + 1], last);
+  }
+  if (last && equals(last, last.next)) {
+    removeNode(last);
+    last = last.next;
+  }
+  return last;
+}
+function filterPoints(start, end) {
+  if (!start) return start;
+  if (!end) end = start;
+  let p3 = start, again;
+  do {
+    again = false;
+    if (!p3.steiner && (equals(p3, p3.next) || area(p3.prev, p3, p3.next) === 0)) {
+      removeNode(p3);
+      p3 = end = p3.prev;
+      if (p3 === p3.next) break;
+      again = true;
+    } else {
+      p3 = p3.next;
+    }
+  } while (again || p3 !== end);
+  return end;
+}
+function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
+  if (!ear) return;
+  if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
+  let stop = ear;
+  while (ear.prev !== ear.next) {
+    const prev = ear.prev;
+    const next = ear.next;
+    if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
+      triangles.push(prev.i, ear.i, next.i);
+      removeNode(ear);
+      ear = next.next;
+      stop = next.next;
+      continue;
+    }
+    ear = next;
+    if (ear === stop) {
+      if (!pass) {
+        earcutLinked(filterPoints(ear), triangles, dim, minX, minY, invSize, 1);
+      } else if (pass === 1) {
+        ear = cureLocalIntersections(filterPoints(ear), triangles);
+        earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
+      } else if (pass === 2) {
+        splitEarcut(ear, triangles, dim, minX, minY, invSize);
+      }
+      break;
+    }
+  }
+}
+function isEar(ear) {
+  const a3 = ear.prev, b3 = ear, c3 = ear.next;
+  if (area(a3, b3, c3) >= 0) return false;
+  const ax = a3.x, bx = b3.x, cx2 = c3.x, ay = a3.y, by = b3.y, cy = c3.y;
+  const x0 = Math.min(ax, bx, cx2), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx2), y1 = Math.max(ay, by, cy);
+  let p3 = c3.next;
+  while (p3 !== a3) {
+    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
+    p3 = p3.next;
+  }
+  return true;
+}
+function isEarHashed(ear, minX, minY, invSize) {
+  const a3 = ear.prev, b3 = ear, c3 = ear.next;
+  if (area(a3, b3, c3) >= 0) return false;
+  const ax = a3.x, bx = b3.x, cx2 = c3.x, ay = a3.y, by = b3.y, cy = c3.y;
+  const x0 = Math.min(ax, bx, cx2), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx2), y1 = Math.max(ay, by, cy);
+  const minZ = zOrder(x0, y0, minX, minY, invSize), maxZ = zOrder(x1, y1, minX, minY, invSize);
+  let p3 = ear.prevZ, n3 = ear.nextZ;
+  while (p3 && p3.z >= minZ && n3 && n3.z <= maxZ) {
+    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && p3 !== a3 && p3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
+    p3 = p3.prevZ;
+    if (n3.x >= x0 && n3.x <= x1 && n3.y >= y0 && n3.y <= y1 && n3 !== a3 && n3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, n3.x, n3.y) && area(n3.prev, n3, n3.next) >= 0) return false;
+    n3 = n3.nextZ;
+  }
+  while (p3 && p3.z >= minZ) {
+    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && p3 !== a3 && p3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
+    p3 = p3.prevZ;
+  }
+  while (n3 && n3.z <= maxZ) {
+    if (n3.x >= x0 && n3.x <= x1 && n3.y >= y0 && n3.y <= y1 && n3 !== a3 && n3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, n3.x, n3.y) && area(n3.prev, n3, n3.next) >= 0) return false;
+    n3 = n3.nextZ;
+  }
+  return true;
+}
+function cureLocalIntersections(start, triangles) {
+  let p3 = start;
+  do {
+    const a3 = p3.prev, b3 = p3.next.next;
+    if (!equals(a3, b3) && intersects(a3, p3, p3.next, b3) && locallyInside(a3, b3) && locallyInside(b3, a3)) {
+      triangles.push(a3.i, p3.i, b3.i);
+      removeNode(p3);
+      removeNode(p3.next);
+      p3 = start = b3;
+    }
+    p3 = p3.next;
+  } while (p3 !== start);
+  return filterPoints(p3);
+}
+function splitEarcut(start, triangles, dim, minX, minY, invSize) {
+  let a3 = start;
+  do {
+    let b3 = a3.next.next;
+    while (b3 !== a3.prev) {
+      if (a3.i !== b3.i && isValidDiagonal(a3, b3)) {
+        let c3 = splitPolygon(a3, b3);
+        a3 = filterPoints(a3, a3.next);
+        c3 = filterPoints(c3, c3.next);
+        earcutLinked(a3, triangles, dim, minX, minY, invSize, 0);
+        earcutLinked(c3, triangles, dim, minX, minY, invSize, 0);
+        return;
+      }
+      b3 = b3.next;
+    }
+    a3 = a3.next;
+  } while (a3 !== start);
+}
+function eliminateHoles(data, holeIndices, outerNode, dim) {
+  const queue = [];
+  for (let i3 = 0, len = holeIndices.length; i3 < len; i3++) {
+    const start = holeIndices[i3] * dim;
+    const end = i3 < len - 1 ? holeIndices[i3 + 1] * dim : data.length;
+    const list = linkedList(data, start, end, dim, false);
+    if (list === list.next) list.steiner = true;
+    queue.push(getLeftmost(list));
+  }
+  queue.sort(compareXYSlope);
+  for (let i3 = 0; i3 < queue.length; i3++) {
+    outerNode = eliminateHole(queue[i3], outerNode);
+  }
+  return outerNode;
+}
+function compareXYSlope(a3, b3) {
+  let result = a3.x - b3.x;
+  if (result === 0) {
+    result = a3.y - b3.y;
+    if (result === 0) {
+      const aSlope = (a3.next.y - a3.y) / (a3.next.x - a3.x);
+      const bSlope = (b3.next.y - b3.y) / (b3.next.x - b3.x);
+      result = aSlope - bSlope;
+    }
+  }
+  return result;
+}
+function eliminateHole(hole, outerNode) {
+  const bridge = findHoleBridge(hole, outerNode);
+  if (!bridge) {
+    return outerNode;
+  }
+  const bridgeReverse = splitPolygon(bridge, hole);
+  filterPoints(bridgeReverse, bridgeReverse.next);
+  return filterPoints(bridge, bridge.next);
+}
+function findHoleBridge(hole, outerNode) {
+  let p3 = outerNode;
+  const hx = hole.x;
+  const hy = hole.y;
+  let qx = -Infinity;
+  let m3;
+  if (equals(hole, p3)) return p3;
+  do {
+    if (equals(hole, p3.next)) return p3.next;
+    else if (hy <= p3.y && hy >= p3.next.y && p3.next.y !== p3.y) {
+      const x3 = p3.x + (hy - p3.y) * (p3.next.x - p3.x) / (p3.next.y - p3.y);
+      if (x3 <= hx && x3 > qx) {
+        qx = x3;
+        m3 = p3.x < p3.next.x ? p3 : p3.next;
+        if (x3 === hx) return m3;
+      }
+    }
+    p3 = p3.next;
+  } while (p3 !== outerNode);
+  if (!m3) return null;
+  const stop = m3;
+  const mx = m3.x;
+  const my = m3.y;
+  let tanMin = Infinity;
+  p3 = m3;
+  do {
+    if (hx >= p3.x && p3.x >= mx && hx !== p3.x && pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p3.x, p3.y)) {
+      const tan = Math.abs(hy - p3.y) / (hx - p3.x);
+      if (locallyInside(p3, hole) && (tan < tanMin || tan === tanMin && (p3.x > m3.x || p3.x === m3.x && sectorContainsSector(m3, p3)))) {
+        m3 = p3;
+        tanMin = tan;
+      }
+    }
+    p3 = p3.next;
+  } while (p3 !== stop);
+  return m3;
+}
+function sectorContainsSector(m3, p3) {
+  return area(m3.prev, m3, p3.prev) < 0 && area(p3.next, m3, m3.next) < 0;
+}
+function indexCurve(start, minX, minY, invSize) {
+  let p3 = start;
+  do {
+    if (p3.z === 0) p3.z = zOrder(p3.x, p3.y, minX, minY, invSize);
+    p3.prevZ = p3.prev;
+    p3.nextZ = p3.next;
+    p3 = p3.next;
+  } while (p3 !== start);
+  p3.prevZ.nextZ = null;
+  p3.prevZ = null;
+  sortLinked(p3);
+}
+function sortLinked(list) {
+  let numMerges;
+  let inSize = 1;
+  do {
+    let p3 = list;
+    let e4;
+    list = null;
+    let tail = null;
+    numMerges = 0;
+    while (p3) {
+      numMerges++;
+      let q2 = p3;
+      let pSize = 0;
+      for (let i3 = 0; i3 < inSize; i3++) {
+        pSize++;
+        q2 = q2.nextZ;
+        if (!q2) break;
+      }
+      let qSize = inSize;
+      while (pSize > 0 || qSize > 0 && q2) {
+        if (pSize !== 0 && (qSize === 0 || !q2 || p3.z <= q2.z)) {
+          e4 = p3;
+          p3 = p3.nextZ;
+          pSize--;
+        } else {
+          e4 = q2;
+          q2 = q2.nextZ;
+          qSize--;
+        }
+        if (tail) tail.nextZ = e4;
+        else list = e4;
+        e4.prevZ = tail;
+        tail = e4;
+      }
+      p3 = q2;
+    }
+    tail.nextZ = null;
+    inSize *= 2;
+  } while (numMerges > 1);
+  return list;
+}
+function zOrder(x3, y4, minX, minY, invSize) {
+  x3 = (x3 - minX) * invSize | 0;
+  y4 = (y4 - minY) * invSize | 0;
+  x3 = (x3 | x3 << 8) & 16711935;
+  x3 = (x3 | x3 << 4) & 252645135;
+  x3 = (x3 | x3 << 2) & 858993459;
+  x3 = (x3 | x3 << 1) & 1431655765;
+  y4 = (y4 | y4 << 8) & 16711935;
+  y4 = (y4 | y4 << 4) & 252645135;
+  y4 = (y4 | y4 << 2) & 858993459;
+  y4 = (y4 | y4 << 1) & 1431655765;
+  return x3 | y4 << 1;
+}
+function getLeftmost(start) {
+  let p3 = start, leftmost = start;
+  do {
+    if (p3.x < leftmost.x || p3.x === leftmost.x && p3.y < leftmost.y) leftmost = p3;
+    p3 = p3.next;
+  } while (p3 !== start);
+  return leftmost;
+}
+function pointInTriangle(ax, ay, bx, by, cx2, cy, px, py) {
+  return (cx2 - px) * (ay - py) >= (ax - px) * (cy - py) && (ax - px) * (by - py) >= (bx - px) * (ay - py) && (bx - px) * (cy - py) >= (cx2 - px) * (by - py);
+}
+function pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, px, py) {
+  return !(ax === px && ay === py) && pointInTriangle(ax, ay, bx, by, cx2, cy, px, py);
+}
+function isValidDiagonal(a3, b3) {
+  return a3.next.i !== b3.i && a3.prev.i !== b3.i && !intersectsPolygon(a3, b3) && // doesn't intersect other edges
+  (locallyInside(a3, b3) && locallyInside(b3, a3) && middleInside(a3, b3) && // locally visible
+  (area(a3.prev, a3, b3.prev) || area(a3, b3.prev, b3)) || // does not create opposite-facing sectors
+  equals(a3, b3) && area(a3.prev, a3, a3.next) > 0 && area(b3.prev, b3, b3.next) > 0);
+}
+function area(p3, q2, r4) {
+  return (q2.y - p3.y) * (r4.x - q2.x) - (q2.x - p3.x) * (r4.y - q2.y);
+}
+function equals(p1, p22) {
+  return p1.x === p22.x && p1.y === p22.y;
+}
+function intersects(p1, q1, p22, q2) {
+  const o1 = sign(area(p1, q1, p22));
+  const o22 = sign(area(p1, q1, q2));
+  const o3 = sign(area(p22, q2, p1));
+  const o4 = sign(area(p22, q2, q1));
+  if (o1 !== o22 && o3 !== o4) return true;
+  if (o1 === 0 && onSegment(p1, p22, q1)) return true;
+  if (o22 === 0 && onSegment(p1, q2, q1)) return true;
+  if (o3 === 0 && onSegment(p22, p1, q2)) return true;
+  if (o4 === 0 && onSegment(p22, q1, q2)) return true;
+  return false;
+}
+function onSegment(p3, q2, r4) {
+  return q2.x <= Math.max(p3.x, r4.x) && q2.x >= Math.min(p3.x, r4.x) && q2.y <= Math.max(p3.y, r4.y) && q2.y >= Math.min(p3.y, r4.y);
+}
+function sign(num) {
+  return num > 0 ? 1 : num < 0 ? -1 : 0;
+}
+function intersectsPolygon(a3, b3) {
+  let p3 = a3;
+  do {
+    if (p3.i !== a3.i && p3.next.i !== a3.i && p3.i !== b3.i && p3.next.i !== b3.i && intersects(p3, p3.next, a3, b3)) return true;
+    p3 = p3.next;
+  } while (p3 !== a3);
+  return false;
+}
+function locallyInside(a3, b3) {
+  return area(a3.prev, a3, a3.next) < 0 ? area(a3, b3, a3.next) >= 0 && area(a3, a3.prev, b3) >= 0 : area(a3, b3, a3.prev) < 0 || area(a3, a3.next, b3) < 0;
+}
+function middleInside(a3, b3) {
+  let p3 = a3;
+  let inside = false;
+  const px = (a3.x + b3.x) / 2;
+  const py = (a3.y + b3.y) / 2;
+  do {
+    if (p3.y > py !== p3.next.y > py && p3.next.y !== p3.y && px < (p3.next.x - p3.x) * (py - p3.y) / (p3.next.y - p3.y) + p3.x)
+      inside = !inside;
+    p3 = p3.next;
+  } while (p3 !== a3);
+  return inside;
+}
+function splitPolygon(a3, b3) {
+  const a22 = createNode(a3.i, a3.x, a3.y), b22 = createNode(b3.i, b3.x, b3.y), an = a3.next, bp = b3.prev;
+  a3.next = b3;
+  b3.prev = a3;
+  a22.next = an;
+  an.prev = a22;
+  b22.next = a22;
+  a22.prev = b22;
+  bp.next = b22;
+  b22.prev = bp;
+  return b22;
+}
+function insertNode(i3, x3, y4, last) {
+  const p3 = createNode(i3, x3, y4);
+  if (!last) {
+    p3.prev = p3;
+    p3.next = p3;
+  } else {
+    p3.next = last.next;
+    p3.prev = last;
+    last.next.prev = p3;
+    last.next = p3;
+  }
+  return p3;
+}
+function removeNode(p3) {
+  p3.next.prev = p3.prev;
+  p3.prev.next = p3.next;
+  if (p3.prevZ) p3.prevZ.nextZ = p3.nextZ;
+  if (p3.nextZ) p3.nextZ.prevZ = p3.prevZ;
+}
+function createNode(i3, x3, y4) {
+  return {
+    i: i3,
+    // vertex index in coordinates array
+    x: x3,
+    y: y4,
+    // vertex coordinates
+    prev: null,
+    // previous and next vertex nodes in a polygon ring
+    next: null,
+    z: 0,
+    // z-order curve value
+    prevZ: null,
+    // previous and next nodes in z-order
+    nextZ: null,
+    steiner: false
+    // indicates whether this is a steiner point
+  };
+}
+function signedArea(data, start, end, dim) {
+  let sum = 0;
+  for (let i3 = start, j4 = end - dim; i3 < end; i3 += dim) {
+    sum += (data[j4] - data[i3]) * (data[i3 + 1] + data[j4 + 1]);
+    j4 = i3;
+  }
+  return sum;
+}
+var init_earcut = __esm({
+  "node_modules/earcut/src/earcut.js"() {
+  }
+});
+
+// node_modules/pixi.js/lib/utils/utils.mjs
+var earcut2;
+var init_utils = __esm({
+  "node_modules/pixi.js/lib/utils/utils.mjs"() {
+    init_earcut();
+    init_eventemitter3();
+    earcut2 = earcut.default || earcut;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/gl/const.mjs
+var CLEAR;
+var init_const3 = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/gl/const.mjs"() {
+    "use strict";
+    CLEAR = /* @__PURE__ */ ((CLEAR2) => {
+      CLEAR2[CLEAR2["NONE"] = 0] = "NONE";
+      CLEAR2[CLEAR2["COLOR"] = 16384] = "COLOR";
+      CLEAR2[CLEAR2["STENCIL"] = 1024] = "STENCIL";
+      CLEAR2[CLEAR2["DEPTH"] = 256] = "DEPTH";
+      CLEAR2[CLEAR2["COLOR_DEPTH"] = 16640] = "COLOR_DEPTH";
+      CLEAR2[CLEAR2["COLOR_STENCIL"] = 17408] = "COLOR_STENCIL";
+      CLEAR2[CLEAR2["DEPTH_STENCIL"] = 1280] = "DEPTH_STENCIL";
+      CLEAR2[CLEAR2["ALL"] = 17664] = "ALL";
+      return CLEAR2;
+    })(CLEAR || {});
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/system/SystemRunner.mjs
+var SystemRunner;
+var init_SystemRunner = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/system/SystemRunner.mjs"() {
+    "use strict";
+    SystemRunner = class {
+      /**
+       * @param name - The function name that will be executed on the listeners added to this Runner.
+       */
+      constructor(name) {
+        this.items = [];
+        this._name = name;
+      }
+      /* jsdoc/check-param-names */
+      /**
+       * Dispatch/Broadcast Runner to all listeners added to the queue.
+       * @param {...any} params - (optional) parameters to pass to each listener
+       */
+      /* jsdoc/check-param-names */
+      emit(a0, a1, a22, a3, a4, a5, a6, a7) {
+        const { name, items } = this;
+        for (let i3 = 0, len = items.length; i3 < len; i3++) {
+          items[i3][name](a0, a1, a22, a3, a4, a5, a6, a7);
+        }
+        return this;
+      }
+      /**
+       * Add a listener to the Runner
+       *
+       * Runners do not need to have scope or functions passed to them.
+       * All that is required is to pass the listening object and ensure that it has contains a function that has the same name
+       * as the name provided to the Runner when it was created.
+       *
+       * Eg A listener passed to this Runner will require a 'complete' function.
+       *
+       * ```ts
+       * import { Runner } from 'pixi.js';
+       *
+       * const complete = new Runner('complete');
+       * ```
+       *
+       * The scope used will be the object itself.
+       * @param {any} item - The object that will be listening.
+       */
+      add(item) {
+        if (item[this._name]) {
+          this.remove(item);
+          this.items.push(item);
+        }
+        return this;
+      }
+      /**
+       * Remove a single listener from the dispatch queue.
+       * @param {any} item - The listener that you would like to remove.
+       */
+      remove(item) {
+        const index2 = this.items.indexOf(item);
+        if (index2 !== -1) {
+          this.items.splice(index2, 1);
+        }
+        return this;
+      }
+      /**
+       * Check to see if the listener is already in the Runner
+       * @param {any} item - The listener that you would like to check.
+       */
+      contains(item) {
+        return this.items.indexOf(item) !== -1;
+      }
+      /** Remove all listeners from the Runner */
+      removeAll() {
+        this.items.length = 0;
+        return this;
+      }
+      /** Remove all references, don't use after this. */
+      destroy() {
+        this.removeAll();
+        this.items = null;
+        this._name = null;
+      }
+      /**
+       * `true` if there are no this Runner contains no listeners
+       * @readonly
+       */
+      get empty() {
+        return this.items.length === 0;
+      }
+      /**
+       * The name of the runner.
+       * @readonly
+       */
+      get name() {
+        return this._name;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs
+var defaultRunners, _AbstractRenderer, AbstractRenderer;
+var init_AbstractRenderer = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs"() {
+    init_Color();
+    init_autoDetectEnvironment();
+    init_Container();
+    init_unsafeEvalSupported();
+    init_uid();
+    init_deprecation();
+    init_GlobalResourceRegistry();
+    init_const3();
+    init_SystemRunner();
+    init_eventemitter3();
+    defaultRunners = [
+      "init",
+      "destroy",
+      "contextChange",
+      "resolutionChange",
+      "resetState",
+      "renderEnd",
+      "renderStart",
+      "render",
+      "update",
+      "postrender",
+      "prerender"
+    ];
+    _AbstractRenderer = class _AbstractRenderer2 extends eventemitter3_default {
+      /**
+       * Set up a system with a collection of SystemClasses and runners.
+       * Systems are attached dynamically to this class when added.
+       * @param config - the config for the system manager
+       */
+      constructor(config) {
+        super();
+        this.tick = 0;
+        this.uid = uid("renderer");
+        this.runners = /* @__PURE__ */ Object.create(null);
+        this.renderPipes = /* @__PURE__ */ Object.create(null);
+        this._initOptions = {};
+        this._systemsHash = /* @__PURE__ */ Object.create(null);
+        this.type = config.type;
+        this.name = config.name;
+        this.config = config;
+        const combinedRunners = [...defaultRunners, ...this.config.runners ?? []];
+        this._addRunners(...combinedRunners);
+        this._unsafeEvalCheck();
+      }
+      /**
+       * Initialize the renderer.
+       * @param options - The options to use to create the renderer.
+       */
+      async init(options = {}) {
+        const skip = options.skipExtensionImports === true ? true : options.manageImports === false;
+        await loadEnvironmentExtensions(skip);
+        this._addSystems(this.config.systems);
+        this._addPipes(this.config.renderPipes, this.config.renderPipeAdaptors);
+        for (const systemName in this._systemsHash) {
+          const system = this._systemsHash[systemName];
+          const defaultSystemOptions = system.constructor.defaultOptions;
+          options = { ...defaultSystemOptions, ...options };
+        }
+        options = { ..._AbstractRenderer2.defaultOptions, ...options };
+        this._roundPixels = options.roundPixels ? 1 : 0;
+        for (let i3 = 0; i3 < this.runners.init.items.length; i3++) {
+          await this.runners.init.items[i3].init(options);
+        }
+        this._initOptions = options;
+      }
+      render(args, deprecated) {
+        this.tick++;
+        let options = args;
+        if (options instanceof Container) {
+          options = { container: options };
+          if (deprecated) {
+            deprecation(v8_0_0, "passing a second argument is deprecated, please use render options instead");
+            options.target = deprecated.renderTexture;
+          }
+        }
+        options.target || (options.target = this.view.renderTarget);
+        if (options.target === this.view.renderTarget) {
+          this._lastObjectRendered = options.container;
+          options.clearColor ?? (options.clearColor = this.background.colorRgba);
+          options.clear ?? (options.clear = this.background.clearBeforeRender);
+        }
+        if (options.clearColor) {
+          const isRGBAArray = Array.isArray(options.clearColor) && options.clearColor.length === 4;
+          options.clearColor = isRGBAArray ? options.clearColor : Color.shared.setValue(options.clearColor).toArray();
+        }
+        if (!options.transform) {
+          options.container.updateLocalTransform();
+          options.transform = options.container.localTransform;
+        }
+        if (!options.container.visible) {
+          return;
+        }
+        options.container.enableRenderGroup();
+        this.runners.prerender.emit(options);
+        this.runners.renderStart.emit(options);
+        this.runners.render.emit(options);
+        this.runners.renderEnd.emit(options);
+        this.runners.postrender.emit(options);
+      }
+      /**
+       * Resizes the WebGL view to the specified width and height.
+       * @param desiredScreenWidth - The desired width of the screen.
+       * @param desiredScreenHeight - The desired height of the screen.
+       * @param resolution - The resolution / device pixel ratio of the renderer.
+       */
+      resize(desiredScreenWidth, desiredScreenHeight, resolution) {
+        const previousResolution = this.view.resolution;
+        this.view.resize(desiredScreenWidth, desiredScreenHeight, resolution);
+        this.emit("resize", this.view.screen.width, this.view.screen.height, this.view.resolution);
+        if (resolution !== void 0 && resolution !== previousResolution) {
+          this.runners.resolutionChange.emit(resolution);
+        }
+      }
+      /**
+       * Clears the render target.
+       * @param options - The options to use when clearing the render target.
+       * @param options.target - The render target to clear.
+       * @param options.clearColor - The color to clear with.
+       * @param options.clear - The clear mode to use.
+       * @advanced
+       */
+      clear(options = {}) {
+        const renderer = this;
+        options.target || (options.target = renderer.renderTarget.renderTarget);
+        options.clearColor || (options.clearColor = this.background.colorRgba);
+        options.clear ?? (options.clear = CLEAR.ALL);
+        const { clear, clearColor, target, mipLevel, layer } = options;
+        Color.shared.setValue(clearColor ?? this.background.colorRgba);
+        renderer.renderTarget.clear(target, clear, Color.shared.toArray(), mipLevel ?? 0, layer ?? 0);
+      }
+      /** The resolution / device pixel ratio of the renderer. */
+      get resolution() {
+        return this.view.resolution;
+      }
+      set resolution(value) {
+        this.view.resolution = value;
+        this.runners.resolutionChange.emit(value);
+      }
+      /**
+       * Same as view.width, actual number of pixels in the canvas by horizontal.
+       * @type {number}
+       * @readonly
+       * @default 800
+       */
+      get width() {
+        return this.view.texture.frame.width;
+      }
+      /**
+       * Same as view.height, actual number of pixels in the canvas by vertical.
+       * @default 600
+       */
+      get height() {
+        return this.view.texture.frame.height;
+      }
+      // NOTE: this was `view` in v7
+      /**
+       * The canvas element that everything is drawn to.
+       * @type {environment.ICanvas}
+       */
+      get canvas() {
+        return this.view.canvas;
+      }
+      /**
+       * the last object rendered by the renderer. Useful for other plugins like interaction managers
+       * @readonly
+       */
+      get lastObjectRendered() {
+        return this._lastObjectRendered;
+      }
+      /**
+       * Flag if we are rendering to the screen vs renderTexture
+       * @readonly
+       * @default true
+       */
+      get renderingToScreen() {
+        const renderer = this;
+        return renderer.renderTarget.renderingToScreen;
+      }
+      /**
+       * Measurements of the screen. (0, 0, screenWidth, screenHeight).
+       *
+       * Its safe to use as filterArea or hitArea for the whole stage.
+       */
+      get screen() {
+        return this.view.screen;
+      }
+      /**
+       * Create a bunch of runners based of a collection of ids
+       * @param runnerIds - the runner ids to add
+       */
+      _addRunners(...runnerIds) {
+        runnerIds.forEach((runnerId) => {
+          this.runners[runnerId] = new SystemRunner(runnerId);
+        });
+      }
+      _addSystems(systems4) {
+        let i3;
+        for (i3 in systems4) {
+          const val = systems4[i3];
+          this._addSystem(val.value, val.name);
+        }
+      }
+      /**
+       * Add a new system to the renderer.
+       * @param ClassRef - Class reference
+       * @param name - Property name for system, if not specified
+       *        will use a static `name` property on the class itself. This
+       *        name will be assigned as s property on the Renderer so make
+       *        sure it doesn't collide with properties on Renderer.
+       * @returns Return instance of renderer
+       */
+      _addSystem(ClassRef, name) {
+        const system = new ClassRef(this);
+        if (this[name]) {
+          throw new Error(`Whoops! The name "${name}" is already in use`);
+        }
+        this[name] = system;
+        this._systemsHash[name] = system;
+        for (const i3 in this.runners) {
+          this.runners[i3].add(system);
+        }
+        return this;
+      }
+      _addPipes(pipes, pipeAdaptors) {
+        const adaptors = pipeAdaptors.reduce((acc, adaptor) => {
+          acc[adaptor.name] = adaptor.value;
+          return acc;
+        }, {});
+        pipes.forEach((pipe) => {
+          const PipeClass = pipe.value;
+          const name = pipe.name;
+          const Adaptor = adaptors[name];
+          this.renderPipes[name] = new PipeClass(
+            this,
+            Adaptor ? new Adaptor() : null
+          );
+          this.runners.destroy.add(this.renderPipes[name]);
+        });
+      }
+      destroy(options = false) {
+        this.runners.destroy.items.reverse();
+        this.runners.destroy.emit(options);
+        if (options === true || typeof options === "object" && options.releaseGlobalResources) {
+          GlobalResourceRegistry.release();
+        }
+        Object.values(this.runners).forEach((runner) => {
+          runner.destroy();
+        });
+        this._systemsHash = null;
+        this.renderPipes = null;
+        this.removeAllListeners();
+      }
+      /**
+       * Generate a texture from a container.
+       * @param options - options or container target to use when generating the texture
+       * @returns a texture
+       */
+      generateTexture(options) {
+        return this.textureGenerator.generateTexture(options);
+      }
+      /**
+       * Whether the renderer will round coordinates to whole pixels when rendering.
+       * Can be overridden on a per scene item basis.
+       */
+      get roundPixels() {
+        return !!this._roundPixels;
+      }
+      /**
+       * Overridable function by `pixi.js/unsafe-eval` to silence
+       * throwing an error if platform doesn't support unsafe-evals.
+       * @private
+       * @ignore
+       */
+      _unsafeEvalCheck() {
+        if (!unsafeEvalSupported()) {
+          throw new Error("Current environment does not allow unsafe-eval, please use pixi.js/unsafe-eval module to enable support.");
+        }
+      }
+      /**
+       * Resets the rendering state of the renderer.
+       * This is useful when you want to use the WebGL context directly and need to ensure PixiJS's internal state
+       * stays synchronized. When modifying the WebGL context state externally, calling this method before the next Pixi
+       * render will reset all internal caches and ensure it executes correctly.
+       *
+       * This is particularly useful when combining PixiJS with other rendering engines like Three.js:
+       * ```js
+       * // Reset Three.js state
+       * threeRenderer.resetState();
+       *
+       * // Render a Three.js scene
+       * threeRenderer.render(threeScene, threeCamera);
+       *
+       * // Reset PixiJS state since Three.js modified the WebGL context
+       * pixiRenderer.resetState();
+       *
+       * // Now render Pixi content
+       * pixiRenderer.render(pixiScene);
+       * ```
+       * @advanced
+       */
+      resetState() {
+        this.runners.resetState.emit();
+      }
+    };
+    _AbstractRenderer.defaultOptions = {
+      /**
+       * Default resolution / device pixel ratio of the renderer.
+       * @default 1
+       */
+      resolution: 1,
+      /**
+       * Should the `failIfMajorPerformanceCaveat` flag be enabled as a context option used in the `isWebGLSupported`
+       * function. If set to true, a WebGL renderer can fail to be created if the browser thinks there could be
+       * performance issues when using WebGL.
+       *
+       * In PixiJS v6 this has changed from true to false by default, to allow WebGL to work in as many
+       * scenarios as possible. However, some users may have a poor experience, for example, if a user has a gpu or
+       * driver version blacklisted by the
+       * browser.
+       *
+       * If your application requires high performance rendering, you may wish to set this to false.
+       * We recommend one of two options if you decide to set this flag to false:
+       *
+       * 1: Use the Canvas renderer as a fallback in case high performance WebGL is
+       *    not supported.
+       *
+       * 2: Call `isWebGLSupported` (which if found in the utils package) in your code before attempting to create a
+       *    PixiJS renderer, and show an error message to the user if the function returns false, explaining that their
+       *    device & browser combination does not support high performance WebGL.
+       *    This is a much better strategy than trying to create a PixiJS renderer and finding it then fails.
+       * @default false
+       */
+      failIfMajorPerformanceCaveat: false,
+      /**
+       * Should round pixels be forced when rendering?
+       * @default false
+       */
+      roundPixels: false
+    };
+    AbstractRenderer = _AbstractRenderer;
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/ensureIsBuffer.mjs
+function ensureIsBuffer(buffer, index2) {
+  if (!(buffer instanceof Buffer2)) {
+    let usage = index2 ? BufferUsage.INDEX : BufferUsage.VERTEX;
+    if (buffer instanceof Array) {
+      if (index2) {
+        buffer = new Uint32Array(buffer);
+        usage = BufferUsage.INDEX | BufferUsage.COPY_DST;
+      } else {
+        buffer = new Float32Array(buffer);
+        usage = BufferUsage.VERTEX | BufferUsage.COPY_DST;
+      }
+    }
+    buffer = new Buffer2({
+      data: buffer,
+      label: index2 ? "index-mesh-buffer" : "vertex-mesh-buffer",
+      usage
+    });
+  }
+  return buffer;
+}
+var init_ensureIsBuffer = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/ensureIsBuffer.mjs"() {
+    init_Buffer();
+    init_const();
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getGeometryBounds.mjs
+function getGeometryBounds(geometry, attributeId, bounds) {
+  const attribute = geometry.getAttribute(attributeId);
+  if (!attribute) {
+    bounds.minX = 0;
+    bounds.minY = 0;
+    bounds.maxX = 0;
+    bounds.maxY = 0;
+    return bounds;
+  }
+  const data = attribute.buffer.data;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const byteSize = data.BYTES_PER_ELEMENT;
+  const offset4 = (attribute.offset || 0) / byteSize;
+  const stride = (attribute.stride || 2 * 4) / byteSize;
+  for (let i3 = offset4; i3 < data.length; i3 += stride) {
+    const x3 = data[i3];
+    const y4 = data[i3 + 1];
+    if (x3 > maxX) maxX = x3;
+    if (y4 > maxY) maxY = y4;
+    if (x3 < minX) minX = x3;
+    if (y4 < minY) minY = y4;
+  }
+  bounds.minX = minX;
+  bounds.minY = minY;
+  bounds.maxX = maxX;
+  bounds.maxY = maxY;
+  return bounds;
+}
+var init_getGeometryBounds = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getGeometryBounds.mjs"() {
+    "use strict";
+  }
+});
+
+// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/Geometry.mjs
+function ensureIsAttribute(attribute) {
+  if (attribute instanceof Buffer2 || Array.isArray(attribute) || attribute.BYTES_PER_ELEMENT) {
+    attribute = {
+      buffer: attribute
+    };
+  }
+  attribute.buffer = ensureIsBuffer(attribute.buffer, false);
+  return attribute;
+}
+var Geometry;
+var init_Geometry = __esm({
+  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/Geometry.mjs"() {
+    init_eventemitter3();
+    init_Bounds();
+    init_uid();
+    init_Buffer();
+    init_ensureIsBuffer();
+    init_getGeometryBounds();
+    Geometry = class extends eventemitter3_default {
+      /**
+       * Create a new instance of a geometry
+       * @param options - The options for the geometry.
+       */
+      constructor(options = {}) {
+        super();
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+        this.autoGarbageCollect = true;
+        this._gcLastUsed = -1;
+        this.uid = uid("geometry");
+        this._layoutKey = 0;
+        this.instanceCount = 1;
+        this._bounds = new Bounds();
+        this._boundsDirty = true;
+        const { attributes, indexBuffer, topology } = options;
+        this.buffers = [];
+        this.attributes = {};
+        if (attributes) {
+          for (const i3 in attributes) {
+            this.addAttribute(i3, attributes[i3]);
+          }
+        }
+        this.instanceCount = options.instanceCount ?? 1;
+        if (indexBuffer) {
+          this.addIndex(indexBuffer);
+        }
+        this.topology = topology || "triangle-list";
+      }
+      onBufferUpdate() {
+        this._boundsDirty = true;
+        this.emit("update", this);
+      }
+      /**
+       * Returns the requested attribute.
+       * @param id - The name of the attribute required
+       * @returns - The attribute requested.
+       */
+      getAttribute(id) {
+        return this.attributes[id];
+      }
+      /**
+       * Returns the index buffer
+       * @returns - The index buffer.
+       */
+      getIndex() {
+        return this.indexBuffer;
+      }
+      /**
+       * Returns the requested buffer.
+       * @param id - The name of the buffer required.
+       * @returns - The buffer requested.
+       */
+      getBuffer(id) {
+        return this.getAttribute(id).buffer;
+      }
+      /**
+       * Used to figure out how many vertices there are in this geometry
+       * @returns the number of vertices in the geometry
+       */
+      getSize() {
+        for (const i3 in this.attributes) {
+          const attribute = this.attributes[i3];
+          const buffer = attribute.buffer;
+          return buffer.data.length / (attribute.stride / 4 || attribute.size);
+        }
+        return 0;
+      }
+      /**
+       * Adds an attribute to the geometry.
+       * @param name - The name of the attribute to add.
+       * @param attributeOption - The attribute option to add.
+       */
+      addAttribute(name, attributeOption) {
+        const attribute = ensureIsAttribute(attributeOption);
+        const bufferIndex = this.buffers.indexOf(attribute.buffer);
+        if (bufferIndex === -1) {
+          this.buffers.push(attribute.buffer);
+          attribute.buffer.on("update", this.onBufferUpdate, this);
+          attribute.buffer.on("change", this.onBufferUpdate, this);
+        }
+        this.attributes[name] = attribute;
+      }
+      /**
+       * Adds an index buffer to the geometry.
+       * @param indexBuffer - The index buffer to add. Can be a Buffer, TypedArray, or an array of numbers.
+       */
+      addIndex(indexBuffer) {
+        this.indexBuffer = ensureIsBuffer(indexBuffer, true);
+        this.buffers.push(this.indexBuffer);
+      }
+      /** Returns the bounds of the geometry. */
+      get bounds() {
+        if (!this._boundsDirty) return this._bounds;
+        this._boundsDirty = false;
+        return getGeometryBounds(this, "aPosition", this._bounds);
+      }
+      /** Unloads the geometry from the GPU. */
+      unload() {
+        this.emit("unload", this);
+        for (const key in this._gpuData) {
+          this._gpuData[key]?.destroy();
+        }
+        this._gpuData = /* @__PURE__ */ Object.create(null);
+      }
+      /**
+       * destroys the geometry.
+       * @param destroyBuffers - destroy the buffers associated with this geometry
+       */
+      destroy(destroyBuffers = false) {
+        this.emit("destroy", this);
+        this.removeAllListeners();
+        if (destroyBuffers) {
+          this.buffers.forEach((buffer) => buffer.destroy());
+        }
+        this.unload();
+        this.indexBuffer?.destroy();
+        this.attributes = null;
+        this.buffers = null;
+        this.indexBuffer = null;
+        this._bounds = null;
+      }
+    };
+  }
+});
+
+// node_modules/pixi.js/lib/utils/data/ViewableBuffer.mjs
+var ViewableBuffer;
+var init_ViewableBuffer = __esm({
+  "node_modules/pixi.js/lib/utils/data/ViewableBuffer.mjs"() {
+    "use strict";
+    ViewableBuffer = class {
+      constructor(sizeOrBuffer) {
+        if (typeof sizeOrBuffer === "number") {
+          this.rawBinaryData = new ArrayBuffer(sizeOrBuffer);
+        } else if (sizeOrBuffer instanceof Uint8Array) {
+          this.rawBinaryData = sizeOrBuffer.buffer;
+        } else {
+          this.rawBinaryData = sizeOrBuffer;
+        }
+        this.uint32View = new Uint32Array(this.rawBinaryData);
+        this.float32View = new Float32Array(this.rawBinaryData);
+        this.size = this.rawBinaryData.byteLength;
+      }
+      /** View on the raw binary data as a `Int8Array`. */
+      get int8View() {
+        if (!this._int8View) {
+          this._int8View = new Int8Array(this.rawBinaryData);
+        }
+        return this._int8View;
+      }
+      /** View on the raw binary data as a `Uint8Array`. */
+      get uint8View() {
+        if (!this._uint8View) {
+          this._uint8View = new Uint8Array(this.rawBinaryData);
+        }
+        return this._uint8View;
+      }
+      /**  View on the raw binary data as a `Int16Array`. */
+      get int16View() {
+        if (!this._int16View) {
+          this._int16View = new Int16Array(this.rawBinaryData);
+        }
+        return this._int16View;
+      }
+      /** View on the raw binary data as a `Int32Array`. */
+      get int32View() {
+        if (!this._int32View) {
+          this._int32View = new Int32Array(this.rawBinaryData);
+        }
+        return this._int32View;
+      }
+      /** View on the raw binary data as a `Float64Array`. */
+      get float64View() {
+        if (!this._float64Array) {
+          this._float64Array = new Float64Array(this.rawBinaryData);
+        }
+        return this._float64Array;
+      }
+      /** View on the raw binary data as a `BigUint64Array`. */
+      get bigUint64View() {
+        if (!this._bigUint64Array) {
+          this._bigUint64Array = new BigUint64Array(this.rawBinaryData);
+        }
+        return this._bigUint64Array;
+      }
+      /**
+       * Returns the view of the given type.
+       * @param type - One of `int8`, `uint8`, `int16`,
+       *    `uint16`, `int32`, `uint32`, and `float32`.
+       * @returns - typed array of given type
+       */
+      view(type) {
+        return this[`${type}View`];
+      }
+      /** Destroys all buffer references. Do not use after calling this. */
+      destroy() {
+        this.rawBinaryData = null;
+        this.uint32View = null;
+        this.float32View = null;
+        this.uint16View = null;
+        this._int8View = null;
+        this._uint8View = null;
+        this._int16View = null;
+        this._int32View = null;
+        this._float64Array = null;
+        this._bigUint64Array = null;
+      }
+      /**
+       * Returns the size of the given type in bytes.
+       * @param type - One of `int8`, `uint8`, `int16`,
+       *   `uint16`, `int32`, `uint32`, and `float32`.
+       * @returns - size of the type in bytes
+       */
+      static sizeOf(type) {
+        switch (type) {
+          case "int8":
+          case "uint8":
+            return 1;
+          case "int16":
+          case "uint16":
+            return 2;
+          case "int32":
+          case "uint32":
+          case "float32":
+            return 4;
+          default:
+            throw new Error(`${type} isn't a valid view type`);
+        }
+      }
+    };
+  }
+});
+
 // node_modules/react/cjs/react.production.js
 var require_react_production = __commonJS({
   "node_modules/react/cjs/react.production.js"(exports) {
@@ -12903,7823 +23888,9 @@ var require_jsx_runtime = __commonJS({
   }
 });
 
-// node_modules/pixi.js/lib/extensions/Extensions.mjs
-var ExtensionType, normalizeExtension, normalizeExtensionPriority, extensions;
-var init_Extensions = __esm({
-  "node_modules/pixi.js/lib/extensions/Extensions.mjs"() {
-    "use strict";
-    ExtensionType = /* @__PURE__ */ ((ExtensionType2) => {
-      ExtensionType2["Application"] = "application";
-      ExtensionType2["WebGLPipes"] = "webgl-pipes";
-      ExtensionType2["WebGLPipesAdaptor"] = "webgl-pipes-adaptor";
-      ExtensionType2["WebGLSystem"] = "webgl-system";
-      ExtensionType2["WebGPUPipes"] = "webgpu-pipes";
-      ExtensionType2["WebGPUPipesAdaptor"] = "webgpu-pipes-adaptor";
-      ExtensionType2["WebGPUSystem"] = "webgpu-system";
-      ExtensionType2["CanvasSystem"] = "canvas-system";
-      ExtensionType2["CanvasPipesAdaptor"] = "canvas-pipes-adaptor";
-      ExtensionType2["CanvasPipes"] = "canvas-pipes";
-      ExtensionType2["Asset"] = "asset";
-      ExtensionType2["LoadParser"] = "load-parser";
-      ExtensionType2["ResolveParser"] = "resolve-parser";
-      ExtensionType2["CacheParser"] = "cache-parser";
-      ExtensionType2["DetectionParser"] = "detection-parser";
-      ExtensionType2["MaskEffect"] = "mask-effect";
-      ExtensionType2["BlendMode"] = "blend-mode";
-      ExtensionType2["TextureSource"] = "texture-source";
-      ExtensionType2["TextureUploaderWebGL"] = "texture-uploader-webgl";
-      ExtensionType2["TextureUploaderWebGPU"] = "texture-uploader-webgpu";
-      ExtensionType2["Environment"] = "environment";
-      ExtensionType2["ShapeBuilder"] = "shape-builder";
-      ExtensionType2["Batcher"] = "batcher";
-      return ExtensionType2;
-    })(ExtensionType || {});
-    normalizeExtension = (ext) => {
-      if (typeof ext === "function" || typeof ext === "object" && ext.extension) {
-        if (!ext.extension) {
-          throw new Error("Extension class must have an extension object");
-        }
-        const metadata = typeof ext.extension !== "object" ? { type: ext.extension } : ext.extension;
-        ext = { ...metadata, ref: ext };
-      }
-      if (typeof ext === "object") {
-        ext = { ...ext };
-      } else {
-        throw new Error("Invalid extension type");
-      }
-      if (typeof ext.type === "string") {
-        ext.type = [ext.type];
-      }
-      return ext;
-    };
-    normalizeExtensionPriority = (ext, defaultPriority) => normalizeExtension(ext).priority ?? defaultPriority;
-    extensions = {
-      /** @ignore */
-      _addHandlers: {},
-      /** @ignore */
-      _removeHandlers: {},
-      /** @ignore */
-      _queue: {},
-      /**
-       * Remove extensions from PixiJS.
-       * @param extensions - Extensions to be removed. Can be:
-       * - Extension class with static `extension` property
-       * - Extension format object with `type` and `ref`
-       * - Multiple extensions as separate arguments
-       * @returns {extensions} this for chaining
-       * @example
-       * ```ts
-       * // Remove a single extension
-       * extensions.remove(MyRendererPlugin);
-       *
-       * // Remove multiple extensions
-       * extensions.remove(
-       *     MyRendererPlugin,
-       *     MySystemPlugin
-       * );
-       * ```
-       * @see {@link ExtensionType} For available extension types
-       * @see {@link ExtensionFormat} For extension format details
-       */
-      remove(...extensions2) {
-        extensions2.map(normalizeExtension).forEach((ext) => {
-          ext.type.forEach((type) => this._removeHandlers[type]?.(ext));
-        });
-        return this;
-      },
-      /**
-       * Register new extensions with PixiJS. Extensions can be registered in multiple formats:
-       * - As a class with a static `extension` property
-       * - As an extension format object
-       * - As multiple extensions passed as separate arguments
-       * @param extensions - Extensions to add to PixiJS. Each can be:
-       * - A class with static `extension` property
-       * - An extension format object with `type` and `ref`
-       * - Multiple extensions as separate arguments
-       * @returns This extensions instance for chaining
-       * @example
-       * ```ts
-       * // Register a simple extension
-       * extensions.add(MyRendererPlugin);
-       *
-       * // Register multiple extensions
-       * extensions.add(
-       *     MyRendererPlugin,
-       *     MySystemPlugin,
-       * });
-       * ```
-       * @see {@link ExtensionType} For available extension types
-       * @see {@link ExtensionFormat} For extension format details
-       * @see {@link extensions.remove} For removing registered extensions
-       */
-      add(...extensions2) {
-        extensions2.map(normalizeExtension).forEach((ext) => {
-          ext.type.forEach((type) => {
-            const handlers = this._addHandlers;
-            const queue = this._queue;
-            if (!handlers[type]) {
-              queue[type] = queue[type] || [];
-              queue[type]?.push(ext);
-            } else {
-              handlers[type]?.(ext);
-            }
-          });
-        });
-        return this;
-      },
-      /**
-       * Internal method to handle extensions by name.
-       * @param type - The extension type.
-       * @param onAdd  - Function handler when extensions are added/registered {@link StrictExtensionFormat}.
-       * @param onRemove  - Function handler when extensions are removed/unregistered {@link StrictExtensionFormat}.
-       * @returns this for chaining.
-       * @internal
-       * @ignore
-       */
-      handle(type, onAdd, onRemove) {
-        const addHandlers = this._addHandlers;
-        const removeHandlers = this._removeHandlers;
-        if (addHandlers[type] || removeHandlers[type]) {
-          throw new Error(`Extension type ${type} already has a handler`);
-        }
-        addHandlers[type] = onAdd;
-        removeHandlers[type] = onRemove;
-        const queue = this._queue;
-        if (queue[type]) {
-          queue[type]?.forEach((ext) => onAdd(ext));
-          delete queue[type];
-        }
-        return this;
-      },
-      /**
-       * Handle a type, but using a map by `name` property.
-       * @param type - Type of extension to handle.
-       * @param map - The object map of named extensions.
-       * @returns this for chaining.
-       * @ignore
-       */
-      handleByMap(type, map) {
-        return this.handle(
-          type,
-          (extension) => {
-            if (extension.name) {
-              map[extension.name] = extension.ref;
-            }
-          },
-          (extension) => {
-            if (extension.name) {
-              delete map[extension.name];
-            }
-          }
-        );
-      },
-      /**
-       * Handle a type, but using a list of extensions with a `name` property.
-       * @param type - Type of extension to handle.
-       * @param map - The array of named extensions.
-       * @param defaultPriority - Fallback priority if none is defined.
-       * @returns this for chaining.
-       * @ignore
-       */
-      handleByNamedList(type, map, defaultPriority = -1) {
-        return this.handle(
-          type,
-          (extension) => {
-            const index2 = map.findIndex((item) => item.name === extension.name);
-            if (index2 >= 0) return;
-            map.push({ name: extension.name, value: extension.ref });
-            map.sort((a3, b3) => normalizeExtensionPriority(b3.value, defaultPriority) - normalizeExtensionPriority(a3.value, defaultPriority));
-          },
-          (extension) => {
-            const index2 = map.findIndex((item) => item.name === extension.name);
-            if (index2 !== -1) {
-              map.splice(index2, 1);
-            }
-          }
-        );
-      },
-      /**
-       * Handle a type, but using a list of extensions.
-       * @param type - Type of extension to handle.
-       * @param list - The list of extensions.
-       * @param defaultPriority - The default priority to use if none is specified.
-       * @returns this for chaining.
-       * @ignore
-       */
-      handleByList(type, list, defaultPriority = -1) {
-        return this.handle(
-          type,
-          (extension) => {
-            if (list.includes(extension.ref)) {
-              return;
-            }
-            list.push(extension.ref);
-            list.sort((a3, b3) => normalizeExtensionPriority(b3, defaultPriority) - normalizeExtensionPriority(a3, defaultPriority));
-          },
-          (extension) => {
-            const index2 = list.indexOf(extension.ref);
-            if (index2 !== -1) {
-              list.splice(index2, 1);
-            }
-          }
-        );
-      },
-      /**
-       * Mixin the source object(s) properties into the target class's prototype.
-       * Copies all property descriptors from source objects to the target's prototype.
-       * @param Target - The target class to mix properties into
-       * @param sources - One or more source objects containing properties to mix in
-       * @example
-       * ```ts
-       * // Create a mixin with shared properties
-       * const moveable = {
-       *     x: 0,
-       *     y: 0,
-       *     move(x: number, y: number) {
-       *         this.x += x;
-       *         this.y += y;
-       *     }
-       * };
-       *
-       * // Create a mixin with computed properties
-       * const scalable = {
-       *     scale: 1,
-       *     get scaled() {
-       *         return this.scale > 1;
-       *     }
-       * };
-       *
-       * // Apply mixins to a class
-       * extensions.mixin(Sprite, moveable, scalable);
-       *
-       * // Use mixed-in properties
-       * const sprite = new Sprite();
-       * sprite.move(10, 20);
-       * console.log(sprite.x, sprite.y); // 10, 20
-       * ```
-       * @remarks
-       * - Copies all properties including getters/setters
-       * - Does not modify source objects
-       * - Preserves property descriptors
-       * @see {@link Object.defineProperties} For details on property descriptors
-       * @see {@link Object.getOwnPropertyDescriptors} For details on property copying
-       */
-      mixin(Target, ...sources2) {
-        for (const source3 of sources2) {
-          Object.defineProperties(Target.prototype, Object.getOwnPropertyDescriptors(source3));
-        }
-      }
-    };
-  }
-});
-
-// node_modules/eventemitter3/index.js
-var require_eventemitter3 = __commonJS({
-  "node_modules/eventemitter3/index.js"(exports, module) {
-    "use strict";
-    var has2 = Object.prototype.hasOwnProperty;
-    var prefix = "~";
-    function Events() {
-    }
-    if (Object.create) {
-      Events.prototype = /* @__PURE__ */ Object.create(null);
-      if (!new Events().__proto__) prefix = false;
-    }
-    function EE(fn, context2, once) {
-      this.fn = fn;
-      this.context = context2;
-      this.once = once || false;
-    }
-    function addListener(emitter, event, fn, context2, once) {
-      if (typeof fn !== "function") {
-        throw new TypeError("The listener must be a function");
-      }
-      var listener = new EE(fn, context2 || emitter, once), evt = prefix ? prefix + event : event;
-      if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
-      else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
-      else emitter._events[evt] = [emitter._events[evt], listener];
-      return emitter;
-    }
-    function clearEvent(emitter, evt) {
-      if (--emitter._eventsCount === 0) emitter._events = new Events();
-      else delete emitter._events[evt];
-    }
-    function EventEmitter2() {
-      this._events = new Events();
-      this._eventsCount = 0;
-    }
-    EventEmitter2.prototype.eventNames = function eventNames() {
-      var names = [], events2, name;
-      if (this._eventsCount === 0) return names;
-      for (name in events2 = this._events) {
-        if (has2.call(events2, name)) names.push(prefix ? name.slice(1) : name);
-      }
-      if (Object.getOwnPropertySymbols) {
-        return names.concat(Object.getOwnPropertySymbols(events2));
-      }
-      return names;
-    };
-    EventEmitter2.prototype.listeners = function listeners(event) {
-      var evt = prefix ? prefix + event : event, handlers = this._events[evt];
-      if (!handlers) return [];
-      if (handlers.fn) return [handlers.fn];
-      for (var i3 = 0, l3 = handlers.length, ee2 = new Array(l3); i3 < l3; i3++) {
-        ee2[i3] = handlers[i3].fn;
-      }
-      return ee2;
-    };
-    EventEmitter2.prototype.listenerCount = function listenerCount(event) {
-      var evt = prefix ? prefix + event : event, listeners = this._events[evt];
-      if (!listeners) return 0;
-      if (listeners.fn) return 1;
-      return listeners.length;
-    };
-    EventEmitter2.prototype.emit = function emit(event, a1, a22, a3, a4, a5) {
-      var evt = prefix ? prefix + event : event;
-      if (!this._events[evt]) return false;
-      var listeners = this._events[evt], len = arguments.length, args, i3;
-      if (listeners.fn) {
-        if (listeners.once) this.removeListener(event, listeners.fn, void 0, true);
-        switch (len) {
-          case 1:
-            return listeners.fn.call(listeners.context), true;
-          case 2:
-            return listeners.fn.call(listeners.context, a1), true;
-          case 3:
-            return listeners.fn.call(listeners.context, a1, a22), true;
-          case 4:
-            return listeners.fn.call(listeners.context, a1, a22, a3), true;
-          case 5:
-            return listeners.fn.call(listeners.context, a1, a22, a3, a4), true;
-          case 6:
-            return listeners.fn.call(listeners.context, a1, a22, a3, a4, a5), true;
-        }
-        for (i3 = 1, args = new Array(len - 1); i3 < len; i3++) {
-          args[i3 - 1] = arguments[i3];
-        }
-        listeners.fn.apply(listeners.context, args);
-      } else {
-        var length2 = listeners.length, j4;
-        for (i3 = 0; i3 < length2; i3++) {
-          if (listeners[i3].once) this.removeListener(event, listeners[i3].fn, void 0, true);
-          switch (len) {
-            case 1:
-              listeners[i3].fn.call(listeners[i3].context);
-              break;
-            case 2:
-              listeners[i3].fn.call(listeners[i3].context, a1);
-              break;
-            case 3:
-              listeners[i3].fn.call(listeners[i3].context, a1, a22);
-              break;
-            case 4:
-              listeners[i3].fn.call(listeners[i3].context, a1, a22, a3);
-              break;
-            default:
-              if (!args) for (j4 = 1, args = new Array(len - 1); j4 < len; j4++) {
-                args[j4 - 1] = arguments[j4];
-              }
-              listeners[i3].fn.apply(listeners[i3].context, args);
-          }
-        }
-      }
-      return true;
-    };
-    EventEmitter2.prototype.on = function on(event, fn, context2) {
-      return addListener(this, event, fn, context2, false);
-    };
-    EventEmitter2.prototype.once = function once(event, fn, context2) {
-      return addListener(this, event, fn, context2, true);
-    };
-    EventEmitter2.prototype.removeListener = function removeListener(event, fn, context2, once) {
-      var evt = prefix ? prefix + event : event;
-      if (!this._events[evt]) return this;
-      if (!fn) {
-        clearEvent(this, evt);
-        return this;
-      }
-      var listeners = this._events[evt];
-      if (listeners.fn) {
-        if (listeners.fn === fn && (!once || listeners.once) && (!context2 || listeners.context === context2)) {
-          clearEvent(this, evt);
-        }
-      } else {
-        for (var i3 = 0, events2 = [], length2 = listeners.length; i3 < length2; i3++) {
-          if (listeners[i3].fn !== fn || once && !listeners[i3].once || context2 && listeners[i3].context !== context2) {
-            events2.push(listeners[i3]);
-          }
-        }
-        if (events2.length) this._events[evt] = events2.length === 1 ? events2[0] : events2;
-        else clearEvent(this, evt);
-      }
-      return this;
-    };
-    EventEmitter2.prototype.removeAllListeners = function removeAllListeners(event) {
-      var evt;
-      if (event) {
-        evt = prefix ? prefix + event : event;
-        if (this._events[evt]) clearEvent(this, evt);
-      } else {
-        this._events = new Events();
-        this._eventsCount = 0;
-      }
-      return this;
-    };
-    EventEmitter2.prototype.off = EventEmitter2.prototype.removeListener;
-    EventEmitter2.prototype.addListener = EventEmitter2.prototype.on;
-    EventEmitter2.prefixed = prefix;
-    EventEmitter2.EventEmitter = EventEmitter2;
-    if ("undefined" !== typeof module) {
-      module.exports = EventEmitter2;
-    }
-  }
-});
-
-// node_modules/eventemitter3/index.mjs
-var import_index, eventemitter3_default;
-var init_eventemitter3 = __esm({
-  "node_modules/eventemitter3/index.mjs"() {
-    import_index = __toESM(require_eventemitter3(), 1);
-    eventemitter3_default = import_index.default;
-  }
-});
-
-// node_modules/@pixi/colord/index.mjs
-var r3, t2, n2, e3, u2, a2, o2, i2, s2, h2, b2, g2, d2, f2, c2, l2, p2, v2, m2, y2, N2, x2, M2, H2, $2, j2, w2, S2, k2;
-var init_colord = __esm({
-  "node_modules/@pixi/colord/index.mjs"() {
-    r3 = { grad: 0.9, turn: 360, rad: 360 / (2 * Math.PI) };
-    t2 = function(r4) {
-      return "string" == typeof r4 ? r4.length > 0 : "number" == typeof r4;
-    };
-    n2 = function(r4, t3, n3) {
-      return void 0 === t3 && (t3 = 0), void 0 === n3 && (n3 = Math.pow(10, t3)), Math.round(n3 * r4) / n3 + 0;
-    };
-    e3 = function(r4, t3, n3) {
-      return void 0 === t3 && (t3 = 0), void 0 === n3 && (n3 = 1), r4 > n3 ? n3 : r4 > t3 ? r4 : t3;
-    };
-    u2 = function(r4) {
-      return (r4 = isFinite(r4) ? r4 % 360 : 0) > 0 ? r4 : r4 + 360;
-    };
-    a2 = function(r4) {
-      return { r: e3(r4.r, 0, 255), g: e3(r4.g, 0, 255), b: e3(r4.b, 0, 255), a: e3(r4.a) };
-    };
-    o2 = function(r4) {
-      return { r: n2(r4.r), g: n2(r4.g), b: n2(r4.b), a: n2(r4.a, 3) };
-    };
-    i2 = /^#([0-9a-f]{3,8})$/i;
-    s2 = function(r4) {
-      var t3 = r4.toString(16);
-      return t3.length < 2 ? "0" + t3 : t3;
-    };
-    h2 = function(r4) {
-      var t3 = r4.r, n3 = r4.g, e4 = r4.b, u3 = r4.a, a3 = Math.max(t3, n3, e4), o3 = a3 - Math.min(t3, n3, e4), i3 = o3 ? a3 === t3 ? (n3 - e4) / o3 : a3 === n3 ? 2 + (e4 - t3) / o3 : 4 + (t3 - n3) / o3 : 0;
-      return { h: 60 * (i3 < 0 ? i3 + 6 : i3), s: a3 ? o3 / a3 * 100 : 0, v: a3 / 255 * 100, a: u3 };
-    };
-    b2 = function(r4) {
-      var t3 = r4.h, n3 = r4.s, e4 = r4.v, u3 = r4.a;
-      t3 = t3 / 360 * 6, n3 /= 100, e4 /= 100;
-      var a3 = Math.floor(t3), o3 = e4 * (1 - n3), i3 = e4 * (1 - (t3 - a3) * n3), s3 = e4 * (1 - (1 - t3 + a3) * n3), h3 = a3 % 6;
-      return { r: 255 * [e4, i3, o3, o3, s3, e4][h3], g: 255 * [s3, e4, e4, i3, o3, o3][h3], b: 255 * [o3, o3, s3, e4, e4, i3][h3], a: u3 };
-    };
-    g2 = function(r4) {
-      return { h: u2(r4.h), s: e3(r4.s, 0, 100), l: e3(r4.l, 0, 100), a: e3(r4.a) };
-    };
-    d2 = function(r4) {
-      return { h: n2(r4.h), s: n2(r4.s), l: n2(r4.l), a: n2(r4.a, 3) };
-    };
-    f2 = function(r4) {
-      return b2((n3 = (t3 = r4).s, { h: t3.h, s: (n3 *= ((e4 = t3.l) < 50 ? e4 : 100 - e4) / 100) > 0 ? 2 * n3 / (e4 + n3) * 100 : 0, v: e4 + n3, a: t3.a }));
-      var t3, n3, e4;
-    };
-    c2 = function(r4) {
-      return { h: (t3 = h2(r4)).h, s: (u3 = (200 - (n3 = t3.s)) * (e4 = t3.v) / 100) > 0 && u3 < 200 ? n3 * e4 / 100 / (u3 <= 100 ? u3 : 200 - u3) * 100 : 0, l: u3 / 2, a: t3.a };
-      var t3, n3, e4, u3;
-    };
-    l2 = /^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
-    p2 = /^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
-    v2 = /^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
-    m2 = /^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i;
-    y2 = { string: [[function(r4) {
-      var t3 = i2.exec(r4);
-      return t3 ? (r4 = t3[1]).length <= 4 ? { r: parseInt(r4[0] + r4[0], 16), g: parseInt(r4[1] + r4[1], 16), b: parseInt(r4[2] + r4[2], 16), a: 4 === r4.length ? n2(parseInt(r4[3] + r4[3], 16) / 255, 2) : 1 } : 6 === r4.length || 8 === r4.length ? { r: parseInt(r4.substr(0, 2), 16), g: parseInt(r4.substr(2, 2), 16), b: parseInt(r4.substr(4, 2), 16), a: 8 === r4.length ? n2(parseInt(r4.substr(6, 2), 16) / 255, 2) : 1 } : null : null;
-    }, "hex"], [function(r4) {
-      var t3 = v2.exec(r4) || m2.exec(r4);
-      return t3 ? t3[2] !== t3[4] || t3[4] !== t3[6] ? null : a2({ r: Number(t3[1]) / (t3[2] ? 100 / 255 : 1), g: Number(t3[3]) / (t3[4] ? 100 / 255 : 1), b: Number(t3[5]) / (t3[6] ? 100 / 255 : 1), a: void 0 === t3[7] ? 1 : Number(t3[7]) / (t3[8] ? 100 : 1) }) : null;
-    }, "rgb"], [function(t3) {
-      var n3 = l2.exec(t3) || p2.exec(t3);
-      if (!n3) return null;
-      var e4, u3, a3 = g2({ h: (e4 = n3[1], u3 = n3[2], void 0 === u3 && (u3 = "deg"), Number(e4) * (r3[u3] || 1)), s: Number(n3[3]), l: Number(n3[4]), a: void 0 === n3[5] ? 1 : Number(n3[5]) / (n3[6] ? 100 : 1) });
-      return f2(a3);
-    }, "hsl"]], object: [[function(r4) {
-      var n3 = r4.r, e4 = r4.g, u3 = r4.b, o3 = r4.a, i3 = void 0 === o3 ? 1 : o3;
-      return t2(n3) && t2(e4) && t2(u3) ? a2({ r: Number(n3), g: Number(e4), b: Number(u3), a: Number(i3) }) : null;
-    }, "rgb"], [function(r4) {
-      var n3 = r4.h, e4 = r4.s, u3 = r4.l, a3 = r4.a, o3 = void 0 === a3 ? 1 : a3;
-      if (!t2(n3) || !t2(e4) || !t2(u3)) return null;
-      var i3 = g2({ h: Number(n3), s: Number(e4), l: Number(u3), a: Number(o3) });
-      return f2(i3);
-    }, "hsl"], [function(r4) {
-      var n3 = r4.h, a3 = r4.s, o3 = r4.v, i3 = r4.a, s3 = void 0 === i3 ? 1 : i3;
-      if (!t2(n3) || !t2(a3) || !t2(o3)) return null;
-      var h3 = function(r5) {
-        return { h: u2(r5.h), s: e3(r5.s, 0, 100), v: e3(r5.v, 0, 100), a: e3(r5.a) };
-      }({ h: Number(n3), s: Number(a3), v: Number(o3), a: Number(s3) });
-      return b2(h3);
-    }, "hsv"]] };
-    N2 = function(r4, t3) {
-      for (var n3 = 0; n3 < t3.length; n3++) {
-        var e4 = t3[n3][0](r4);
-        if (e4) return [e4, t3[n3][1]];
-      }
-      return [null, void 0];
-    };
-    x2 = function(r4) {
-      return "string" == typeof r4 ? N2(r4.trim(), y2.string) : "object" == typeof r4 && null !== r4 ? N2(r4, y2.object) : [null, void 0];
-    };
-    M2 = function(r4, t3) {
-      var n3 = c2(r4);
-      return { h: n3.h, s: e3(n3.s + 100 * t3, 0, 100), l: n3.l, a: n3.a };
-    };
-    H2 = function(r4) {
-      return (299 * r4.r + 587 * r4.g + 114 * r4.b) / 1e3 / 255;
-    };
-    $2 = function(r4, t3) {
-      var n3 = c2(r4);
-      return { h: n3.h, s: n3.s, l: e3(n3.l + 100 * t3, 0, 100), a: n3.a };
-    };
-    j2 = function() {
-      function r4(r5) {
-        this.parsed = x2(r5)[0], this.rgba = this.parsed || { r: 0, g: 0, b: 0, a: 1 };
-      }
-      return r4.prototype.isValid = function() {
-        return null !== this.parsed;
-      }, r4.prototype.brightness = function() {
-        return n2(H2(this.rgba), 2);
-      }, r4.prototype.isDark = function() {
-        return H2(this.rgba) < 0.5;
-      }, r4.prototype.isLight = function() {
-        return H2(this.rgba) >= 0.5;
-      }, r4.prototype.toHex = function() {
-        return r5 = o2(this.rgba), t3 = r5.r, e4 = r5.g, u3 = r5.b, i3 = (a3 = r5.a) < 1 ? s2(n2(255 * a3)) : "", "#" + s2(t3) + s2(e4) + s2(u3) + i3;
-        var r5, t3, e4, u3, a3, i3;
-      }, r4.prototype.toRgb = function() {
-        return o2(this.rgba);
-      }, r4.prototype.toRgbString = function() {
-        return r5 = o2(this.rgba), t3 = r5.r, n3 = r5.g, e4 = r5.b, (u3 = r5.a) < 1 ? "rgba(" + t3 + ", " + n3 + ", " + e4 + ", " + u3 + ")" : "rgb(" + t3 + ", " + n3 + ", " + e4 + ")";
-        var r5, t3, n3, e4, u3;
-      }, r4.prototype.toHsl = function() {
-        return d2(c2(this.rgba));
-      }, r4.prototype.toHslString = function() {
-        return r5 = d2(c2(this.rgba)), t3 = r5.h, n3 = r5.s, e4 = r5.l, (u3 = r5.a) < 1 ? "hsla(" + t3 + ", " + n3 + "%, " + e4 + "%, " + u3 + ")" : "hsl(" + t3 + ", " + n3 + "%, " + e4 + "%)";
-        var r5, t3, n3, e4, u3;
-      }, r4.prototype.toHsv = function() {
-        return r5 = h2(this.rgba), { h: n2(r5.h), s: n2(r5.s), v: n2(r5.v), a: n2(r5.a, 3) };
-        var r5;
-      }, r4.prototype.invert = function() {
-        return w2({ r: 255 - (r5 = this.rgba).r, g: 255 - r5.g, b: 255 - r5.b, a: r5.a });
-        var r5;
-      }, r4.prototype.saturate = function(r5) {
-        return void 0 === r5 && (r5 = 0.1), w2(M2(this.rgba, r5));
-      }, r4.prototype.desaturate = function(r5) {
-        return void 0 === r5 && (r5 = 0.1), w2(M2(this.rgba, -r5));
-      }, r4.prototype.grayscale = function() {
-        return w2(M2(this.rgba, -1));
-      }, r4.prototype.lighten = function(r5) {
-        return void 0 === r5 && (r5 = 0.1), w2($2(this.rgba, r5));
-      }, r4.prototype.darken = function(r5) {
-        return void 0 === r5 && (r5 = 0.1), w2($2(this.rgba, -r5));
-      }, r4.prototype.rotate = function(r5) {
-        return void 0 === r5 && (r5 = 15), this.hue(this.hue() + r5);
-      }, r4.prototype.alpha = function(r5) {
-        return "number" == typeof r5 ? w2({ r: (t3 = this.rgba).r, g: t3.g, b: t3.b, a: r5 }) : n2(this.rgba.a, 3);
-        var t3;
-      }, r4.prototype.hue = function(r5) {
-        var t3 = c2(this.rgba);
-        return "number" == typeof r5 ? w2({ h: r5, s: t3.s, l: t3.l, a: t3.a }) : n2(t3.h);
-      }, r4.prototype.isEqual = function(r5) {
-        return this.toHex() === w2(r5).toHex();
-      }, r4;
-    }();
-    w2 = function(r4) {
-      return r4 instanceof j2 ? r4 : new j2(r4);
-    };
-    S2 = [];
-    k2 = function(r4) {
-      r4.forEach(function(r5) {
-        S2.indexOf(r5) < 0 && (r5(j2, y2), S2.push(r5));
-      });
-    };
-  }
-});
-
-// node_modules/@pixi/colord/plugins/names.mjs
-function names_default(e4, f3) {
-  var a3 = { white: "#ffffff", bisque: "#ffe4c4", blue: "#0000ff", cadetblue: "#5f9ea0", chartreuse: "#7fff00", chocolate: "#d2691e", coral: "#ff7f50", antiquewhite: "#faebd7", aqua: "#00ffff", azure: "#f0ffff", whitesmoke: "#f5f5f5", papayawhip: "#ffefd5", plum: "#dda0dd", blanchedalmond: "#ffebcd", black: "#000000", gold: "#ffd700", goldenrod: "#daa520", gainsboro: "#dcdcdc", cornsilk: "#fff8dc", cornflowerblue: "#6495ed", burlywood: "#deb887", aquamarine: "#7fffd4", beige: "#f5f5dc", crimson: "#dc143c", cyan: "#00ffff", darkblue: "#00008b", darkcyan: "#008b8b", darkgoldenrod: "#b8860b", darkkhaki: "#bdb76b", darkgray: "#a9a9a9", darkgreen: "#006400", darkgrey: "#a9a9a9", peachpuff: "#ffdab9", darkmagenta: "#8b008b", darkred: "#8b0000", darkorchid: "#9932cc", darkorange: "#ff8c00", darkslateblue: "#483d8b", gray: "#808080", darkslategray: "#2f4f4f", darkslategrey: "#2f4f4f", deeppink: "#ff1493", deepskyblue: "#00bfff", wheat: "#f5deb3", firebrick: "#b22222", floralwhite: "#fffaf0", ghostwhite: "#f8f8ff", darkviolet: "#9400d3", magenta: "#ff00ff", green: "#008000", dodgerblue: "#1e90ff", grey: "#808080", honeydew: "#f0fff0", hotpink: "#ff69b4", blueviolet: "#8a2be2", forestgreen: "#228b22", lawngreen: "#7cfc00", indianred: "#cd5c5c", indigo: "#4b0082", fuchsia: "#ff00ff", brown: "#a52a2a", maroon: "#800000", mediumblue: "#0000cd", lightcoral: "#f08080", darkturquoise: "#00ced1", lightcyan: "#e0ffff", ivory: "#fffff0", lightyellow: "#ffffe0", lightsalmon: "#ffa07a", lightseagreen: "#20b2aa", linen: "#faf0e6", mediumaquamarine: "#66cdaa", lemonchiffon: "#fffacd", lime: "#00ff00", khaki: "#f0e68c", mediumseagreen: "#3cb371", limegreen: "#32cd32", mediumspringgreen: "#00fa9a", lightskyblue: "#87cefa", lightblue: "#add8e6", midnightblue: "#191970", lightpink: "#ffb6c1", mistyrose: "#ffe4e1", moccasin: "#ffe4b5", mintcream: "#f5fffa", lightslategray: "#778899", lightslategrey: "#778899", navajowhite: "#ffdead", navy: "#000080", mediumvioletred: "#c71585", powderblue: "#b0e0e6", palegoldenrod: "#eee8aa", oldlace: "#fdf5e6", paleturquoise: "#afeeee", mediumturquoise: "#48d1cc", mediumorchid: "#ba55d3", rebeccapurple: "#663399", lightsteelblue: "#b0c4de", mediumslateblue: "#7b68ee", thistle: "#d8bfd8", tan: "#d2b48c", orchid: "#da70d6", mediumpurple: "#9370db", purple: "#800080", pink: "#ffc0cb", skyblue: "#87ceeb", springgreen: "#00ff7f", palegreen: "#98fb98", red: "#ff0000", yellow: "#ffff00", slateblue: "#6a5acd", lavenderblush: "#fff0f5", peru: "#cd853f", palevioletred: "#db7093", violet: "#ee82ee", teal: "#008080", slategray: "#708090", slategrey: "#708090", aliceblue: "#f0f8ff", darkseagreen: "#8fbc8f", darkolivegreen: "#556b2f", greenyellow: "#adff2f", seagreen: "#2e8b57", seashell: "#fff5ee", tomato: "#ff6347", silver: "#c0c0c0", sienna: "#a0522d", lavender: "#e6e6fa", lightgreen: "#90ee90", orange: "#ffa500", orangered: "#ff4500", steelblue: "#4682b4", royalblue: "#4169e1", turquoise: "#40e0d0", yellowgreen: "#9acd32", salmon: "#fa8072", saddlebrown: "#8b4513", sandybrown: "#f4a460", rosybrown: "#bc8f8f", darksalmon: "#e9967a", lightgoldenrodyellow: "#fafad2", snow: "#fffafa", lightgrey: "#d3d3d3", lightgray: "#d3d3d3", dimgray: "#696969", dimgrey: "#696969", olivedrab: "#6b8e23", olive: "#808000" }, r4 = {};
-  for (var d3 in a3) r4[a3[d3]] = d3;
-  var l3 = {};
-  e4.prototype.toName = function(f4) {
-    if (!(this.rgba.a || this.rgba.r || this.rgba.g || this.rgba.b)) return "transparent";
-    var d4, i3, n3 = r4[this.toHex()];
-    if (n3) return n3;
-    if (null == f4 ? void 0 : f4.closest) {
-      var o3 = this.toRgb(), t3 = 1 / 0, b3 = "black";
-      if (!l3.length) for (var c3 in a3) l3[c3] = new e4(a3[c3]).toRgb();
-      for (var g3 in a3) {
-        var u3 = (d4 = o3, i3 = l3[g3], Math.pow(d4.r - i3.r, 2) + Math.pow(d4.g - i3.g, 2) + Math.pow(d4.b - i3.b, 2));
-        u3 < t3 && (t3 = u3, b3 = g3);
-      }
-      return b3;
-    }
-  };
-  f3.string.push([function(f4) {
-    var r5 = f4.toLowerCase(), d4 = "transparent" === r5 ? "#0000" : a3[r5];
-    return d4 ? new e4(d4).toRgb() : null;
-  }, "name"]);
-}
-var init_names = __esm({
-  "node_modules/@pixi/colord/plugins/names.mjs"() {
-  }
-});
-
-// node_modules/pixi.js/lib/color/Color.mjs
-var _Color, Color;
-var init_Color = __esm({
-  "node_modules/pixi.js/lib/color/Color.mjs"() {
-    init_colord();
-    init_names();
-    k2([names_default]);
-    _Color = class _Color2 {
-      /**
-       * @param {ColorSource} value - Optional value to use, if not provided, white is used.
-       */
-      constructor(value = 16777215) {
-        this._value = null;
-        this._components = new Float32Array(4);
-        this._components.fill(1);
-        this._int = 16777215;
-        this.value = value;
-      }
-      /**
-       * Get the red component of the color, normalized between 0 and 1.
-       * @example
-       * ```ts
-       * const color = new Color('red');
-       * console.log(color.red); // 1
-       *
-       * const green = new Color('#00ff00');
-       * console.log(green.red); // 0
-       * ```
-       */
-      get red() {
-        return this._components[0];
-      }
-      /**
-       * Get the green component of the color, normalized between 0 and 1.
-       * @example
-       * ```ts
-       * const color = new Color('lime');
-       * console.log(color.green); // 1
-       *
-       * const red = new Color('#ff0000');
-       * console.log(red.green); // 0
-       * ```
-       */
-      get green() {
-        return this._components[1];
-      }
-      /**
-       * Get the blue component of the color, normalized between 0 and 1.
-       * @example
-       * ```ts
-       * const color = new Color('blue');
-       * console.log(color.blue); // 1
-       *
-       * const yellow = new Color('#ffff00');
-       * console.log(yellow.blue); // 0
-       * ```
-       */
-      get blue() {
-        return this._components[2];
-      }
-      /**
-       * Get the alpha component of the color, normalized between 0 and 1.
-       * @example
-       * ```ts
-       * const color = new Color('red');
-       * console.log(color.alpha); // 1 (fully opaque)
-       *
-       * const transparent = new Color('rgba(255, 0, 0, 0.5)');
-       * console.log(transparent.alpha); // 0.5 (semi-transparent)
-       * ```
-       */
-      get alpha() {
-        return this._components[3];
-      }
-      /**
-       * Sets the color value and returns the instance for chaining.
-       *
-       * This is a chainable version of setting the `value` property.
-       * @param value - The color to set. Accepts various formats:
-       * - Hex strings/numbers (e.g., '#ff0000', 0xff0000)
-       * - RGB/RGBA values (arrays, objects)
-       * - CSS color names
-       * - HSL/HSLA values
-       * - HSV/HSVA values
-       * @returns The Color instance for chaining
-       * @example
-       * ```ts
-       * // Basic usage
-       * const color = new Color();
-       * color.setValue('#ff0000')
-       *     .setAlpha(0.5)
-       *     .premultiply(0.8);
-       *
-       * // Different formats
-       * color.setValue(0xff0000);          // Hex number
-       * color.setValue('#ff0000');         // Hex string
-       * color.setValue([1, 0, 0]);         // RGB array
-       * color.setValue([1, 0, 0, 0.5]);    // RGBA array
-       * color.setValue({ r: 1, g: 0, b: 0 }); // RGB object
-       *
-       * // Copy from another color
-       * const red = new Color('red');
-       * color.setValue(red);
-       * ```
-       * @throws {Error} If the color value is invalid or null
-       * @see {@link Color.value} For the underlying value property
-       */
-      setValue(value) {
-        this.value = value;
-        return this;
-      }
-      /**
-       * The current color source. This property allows getting and setting the color value
-       * while preserving the original format where possible.
-       * @remarks
-       * When setting:
-       * - Setting to a `Color` instance copies its source and components
-       * - Setting to other valid sources normalizes and stores the value
-       * - Setting to `null` throws an Error
-       * - The color remains unchanged if normalization fails
-       *
-       * When getting:
-       * - Returns `null` if color was modified by {@link Color.multiply} or {@link Color.premultiply}
-       * - Otherwise returns the original color source
-       * @example
-       * ```ts
-       * // Setting different color formats
-       * const color = new Color();
-       *
-       * color.value = 0xff0000;         // Hex number
-       * color.value = '#ff0000';        // Hex string
-       * color.value = [1, 0, 0];        // RGB array
-       * color.value = [1, 0, 0, 0.5];   // RGBA array
-       * color.value = { r: 1, g: 0, b: 0 }; // RGB object
-       *
-       * // Copying from another color
-       * const red = new Color('red');
-       * color.value = red;  // Copies red's components
-       *
-       * // Getting the value
-       * console.log(color.value);  // Returns original format
-       *
-       * // After modifications
-       * color.multiply([0.5, 0.5, 0.5]);
-       * console.log(color.value);  // Returns null
-       * ```
-       * @throws {Error} When attempting to set `null`
-       */
-      set value(value) {
-        if (value instanceof _Color2) {
-          this._value = this._cloneSource(value._value);
-          this._int = value._int;
-          this._components.set(value._components);
-        } else if (value === null) {
-          throw new Error("Cannot set Color#value to null");
-        } else if (this._value === null || !this._isSourceEqual(this._value, value)) {
-          this._value = this._cloneSource(value);
-          this._normalize(this._value);
-        }
-      }
-      get value() {
-        return this._value;
-      }
-      /**
-       * Copy a color source internally.
-       * @param value - Color source
-       */
-      _cloneSource(value) {
-        if (typeof value === "string" || typeof value === "number" || value instanceof Number || value === null) {
-          return value;
-        } else if (Array.isArray(value) || ArrayBuffer.isView(value)) {
-          return value.slice(0);
-        } else if (typeof value === "object" && value !== null) {
-          return { ...value };
-        }
-        return value;
-      }
-      /**
-       * Equality check for color sources.
-       * @param value1 - First color source
-       * @param value2 - Second color source
-       * @returns `true` if the color sources are equal, `false` otherwise.
-       */
-      _isSourceEqual(value1, value2) {
-        const type1 = typeof value1;
-        const type2 = typeof value2;
-        if (type1 !== type2) {
-          return false;
-        } else if (type1 === "number" || type1 === "string" || value1 instanceof Number) {
-          return value1 === value2;
-        } else if (Array.isArray(value1) && Array.isArray(value2) || ArrayBuffer.isView(value1) && ArrayBuffer.isView(value2)) {
-          if (value1.length !== value2.length) {
-            return false;
-          }
-          return value1.every((v4, i3) => v4 === value2[i3]);
-        } else if (value1 !== null && value2 !== null) {
-          const keys1 = Object.keys(value1);
-          const keys2 = Object.keys(value2);
-          if (keys1.length !== keys2.length) {
-            return false;
-          }
-          return keys1.every((key) => value1[key] === value2[key]);
-        }
-        return value1 === value2;
-      }
-      /**
-       * Convert to a RGBA color object with normalized components (0-1).
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Convert colors to RGBA objects
-       * new Color('white').toRgba();     // returns { r: 1, g: 1, b: 1, a: 1 }
-       * new Color('#ff0000').toRgba();   // returns { r: 1, g: 0, b: 0, a: 1 }
-       *
-       * // With transparency
-       * new Color('rgba(255,0,0,0.5)').toRgba(); // returns { r: 1, g: 0, b: 0, a: 0.5 }
-       * ```
-       * @returns An RGBA object with normalized components
-       */
-      toRgba() {
-        const [r4, g3, b3, a3] = this._components;
-        return { r: r4, g: g3, b: b3, a: a3 };
-      }
-      /**
-       * Convert to a RGB color object with normalized components (0-1).
-       *
-       * Alpha component is omitted in the output.
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Convert colors to RGB objects
-       * new Color('white').toRgb();     // returns { r: 1, g: 1, b: 1 }
-       * new Color('#ff0000').toRgb();   // returns { r: 1, g: 0, b: 0 }
-       *
-       * // Alpha is ignored
-       * new Color('rgba(255,0,0,0.5)').toRgb(); // returns { r: 1, g: 0, b: 0 }
-       * ```
-       * @returns An RGB object with normalized components
-       */
-      toRgb() {
-        const [r4, g3, b3] = this._components;
-        return { r: r4, g: g3, b: b3 };
-      }
-      /**
-       * Convert to a CSS-style rgba string representation.
-       *
-       * RGB components are scaled to 0-255 range, alpha remains 0-1.
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Convert colors to RGBA strings
-       * new Color('white').toRgbaString();     // returns "rgba(255,255,255,1)"
-       * new Color('#ff0000').toRgbaString();   // returns "rgba(255,0,0,1)"
-       *
-       * // With transparency
-       * new Color([1, 0, 0, 0.5]).toRgbaString(); // returns "rgba(255,0,0,0.5)"
-       * ```
-       * @returns A CSS-compatible rgba string
-       */
-      toRgbaString() {
-        const [r4, g3, b3] = this.toUint8RgbArray();
-        return `rgba(${r4},${g3},${b3},${this.alpha})`;
-      }
-      /**
-       * Convert to an [R, G, B] array of clamped uint8 values (0 to 255).
-       * @param {number[]|Uint8Array|Uint8ClampedArray} [out] - Optional output array. If not provided,
-       * a cached array will be used and returned.
-       * @returns Array containing RGB components as integers between 0-255
-       * @example
-       * ```ts
-       * // Basic usage
-       * new Color('white').toUint8RgbArray(); // returns [255, 255, 255]
-       * new Color('#ff0000').toUint8RgbArray(); // returns [255, 0, 0]
-       *
-       * // Using custom output array
-       * const rgb = new Uint8Array(3);
-       * new Color('blue').toUint8RgbArray(rgb); // rgb is now [0, 0, 255]
-       *
-       * // Using different array types
-       * new Color('red').toUint8RgbArray(new Uint8ClampedArray(3)); // [255, 0, 0]
-       * new Color('red').toUint8RgbArray([]); // [255, 0, 0]
-       * ```
-       * @remarks
-       * - Output values are always clamped between 0-255
-       * - Alpha component is not included in output
-       * - Reuses internal cache array if no output array provided
-       */
-      toUint8RgbArray(out2) {
-        const [r4, g3, b3] = this._components;
-        if (!this._arrayRgb) {
-          this._arrayRgb = [];
-        }
-        out2 || (out2 = this._arrayRgb);
-        out2[0] = Math.round(r4 * 255);
-        out2[1] = Math.round(g3 * 255);
-        out2[2] = Math.round(b3 * 255);
-        return out2;
-      }
-      /**
-       * Convert to an [R, G, B, A] array of normalized floats (numbers from 0.0 to 1.0).
-       * @param {number[]|Float32Array} [out] - Optional output array. If not provided,
-       * a cached array will be used and returned.
-       * @returns Array containing RGBA components as floats between 0-1
-       * @example
-       * ```ts
-       * // Basic usage
-       * new Color('white').toArray();  // returns [1, 1, 1, 1]
-       * new Color('red').toArray();    // returns [1, 0, 0, 1]
-       *
-       * // With alpha
-       * new Color('rgba(255,0,0,0.5)').toArray(); // returns [1, 0, 0, 0.5]
-       *
-       * // Using custom output array
-       * const rgba = new Float32Array(4);
-       * new Color('blue').toArray(rgba); // rgba is now [0, 0, 1, 1]
-       * ```
-       * @remarks
-       * - Output values are normalized between 0-1
-       * - Includes alpha component as the fourth value
-       * - Reuses internal cache array if no output array provided
-       */
-      toArray(out2) {
-        if (!this._arrayRgba) {
-          this._arrayRgba = [];
-        }
-        out2 || (out2 = this._arrayRgba);
-        const [r4, g3, b3, a3] = this._components;
-        out2[0] = r4;
-        out2[1] = g3;
-        out2[2] = b3;
-        out2[3] = a3;
-        return out2;
-      }
-      /**
-       * Convert to an [R, G, B] array of normalized floats (numbers from 0.0 to 1.0).
-       * @param {number[]|Float32Array} [out] - Optional output array. If not provided,
-       * a cached array will be used and returned.
-       * @returns Array containing RGB components as floats between 0-1
-       * @example
-       * ```ts
-       * // Basic usage
-       * new Color('white').toRgbArray(); // returns [1, 1, 1]
-       * new Color('red').toRgbArray();   // returns [1, 0, 0]
-       *
-       * // Using custom output array
-       * const rgb = new Float32Array(3);
-       * new Color('blue').toRgbArray(rgb); // rgb is now [0, 0, 1]
-       * ```
-       * @remarks
-       * - Output values are normalized between 0-1
-       * - Alpha component is omitted from output
-       * - Reuses internal cache array if no output array provided
-       */
-      toRgbArray(out2) {
-        if (!this._arrayRgb) {
-          this._arrayRgb = [];
-        }
-        out2 || (out2 = this._arrayRgb);
-        const [r4, g3, b3] = this._components;
-        out2[0] = r4;
-        out2[1] = g3;
-        out2[2] = b3;
-        return out2;
-      }
-      /**
-       * Convert to a hexadecimal number.
-       * @returns The color as a 24-bit RGB integer
-       * @example
-       * ```ts
-       * // Basic usage
-       * new Color('white').toNumber(); // returns 0xffffff
-       * new Color('red').toNumber();   // returns 0xff0000
-       *
-       * // Store as hex
-       * const color = new Color('blue');
-       * const hex = color.toNumber(); // 0x0000ff
-       * ```
-       */
-      toNumber() {
-        return this._int;
-      }
-      /**
-       * Convert to a BGR number.
-       *
-       * Useful for platforms that expect colors in BGR format.
-       * @returns The color as a 24-bit BGR integer
-       * @example
-       * ```ts
-       * // Convert RGB to BGR
-       * new Color(0xffcc99).toBgrNumber(); // returns 0x99ccff
-       *
-       * // Common use case: platform-specific color format
-       * const color = new Color('orange');
-       * const bgrColor = color.toBgrNumber(); // Color with swapped R/B channels
-       * ```
-       * @remarks
-       * This swaps the red and blue channels compared to the normal RGB format:
-       * - RGB 0xRRGGBB becomes BGR 0xBBGGRR
-       */
-      toBgrNumber() {
-        const [r4, g3, b3] = this.toUint8RgbArray();
-        return (b3 << 16) + (g3 << 8) + r4;
-      }
-      /**
-       * Convert to a hexadecimal number in little endian format (e.g., BBGGRR).
-       *
-       * Useful for platforms that expect colors in little endian byte order.
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Convert RGB color to little endian format
-       * new Color(0xffcc99).toLittleEndianNumber(); // returns 0x99ccff
-       *
-       * // Common use cases:
-       * const color = new Color('orange');
-       * const leColor = color.toLittleEndianNumber(); // Swaps byte order for LE systems
-       *
-       * // Multiple conversions
-       * const colors = {
-       *     normal: 0xffcc99,
-       *     littleEndian: new Color(0xffcc99).toLittleEndianNumber(), // 0x99ccff
-       *     backToNormal: new Color(0x99ccff).toLittleEndianNumber()  // 0xffcc99
-       * };
-       * ```
-       * @remarks
-       * - Swaps R and B channels in the color value
-       * - RGB 0xRRGGBB becomes 0xBBGGRR
-       * - Useful for systems that use little endian byte order
-       * - Can be used to convert back and forth between formats
-       * @returns The color as a number in little endian format (BBGGRR)
-       * @see {@link Color.toBgrNumber} For BGR format without byte swapping
-       */
-      toLittleEndianNumber() {
-        const value = this._int;
-        return (value >> 16) + (value & 65280) + ((value & 255) << 16);
-      }
-      /**
-       * Multiply with another color.
-       *
-       * This action is destructive and modifies the original color.
-       * @param {ColorSource} value - The color to multiply by. Accepts any valid color format:
-       * - Hex strings/numbers (e.g., '#ff0000', 0xff0000)
-       * - RGB/RGBA arrays ([1, 0, 0], [1, 0, 0, 1])
-       * - Color objects ({ r: 1, g: 0, b: 0 })
-       * - CSS color names ('red', 'blue')
-       * @returns this - The Color instance for chaining
-       * @example
-       * ```ts
-       * // Basic multiplication
-       * const color = new Color('#ff0000');
-       * color.multiply(0x808080); // 50% darker red
-       *
-       * // With transparency
-       * color.multiply([1, 1, 1, 0.5]); // 50% transparent
-       *
-       * // Chain operations
-       * color
-       *     .multiply('#808080')
-       *     .multiply({ r: 1, g: 1, b: 1, a: 0.5 });
-       * ```
-       * @remarks
-       * - Multiplies each RGB component and alpha separately
-       * - Values are clamped between 0-1
-       * - Original color format is lost (value becomes null)
-       * - Operation cannot be undone
-       */
-      multiply(value) {
-        const [r4, g3, b3, a3] = _Color2._temp.setValue(value)._components;
-        this._components[0] *= r4;
-        this._components[1] *= g3;
-        this._components[2] *= b3;
-        this._components[3] *= a3;
-        this._refreshInt();
-        this._value = null;
-        return this;
-      }
-      /**
-       * Converts color to a premultiplied alpha format.
-       *
-       * This action is destructive and modifies the original color.
-       * @param alpha - The alpha value to multiply by (0-1)
-       * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels
-       * @returns {Color} The Color instance for chaining
-       * @example
-       * ```ts
-       * // Basic premultiplication
-       * const color = new Color('red');
-       * color.premultiply(0.5); // 50% transparent red with premultiplied RGB
-       *
-       * // Alpha only (RGB unchanged)
-       * color.premultiply(0.5, false); // 50% transparent, original RGB
-       *
-       * // Chain with other operations
-       * color
-       *     .multiply(0x808080)
-       *     .premultiply(0.5)
-       *     .toNumber();
-       * ```
-       * @remarks
-       * - RGB channels are multiplied by alpha when applyToRGB is true
-       * - Alpha is always set to the provided value
-       * - Values are clamped between 0-1
-       * - Original color format is lost (value becomes null)
-       * - Operation cannot be undone
-       */
-      premultiply(alpha, applyToRGB = true) {
-        if (applyToRGB) {
-          this._components[0] *= alpha;
-          this._components[1] *= alpha;
-          this._components[2] *= alpha;
-        }
-        this._components[3] = alpha;
-        this._refreshInt();
-        this._value = null;
-        return this;
-      }
-      /**
-       * Returns the color as a 32-bit premultiplied alpha integer.
-       *
-       * Format: 0xAARRGGBB
-       * @param {number} alpha - The alpha value to multiply by (0-1)
-       * @param {boolean} [applyToRGB=true] - Whether to premultiply RGB channels
-       * @returns {number} The premultiplied color as a 32-bit integer
-       * @example
-       * ```ts
-       * // Convert to premultiplied format
-       * const color = new Color('red');
-       *
-       * // Full opacity (0xFFRRGGBB)
-       * color.toPremultiplied(1.0); // 0xFFFF0000
-       *
-       * // 50% transparency with premultiplied RGB
-       * color.toPremultiplied(0.5); // 0x7F7F0000
-       *
-       * // 50% transparency without RGB premultiplication
-       * color.toPremultiplied(0.5, false); // 0x7FFF0000
-       * ```
-       * @remarks
-       * - Returns full opacity (0xFF000000) when alpha is 1.0
-       * - Returns 0 when alpha is 0.0 and applyToRGB is true
-       * - RGB values are rounded during premultiplication
-       */
-      toPremultiplied(alpha, applyToRGB = true) {
-        if (alpha === 1) {
-          return (255 << 24) + this._int;
-        }
-        if (alpha === 0) {
-          return applyToRGB ? 0 : this._int;
-        }
-        let r4 = this._int >> 16 & 255;
-        let g3 = this._int >> 8 & 255;
-        let b3 = this._int & 255;
-        if (applyToRGB) {
-          r4 = r4 * alpha + 0.5 | 0;
-          g3 = g3 * alpha + 0.5 | 0;
-          b3 = b3 * alpha + 0.5 | 0;
-        }
-        return (alpha * 255 << 24) + (r4 << 16) + (g3 << 8) + b3;
-      }
-      /**
-       * Convert to a hexadecimal string (6 characters).
-       * @returns A CSS-compatible hex color string (e.g., "#ff0000")
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Basic colors
-       * new Color('red').toHex();    // returns "#ff0000"
-       * new Color('white').toHex();  // returns "#ffffff"
-       * new Color('black').toHex();  // returns "#000000"
-       *
-       * // From different formats
-       * new Color(0xff0000).toHex(); // returns "#ff0000"
-       * new Color([1, 0, 0]).toHex(); // returns "#ff0000"
-       * new Color({ r: 1, g: 0, b: 0 }).toHex(); // returns "#ff0000"
-       * ```
-       * @remarks
-       * - Always returns a 6-character hex string
-       * - Includes leading "#" character
-       * - Alpha channel is ignored
-       * - Values are rounded to nearest hex value
-       */
-      toHex() {
-        const hexString = this._int.toString(16);
-        return `#${"000000".substring(0, 6 - hexString.length) + hexString}`;
-      }
-      /**
-       * Convert to a hexadecimal string with alpha (8 characters).
-       * @returns A CSS-compatible hex color string with alpha (e.g., "#ff0000ff")
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // Fully opaque colors
-       * new Color('red').toHexa();   // returns "#ff0000ff"
-       * new Color('white').toHexa(); // returns "#ffffffff"
-       *
-       * // With transparency
-       * new Color('rgba(255, 0, 0, 0.5)').toHexa(); // returns "#ff00007f"
-       * new Color([1, 0, 0, 0]).toHexa(); // returns "#ff000000"
-       * ```
-       * @remarks
-       * - Returns an 8-character hex string
-       * - Includes leading "#" character
-       * - Alpha is encoded in last two characters
-       * - Values are rounded to nearest hex value
-       */
-      toHexa() {
-        const alphaValue = Math.round(this._components[3] * 255);
-        const alphaString = alphaValue.toString(16);
-        return this.toHex() + "00".substring(0, 2 - alphaString.length) + alphaString;
-      }
-      /**
-       * Set alpha (transparency) value while preserving color components.
-       *
-       * Provides a chainable interface for setting alpha.
-       * @param alpha - Alpha value between 0 (fully transparent) and 1 (fully opaque)
-       * @returns The Color instance for chaining
-       * @example
-       * ```ts
-       * // Basic alpha setting
-       * const color = new Color('red');
-       * color.setAlpha(0.5);  // 50% transparent red
-       *
-       * // Chain with other operations
-       * color
-       *     .setValue('#ff0000')
-       *     .setAlpha(0.8)    // 80% opaque
-       *     .premultiply(0.5); // Further modify alpha
-       *
-       * // Reset to fully opaque
-       * color.setAlpha(1);
-       * ```
-       * @remarks
-       * - Alpha value is clamped between 0-1
-       * - Can be chained with other color operations
-       */
-      setAlpha(alpha) {
-        this._components[3] = this._clamp(alpha);
-        this._value = null;
-        return this;
-      }
-      /**
-       * Normalize the input value into rgba
-       * @param value - Input value
-       */
-      _normalize(value) {
-        let r4;
-        let g3;
-        let b3;
-        let a3;
-        if ((typeof value === "number" || value instanceof Number) && value >= 0 && value <= 16777215) {
-          const int = value;
-          r4 = (int >> 16 & 255) / 255;
-          g3 = (int >> 8 & 255) / 255;
-          b3 = (int & 255) / 255;
-          a3 = 1;
-        } else if ((Array.isArray(value) || value instanceof Float32Array) && value.length >= 3 && value.length <= 4) {
-          value = this._clamp(value);
-          [r4, g3, b3, a3 = 1] = value;
-        } else if ((value instanceof Uint8Array || value instanceof Uint8ClampedArray) && value.length >= 3 && value.length <= 4) {
-          value = this._clamp(value, 0, 255);
-          [r4, g3, b3, a3 = 255] = value;
-          r4 /= 255;
-          g3 /= 255;
-          b3 /= 255;
-          a3 /= 255;
-        } else if (typeof value === "string" || typeof value === "object") {
-          if (typeof value === "string") {
-            const match = _Color2.HEX_PATTERN.exec(value);
-            if (match) {
-              value = `#${match[2]}`;
-            }
-          }
-          const color = w2(value);
-          if (color.isValid()) {
-            ({ r: r4, g: g3, b: b3, a: a3 } = color.rgba);
-            r4 /= 255;
-            g3 /= 255;
-            b3 /= 255;
-          }
-        }
-        if (r4 !== void 0) {
-          this._components[0] = r4;
-          this._components[1] = g3;
-          this._components[2] = b3;
-          this._components[3] = a3;
-          this._refreshInt();
-        } else {
-          throw new Error(`Unable to convert color ${value}`);
-        }
-      }
-      /** Refresh the internal color rgb number */
-      _refreshInt() {
-        this._clamp(this._components);
-        const [r4, g3, b3] = this._components;
-        this._int = (r4 * 255 << 16) + (g3 * 255 << 8) + (b3 * 255 | 0);
-      }
-      /**
-       * Clamps values to a range. Will override original values
-       * @param value - Value(s) to clamp
-       * @param min - Minimum value
-       * @param max - Maximum value
-       */
-      _clamp(value, min2 = 0, max2 = 1) {
-        if (typeof value === "number") {
-          return Math.min(Math.max(value, min2), max2);
-        }
-        value.forEach((v4, i3) => {
-          value[i3] = Math.min(Math.max(v4, min2), max2);
-        });
-        return value;
-      }
-      /**
-       * Check if a value can be interpreted as a valid color format.
-       * Supports all color formats that can be used with the Color class.
-       * @param value - Value to check
-       * @returns True if the value can be used as a color
-       * @example
-       * ```ts
-       * import { Color } from 'pixi.js';
-       *
-       * // CSS colors and hex values
-       * Color.isColorLike('red');          // true
-       * Color.isColorLike('#ff0000');      // true
-       * Color.isColorLike(0xff0000);       // true
-       *
-       * // Arrays (RGB/RGBA)
-       * Color.isColorLike([1, 0, 0]);      // true
-       * Color.isColorLike([1, 0, 0, 0.5]); // true
-       *
-       * // TypedArrays
-       * Color.isColorLike(new Float32Array([1, 0, 0]));          // true
-       * Color.isColorLike(new Uint8Array([255, 0, 0]));          // true
-       * Color.isColorLike(new Uint8ClampedArray([255, 0, 0]));   // true
-       *
-       * // Object formats
-       * Color.isColorLike({ r: 1, g: 0, b: 0 });            // true (RGB)
-       * Color.isColorLike({ r: 1, g: 0, b: 0, a: 0.5 });    // true (RGBA)
-       * Color.isColorLike({ h: 0, s: 100, l: 50 });         // true (HSL)
-       * Color.isColorLike({ h: 0, s: 100, l: 50, a: 0.5 }); // true (HSLA)
-       * Color.isColorLike({ h: 0, s: 100, v: 100 });        // true (HSV)
-       * Color.isColorLike({ h: 0, s: 100, v: 100, a: 0.5 });// true (HSVA)
-       *
-       * // Color instances
-       * Color.isColorLike(new Color('red')); // true
-       *
-       * // Invalid values
-       * Color.isColorLike(null);           // false
-       * Color.isColorLike(undefined);      // false
-       * Color.isColorLike({});             // false
-       * Color.isColorLike([]);             // false
-       * Color.isColorLike('not-a-color');  // false
-       * ```
-       * @remarks
-       * Checks for the following formats:
-       * - Numbers (0x000000 to 0xffffff)
-       * - CSS color strings
-       * - RGB/RGBA arrays and objects
-       * - HSL/HSLA objects
-       * - HSV/HSVA objects
-       * - TypedArrays (Float32Array, Uint8Array, Uint8ClampedArray)
-       * - Color instances
-       * @see {@link ColorSource} For supported color format types
-       * @see {@link Color.setValue} For setting color values
-       * @category utility
-       */
-      static isColorLike(value) {
-        return typeof value === "number" || typeof value === "string" || value instanceof Number || value instanceof _Color2 || Array.isArray(value) || value instanceof Uint8Array || value instanceof Uint8ClampedArray || value instanceof Float32Array || value.r !== void 0 && value.g !== void 0 && value.b !== void 0 || value.r !== void 0 && value.g !== void 0 && value.b !== void 0 && value.a !== void 0 || value.h !== void 0 && value.s !== void 0 && value.l !== void 0 || value.h !== void 0 && value.s !== void 0 && value.l !== void 0 && value.a !== void 0 || value.h !== void 0 && value.s !== void 0 && value.v !== void 0 || value.h !== void 0 && value.s !== void 0 && value.v !== void 0 && value.a !== void 0;
-      }
-    };
-    _Color.shared = new _Color();
-    _Color._temp = new _Color();
-    _Color.HEX_PATTERN = /^(#|0x)?(([a-f0-9]{3}){1,2}([a-f0-9]{2})?)$/i;
-    Color = _Color;
-  }
-});
-
-// node_modules/pixi.js/lib/culling/cullingMixin.mjs
-var cullingMixin;
-var init_cullingMixin = __esm({
-  "node_modules/pixi.js/lib/culling/cullingMixin.mjs"() {
-    "use strict";
-    cullingMixin = {
-      cullArea: null,
-      cullable: false,
-      cullableChildren: true
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/maths/misc/const.mjs
-var PI_2, RAD_TO_DEG, DEG_TO_RAD;
-var init_const = __esm({
-  "node_modules/pixi.js/lib/maths/misc/const.mjs"() {
-    "use strict";
-    PI_2 = Math.PI * 2;
-    RAD_TO_DEG = 180 / Math.PI;
-    DEG_TO_RAD = Math.PI / 180;
-  }
-});
-
-// node_modules/pixi.js/lib/maths/point/Point.mjs
-var Point, tempPoint;
-var init_Point = __esm({
-  "node_modules/pixi.js/lib/maths/point/Point.mjs"() {
-    "use strict";
-    Point = class _Point {
-      /**
-       * Creates a new `Point`
-       * @param {number} [x=0] - position of the point on the x axis
-       * @param {number} [y=0] - position of the point on the y axis
-       */
-      constructor(x3 = 0, y4 = 0) {
-        this.x = 0;
-        this.y = 0;
-        this.x = x3;
-        this.y = y4;
-      }
-      /**
-       * Creates a clone of this point, which is a new instance with the same `x` and `y` values.
-       * @example
-       * ```ts
-       * // Basic point cloning
-       * const original = new Point(100, 200);
-       * const copy = original.clone();
-       *
-       * // Clone and modify
-       * const modified = original.clone();
-       * modified.set(300, 400);
-       *
-       * // Verify independence
-       * console.log(original); // Point(100, 200)
-       * console.log(modified); // Point(300, 400)
-       * ```
-       * @remarks
-       * - Creates new Point instance
-       * - Deep copies x and y values
-       * - Independent from original
-       * - Useful for preserving values
-       * @returns A clone of this point
-       * @see {@link Point.copyFrom} For copying into existing point
-       * @see {@link Point.copyTo} For copying to existing point
-       */
-      clone() {
-        return new _Point(this.x, this.y);
-      }
-      /**
-       * Copies x and y from the given point into this point.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new Point(100, 200);
-       * const target = new Point();
-       * target.copyFrom(source);
-       *
-       * // Copy and chain operations
-       * const point = new Point()
-       *     .copyFrom(source)
-       *     .set(x + 50, y + 50);
-       *
-       * // Copy from any PointData
-       * const data = { x: 10, y: 20 };
-       * point.copyFrom(data);
-       * ```
-       * @param p - The point to copy from
-       * @returns The point instance itself
-       * @see {@link Point.copyTo} For copying to another point
-       * @see {@link Point.clone} For creating new point copy
-       */
-      copyFrom(p3) {
-        this.set(p3.x, p3.y);
-        return this;
-      }
-      /**
-       * Copies this point's x and y into the given point.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new Point(100, 200);
-       * const target = new Point();
-       * source.copyTo(target);
-       * ```
-       * @param p - The point to copy to. Can be any type that is or extends `PointLike`
-       * @returns The point (`p`) with values updated
-       * @see {@link Point.copyFrom} For copying from another point
-       * @see {@link Point.clone} For creating new point copy
-       */
-      copyTo(p3) {
-        p3.set(this.x, this.y);
-        return p3;
-      }
-      /**
-       * Checks if another point is equal to this point.
-       *
-       * Compares x and y values using strict equality.
-       * @example
-       * ```ts
-       * // Basic equality check
-       * const p1 = new Point(100, 200);
-       * const p2 = new Point(100, 200);
-       * console.log(p1.equals(p2)); // true
-       *
-       * // Compare with PointData
-       * const data = { x: 100, y: 200 };
-       * console.log(p1.equals(data)); // true
-       *
-       * // Check different points
-       * const p3 = new Point(200, 300);
-       * console.log(p1.equals(p3)); // false
-       * ```
-       * @param p - The point to check
-       * @returns `true` if both `x` and `y` are equal
-       * @see {@link Point.copyFrom} For making points equal
-       * @see {@link PointData} For point data interface
-       */
-      equals(p3) {
-        return p3.x === this.x && p3.y === this.y;
-      }
-      /**
-       * Sets the point to a new x and y position.
-       *
-       * If y is omitted, both x and y will be set to x.
-       * @example
-       * ```ts
-       * // Basic position setting
-       * const point = new Point();
-       * point.set(100, 200);
-       *
-       * // Set both x and y to same value
-       * point.set(50); // x=50, y=50
-       *
-       * // Chain with other operations
-       * point
-       *     .set(10, 20)
-       *     .copyTo(otherPoint);
-       * ```
-       * @param x - Position on the x axis
-       * @param y - Position on the y axis, defaults to x
-       * @returns The point instance itself
-       * @see {@link Point.copyFrom} For copying from another point
-       * @see {@link Point.equals} For comparing positions
-       */
-      set(x3 = 0, y4 = x3) {
-        this.x = x3;
-        this.y = y4;
-        return this;
-      }
-      toString() {
-        return `[pixi.js/math:Point x=${this.x} y=${this.y}]`;
-      }
-      /**
-       * A static Point object with `x` and `y` values of `0`.
-       *
-       * This shared instance is reset to zero values when accessed.
-       *
-       * > [!IMPORTANT] This point is shared and temporary. Do not store references to it.
-       * @example
-       * ```ts
-       * // Use for temporary calculations
-       * const tempPoint = Point.shared;
-       * tempPoint.set(100, 200);
-       * matrix.apply(tempPoint);
-       *
-       * // Will be reset to (0,0) on next access
-       * const fresh = Point.shared; // x=0, y=0
-       * ```
-       * @readonly
-       * @returns A fresh zeroed point for temporary use
-       * @see {@link Point.constructor} For creating new points
-       * @see {@link PointData} For basic point interface
-       */
-      static get shared() {
-        tempPoint.x = 0;
-        tempPoint.y = 0;
-        return tempPoint;
-      }
-    };
-    tempPoint = new Point();
-  }
-});
-
-// node_modules/pixi.js/lib/maths/matrix/Matrix.mjs
-var Matrix, tempMatrix, identityMatrix;
-var init_Matrix = __esm({
-  "node_modules/pixi.js/lib/maths/matrix/Matrix.mjs"() {
-    init_const();
-    init_Point();
-    Matrix = class _Matrix {
-      /**
-       * @param a - x scale
-       * @param b - y skew
-       * @param c - x skew
-       * @param d - y scale
-       * @param tx - x translation
-       * @param ty - y translation
-       */
-      constructor(a3 = 1, b3 = 0, c3 = 0, d3 = 1, tx = 0, ty = 0) {
-        this.array = null;
-        this.a = a3;
-        this.b = b3;
-        this.c = c3;
-        this.d = d3;
-        this.tx = tx;
-        this.ty = ty;
-      }
-      /**
-       * Creates a Matrix object based on the given array.
-       * Populates matrix components from a flat array in column-major order.
-       *
-       * > [!NOTE] Array mapping order:
-       * > ```
-       * > array[0] = a  (x scale)
-       * > array[1] = b  (y skew)
-       * > array[2] = tx (x translation)
-       * > array[3] = c  (x skew)
-       * > array[4] = d  (y scale)
-       * > array[5] = ty (y translation)
-       * > ```
-       * @example
-       * ```ts
-       * // Create matrix from array
-       * const matrix = new Matrix();
-       * matrix.fromArray([
-       *     2, 0,  100,  // a, b, tx
-       *     0, 2,  100   // c, d, ty
-       * ]);
-       *
-       * // Create matrix from typed array
-       * const float32Array = new Float32Array([
-       *     1, 0, 0,     // Scale x1, no skew
-       *     0, 1, 0      // No skew, scale x1
-       * ]);
-       * matrix.fromArray(float32Array);
-       * ```
-       * @param array - The array to populate the matrix from
-       * @see {@link Matrix.toArray} For converting matrix to array
-       * @see {@link Matrix.set} For setting values directly
-       */
-      fromArray(array) {
-        this.a = array[0];
-        this.b = array[1];
-        this.c = array[3];
-        this.d = array[4];
-        this.tx = array[2];
-        this.ty = array[5];
-      }
-      /**
-       * Sets the matrix properties directly.
-       * All matrix components can be set in one call.
-       * @example
-       * ```ts
-       * // Set to identity matrix
-       * matrix.set(1, 0, 0, 1, 0, 0);
-       *
-       * // Set to scale matrix
-       * matrix.set(2, 0, 0, 2, 0, 0); // Scale 2x
-       *
-       * // Set to translation matrix
-       * matrix.set(1, 0, 0, 1, 100, 50); // Move 100,50
-       * ```
-       * @param a - Scale on x axis
-       * @param b - Shear on y axis
-       * @param c - Shear on x axis
-       * @param d - Scale on y axis
-       * @param tx - Translation on x axis
-       * @param ty - Translation on y axis
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.identity} For resetting to identity
-       * @see {@link Matrix.fromArray} For setting from array
-       */
-      set(a3, b3, c3, d3, tx, ty) {
-        this.a = a3;
-        this.b = b3;
-        this.c = c3;
-        this.d = d3;
-        this.tx = tx;
-        this.ty = ty;
-        return this;
-      }
-      /**
-       * Creates an array from the current Matrix object.
-       *
-       * > [!NOTE] The array format is:
-       * > ```
-       * > Non-transposed:
-       * > [a, c, tx,
-       * > b, d, ty,
-       * > 0, 0, 1]
-       * >
-       * > Transposed:
-       * > [a, b, 0,
-       * > c, d, 0,
-       * > tx,ty,1]
-       * > ```
-       * @example
-       * ```ts
-       * // Basic array conversion
-       * const matrix = new Matrix(2, 0, 0, 2, 100, 100);
-       * const array = matrix.toArray();
-       *
-       * // Using existing array
-       * const float32Array = new Float32Array(9);
-       * matrix.toArray(false, float32Array);
-       *
-       * // Get transposed array
-       * const transposed = matrix.toArray(true);
-       * ```
-       * @param transpose - Whether to transpose the matrix
-       * @param out - Optional Float32Array to store the result
-       * @returns The array containing the matrix values
-       * @see {@link Matrix.fromArray} For creating matrix from array
-       * @see {@link Matrix.array} For cached array storage
-       */
-      toArray(transpose, out2) {
-        if (!this.array) {
-          this.array = new Float32Array(9);
-        }
-        const array = out2 || this.array;
-        if (transpose) {
-          array[0] = this.a;
-          array[1] = this.b;
-          array[2] = 0;
-          array[3] = this.c;
-          array[4] = this.d;
-          array[5] = 0;
-          array[6] = this.tx;
-          array[7] = this.ty;
-          array[8] = 1;
-        } else {
-          array[0] = this.a;
-          array[1] = this.c;
-          array[2] = this.tx;
-          array[3] = this.b;
-          array[4] = this.d;
-          array[5] = this.ty;
-          array[6] = 0;
-          array[7] = 0;
-          array[8] = 1;
-        }
-        return array;
-      }
-      /**
-       * Get a new position with the current transformation applied.
-       *
-       * Can be used to go from a child's coordinate space to the world coordinate space. (e.g. rendering)
-       * @example
-       * ```ts
-       * // Basic point transformation
-       * const matrix = new Matrix().translate(100, 50).rotate(Math.PI / 4);
-       * const point = new Point(10, 20);
-       * const transformed = matrix.apply(point);
-       *
-       * // Reuse existing point
-       * const output = new Point();
-       * matrix.apply(point, output);
-       * ```
-       * @param pos - The origin point to transform
-       * @param newPos - Optional point to store the result
-       * @returns The transformed point
-       * @see {@link Matrix.applyInverse} For inverse transformation
-       * @see {@link Point} For point operations
-       */
-      apply(pos, newPos) {
-        newPos = newPos || new Point();
-        const x3 = pos.x;
-        const y4 = pos.y;
-        newPos.x = this.a * x3 + this.c * y4 + this.tx;
-        newPos.y = this.b * x3 + this.d * y4 + this.ty;
-        return newPos;
-      }
-      /**
-       * Get a new position with the inverse of the current transformation applied.
-       *
-       * Can be used to go from the world coordinate space to a child's coordinate space. (e.g. input)
-       * @example
-       * ```ts
-       * // Basic inverse transformation
-       * const matrix = new Matrix().translate(100, 50).rotate(Math.PI / 4);
-       * const worldPoint = new Point(150, 100);
-       * const localPoint = matrix.applyInverse(worldPoint);
-       *
-       * // Reuse existing point
-       * const output = new Point();
-       * matrix.applyInverse(worldPoint, output);
-       *
-       * // Convert mouse position to local space
-       * const mousePoint = new Point(mouseX, mouseY);
-       * const localMouse = matrix.applyInverse(mousePoint);
-       * ```
-       * @param pos - The origin point to inverse-transform
-       * @param newPos - Optional point to store the result
-       * @returns The inverse-transformed point
-       * @see {@link Matrix.apply} For forward transformation
-       * @see {@link Matrix.invert} For getting inverse matrix
-       */
-      applyInverse(pos, newPos) {
-        newPos = newPos || new Point();
-        const a3 = this.a;
-        const b3 = this.b;
-        const c3 = this.c;
-        const d3 = this.d;
-        const tx = this.tx;
-        const ty = this.ty;
-        const id = 1 / (a3 * d3 + c3 * -b3);
-        const x3 = pos.x;
-        const y4 = pos.y;
-        newPos.x = d3 * id * x3 + -c3 * id * y4 + (ty * c3 - tx * d3) * id;
-        newPos.y = a3 * id * y4 + -b3 * id * x3 + (-ty * a3 + tx * b3) * id;
-        return newPos;
-      }
-      /**
-       * Translates the matrix on the x and y axes.
-       * Adds to the position values while preserving scale, rotation and skew.
-       * @example
-       * ```ts
-       * // Basic translation
-       * const matrix = new Matrix();
-       * matrix.translate(100, 50); // Move right 100, down 50
-       *
-       * // Chain with other transformations
-       * matrix
-       *     .scale(2, 2)
-       *     .translate(100, 0)
-       *     .rotate(Math.PI / 4);
-       * ```
-       * @param x - How much to translate on the x axis
-       * @param y - How much to translate on the y axis
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.set} For setting position directly
-       * @see {@link Matrix.setTransform} For complete transform setup
-       */
-      translate(x3, y4) {
-        this.tx += x3;
-        this.ty += y4;
-        return this;
-      }
-      /**
-       * Applies a scale transformation to the matrix.
-       * Multiplies the scale values with existing matrix components.
-       * @example
-       * ```ts
-       * // Basic scaling
-       * const matrix = new Matrix();
-       * matrix.scale(2, 3); // Scale 2x horizontally, 3x vertically
-       *
-       * // Chain with other transformations
-       * matrix
-       *     .translate(100, 100)
-       *     .scale(2, 2)     // Scales after translation
-       *     .rotate(Math.PI / 4);
-       * ```
-       * @param x - The amount to scale horizontally
-       * @param y - The amount to scale vertically
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.setTransform} For setting scale directly
-       * @see {@link Matrix.append} For combining transformations
-       */
-      scale(x3, y4) {
-        this.a *= x3;
-        this.d *= y4;
-        this.c *= x3;
-        this.b *= y4;
-        this.tx *= x3;
-        this.ty *= y4;
-        return this;
-      }
-      /**
-       * Applies a rotation transformation to the matrix.
-       *
-       * Rotates around the origin (0,0) by the given angle in radians.
-       * @example
-       * ```ts
-       * // Basic rotation
-       * const matrix = new Matrix();
-       * matrix.rotate(Math.PI / 4); // Rotate 45 degrees
-       *
-       * // Chain with other transformations
-       * matrix
-       *     .translate(100, 100) // Move to rotation center
-       *     .rotate(Math.PI)     // Rotate 180 degrees
-       *     .scale(2, 2);        // Scale after rotation
-       *
-       * // Common angles
-       * matrix.rotate(Math.PI / 2);  // 90 degrees
-       * matrix.rotate(Math.PI);      // 180 degrees
-       * matrix.rotate(Math.PI * 2);  // 360 degrees
-       * ```
-       * @remarks
-       * - Rotates around origin point (0,0)
-       * - Affects position if translation was set
-       * - Uses counter-clockwise rotation
-       * - Order of operations matters when chaining
-       * @param angle - The angle in radians
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.setTransform} For setting rotation directly
-       * @see {@link Matrix.append} For combining transformations
-       */
-      rotate(angle) {
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        const a1 = this.a;
-        const c1 = this.c;
-        const tx1 = this.tx;
-        this.a = a1 * cos - this.b * sin;
-        this.b = a1 * sin + this.b * cos;
-        this.c = c1 * cos - this.d * sin;
-        this.d = c1 * sin + this.d * cos;
-        this.tx = tx1 * cos - this.ty * sin;
-        this.ty = tx1 * sin + this.ty * cos;
-        return this;
-      }
-      /**
-       * Appends the given Matrix to this Matrix.
-       * Combines two matrices by multiplying them together: this = this * matrix
-       * @example
-       * ```ts
-       * // Basic matrix combination
-       * const matrix = new Matrix();
-       * const other = new Matrix().translate(100, 0).rotate(Math.PI / 4);
-       * matrix.append(other);
-       * ```
-       * @remarks
-       * - Order matters: A.append(B) !== B.append(A)
-       * - Modifies current matrix
-       * - Preserves transformation order
-       * - Commonly used for combining transforms
-       * @param matrix - The matrix to append
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.prepend} For prepending transformations
-       * @see {@link Matrix.appendFrom} For appending two external matrices
-       */
-      append(matrix) {
-        const a1 = this.a;
-        const b1 = this.b;
-        const c1 = this.c;
-        const d1 = this.d;
-        this.a = matrix.a * a1 + matrix.b * c1;
-        this.b = matrix.a * b1 + matrix.b * d1;
-        this.c = matrix.c * a1 + matrix.d * c1;
-        this.d = matrix.c * b1 + matrix.d * d1;
-        this.tx = matrix.tx * a1 + matrix.ty * c1 + this.tx;
-        this.ty = matrix.tx * b1 + matrix.ty * d1 + this.ty;
-        return this;
-      }
-      /**
-       * Appends two matrices and sets the result to this matrix.
-       * Performs matrix multiplication: this = A * B
-       * @example
-       * ```ts
-       * // Basic matrix multiplication
-       * const result = new Matrix();
-       * const matrixA = new Matrix().scale(2, 2);
-       * const matrixB = new Matrix().rotate(Math.PI / 4);
-       * result.appendFrom(matrixA, matrixB);
-       * ```
-       * @remarks
-       * - Order matters: A * B !== B * A
-       * - Creates a new transformation from two others
-       * - More efficient than append() for multiple operations
-       * - Does not modify input matrices
-       * @param a - The first matrix to multiply
-       * @param b - The second matrix to multiply
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.append} For single matrix combination
-       * @see {@link Matrix.prepend} For reverse order multiplication
-       */
-      appendFrom(a3, b3) {
-        const a1 = a3.a;
-        const b1 = a3.b;
-        const c1 = a3.c;
-        const d1 = a3.d;
-        const tx = a3.tx;
-        const ty = a3.ty;
-        const a22 = b3.a;
-        const b22 = b3.b;
-        const c22 = b3.c;
-        const d22 = b3.d;
-        this.a = a1 * a22 + b1 * c22;
-        this.b = a1 * b22 + b1 * d22;
-        this.c = c1 * a22 + d1 * c22;
-        this.d = c1 * b22 + d1 * d22;
-        this.tx = tx * a22 + ty * c22 + b3.tx;
-        this.ty = tx * b22 + ty * d22 + b3.ty;
-        return this;
-      }
-      /**
-       * Sets the matrix based on all the available properties.
-       * Combines position, scale, rotation, skew and pivot in a single operation.
-       * @example
-       * ```ts
-       * // Basic transform setup
-       * const matrix = new Matrix();
-       * matrix.setTransform(
-       *     100, 100,    // position
-       *     0, 0,        // pivot
-       *     2, 2,        // scale
-       *     Math.PI / 4, // rotation (45 degrees)
-       *     0, 0         // skew
-       * );
-       * ```
-       * @remarks
-       * - Updates all matrix components at once
-       * - More efficient than separate transform calls
-       * - Uses radians for rotation and skew
-       * - Pivot affects rotation center
-       * @param x - Position on the x axis
-       * @param y - Position on the y axis
-       * @param pivotX - Pivot on the x axis
-       * @param pivotY - Pivot on the y axis
-       * @param scaleX - Scale on the x axis
-       * @param scaleY - Scale on the y axis
-       * @param rotation - Rotation in radians
-       * @param skewX - Skew on the x axis
-       * @param skewY - Skew on the y axis
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.decompose} For extracting transform properties
-       * @see {@link TransformableObject} For transform data structure
-       */
-      setTransform(x3, y4, pivotX, pivotY, scaleX, scaleY, rotation, skewX, skewY) {
-        this.a = Math.cos(rotation + skewY) * scaleX;
-        this.b = Math.sin(rotation + skewY) * scaleX;
-        this.c = -Math.sin(rotation - skewX) * scaleY;
-        this.d = Math.cos(rotation - skewX) * scaleY;
-        this.tx = x3 - (pivotX * this.a + pivotY * this.c);
-        this.ty = y4 - (pivotX * this.b + pivotY * this.d);
-        return this;
-      }
-      /**
-       * Prepends the given Matrix to this Matrix.
-       * Combines two matrices by multiplying them together: this = matrix * this
-       * @example
-       * ```ts
-       * // Basic matrix prepend
-       * const matrix = new Matrix().scale(2, 2);
-       * const other = new Matrix().translate(100, 0);
-       * matrix.prepend(other); // Translation happens before scaling
-       * ```
-       * @remarks
-       * - Order matters: A.prepend(B) !== B.prepend(A)
-       * - Modifies current matrix
-       * - Reverses transformation order compared to append()
-       * @param matrix - The matrix to prepend
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.append} For appending transformations
-       * @see {@link Matrix.appendFrom} For combining external matrices
-       */
-      prepend(matrix) {
-        const tx1 = this.tx;
-        if (matrix.a !== 1 || matrix.b !== 0 || matrix.c !== 0 || matrix.d !== 1) {
-          const a1 = this.a;
-          const c1 = this.c;
-          this.a = a1 * matrix.a + this.b * matrix.c;
-          this.b = a1 * matrix.b + this.b * matrix.d;
-          this.c = c1 * matrix.a + this.d * matrix.c;
-          this.d = c1 * matrix.b + this.d * matrix.d;
-        }
-        this.tx = tx1 * matrix.a + this.ty * matrix.c + matrix.tx;
-        this.ty = tx1 * matrix.b + this.ty * matrix.d + matrix.ty;
-        return this;
-      }
-      /**
-       * Decomposes the matrix into its individual transform components.
-       * Extracts position, scale, rotation and skew values from the matrix.
-       * @example
-       * ```ts
-       * // Basic decomposition
-       * const matrix = new Matrix()
-       *     .translate(100, 100)
-       *     .rotate(Math.PI / 4)
-       *     .scale(2, 2);
-       *
-       * const transform = {
-       *     position: new Point(),
-       *     scale: new Point(),
-       *     pivot: new Point(),
-       *     skew: new Point(),
-       *     rotation: 0
-       * };
-       *
-       * matrix.decompose(transform);
-       * console.log(transform.position); // Point(100, 100)
-       * console.log(transform.rotation); // ~0.785 (PI/4)
-       * console.log(transform.scale); // Point(2, 2)
-       * ```
-       * @remarks
-       * - Handles combined transformations
-       * - Accounts for pivot points
-       * - Chooses between rotation/skew based on transform type
-       * - Uses radians for rotation and skew
-       * @param transform - The transform object to store the decomposed values
-       * @returns The transform with the newly applied properties
-       * @see {@link Matrix.setTransform} For composing from components
-       * @see {@link TransformableObject} For transform structure
-       */
-      decompose(transform) {
-        const a3 = this.a;
-        const b3 = this.b;
-        const c3 = this.c;
-        const d3 = this.d;
-        const pivot = transform.pivot;
-        const skewX = -Math.atan2(-c3, d3);
-        const skewY = Math.atan2(b3, a3);
-        const delta = Math.abs(skewX + skewY);
-        if (delta < 1e-5 || Math.abs(PI_2 - delta) < 1e-5) {
-          transform.rotation = skewY;
-          transform.skew.x = transform.skew.y = 0;
-        } else {
-          transform.rotation = 0;
-          transform.skew.x = skewX;
-          transform.skew.y = skewY;
-        }
-        transform.scale.x = Math.sqrt(a3 * a3 + b3 * b3);
-        transform.scale.y = Math.sqrt(c3 * c3 + d3 * d3);
-        transform.position.x = this.tx + (pivot.x * a3 + pivot.y * c3);
-        transform.position.y = this.ty + (pivot.x * b3 + pivot.y * d3);
-        return transform;
-      }
-      /**
-       * Inverts this matrix.
-       * Creates the matrix that when multiplied with this matrix results in an identity matrix.
-       * @example
-       * ```ts
-       * // Basic matrix inversion
-       * const matrix = new Matrix()
-       *     .translate(100, 50)
-       *     .scale(2, 2);
-       *
-       * matrix.invert(); // Now transforms in opposite direction
-       *
-       * // Verify inversion
-       * const point = new Point(50, 50);
-       * const transformed = matrix.apply(point);
-       * const original = matrix.invert().apply(transformed);
-       * // original ≈ point
-       * ```
-       * @remarks
-       * - Modifies the current matrix
-       * - Useful for reversing transformations
-       * - Cannot invert matrices with zero determinant
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.identity} For resetting to identity
-       * @see {@link Matrix.applyInverse} For inverse transformations
-       */
-      invert() {
-        const a1 = this.a;
-        const b1 = this.b;
-        const c1 = this.c;
-        const d1 = this.d;
-        const tx1 = this.tx;
-        const n3 = a1 * d1 - b1 * c1;
-        this.a = d1 / n3;
-        this.b = -b1 / n3;
-        this.c = -c1 / n3;
-        this.d = a1 / n3;
-        this.tx = (c1 * this.ty - d1 * tx1) / n3;
-        this.ty = -(a1 * this.ty - b1 * tx1) / n3;
-        return this;
-      }
-      /**
-       * Checks if this matrix is an identity matrix.
-       *
-       * An identity matrix has no transformations applied (default state).
-       * @example
-       * ```ts
-       * // Check if matrix is identity
-       * const matrix = new Matrix();
-       * console.log(matrix.isIdentity()); // true
-       *
-       * // Check after transformations
-       * matrix.translate(100, 0);
-       * console.log(matrix.isIdentity()); // false
-       *
-       * // Reset and verify
-       * matrix.identity();
-       * console.log(matrix.isIdentity()); // true
-       * ```
-       * @remarks
-       * - Verifies a = 1, d = 1 (no scale)
-       * - Verifies b = 0, c = 0 (no skew)
-       * - Verifies tx = 0, ty = 0 (no translation)
-       * @returns True if matrix has no transformations
-       * @see {@link Matrix.identity} For resetting to identity
-       * @see {@link Matrix.IDENTITY} For constant identity matrix
-       */
-      isIdentity() {
-        return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.tx === 0 && this.ty === 0;
-      }
-      /**
-       * Resets this Matrix to an identity (default) matrix.
-       * Sets all components to their default values: scale=1, no skew, no translation.
-       * @example
-       * ```ts
-       * // Reset transformed matrix
-       * const matrix = new Matrix()
-       *     .scale(2, 2)
-       *     .rotate(Math.PI / 4);
-       * matrix.identity(); // Back to default state
-       *
-       * // Chain after reset
-       * matrix
-       *     .identity()
-       *     .translate(100, 100)
-       *     .scale(2, 2);
-       *
-       * // Compare with identity constant
-       * const isDefault = matrix.equals(Matrix.IDENTITY);
-       * ```
-       * @remarks
-       * - Sets a=1, d=1 (default scale)
-       * - Sets b=0, c=0 (no skew)
-       * - Sets tx=0, ty=0 (no translation)
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.IDENTITY} For constant identity matrix
-       * @see {@link Matrix.isIdentity} For checking identity state
-       */
-      identity() {
-        this.a = 1;
-        this.b = 0;
-        this.c = 0;
-        this.d = 1;
-        this.tx = 0;
-        this.ty = 0;
-        return this;
-      }
-      /**
-       * Creates a new Matrix object with the same values as this one.
-       * @returns A copy of this matrix. Good for chaining method calls.
-       */
-      clone() {
-        const matrix = new _Matrix();
-        matrix.a = this.a;
-        matrix.b = this.b;
-        matrix.c = this.c;
-        matrix.d = this.d;
-        matrix.tx = this.tx;
-        matrix.ty = this.ty;
-        return matrix;
-      }
-      /**
-       * Creates a new Matrix object with the same values as this one.
-       * @param matrix
-       * @example
-       * ```ts
-       * // Basic matrix cloning
-       * const matrix = new Matrix()
-       *     .translate(100, 100)
-       *     .rotate(Math.PI / 4);
-       * const copy = matrix.clone();
-       *
-       * // Clone and modify
-       * const modified = matrix.clone()
-       *     .scale(2, 2);
-       *
-       * // Compare matrices
-       * console.log(matrix.equals(copy));     // true
-       * console.log(matrix.equals(modified)); // false
-       * ```
-       * @returns A copy of this matrix. Good for chaining method calls.
-       * @see {@link Matrix.copyTo} For copying to existing matrix
-       * @see {@link Matrix.copyFrom} For copying from another matrix
-       */
-      copyTo(matrix) {
-        matrix.a = this.a;
-        matrix.b = this.b;
-        matrix.c = this.c;
-        matrix.d = this.d;
-        matrix.tx = this.tx;
-        matrix.ty = this.ty;
-        return matrix;
-      }
-      /**
-       * Changes the values of the matrix to be the same as the ones in given matrix.
-       * @example
-       * ```ts
-       * // Basic matrix copying
-       * const source = new Matrix()
-       *     .translate(100, 100)
-       *     .rotate(Math.PI / 4);
-       * const target = new Matrix();
-       * target.copyFrom(source);
-       * ```
-       * @param matrix - The matrix to copy from
-       * @returns This matrix. Good for chaining method calls.
-       * @see {@link Matrix.clone} For creating new matrix copy
-       * @see {@link Matrix.copyTo} For copying to another matrix
-       */
-      copyFrom(matrix) {
-        this.a = matrix.a;
-        this.b = matrix.b;
-        this.c = matrix.c;
-        this.d = matrix.d;
-        this.tx = matrix.tx;
-        this.ty = matrix.ty;
-        return this;
-      }
-      /**
-       * Checks if this matrix equals another matrix.
-       * Compares all components for exact equality.
-       * @example
-       * ```ts
-       * // Basic equality check
-       * const m1 = new Matrix();
-       * const m2 = new Matrix();
-       * console.log(m1.equals(m2)); // true
-       *
-       * // Compare transformed matrices
-       * const transform = new Matrix()
-       *     .translate(100, 100)
-       * const clone = new Matrix()
-       *     .scale(2, 2);
-       * console.log(transform.equals(clone)); // false
-       * ```
-       * @param matrix - The matrix to compare to
-       * @returns True if matrices are identical
-       * @see {@link Matrix.copyFrom} For copying matrix values
-       * @see {@link Matrix.isIdentity} For identity comparison
-       */
-      equals(matrix) {
-        return matrix.a === this.a && matrix.b === this.b && matrix.c === this.c && matrix.d === this.d && matrix.tx === this.tx && matrix.ty === this.ty;
-      }
-      toString() {
-        return `[pixi.js:Matrix a=${this.a} b=${this.b} c=${this.c} d=${this.d} tx=${this.tx} ty=${this.ty}]`;
-      }
-      /**
-       * A default (identity) matrix with no transformations applied.
-       *
-       * > [!IMPORTANT] This is a shared read-only object. Create a new Matrix if you need to modify it.
-       * @example
-       * ```ts
-       * // Get identity matrix reference
-       * const identity = Matrix.IDENTITY;
-       * console.log(identity.isIdentity()); // true
-       *
-       * // Compare with identity
-       * const matrix = new Matrix();
-       * console.log(matrix.equals(Matrix.IDENTITY)); // true
-       *
-       * // Create new matrix instead of modifying IDENTITY
-       * const transform = new Matrix()
-       *     .copyFrom(Matrix.IDENTITY)
-       *     .translate(100, 100);
-       * ```
-       * @readonly
-       * @returns A read-only identity matrix
-       * @see {@link Matrix.shared} For temporary calculations
-       * @see {@link Matrix.identity} For resetting matrices
-       */
-      static get IDENTITY() {
-        return identityMatrix.identity();
-      }
-      /**
-       * A static Matrix that can be used to avoid creating new objects.
-       * Will always ensure the matrix is reset to identity when requested.
-       *
-       * > [!IMPORTANT] This matrix is shared and temporary. Do not store references to it.
-       * @example
-       * ```ts
-       * // Use for temporary calculations
-       * const tempMatrix = Matrix.shared;
-       * tempMatrix.translate(100, 100).rotate(Math.PI / 4);
-       * const point = tempMatrix.apply({ x: 10, y: 20 });
-       *
-       * // Will be reset to identity on next access
-       * const fresh = Matrix.shared; // Back to identity
-       * ```
-       * @remarks
-       * - Always returns identity matrix
-       * - Safe to modify temporarily
-       * - Not safe to store references
-       * - Useful for one-off calculations
-       * @readonly
-       * @returns A fresh identity matrix for temporary use
-       * @see {@link Matrix.IDENTITY} For immutable identity matrix
-       * @see {@link Matrix.identity} For resetting matrices
-       */
-      static get shared() {
-        return tempMatrix.identity();
-      }
-    };
-    tempMatrix = new Matrix();
-    identityMatrix = new Matrix();
-  }
-});
-
-// node_modules/pixi.js/lib/maths/point/ObservablePoint.mjs
-var ObservablePoint;
-var init_ObservablePoint = __esm({
-  "node_modules/pixi.js/lib/maths/point/ObservablePoint.mjs"() {
-    "use strict";
-    ObservablePoint = class _ObservablePoint {
-      /**
-       * Creates a new `ObservablePoint`
-       * @param observer - Observer to pass to listen for change events.
-       * @param {number} [x=0] - position of the point on the x axis
-       * @param {number} [y=0] - position of the point on the y axis
-       */
-      constructor(observer, x3, y4) {
-        this._x = x3 || 0;
-        this._y = y4 || 0;
-        this._observer = observer;
-      }
-      /**
-       * Creates a clone of this point.
-       * @example
-       * ```ts
-       * // Basic cloning
-       * const point = new ObservablePoint(observer, 100, 200);
-       * const copy = point.clone();
-       *
-       * // Clone with new observer
-       * const newObserver = {
-       *     _onUpdate: (p) => console.log(`Clone updated: (${p.x}, ${p.y})`)
-       * };
-       * const watched = point.clone(newObserver);
-       *
-       * // Verify independence
-       * watched.set(300, 400); // Only triggers new observer
-       * ```
-       * @param observer - Optional observer to pass to the new observable point
-       * @returns A copy of this observable point
-       * @see {@link ObservablePoint.copyFrom} For copying into existing point
-       * @see {@link Observer} For observer interface details
-       */
-      clone(observer) {
-        return new _ObservablePoint(observer ?? this._observer, this._x, this._y);
-      }
-      /**
-       * Sets the point to a new x and y position.
-       *
-       * If y is omitted, both x and y will be set to x.
-       * @example
-       * ```ts
-       * // Basic position setting
-       * const point = new ObservablePoint(observer);
-       * point.set(100, 200);
-       *
-       * // Set both x and y to same value
-       * point.set(50); // x=50, y=50
-       * ```
-       * @param x - Position on the x axis
-       * @param y - Position on the y axis, defaults to x
-       * @returns The point instance itself
-       * @see {@link ObservablePoint.copyFrom} For copying from another point
-       * @see {@link ObservablePoint.equals} For comparing positions
-       */
-      set(x3 = 0, y4 = x3) {
-        if (this._x !== x3 || this._y !== y4) {
-          this._x = x3;
-          this._y = y4;
-          this._observer._onUpdate(this);
-        }
-        return this;
-      }
-      /**
-       * Copies x and y from the given point into this point.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new ObservablePoint(observer, 100, 200);
-       * const target = new ObservablePoint();
-       * target.copyFrom(source);
-       *
-       * // Copy and chain operations
-       * const point = new ObservablePoint()
-       *     .copyFrom(source)
-       *     .set(x + 50, y + 50);
-       *
-       * // Copy from any PointData
-       * const data = { x: 10, y: 20 };
-       * point.copyFrom(data);
-       * ```
-       * @param p - The point to copy from
-       * @returns The point instance itself
-       * @see {@link ObservablePoint.copyTo} For copying to another point
-       * @see {@link ObservablePoint.clone} For creating new point copy
-       */
-      copyFrom(p3) {
-        if (this._x !== p3.x || this._y !== p3.y) {
-          this._x = p3.x;
-          this._y = p3.y;
-          this._observer._onUpdate(this);
-        }
-        return this;
-      }
-      /**
-       * Copies this point's x and y into the given point.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new ObservablePoint(100, 200);
-       * const target = new ObservablePoint();
-       * source.copyTo(target);
-       * ```
-       * @param p - The point to copy to. Can be any type that is or extends `PointLike`
-       * @returns The point (`p`) with values updated
-       * @see {@link ObservablePoint.copyFrom} For copying from another point
-       * @see {@link ObservablePoint.clone} For creating new point copy
-       */
-      copyTo(p3) {
-        p3.set(this._x, this._y);
-        return p3;
-      }
-      /**
-       * Checks if another point is equal to this point.
-       *
-       * Compares x and y values using strict equality.
-       * @example
-       * ```ts
-       * // Basic equality check
-       * const p1 = new ObservablePoint(100, 200);
-       * const p2 = new ObservablePoint(100, 200);
-       * console.log(p1.equals(p2)); // true
-       *
-       * // Compare with PointData
-       * const data = { x: 100, y: 200 };
-       * console.log(p1.equals(data)); // true
-       *
-       * // Check different points
-       * const p3 = new ObservablePoint(200, 300);
-       * console.log(p1.equals(p3)); // false
-       * ```
-       * @param p - The point to check
-       * @returns `true` if both `x` and `y` are equal
-       * @see {@link ObservablePoint.copyFrom} For making points equal
-       * @see {@link PointData} For point data interface
-       */
-      equals(p3) {
-        return p3.x === this._x && p3.y === this._y;
-      }
-      toString() {
-        return `[pixi.js/math:ObservablePoint x=${this._x} y=${this._y} scope=${this._observer}]`;
-      }
-      /**
-       * Position of the observable point on the x axis.
-       * Triggers observer callback when value changes.
-       * @example
-       * ```ts
-       * // Basic x position
-       * const point = new ObservablePoint(observer);
-       * point.x = 100; // Triggers observer
-       *
-       * // Use in calculations
-       * const width = rightPoint.x - leftPoint.x;
-       * ```
-       * @default 0
-       */
-      get x() {
-        return this._x;
-      }
-      set x(value) {
-        if (this._x !== value) {
-          this._x = value;
-          this._observer._onUpdate(this);
-        }
-      }
-      /**
-       * Position of the observable point on the y axis.
-       * Triggers observer callback when value changes.
-       * @example
-       * ```ts
-       * // Basic y position
-       * const point = new ObservablePoint(observer);
-       * point.y = 200; // Triggers observer
-       *
-       * // Use in calculations
-       * const height = bottomPoint.y - topPoint.y;
-       * ```
-       * @default 0
-       */
-      get y() {
-        return this._y;
-      }
-      set y(value) {
-        if (this._y !== value) {
-          this._y = value;
-          this._observer._onUpdate(this);
-        }
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/data/uid.mjs
-function uid(name = "default") {
-  if (uidCache[name] === void 0) {
-    uidCache[name] = -1;
-  }
-  return ++uidCache[name];
-}
-var uidCache;
-var init_uid = __esm({
-  "node_modules/pixi.js/lib/utils/data/uid.mjs"() {
-    "use strict";
-    uidCache = {
-      default: -1
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/logging/deprecation.mjs
-var warnings, v8_0_0, v8_3_4, deprecationState, deprecation;
-var init_deprecation = __esm({
-  "node_modules/pixi.js/lib/utils/logging/deprecation.mjs"() {
-    "use strict";
-    warnings = /* @__PURE__ */ new Set();
-    v8_0_0 = "8.0.0";
-    v8_3_4 = "8.3.4";
-    deprecationState = {
-      quiet: false,
-      noColor: false
-    };
-    deprecation = (version, message, ignoreDepth = 3) => {
-      if (deprecationState.quiet || warnings.has(message)) return;
-      let stack = new Error().stack;
-      const deprecationMessage = `${message}
-Deprecated since v${version}`;
-      const useGroup = typeof console.groupCollapsed === "function" && !deprecationState.noColor;
-      if (typeof stack === "undefined") {
-        console.warn("PixiJS Deprecation Warning: ", deprecationMessage);
-      } else {
-        stack = stack.split("\n").splice(ignoreDepth).join("\n");
-        if (useGroup) {
-          console.groupCollapsed(
-            "%cPixiJS Deprecation Warning: %c%s",
-            "color:#614108;background:#fffbe6",
-            "font-weight:normal;color:#614108;background:#fffbe6",
-            deprecationMessage
-          );
-          console.warn(stack);
-          console.groupEnd();
-        } else {
-          console.warn("PixiJS Deprecation Warning: ", deprecationMessage);
-          console.warn(stack);
-        }
-      }
-      warnings.add(message);
-    };
-    Object.defineProperties(deprecation, {
-      quiet: {
-        get: () => deprecationState.quiet,
-        set: (value) => {
-          deprecationState.quiet = value;
-        },
-        enumerable: true,
-        configurable: false
-      },
-      noColor: {
-        get: () => deprecationState.noColor,
-        set: (value) => {
-          deprecationState.noColor = value;
-        },
-        enumerable: true,
-        configurable: false
-      }
-    });
-  }
-});
-
-// node_modules/pixi.js/lib/utils/logging/warn.mjs
-function warn(...args) {
-  if (warnCount === maxWarnings) return;
-  warnCount++;
-  if (warnCount === maxWarnings) {
-    console.warn("PixiJS Warning: too many warnings, no more warnings will be reported to the console by PixiJS.");
-  } else {
-    console.warn("PixiJS Warning: ", ...args);
-  }
-}
-var warnCount, maxWarnings;
-var init_warn = __esm({
-  "node_modules/pixi.js/lib/utils/logging/warn.mjs"() {
-    "use strict";
-    warnCount = 0;
-    maxWarnings = 500;
-  }
-});
-
-// node_modules/pixi.js/lib/utils/pool/GlobalResourceRegistry.mjs
-var GlobalResourceRegistry;
-var init_GlobalResourceRegistry = __esm({
-  "node_modules/pixi.js/lib/utils/pool/GlobalResourceRegistry.mjs"() {
-    "use strict";
-    GlobalResourceRegistry = {
-      /**
-       * Set of registered pools and cleanable objects.
-       * @private
-       */
-      _registeredResources: /* @__PURE__ */ new Set(),
-      /**
-       * Registers a pool or cleanable object for cleanup.
-       * @param {Cleanable} pool - The pool or object to register.
-       */
-      register(pool) {
-        this._registeredResources.add(pool);
-      },
-      /**
-       * Unregisters a pool or cleanable object from cleanup.
-       * @param {Cleanable} pool - The pool or object to unregister.
-       */
-      unregister(pool) {
-        this._registeredResources.delete(pool);
-      },
-      /** Clears all registered pools and cleanable objects. This will call clear() on each registered item. */
-      release() {
-        this._registeredResources.forEach((pool) => pool.clear());
-      },
-      /**
-       * Gets the number of registered pools and cleanable objects.
-       * @returns {number} The count of registered items.
-       */
-      get registeredCount() {
-        return this._registeredResources.size;
-      },
-      /**
-       * Checks if a specific pool or cleanable object is registered.
-       * @param {Cleanable} pool - The pool or object to check.
-       * @returns {boolean} True if the item is registered, false otherwise.
-       */
-      isRegistered(pool) {
-        return this._registeredResources.has(pool);
-      },
-      /**
-       * Removes all registrations without clearing the pools.
-       * Useful if you want to reset the collector without affecting the pools.
-       */
-      reset() {
-        this._registeredResources.clear();
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/pool/Pool.mjs
-var Pool;
-var init_Pool = __esm({
-  "node_modules/pixi.js/lib/utils/pool/Pool.mjs"() {
-    "use strict";
-    Pool = class {
-      /**
-       * Constructs a new Pool.
-       * @param ClassType - The constructor of the items in the pool.
-       * @param {number} [initialSize] - The initial size of the pool.
-       */
-      constructor(ClassType, initialSize) {
-        this._pool = [];
-        this._count = 0;
-        this._index = 0;
-        this._classType = ClassType;
-        if (initialSize) {
-          this.prepopulate(initialSize);
-        }
-      }
-      /**
-       * Prepopulates the pool with a given number of items.
-       * @param total - The number of items to add to the pool.
-       */
-      prepopulate(total) {
-        for (let i3 = 0; i3 < total; i3++) {
-          this._pool[this._index++] = new this._classType();
-        }
-        this._count += total;
-      }
-      /**
-       * Gets an item from the pool. Calls the item's `init` method if it exists.
-       * If there are no items left in the pool, a new one will be created.
-       * @param {I} [data] - Optional data to pass to the item's constructor.
-       * @returns {T} The item from the pool.
-       */
-      get(data) {
-        let item;
-        if (this._index > 0) {
-          item = this._pool[--this._index];
-        } else {
-          item = new this._classType();
-          this._count++;
-        }
-        item.init?.(data);
-        return item;
-      }
-      /**
-       * Returns an item to the pool. Calls the item's `reset` method if it exists.
-       * @param {T} item - The item to return to the pool.
-       */
-      return(item) {
-        item.reset?.();
-        this._pool[this._index++] = item;
-      }
-      /**
-       * Gets the number of items in the pool.
-       * @readonly
-       */
-      get totalSize() {
-        return this._count;
-      }
-      /**
-       * Gets the number of items in the pool that are free to use without needing to create more.
-       * @readonly
-       */
-      get totalFree() {
-        return this._index;
-      }
-      /**
-       * Gets the number of items in the pool that are currently in use.
-       * @readonly
-       */
-      get totalUsed() {
-        return this._count - this._index;
-      }
-      /** clears the pool */
-      clear() {
-        if (this._pool.length > 0 && this._pool[0].destroy) {
-          for (let i3 = 0; i3 < this._index; i3++) {
-            this._pool[i3].destroy();
-          }
-        }
-        this._pool.length = 0;
-        this._count = 0;
-        this._index = 0;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/pool/PoolGroup.mjs
-var PoolGroupClass, BigPool;
-var init_PoolGroup = __esm({
-  "node_modules/pixi.js/lib/utils/pool/PoolGroup.mjs"() {
-    init_GlobalResourceRegistry();
-    init_Pool();
-    PoolGroupClass = class {
-      constructor() {
-        this._poolsByClass = /* @__PURE__ */ new Map();
-      }
-      /**
-       * Prepopulates a specific pool with a given number of items.
-       * @template T The type of items in the pool. Must extend PoolItem.
-       * @param {PoolItemConstructor<T>} Class - The constructor of the items in the pool.
-       * @param {number} total - The number of items to add to the pool.
-       */
-      prepopulate(Class, total) {
-        const classPool = this.getPool(Class);
-        classPool.prepopulate(total);
-      }
-      /**
-       * Gets an item from a specific pool.
-       * @template T The type of items in the pool. Must extend PoolItem.
-       * @param {PoolItemConstructor<T>} Class - The constructor of the items in the pool.
-       * @param {unknown} [data] - Optional data to pass to the item's constructor.
-       * @returns {T} The item from the pool.
-       */
-      get(Class, data) {
-        const pool = this.getPool(Class);
-        return pool.get(data);
-      }
-      /**
-       * Returns an item to its respective pool.
-       * @param {PoolItem} item - The item to return to the pool.
-       */
-      return(item) {
-        const pool = this.getPool(item.constructor);
-        pool.return(item);
-      }
-      /**
-       * Gets a specific pool based on the class type.
-       * @template T The type of items in the pool. Must extend PoolItem.
-       * @param {PoolItemConstructor<T>} ClassType - The constructor of the items in the pool.
-       * @returns {Pool<T>} The pool of the given class type.
-       */
-      getPool(ClassType) {
-        if (!this._poolsByClass.has(ClassType)) {
-          this._poolsByClass.set(ClassType, new Pool(ClassType));
-        }
-        return this._poolsByClass.get(ClassType);
-      }
-      /** gets the usage stats of each pool in the system */
-      stats() {
-        const stats = {};
-        this._poolsByClass.forEach((pool) => {
-          const name = stats[pool._classType.name] ? pool._classType.name + pool._classType.ID : pool._classType.name;
-          stats[name] = {
-            free: pool.totalFree,
-            used: pool.totalUsed,
-            size: pool.totalSize
-          };
-        });
-        return stats;
-      }
-      /** Clears all pools in the group. This will reset all pools and free their resources. */
-      clear() {
-        this._poolsByClass.forEach((pool) => pool.clear());
-        this._poolsByClass.clear();
-      }
-    };
-    BigPool = new PoolGroupClass();
-    GlobalResourceRegistry.register(BigPool);
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/cacheAsTextureMixin.mjs
-var cacheAsTextureMixin;
-var init_cacheAsTextureMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/cacheAsTextureMixin.mjs"() {
-    init_deprecation();
-    cacheAsTextureMixin = {
-      get isCachedAsTexture() {
-        return !!this.renderGroup?.isCachedAsTexture;
-      },
-      cacheAsTexture(val) {
-        if (typeof val === "boolean" && val === false) {
-          this.disableRenderGroup();
-        } else {
-          this.enableRenderGroup();
-          this.renderGroup.enableCacheAsTexture(val === true ? {} : val);
-        }
-      },
-      updateCacheTexture() {
-        this.renderGroup?.updateCacheTexture();
-      },
-      get cacheAsBitmap() {
-        return this.isCachedAsTexture;
-      },
-      set cacheAsBitmap(val) {
-        deprecation("v8.6.0", "cacheAsBitmap is deprecated, use cacheAsTexture instead.");
-        this.cacheAsTexture(val);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/data/removeItems.mjs
-function removeItems(arr, startIdx, removeCount) {
-  const length2 = arr.length;
-  let i3;
-  if (startIdx >= length2 || removeCount === 0) {
-    return;
-  }
-  removeCount = startIdx + removeCount > length2 ? length2 - startIdx : removeCount;
-  const len = length2 - removeCount;
-  for (i3 = startIdx; i3 < len; ++i3) {
-    arr[i3] = arr[i3 + removeCount];
-  }
-  arr.length = len;
-}
-var init_removeItems = __esm({
-  "node_modules/pixi.js/lib/utils/data/removeItems.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/childrenHelperMixin.mjs
-var childrenHelperMixin;
-var init_childrenHelperMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/childrenHelperMixin.mjs"() {
-    init_removeItems();
-    init_deprecation();
-    childrenHelperMixin = {
-      allowChildren: true,
-      removeChildren(beginIndex = 0, endIndex) {
-        const end = endIndex ?? this.children.length;
-        const range = end - beginIndex;
-        const removed = [];
-        if (range > 0 && range <= end) {
-          for (let i3 = end - 1; i3 >= beginIndex; i3--) {
-            const child = this.children[i3];
-            if (!child) continue;
-            removed.push(child);
-            child.parent = null;
-          }
-          removeItems(this.children, beginIndex, end);
-          const renderGroup = this.renderGroup || this.parentRenderGroup;
-          if (renderGroup) {
-            renderGroup.removeChildren(removed);
-          }
-          for (let i3 = 0; i3 < removed.length; ++i3) {
-            const child = removed[i3];
-            child.parentRenderLayer?.detach(child);
-            this.emit("childRemoved", child, this, i3);
-            removed[i3].emit("removed", this);
-          }
-          if (removed.length > 0) {
-            this._didViewChangeTick++;
-          }
-          return removed;
-        } else if (range === 0 && this.children.length === 0) {
-          return removed;
-        }
-        throw new RangeError("removeChildren: numeric values are outside the acceptable range.");
-      },
-      removeChildAt(index2) {
-        const child = this.getChildAt(index2);
-        return this.removeChild(child);
-      },
-      getChildAt(index2) {
-        if (index2 < 0 || index2 >= this.children.length) {
-          throw new Error(`getChildAt: Index (${index2}) does not exist.`);
-        }
-        return this.children[index2];
-      },
-      setChildIndex(child, index2) {
-        if (index2 < 0 || index2 >= this.children.length) {
-          throw new Error(`The index ${index2} supplied is out of bounds ${this.children.length}`);
-        }
-        this.getChildIndex(child);
-        this.addChildAt(child, index2);
-      },
-      getChildIndex(child) {
-        const index2 = this.children.indexOf(child);
-        if (index2 === -1) {
-          throw new Error("The supplied Container must be a child of the caller");
-        }
-        return index2;
-      },
-      addChildAt(child, index2) {
-        if (!this.allowChildren) {
-          deprecation(v8_0_0, "addChildAt: Only Containers will be allowed to add children in v8.0.0");
-        }
-        const { children } = this;
-        if (index2 < 0 || index2 > children.length) {
-          throw new Error(`${child}addChildAt: The index ${index2} supplied is out of bounds ${children.length}`);
-        }
-        const sameParent = child.parent === this;
-        if (child.parent) {
-          const currentIndex = child.parent.children.indexOf(child);
-          if (sameParent) {
-            if (currentIndex === index2) {
-              return child;
-            }
-            child.parent.children.splice(currentIndex, 1);
-          } else {
-            child.removeFromParent();
-          }
-        }
-        if (index2 === children.length) {
-          children.push(child);
-        } else {
-          children.splice(index2, 0, child);
-        }
-        child.parent = this;
-        child.didChange = true;
-        child._updateFlags = 15;
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        if (renderGroup) {
-          renderGroup.addChild(child);
-        }
-        if (this.sortableChildren) this.sortDirty = true;
-        if (sameParent) {
-          return child;
-        }
-        this.emit("childAdded", child, this, index2);
-        child.emit("added", this);
-        return child;
-      },
-      swapChildren(child, child2) {
-        if (child === child2) {
-          return;
-        }
-        const index1 = this.getChildIndex(child);
-        const index2 = this.getChildIndex(child2);
-        this.children[index1] = child2;
-        this.children[index2] = child;
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        if (renderGroup) {
-          renderGroup.structureDidChange = true;
-        }
-        this._didContainerChangeTick++;
-      },
-      removeFromParent() {
-        this.parent?.removeChild(this);
-      },
-      reparentChild(...child) {
-        if (child.length === 1) {
-          return this.reparentChildAt(child[0], this.children.length);
-        }
-        child.forEach((c3) => this.reparentChildAt(c3, this.children.length));
-        return child[0];
-      },
-      reparentChildAt(child, index2) {
-        if (child.parent === this) {
-          this.setChildIndex(child, index2);
-          return child;
-        }
-        const childMat = child.worldTransform.clone();
-        child.removeFromParent();
-        this.addChildAt(child, index2);
-        const newMatrix = this.worldTransform.clone();
-        newMatrix.invert();
-        childMat.prepend(newMatrix);
-        child.setFromMatrix(childMat);
-        return child;
-      },
-      replaceChild(oldChild, newChild) {
-        oldChild.updateLocalTransform();
-        this.addChildAt(newChild, this.getChildIndex(oldChild));
-        newChild.setFromMatrix(oldChild.localTransform);
-        newChild.updateLocalTransform();
-        this.removeChild(oldChild);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/collectRenderablesMixin.mjs
-var collectRenderablesMixin;
-var init_collectRenderablesMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/collectRenderablesMixin.mjs"() {
-    "use strict";
-    collectRenderablesMixin = {
-      collectRenderables(instructionSet, renderer, currentLayer) {
-        if (this.parentRenderLayer && this.parentRenderLayer !== currentLayer || this.globalDisplayStatus < 7 || !this.includeInBuild) return;
-        if (this.sortableChildren) {
-          this.sortChildren();
-        }
-        if (this.isSimple) {
-          this.collectRenderablesSimple(instructionSet, renderer, currentLayer);
-        } else if (this.renderGroup) {
-          renderer.renderPipes.renderGroup.addRenderGroup(this.renderGroup, instructionSet);
-        } else {
-          this.collectRenderablesWithEffects(instructionSet, renderer, currentLayer);
-        }
-      },
-      collectRenderablesSimple(instructionSet, renderer, currentLayer) {
-        const children = this.children;
-        const length2 = children.length;
-        for (let i3 = 0; i3 < length2; i3++) {
-          children[i3].collectRenderables(instructionSet, renderer, currentLayer);
-        }
-      },
-      collectRenderablesWithEffects(instructionSet, renderer, currentLayer) {
-        const { renderPipes: renderPipes4 } = renderer;
-        for (let i3 = 0; i3 < this.effects.length; i3++) {
-          const effect = this.effects[i3];
-          const pipe = renderPipes4[effect.pipe];
-          pipe.push(effect, this, instructionSet);
-        }
-        this.collectRenderablesSimple(instructionSet, renderer, currentLayer);
-        for (let i3 = this.effects.length - 1; i3 >= 0; i3--) {
-          const effect = this.effects[i3];
-          const pipe = renderPipes4[effect.pipe];
-          pipe.pop(effect, this, instructionSet);
-        }
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/filters/FilterEffect.mjs
-var FilterEffect;
-var init_FilterEffect = __esm({
-  "node_modules/pixi.js/lib/filters/FilterEffect.mjs"() {
-    "use strict";
-    FilterEffect = class {
-      constructor() {
-        this.pipe = "filter";
-        this.priority = 1;
-      }
-      destroy() {
-        for (let i3 = 0; i3 < this.filters.length; i3++) {
-          this.filters[i3].destroy();
-        }
-        this.filters = null;
-        this.filterArea = null;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/mask/MaskEffectManager.mjs
-var MaskEffectManagerClass, MaskEffectManager;
-var init_MaskEffectManager = __esm({
-  "node_modules/pixi.js/lib/rendering/mask/MaskEffectManager.mjs"() {
-    init_Extensions();
-    init_PoolGroup();
-    MaskEffectManagerClass = class {
-      constructor() {
-        this._effectClasses = [];
-        this._tests = [];
-        this._initialized = false;
-      }
-      init() {
-        if (this._initialized) return;
-        this._initialized = true;
-        this._effectClasses.forEach((test) => {
-          this.add({
-            test: test.test,
-            maskClass: test
-          });
-        });
-      }
-      add(test) {
-        this._tests.push(test);
-      }
-      getMaskEffect(item) {
-        if (!this._initialized) this.init();
-        for (let i3 = 0; i3 < this._tests.length; i3++) {
-          const test = this._tests[i3];
-          if (test.test(item)) {
-            return BigPool.get(test.maskClass, item);
-          }
-        }
-        return item;
-      }
-      returnMaskEffect(effect) {
-        BigPool.return(effect);
-      }
-    };
-    MaskEffectManager = new MaskEffectManagerClass();
-    extensions.handleByList(ExtensionType.MaskEffect, MaskEffectManager._effectClasses);
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/effectsMixin.mjs
-var effectsMixin;
-var init_effectsMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/effectsMixin.mjs"() {
-    init_FilterEffect();
-    init_MaskEffectManager();
-    effectsMixin = {
-      _maskEffect: null,
-      _maskOptions: {
-        inverse: false,
-        channel: "red"
-      },
-      _filterEffect: null,
-      effects: [],
-      _markStructureAsChanged() {
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        if (renderGroup) {
-          renderGroup.structureDidChange = true;
-        }
-      },
-      addEffect(effect) {
-        const index2 = this.effects.indexOf(effect);
-        if (index2 !== -1) return;
-        this.effects.push(effect);
-        this.effects.sort((a3, b3) => a3.priority - b3.priority);
-        this._markStructureAsChanged();
-        this._updateIsSimple();
-      },
-      removeEffect(effect) {
-        const index2 = this.effects.indexOf(effect);
-        if (index2 === -1) return;
-        this.effects.splice(index2, 1);
-        this._markStructureAsChanged();
-        this._updateIsSimple();
-      },
-      set mask(value) {
-        const effect = this._maskEffect;
-        if (effect?.mask === value) return;
-        if (effect) {
-          this.removeEffect(effect);
-          MaskEffectManager.returnMaskEffect(effect);
-          this._maskEffect = null;
-        }
-        if (value === null || value === void 0) return;
-        this._maskEffect = MaskEffectManager.getMaskEffect(value);
-        this.addEffect(this._maskEffect);
-      },
-      get mask() {
-        return this._maskEffect?.mask;
-      },
-      setMask(options) {
-        this._maskOptions = {
-          ...this._maskOptions,
-          ...options
-        };
-        if (options.mask) {
-          this.mask = options.mask;
-        }
-        this._markStructureAsChanged();
-      },
-      set filters(value) {
-        if (!Array.isArray(value) && value) value = [value];
-        const effect = this._filterEffect || (this._filterEffect = new FilterEffect());
-        value = value;
-        const hasFilters = value?.length > 0;
-        const hadFilters = effect.filters?.length > 0;
-        const didChange = hasFilters !== hadFilters;
-        value = Array.isArray(value) ? value.slice(0) : value;
-        effect.filters = Object.freeze(value);
-        if (didChange) {
-          if (hasFilters) {
-            this.addEffect(effect);
-          } else {
-            this.removeEffect(effect);
-            effect.filters = value ?? null;
-          }
-        }
-      },
-      get filters() {
-        return this._filterEffect?.filters;
-      },
-      set filterArea(value) {
-        this._filterEffect || (this._filterEffect = new FilterEffect());
-        this._filterEffect.filterArea = value;
-      },
-      get filterArea() {
-        return this._filterEffect?.filterArea;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/findMixin.mjs
-var findMixin;
-var init_findMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/findMixin.mjs"() {
-    init_deprecation();
-    findMixin = {
-      label: null,
-      get name() {
-        deprecation(v8_0_0, "Container.name property has been removed, use Container.label instead");
-        return this.label;
-      },
-      set name(value) {
-        deprecation(v8_0_0, "Container.name property has been removed, use Container.label instead");
-        this.label = value;
-      },
-      getChildByName(name, deep = false) {
-        return this.getChildByLabel(name, deep);
-      },
-      getChildByLabel(label, deep = false) {
-        const children = this.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          const child = children[i3];
-          if (child.label === label || label instanceof RegExp && label.test(child.label)) return child;
-        }
-        if (deep) {
-          for (let i3 = 0; i3 < children.length; i3++) {
-            const child = children[i3];
-            const found = child.getChildByLabel(label, true);
-            if (found) {
-              return found;
-            }
-          }
-        }
-        return null;
-      },
-      getChildrenByLabel(label, deep = false, out2 = []) {
-        const children = this.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          const child = children[i3];
-          if (child.label === label || label instanceof RegExp && label.test(child.label)) {
-            out2.push(child);
-          }
-        }
-        if (deep) {
-          for (let i3 = 0; i3 < children.length; i3++) {
-            children[i3].getChildrenByLabel(label, true, out2);
-          }
-        }
-        return out2;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/maths/shapes/Rectangle.mjs
-var tempPoints, Rectangle;
-var init_Rectangle = __esm({
-  "node_modules/pixi.js/lib/maths/shapes/Rectangle.mjs"() {
-    init_Point();
-    tempPoints = [new Point(), new Point(), new Point(), new Point()];
-    Rectangle = class _Rectangle {
-      /**
-       * @param x - The X coordinate of the upper-left corner of the rectangle
-       * @param y - The Y coordinate of the upper-left corner of the rectangle
-       * @param width - The overall width of the rectangle
-       * @param height - The overall height of the rectangle
-       */
-      constructor(x3 = 0, y4 = 0, width = 0, height = 0) {
-        this.type = "rectangle";
-        this.x = Number(x3);
-        this.y = Number(y4);
-        this.width = Number(width);
-        this.height = Number(height);
-      }
-      /**
-       * Returns the left edge (x-coordinate) of the rectangle.
-       * @example
-       * ```ts
-       * // Get left edge position
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * console.log(rect.left); // 100
-       *
-       * // Use in alignment calculations
-       * sprite.x = rect.left + padding;
-       *
-       * // Compare positions
-       * if (point.x > rect.left) {
-       *     console.log('Point is right of rectangle');
-       * }
-       * ```
-       * @readonly
-       * @returns The x-coordinate of the left edge
-       * @see {@link Rectangle.right} For right edge position
-       * @see {@link Rectangle.x} For direct x-coordinate access
-       */
-      get left() {
-        return this.x;
-      }
-      /**
-       * Returns the right edge (x + width) of the rectangle.
-       * @example
-       * ```ts
-       * // Get right edge position
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * console.log(rect.right); // 300
-       *
-       * // Align to right edge
-       * sprite.x = rect.right - sprite.width;
-       *
-       * // Check boundaries
-       * if (point.x < rect.right) {
-       *     console.log('Point is inside right bound');
-       * }
-       * ```
-       * @readonly
-       * @returns The x-coordinate of the right edge
-       * @see {@link Rectangle.left} For left edge position
-       * @see {@link Rectangle.width} For width value
-       */
-      get right() {
-        return this.x + this.width;
-      }
-      /**
-       * Returns the top edge (y-coordinate) of the rectangle.
-       * @example
-       * ```ts
-       * // Get top edge position
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * console.log(rect.top); // 100
-       *
-       * // Position above rectangle
-       * sprite.y = rect.top - sprite.height;
-       *
-       * // Check vertical position
-       * if (point.y > rect.top) {
-       *     console.log('Point is below top edge');
-       * }
-       * ```
-       * @readonly
-       * @returns The y-coordinate of the top edge
-       * @see {@link Rectangle.bottom} For bottom edge position
-       * @see {@link Rectangle.y} For direct y-coordinate access
-       */
-      get top() {
-        return this.y;
-      }
-      /**
-       * Returns the bottom edge (y + height) of the rectangle.
-       * @example
-       * ```ts
-       * // Get bottom edge position
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * console.log(rect.bottom); // 250
-       *
-       * // Stack below rectangle
-       * sprite.y = rect.bottom + margin;
-       *
-       * // Check vertical bounds
-       * if (point.y < rect.bottom) {
-       *     console.log('Point is above bottom edge');
-       * }
-       * ```
-       * @readonly
-       * @returns The y-coordinate of the bottom edge
-       * @see {@link Rectangle.top} For top edge position
-       * @see {@link Rectangle.height} For height value
-       */
-      get bottom() {
-        return this.y + this.height;
-      }
-      /**
-       * Determines whether the Rectangle is empty (has no area).
-       * @example
-       * ```ts
-       * // Check zero dimensions
-       * const rect = new Rectangle(100, 100, 0, 50);
-       * console.log(rect.isEmpty()); // true
-       * ```
-       * @returns True if the rectangle has no area
-       * @see {@link Rectangle.width} For width value
-       * @see {@link Rectangle.height} For height value
-       */
-      isEmpty() {
-        return this.left === this.right || this.top === this.bottom;
-      }
-      /**
-       * A constant empty rectangle. This is a new object every time the property is accessed.
-       * @example
-       * ```ts
-       * // Get fresh empty rectangle
-       * const empty = Rectangle.EMPTY;
-       * console.log(empty.isEmpty()); // true
-       * ```
-       * @returns A new empty rectangle instance
-       * @see {@link Rectangle.isEmpty} For empty state testing
-       */
-      static get EMPTY() {
-        return new _Rectangle(0, 0, 0, 0);
-      }
-      /**
-       * Creates a clone of this Rectangle
-       * @example
-       * ```ts
-       * // Basic cloning
-       * const original = new Rectangle(100, 100, 200, 150);
-       * const copy = original.clone();
-       *
-       * // Clone and modify
-       * const modified = original.clone();
-       * modified.width *= 2;
-       * modified.height += 50;
-       *
-       * // Verify independence
-       * console.log(original.width);  // 200
-       * console.log(modified.width);  // 400
-       * ```
-       * @returns A copy of the rectangle
-       * @see {@link Rectangle.copyFrom} For copying into existing rectangle
-       * @see {@link Rectangle.copyTo} For copying to another rectangle
-       */
-      clone() {
-        return new _Rectangle(this.x, this.y, this.width, this.height);
-      }
-      /**
-       * Converts a Bounds object to a Rectangle object.
-       * @example
-       * ```ts
-       * // Convert bounds to rectangle
-       * const bounds = container.getBounds();
-       * const rect = new Rectangle().copyFromBounds(bounds);
-       * ```
-       * @param bounds - The bounds to copy and convert to a rectangle
-       * @returns Returns itself
-       * @see {@link Bounds} For bounds object structure
-       * @see {@link Rectangle.getBounds} For getting rectangle bounds
-       */
-      copyFromBounds(bounds) {
-        this.x = bounds.minX;
-        this.y = bounds.minY;
-        this.width = bounds.maxX - bounds.minX;
-        this.height = bounds.maxY - bounds.minY;
-        return this;
-      }
-      /**
-       * Copies another rectangle to this one.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new Rectangle(100, 100, 200, 150);
-       * const target = new Rectangle();
-       * target.copyFrom(source);
-       *
-       * // Chain with other operations
-       * const rect = new Rectangle()
-       *     .copyFrom(source)
-       *     .pad(10);
-       * ```
-       * @param rectangle - The rectangle to copy from
-       * @returns Returns itself
-       * @see {@link Rectangle.copyTo} For copying to another rectangle
-       * @see {@link Rectangle.clone} For creating new rectangle copy
-       */
-      copyFrom(rectangle) {
-        this.x = rectangle.x;
-        this.y = rectangle.y;
-        this.width = rectangle.width;
-        this.height = rectangle.height;
-        return this;
-      }
-      /**
-       * Copies this rectangle to another one.
-       * @example
-       * ```ts
-       * // Basic copying
-       * const source = new Rectangle(100, 100, 200, 150);
-       * const target = new Rectangle();
-       * source.copyTo(target);
-       *
-       * // Chain with other operations
-       * const result = source
-       *     .copyTo(new Rectangle())
-       *     .getBounds();
-       * ```
-       * @param rectangle - The rectangle to copy to
-       * @returns Returns given parameter
-       * @see {@link Rectangle.copyFrom} For copying from another rectangle
-       * @see {@link Rectangle.clone} For creating new rectangle copy
-       */
-      copyTo(rectangle) {
-        rectangle.copyFrom(this);
-        return rectangle;
-      }
-      /**
-       * Checks whether the x and y coordinates given are contained within this Rectangle
-       * @example
-       * ```ts
-       * // Basic containment check
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * const isInside = rect.contains(150, 125); // true
-       * // Check edge cases
-       * console.log(rect.contains(100, 100)); // true (on edge)
-       * console.log(rect.contains(300, 250)); // false (outside)
-       * ```
-       * @param x - The X coordinate of the point to test
-       * @param y - The Y coordinate of the point to test
-       * @returns Whether the x/y coordinates are within this Rectangle
-       * @see {@link Rectangle.containsRect} For rectangle containment
-       * @see {@link Rectangle.strokeContains} For checking stroke intersection
-       */
-      contains(x3, y4) {
-        if (this.width <= 0 || this.height <= 0) {
-          return false;
-        }
-        if (x3 >= this.x && x3 < this.x + this.width) {
-          if (y4 >= this.y && y4 < this.y + this.height) {
-            return true;
-          }
-        }
-        return false;
-      }
-      /**
-       * Checks whether the x and y coordinates given are contained within this rectangle including the stroke.
-       * @example
-       * ```ts
-       * // Basic stroke check
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * const isOnStroke = rect.strokeContains(150, 100, 4); // 4px line width
-       *
-       * // Check with different alignments
-       * const innerStroke = rect.strokeContains(150, 100, 4, 1);   // Inside
-       * const centerStroke = rect.strokeContains(150, 100, 4, 0.5); // Centered
-       * const outerStroke = rect.strokeContains(150, 100, 4, 0);   // Outside
-       * ```
-       * @param x - The X coordinate of the point to test
-       * @param y - The Y coordinate of the point to test
-       * @param strokeWidth - The width of the line to check
-       * @param alignment - The alignment of the stroke (1 = inner, 0.5 = centered, 0 = outer)
-       * @returns Whether the x/y coordinates are within this rectangle's stroke
-       * @see {@link Rectangle.contains} For checking fill containment
-       * @see {@link Rectangle.getBounds} For getting stroke bounds
-       */
-      strokeContains(x3, y4, strokeWidth, alignment = 0.5) {
-        const { width, height } = this;
-        if (width <= 0 || height <= 0) return false;
-        const _x = this.x;
-        const _y = this.y;
-        const strokeWidthOuter = strokeWidth * (1 - alignment);
-        const strokeWidthInner = strokeWidth - strokeWidthOuter;
-        const outerLeft = _x - strokeWidthOuter;
-        const outerRight = _x + width + strokeWidthOuter;
-        const outerTop = _y - strokeWidthOuter;
-        const outerBottom = _y + height + strokeWidthOuter;
-        const innerLeft = _x + strokeWidthInner;
-        const innerRight = _x + width - strokeWidthInner;
-        const innerTop = _y + strokeWidthInner;
-        const innerBottom = _y + height - strokeWidthInner;
-        return x3 >= outerLeft && x3 <= outerRight && y4 >= outerTop && y4 <= outerBottom && !(x3 > innerLeft && x3 < innerRight && y4 > innerTop && y4 < innerBottom);
-      }
-      /**
-       * Determines whether the `other` Rectangle transformed by `transform` intersects with `this` Rectangle object.
-       * Returns true only if the area of the intersection is >0, this means that Rectangles
-       * sharing a side are not overlapping. Another side effect is that an arealess rectangle
-       * (width or height equal to zero) can't intersect any other rectangle.
-       * @param {Rectangle} other - The Rectangle to intersect with `this`.
-       * @param {Matrix} transform - The transformation matrix of `other`.
-       * @returns {boolean} A value of `true` if the transformed `other` Rectangle intersects with `this`; otherwise `false`.
-       */
-      /**
-       * Determines whether the `other` Rectangle transformed by `transform` intersects with `this` Rectangle object.
-       *
-       * Returns true only if the area of the intersection is greater than 0.
-       * This means that rectangles sharing only a side are not considered intersecting.
-       * @example
-       * ```ts
-       * // Basic intersection check
-       * const rect1 = new Rectangle(0, 0, 100, 100);
-       * const rect2 = new Rectangle(50, 50, 100, 100);
-       * console.log(rect1.intersects(rect2)); // true
-       *
-       * // With transformation matrix
-       * const matrix = new Matrix();
-       * matrix.rotate(Math.PI / 4); // 45 degrees
-       * console.log(rect1.intersects(rect2, matrix)); // Checks with rotation
-       *
-       * // Edge cases
-       * const zeroWidth = new Rectangle(0, 0, 0, 100);
-       * console.log(rect1.intersects(zeroWidth)); // false (no area)
-       * ```
-       * @remarks
-       * - Returns true only if intersection area is > 0
-       * - Rectangles sharing only a side are not intersecting
-       * - Zero-area rectangles cannot intersect anything
-       * - Supports optional transformation matrix
-       * @param other - The Rectangle to intersect with `this`
-       * @param transform - Optional transformation matrix of `other`
-       * @returns True if the transformed `other` Rectangle intersects with `this`
-       * @see {@link Rectangle.containsRect} For containment testing
-       * @see {@link Rectangle.contains} For point testing
-       */
-      intersects(other, transform) {
-        if (!transform) {
-          const x02 = this.x < other.x ? other.x : this.x;
-          const x12 = this.right > other.right ? other.right : this.right;
-          if (x12 <= x02) {
-            return false;
-          }
-          const y02 = this.y < other.y ? other.y : this.y;
-          const y12 = this.bottom > other.bottom ? other.bottom : this.bottom;
-          return y12 > y02;
-        }
-        const x0 = this.left;
-        const x1 = this.right;
-        const y0 = this.top;
-        const y1 = this.bottom;
-        if (x1 <= x0 || y1 <= y0) {
-          return false;
-        }
-        const lt = tempPoints[0].set(other.left, other.top);
-        const lb = tempPoints[1].set(other.left, other.bottom);
-        const rt = tempPoints[2].set(other.right, other.top);
-        const rb = tempPoints[3].set(other.right, other.bottom);
-        if (rt.x <= lt.x || lb.y <= lt.y) {
-          return false;
-        }
-        const s3 = Math.sign(transform.a * transform.d - transform.b * transform.c);
-        if (s3 === 0) {
-          return false;
-        }
-        transform.apply(lt, lt);
-        transform.apply(lb, lb);
-        transform.apply(rt, rt);
-        transform.apply(rb, rb);
-        if (Math.max(lt.x, lb.x, rt.x, rb.x) <= x0 || Math.min(lt.x, lb.x, rt.x, rb.x) >= x1 || Math.max(lt.y, lb.y, rt.y, rb.y) <= y0 || Math.min(lt.y, lb.y, rt.y, rb.y) >= y1) {
-          return false;
-        }
-        const nx = s3 * (lb.y - lt.y);
-        const ny = s3 * (lt.x - lb.x);
-        const n00 = nx * x0 + ny * y0;
-        const n10 = nx * x1 + ny * y0;
-        const n01 = nx * x0 + ny * y1;
-        const n11 = nx * x1 + ny * y1;
-        if (Math.max(n00, n10, n01, n11) <= nx * lt.x + ny * lt.y || Math.min(n00, n10, n01, n11) >= nx * rb.x + ny * rb.y) {
-          return false;
-        }
-        const mx = s3 * (lt.y - rt.y);
-        const my = s3 * (rt.x - lt.x);
-        const m00 = mx * x0 + my * y0;
-        const m10 = mx * x1 + my * y0;
-        const m01 = mx * x0 + my * y1;
-        const m11 = mx * x1 + my * y1;
-        if (Math.max(m00, m10, m01, m11) <= mx * lt.x + my * lt.y || Math.min(m00, m10, m01, m11) >= mx * rb.x + my * rb.y) {
-          return false;
-        }
-        return true;
-      }
-      /**
-       * Pads the rectangle making it grow in all directions.
-       *
-       * If paddingY is omitted, both paddingX and paddingY will be set to paddingX.
-       * @example
-       * ```ts
-       * // Basic padding
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * rect.pad(10); // Adds 10px padding on all sides
-       *
-       * // Different horizontal and vertical padding
-       * const uiRect = new Rectangle(0, 0, 100, 50);
-       * uiRect.pad(20, 10); // 20px horizontal, 10px vertical
-       * ```
-       * @remarks
-       * - Adjusts x/y by subtracting padding
-       * - Increases width/height by padding * 2
-       * - Common in UI layout calculations
-       * - Chainable with other methods
-       * @param paddingX - The horizontal padding amount
-       * @param paddingY - The vertical padding amount
-       * @returns Returns itself
-       * @see {@link Rectangle.enlarge} For growing to include another rectangle
-       * @see {@link Rectangle.fit} For shrinking to fit within another rectangle
-       */
-      pad(paddingX = 0, paddingY = paddingX) {
-        this.x -= paddingX;
-        this.y -= paddingY;
-        this.width += paddingX * 2;
-        this.height += paddingY * 2;
-        return this;
-      }
-      /**
-       * Fits this rectangle around the passed one.
-       * @example
-       * ```ts
-       * // Basic fitting
-       * const container = new Rectangle(0, 0, 100, 100);
-       * const content = new Rectangle(25, 25, 200, 200);
-       * content.fit(container); // Clips to container bounds
-       * ```
-       * @param rectangle - The rectangle to fit around
-       * @returns Returns itself
-       * @see {@link Rectangle.enlarge} For growing to include another rectangle
-       * @see {@link Rectangle.pad} For adding padding around the rectangle
-       */
-      fit(rectangle) {
-        const x1 = Math.max(this.x, rectangle.x);
-        const x22 = Math.min(this.x + this.width, rectangle.x + rectangle.width);
-        const y1 = Math.max(this.y, rectangle.y);
-        const y22 = Math.min(this.y + this.height, rectangle.y + rectangle.height);
-        this.x = x1;
-        this.width = Math.max(x22 - x1, 0);
-        this.y = y1;
-        this.height = Math.max(y22 - y1, 0);
-        return this;
-      }
-      /**
-       * Enlarges rectangle so that its corners lie on a grid defined by resolution.
-       * @example
-       * ```ts
-       * // Basic grid alignment
-       * const rect = new Rectangle(10.2, 10.6, 100.8, 100.4);
-       * rect.ceil(); // Aligns to whole pixels
-       *
-       * // Custom resolution grid
-       * const uiRect = new Rectangle(5.3, 5.7, 50.2, 50.8);
-       * uiRect.ceil(0.5); // Aligns to half pixels
-       *
-       * // Use with precision value
-       * const preciseRect = new Rectangle(20.001, 20.999, 100.001, 100.999);
-       * preciseRect.ceil(1, 0.01); // Handles small decimal variations
-       * ```
-       * @param resolution - The grid size to align to (1 = whole pixels)
-       * @param eps - Small number to prevent floating point errors
-       * @returns Returns itself
-       * @see {@link Rectangle.fit} For constraining to bounds
-       * @see {@link Rectangle.enlarge} For growing dimensions
-       */
-      ceil(resolution = 1, eps = 1e-3) {
-        const x22 = Math.ceil((this.x + this.width - eps) * resolution) / resolution;
-        const y22 = Math.ceil((this.y + this.height - eps) * resolution) / resolution;
-        this.x = Math.floor((this.x + eps) * resolution) / resolution;
-        this.y = Math.floor((this.y + eps) * resolution) / resolution;
-        this.width = x22 - this.x;
-        this.height = y22 - this.y;
-        return this;
-      }
-      /**
-       * Scales the rectangle's dimensions and position by the specified factors.
-       * @example
-       * ```ts
-       * const rect = new Rectangle(50, 50, 100, 100);
-       *
-       * // Scale uniformly
-       * rect.scale(0.5, 0.5);
-       * // rect is now: x=25, y=25, width=50, height=50
-       *
-       * // non-uniformly
-       * rect.scale(0.5, 1);
-       * // rect is now: x=25, y=50, width=50, height=100
-       * ```
-       * @param x - The factor by which to scale the horizontal properties (x, width).
-       * @param y - The factor by which to scale the vertical properties (y, height).
-       * @returns Returns itself
-       */
-      scale(x3, y4 = x3) {
-        this.x *= x3;
-        this.y *= y4;
-        this.width *= x3;
-        this.height *= y4;
-        return this;
-      }
-      /**
-       * Enlarges this rectangle to include the passed rectangle.
-       * @example
-       * ```ts
-       * // Basic enlargement
-       * const rect = new Rectangle(50, 50, 100, 100);
-       * const other = new Rectangle(0, 0, 200, 75);
-       * rect.enlarge(other);
-       * // rect is now: x=0, y=0, width=200, height=150
-       *
-       * // Use for bounding box calculation
-       * const bounds = new Rectangle();
-       * objects.forEach((obj) => {
-       *     bounds.enlarge(obj.getBounds());
-       * });
-       * ```
-       * @param rectangle - The rectangle to include
-       * @returns Returns itself
-       * @see {@link Rectangle.fit} For shrinking to fit within another rectangle
-       * @see {@link Rectangle.pad} For adding padding around the rectangle
-       */
-      enlarge(rectangle) {
-        const x1 = Math.min(this.x, rectangle.x);
-        const x22 = Math.max(this.x + this.width, rectangle.x + rectangle.width);
-        const y1 = Math.min(this.y, rectangle.y);
-        const y22 = Math.max(this.y + this.height, rectangle.y + rectangle.height);
-        this.x = x1;
-        this.width = x22 - x1;
-        this.y = y1;
-        this.height = y22 - y1;
-        return this;
-      }
-      /**
-       * Returns the framing rectangle of the rectangle as a Rectangle object
-       * @example
-       * ```ts
-       * // Basic bounds retrieval
-       * const rect = new Rectangle(100, 100, 200, 150);
-       * const bounds = rect.getBounds();
-       *
-       * // Reuse existing rectangle
-       * const out = new Rectangle();
-       * rect.getBounds(out);
-       * ```
-       * @param out - Optional rectangle to store the result
-       * @returns The framing rectangle
-       * @see {@link Rectangle.copyFrom} For direct copying
-       * @see {@link Rectangle.clone} For creating new copy
-       */
-      getBounds(out2) {
-        out2 || (out2 = new _Rectangle());
-        out2.copyFrom(this);
-        return out2;
-      }
-      /**
-       * Determines whether another Rectangle is fully contained within this Rectangle.
-       *
-       * Rectangles that occupy the same space are considered to be containing each other.
-       *
-       * Rectangles without area (width or height equal to zero) can't contain anything,
-       * not even other arealess rectangles.
-       * @example
-       * ```ts
-       * // Check if one rectangle contains another
-       * const container = new Rectangle(0, 0, 100, 100);
-       * const inner = new Rectangle(25, 25, 50, 50);
-       *
-       * console.log(container.containsRect(inner)); // true
-       *
-       * // Check overlapping rectangles
-       * const partial = new Rectangle(75, 75, 50, 50);
-       * console.log(container.containsRect(partial)); // false
-       *
-       * // Zero-area rectangles
-       * const empty = new Rectangle(0, 0, 0, 100);
-       * console.log(container.containsRect(empty)); // false
-       * ```
-       * @param other - The Rectangle to check for containment
-       * @returns True if other is fully contained within this Rectangle
-       * @see {@link Rectangle.contains} For point containment
-       * @see {@link Rectangle.intersects} For overlap testing
-       */
-      containsRect(other) {
-        if (this.width <= 0 || this.height <= 0) return false;
-        const x1 = other.x;
-        const y1 = other.y;
-        const x22 = other.x + other.width;
-        const y22 = other.y + other.height;
-        return x1 >= this.x && x1 < this.x + this.width && y1 >= this.y && y1 < this.y + this.height && x22 >= this.x && x22 < this.x + this.width && y22 >= this.y && y22 < this.y + this.height;
-      }
-      /**
-       * Sets the position and dimensions of the rectangle.
-       * @example
-       * ```ts
-       * // Basic usage
-       * const rect = new Rectangle();
-       * rect.set(100, 100, 200, 150);
-       *
-       * // Chain with other operations
-       * const bounds = new Rectangle()
-       *     .set(0, 0, 100, 100)
-       *     .pad(10);
-       * ```
-       * @param x - The X coordinate of the upper-left corner of the rectangle
-       * @param y - The Y coordinate of the upper-left corner of the rectangle
-       * @param width - The overall width of the rectangle
-       * @param height - The overall height of the rectangle
-       * @returns Returns itself for method chaining
-       * @see {@link Rectangle.copyFrom} For copying from another rectangle
-       * @see {@link Rectangle.clone} For creating a new copy
-       */
-      set(x3, y4, width, height) {
-        this.x = x3;
-        this.y = y4;
-        this.width = width;
-        this.height = height;
-        return this;
-      }
-      toString() {
-        return `[pixi.js/math:Rectangle x=${this.x} y=${this.y} width=${this.width} height=${this.height}]`;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/bounds/Bounds.mjs
-var defaultMatrix, Bounds;
-var init_Bounds = __esm({
-  "node_modules/pixi.js/lib/scene/container/bounds/Bounds.mjs"() {
-    init_Matrix();
-    init_Rectangle();
-    defaultMatrix = new Matrix();
-    Bounds = class _Bounds {
-      /**
-       * Creates a new Bounds object.
-       * @param minX - The minimum X coordinate of the bounds.
-       * @param minY - The minimum Y coordinate of the bounds.
-       * @param maxX - The maximum X coordinate of the bounds.
-       * @param maxY - The maximum Y coordinate of the bounds.
-       */
-      constructor(minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity) {
-        this.minX = Infinity;
-        this.minY = Infinity;
-        this.maxX = -Infinity;
-        this.maxY = -Infinity;
-        this.matrix = defaultMatrix;
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
-      }
-      /**
-       * Checks if bounds are empty, meaning either width or height is zero or negative.
-       * Empty bounds occur when min values exceed max values on either axis.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       *
-       * // Check if newly created bounds are empty
-       * console.log(bounds.isEmpty()); // true, default bounds are empty
-       *
-       * // Add frame and check again
-       * bounds.addFrame(0, 0, 100, 100);
-       * console.log(bounds.isEmpty()); // false, bounds now have area
-       *
-       * // Clear bounds
-       * bounds.clear();
-       * console.log(bounds.isEmpty()); // true, bounds are empty again
-       * ```
-       * @returns True if bounds are empty (have no area)
-       * @see {@link Bounds#clear} For resetting bounds
-       * @see {@link Bounds#isValid} For checking validity
-       */
-      isEmpty() {
-        return this.minX > this.maxX || this.minY > this.maxY;
-      }
-      /**
-       * The bounding rectangle representation of these bounds.
-       * Lazily creates and updates a Rectangle instance based on the current bounds.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       *
-       * // Get rectangle representation
-       * const rect = bounds.rectangle;
-       * console.log(rect.x, rect.y, rect.width, rect.height);
-       *
-       * // Use for hit testing
-       * if (bounds.rectangle.contains(mouseX, mouseY)) {
-       *     console.log('Mouse is inside bounds!');
-       * }
-       * ```
-       * @see {@link Rectangle} For rectangle methods
-       * @see {@link Bounds.isEmpty} For bounds validation
-       */
-      get rectangle() {
-        if (!this._rectangle) {
-          this._rectangle = new Rectangle();
-        }
-        const rectangle = this._rectangle;
-        if (this.minX > this.maxX || this.minY > this.maxY) {
-          rectangle.x = 0;
-          rectangle.y = 0;
-          rectangle.width = 0;
-          rectangle.height = 0;
-        } else {
-          rectangle.copyFromBounds(this);
-        }
-        return rectangle;
-      }
-      /**
-       * Clears the bounds and resets all coordinates to their default values.
-       * Resets the transformation matrix back to identity.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * console.log(bounds.isEmpty()); // false
-       * // Clear the bounds
-       * bounds.clear();
-       * console.log(bounds.isEmpty()); // true
-       * ```
-       * @returns This bounds object for chaining
-       */
-      clear() {
-        this.minX = Infinity;
-        this.minY = Infinity;
-        this.maxX = -Infinity;
-        this.maxY = -Infinity;
-        this.matrix = defaultMatrix;
-        return this;
-      }
-      /**
-       * Sets the bounds directly using coordinate values.
-       * Provides a way to set all bounds values at once.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       * bounds.set(0, 0, 100, 100);
-       * ```
-       * @param x0 - Left X coordinate of frame
-       * @param y0 - Top Y coordinate of frame
-       * @param x1 - Right X coordinate of frame
-       * @param y1 - Bottom Y coordinate of frame
-       * @see {@link Bounds#addFrame} For matrix-aware bounds setting
-       * @see {@link Bounds#clear} For resetting bounds
-       */
-      set(x0, y0, x1, y1) {
-        this.minX = x0;
-        this.minY = y0;
-        this.maxX = x1;
-        this.maxY = y1;
-      }
-      /**
-       * Adds a rectangular frame to the bounds, optionally transformed by a matrix.
-       * Updates the bounds to encompass the new frame coordinates.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       * bounds.addFrame(0, 0, 100, 100);
-       *
-       * // Add transformed frame
-       * const matrix = new Matrix()
-       *     .translate(50, 50)
-       *     .rotate(Math.PI / 4);
-       * bounds.addFrame(0, 0, 100, 100, matrix);
-       * ```
-       * @param x0 - Left X coordinate of frame
-       * @param y0 - Top Y coordinate of frame
-       * @param x1 - Right X coordinate of frame
-       * @param y1 - Bottom Y coordinate of frame
-       * @param matrix - Optional transformation matrix
-       * @see {@link Bounds#addRect} For adding Rectangle objects
-       * @see {@link Bounds#addBounds} For adding other Bounds
-       */
-      addFrame(x0, y0, x1, y1, matrix) {
-        matrix || (matrix = this.matrix);
-        const a3 = matrix.a;
-        const b3 = matrix.b;
-        const c3 = matrix.c;
-        const d3 = matrix.d;
-        const tx = matrix.tx;
-        const ty = matrix.ty;
-        let minX = this.minX;
-        let minY = this.minY;
-        let maxX = this.maxX;
-        let maxY = this.maxY;
-        let x3 = a3 * x0 + c3 * y0 + tx;
-        let y4 = b3 * x0 + d3 * y0 + ty;
-        if (x3 < minX) minX = x3;
-        if (y4 < minY) minY = y4;
-        if (x3 > maxX) maxX = x3;
-        if (y4 > maxY) maxY = y4;
-        x3 = a3 * x1 + c3 * y0 + tx;
-        y4 = b3 * x1 + d3 * y0 + ty;
-        if (x3 < minX) minX = x3;
-        if (y4 < minY) minY = y4;
-        if (x3 > maxX) maxX = x3;
-        if (y4 > maxY) maxY = y4;
-        x3 = a3 * x0 + c3 * y1 + tx;
-        y4 = b3 * x0 + d3 * y1 + ty;
-        if (x3 < minX) minX = x3;
-        if (y4 < minY) minY = y4;
-        if (x3 > maxX) maxX = x3;
-        if (y4 > maxY) maxY = y4;
-        x3 = a3 * x1 + c3 * y1 + tx;
-        y4 = b3 * x1 + d3 * y1 + ty;
-        if (x3 < minX) minX = x3;
-        if (y4 < minY) minY = y4;
-        if (x3 > maxX) maxX = x3;
-        if (y4 > maxY) maxY = y4;
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
-      }
-      /**
-       * Adds a rectangle to the bounds, optionally transformed by a matrix.
-       * Updates the bounds to encompass the given rectangle.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       * // Add simple rectangle
-       * const rect = new Rectangle(0, 0, 100, 100);
-       * bounds.addRect(rect);
-       *
-       * // Add transformed rectangle
-       * const matrix = new Matrix()
-       *     .translate(50, 50)
-       *     .rotate(Math.PI / 4);
-       * bounds.addRect(rect, matrix);
-       * ```
-       * @param rect - The rectangle to be added
-       * @param matrix - Optional transformation matrix
-       * @see {@link Bounds#addFrame} For adding raw coordinates
-       * @see {@link Bounds#addBounds} For adding other bounds
-       */
-      addRect(rect, matrix) {
-        this.addFrame(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, matrix);
-      }
-      /**
-       * Adds another bounds object to this one, optionally transformed by a matrix.
-       * Expands the bounds to include the given bounds' area.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       *
-       * // Add child bounds
-       * const childBounds = sprite.getBounds();
-       * bounds.addBounds(childBounds);
-       *
-       * // Add transformed bounds
-       * const matrix = new Matrix()
-       *     .scale(2, 2);
-       * bounds.addBounds(childBounds, matrix);
-       * ```
-       * @param bounds - The bounds to be added
-       * @param matrix - Optional transformation matrix
-       * @see {@link Bounds#addFrame} For adding raw coordinates
-       * @see {@link Bounds#addRect} For adding rectangles
-       */
-      addBounds(bounds, matrix) {
-        this.addFrame(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY, matrix);
-      }
-      /**
-       * Adds other Bounds as a mask, creating an intersection of the two bounds.
-       * Only keeps the overlapping region between current bounds and mask bounds.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Create mask bounds
-       * const mask = new Bounds();
-       * mask.addFrame(50, 50, 150, 150);
-       * // Apply mask - results in bounds of (50,50,100,100)
-       * bounds.addBoundsMask(mask);
-       * ```
-       * @param mask - The Bounds to use as a mask
-       * @see {@link Bounds#addBounds} For union operation
-       * @see {@link Bounds#fit} For fitting to rectangle
-       */
-      addBoundsMask(mask) {
-        this.minX = this.minX > mask.minX ? this.minX : mask.minX;
-        this.minY = this.minY > mask.minY ? this.minY : mask.minY;
-        this.maxX = this.maxX < mask.maxX ? this.maxX : mask.maxX;
-        this.maxY = this.maxY < mask.maxY ? this.maxY : mask.maxY;
-      }
-      /**
-       * Applies a transformation matrix to the bounds, updating its coordinates.
-       * Transforms all corners of the bounds using the given matrix.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Apply translation
-       * const translateMatrix = new Matrix()
-       *     .translate(50, 50);
-       * bounds.applyMatrix(translateMatrix);
-       * ```
-       * @param matrix - The matrix to apply to the bounds
-       * @see {@link Matrix} For matrix operations
-       * @see {@link Bounds#addFrame} For adding transformed frames
-       */
-      applyMatrix(matrix) {
-        const minX = this.minX;
-        const minY = this.minY;
-        const maxX = this.maxX;
-        const maxY = this.maxY;
-        const { a: a3, b: b3, c: c3, d: d3, tx, ty } = matrix;
-        let x3 = a3 * minX + c3 * minY + tx;
-        let y4 = b3 * minX + d3 * minY + ty;
-        this.minX = x3;
-        this.minY = y4;
-        this.maxX = x3;
-        this.maxY = y4;
-        x3 = a3 * maxX + c3 * minY + tx;
-        y4 = b3 * maxX + d3 * minY + ty;
-        this.minX = x3 < this.minX ? x3 : this.minX;
-        this.minY = y4 < this.minY ? y4 : this.minY;
-        this.maxX = x3 > this.maxX ? x3 : this.maxX;
-        this.maxY = y4 > this.maxY ? y4 : this.maxY;
-        x3 = a3 * minX + c3 * maxY + tx;
-        y4 = b3 * minX + d3 * maxY + ty;
-        this.minX = x3 < this.minX ? x3 : this.minX;
-        this.minY = y4 < this.minY ? y4 : this.minY;
-        this.maxX = x3 > this.maxX ? x3 : this.maxX;
-        this.maxY = y4 > this.maxY ? y4 : this.maxY;
-        x3 = a3 * maxX + c3 * maxY + tx;
-        y4 = b3 * maxX + d3 * maxY + ty;
-        this.minX = x3 < this.minX ? x3 : this.minX;
-        this.minY = y4 < this.minY ? y4 : this.minY;
-        this.maxX = x3 > this.maxX ? x3 : this.maxX;
-        this.maxY = y4 > this.maxY ? y4 : this.maxY;
-      }
-      /**
-       * Resizes the bounds object to fit within the given rectangle.
-       * Clips the bounds if they extend beyond the rectangle's edges.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 200, 200);
-       * // Fit within viewport
-       * const viewport = new Rectangle(50, 50, 100, 100);
-       * bounds.fit(viewport);
-       * // bounds are now (50, 50, 150, 150)
-       * ```
-       * @param rect - The rectangle to fit within
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#addBoundsMask} For intersection
-       * @see {@link Bounds#pad} For expanding bounds
-       */
-      fit(rect) {
-        if (this.minX < rect.left) this.minX = rect.left;
-        if (this.maxX > rect.right) this.maxX = rect.right;
-        if (this.minY < rect.top) this.minY = rect.top;
-        if (this.maxY > rect.bottom) this.maxY = rect.bottom;
-        return this;
-      }
-      /**
-       * Resizes the bounds object to include the given bounds.
-       * Similar to fit() but works with raw coordinate values instead of a Rectangle.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 200, 200);
-       * // Fit to specific coordinates
-       * bounds.fitBounds(50, 150, 50, 150);
-       * // bounds are now (50, 50, 150, 150)
-       * ```
-       * @param left - The left value of the bounds
-       * @param right - The right value of the bounds
-       * @param top - The top value of the bounds
-       * @param bottom - The bottom value of the bounds
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#fit} For fitting to Rectangle
-       * @see {@link Bounds#addBoundsMask} For intersection
-       */
-      fitBounds(left, right, top, bottom) {
-        if (this.minX < left) this.minX = left;
-        if (this.maxX > right) this.maxX = right;
-        if (this.minY < top) this.minY = top;
-        if (this.maxY > bottom) this.maxY = bottom;
-        return this;
-      }
-      /**
-       * Pads bounds object, making it grow in all directions.
-       * If paddingY is omitted, both paddingX and paddingY will be set to paddingX.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       *
-       * // Add equal padding
-       * bounds.pad(10);
-       * // bounds are now (-10, -10, 110, 110)
-       *
-       * // Add different padding for x and y
-       * bounds.pad(20, 10);
-       * // bounds are now (-30, -20, 130, 120)
-       * ```
-       * @param paddingX - The horizontal padding amount
-       * @param paddingY - The vertical padding amount
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#fit} For constraining bounds
-       * @see {@link Bounds#scale} For uniform scaling
-       */
-      pad(paddingX, paddingY = paddingX) {
-        this.minX -= paddingX;
-        this.maxX += paddingX;
-        this.minY -= paddingY;
-        this.maxY += paddingY;
-        return this;
-      }
-      /**
-       * Ceils the bounds by rounding up max values and rounding down min values.
-       * Useful for pixel-perfect calculations and avoiding fractional pixels.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       * bounds.set(10.2, 10.9, 50.1, 50.8);
-       *
-       * // Round to whole pixels
-       * bounds.ceil();
-       * // bounds are now (10, 10, 51, 51)
-       * ```
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#scale} For size adjustments
-       * @see {@link Bounds#fit} For constraining bounds
-       */
-      ceil() {
-        this.minX = Math.floor(this.minX);
-        this.minY = Math.floor(this.minY);
-        this.maxX = Math.ceil(this.maxX);
-        this.maxY = Math.ceil(this.maxY);
-        return this;
-      }
-      /**
-       * Creates a new Bounds instance with the same values.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       *
-       * // Create a copy
-       * const copy = bounds.clone();
-       *
-       * // Original and copy are independent
-       * bounds.pad(10);
-       * console.log(copy.width === bounds.width); // false
-       * ```
-       * @returns A new Bounds instance with the same values
-       * @see {@link Bounds#copyFrom} For reusing existing bounds
-       */
-      clone() {
-        return new _Bounds(this.minX, this.minY, this.maxX, this.maxY);
-      }
-      /**
-       * Scales the bounds by the given values, adjusting all edges proportionally.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       *
-       * // Scale uniformly
-       * bounds.scale(2);
-       * // bounds are now (0, 0, 200, 200)
-       *
-       * // Scale non-uniformly
-       * bounds.scale(0.5, 2);
-       * // bounds are now (0, 0, 100, 400)
-       * ```
-       * @param x - The X value to scale by
-       * @param y - The Y value to scale by (defaults to x)
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#pad} For adding padding
-       * @see {@link Bounds#fit} For constraining size
-       */
-      scale(x3, y4 = x3) {
-        this.minX *= x3;
-        this.minY *= y4;
-        this.maxX *= x3;
-        this.maxY *= y4;
-        return this;
-      }
-      /**
-       * The x position of the bounds in local space.
-       * Setting this value will move the bounds while maintaining its width.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Get x position
-       * console.log(bounds.x); // 0
-       *
-       * // Move bounds horizontally
-       * bounds.x = 50;
-       * console.log(bounds.minX, bounds.maxX); // 50, 150
-       *
-       * // Width stays the same
-       * console.log(bounds.width); // Still 100
-       * ```
-       */
-      get x() {
-        return this.minX;
-      }
-      set x(value) {
-        const width = this.maxX - this.minX;
-        this.minX = value;
-        this.maxX = value + width;
-      }
-      /**
-       * The y position of the bounds in local space.
-       * Setting this value will move the bounds while maintaining its height.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Get y position
-       * console.log(bounds.y); // 0
-       *
-       * // Move bounds vertically
-       * bounds.y = 50;
-       * console.log(bounds.minY, bounds.maxY); // 50, 150
-       *
-       * // Height stays the same
-       * console.log(bounds.height); // Still 100
-       * ```
-       */
-      get y() {
-        return this.minY;
-      }
-      set y(value) {
-        const height = this.maxY - this.minY;
-        this.minY = value;
-        this.maxY = value + height;
-      }
-      /**
-       * The width value of the bounds.
-       * Represents the distance between minX and maxX coordinates.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Get width
-       * console.log(bounds.width); // 100
-       * // Resize width
-       * bounds.width = 200;
-       * console.log(bounds.maxX - bounds.minX); // 200
-       * ```
-       */
-      get width() {
-        return this.maxX - this.minX;
-      }
-      set width(value) {
-        this.maxX = this.minX + value;
-      }
-      /**
-       * The height value of the bounds.
-       * Represents the distance between minY and maxY coordinates.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Get height
-       * console.log(bounds.height); // 100
-       * // Resize height
-       * bounds.height = 150;
-       * console.log(bounds.maxY - bounds.minY); // 150
-       * ```
-       */
-      get height() {
-        return this.maxY - this.minY;
-      }
-      set height(value) {
-        this.maxY = this.minY + value;
-      }
-      /**
-       * The left edge coordinate of the bounds.
-       * Alias for minX.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(50, 0, 150, 100);
-       * console.log(bounds.left); // 50
-       * console.log(bounds.left === bounds.minX); // true
-       * ```
-       * @readonly
-       */
-      get left() {
-        return this.minX;
-      }
-      /**
-       * The right edge coordinate of the bounds.
-       * Alias for maxX.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * console.log(bounds.right); // 100
-       * console.log(bounds.right === bounds.maxX); // true
-       * ```
-       * @readonly
-       */
-      get right() {
-        return this.maxX;
-      }
-      /**
-       * The top edge coordinate of the bounds.
-       * Alias for minY.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 25, 100, 125);
-       * console.log(bounds.top); // 25
-       * console.log(bounds.top === bounds.minY); // true
-       * ```
-       * @readonly
-       */
-      get top() {
-        return this.minY;
-      }
-      /**
-       * The bottom edge coordinate of the bounds.
-       * Alias for maxY.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 200);
-       * console.log(bounds.bottom); // 200
-       * console.log(bounds.bottom === bounds.maxY); // true
-       * ```
-       * @readonly
-       */
-      get bottom() {
-        return this.maxY;
-      }
-      /**
-       * Whether the bounds has positive width and height.
-       * Checks if both dimensions are greater than zero.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Check if bounds are positive
-       * console.log(bounds.isPositive); // true
-       *
-       * // Negative bounds
-       * bounds.maxX = bounds.minX;
-       * console.log(bounds.isPositive); // false, width is 0
-       * ```
-       * @readonly
-       * @see {@link Bounds#isEmpty} For checking empty state
-       * @see {@link Bounds#isValid} For checking validity
-       */
-      get isPositive() {
-        return this.maxX - this.minX > 0 && this.maxY - this.minY > 0;
-      }
-      /**
-       * Whether the bounds has valid coordinates.
-       * Checks if the bounds has been initialized with real values.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       * console.log(bounds.isValid); // false, default state
-       *
-       * // Set valid bounds
-       * bounds.addFrame(0, 0, 100, 100);
-       * console.log(bounds.isValid); // true
-       * ```
-       * @readonly
-       * @see {@link Bounds#isEmpty} For checking empty state
-       * @see {@link Bounds#isPositive} For checking dimensions
-       */
-      get isValid() {
-        return this.minX + this.minY !== Infinity;
-      }
-      /**
-       * Adds vertices from a Float32Array to the bounds, optionally transformed by a matrix.
-       * Used for efficiently updating bounds from raw vertex data.
-       * @example
-       * ```ts
-       * const bounds = new Bounds();
-       *
-       * // Add vertices from geometry
-       * const vertices = new Float32Array([
-       *     0, 0,    // Vertex 1
-       *     100, 0,  // Vertex 2
-       *     100, 100 // Vertex 3
-       * ]);
-       * bounds.addVertexData(vertices, 0, 6);
-       *
-       * // Add transformed vertices
-       * const matrix = new Matrix()
-       *     .translate(50, 50)
-       *     .rotate(Math.PI / 4);
-       * bounds.addVertexData(vertices, 0, 6, matrix);
-       *
-       * // Add subset of vertices
-       * bounds.addVertexData(vertices, 2, 4); // Only second vertex
-       * ```
-       * @param vertexData - The array of vertices to add
-       * @param beginOffset - Starting index in the vertex array
-       * @param endOffset - Ending index in the vertex array (excluded)
-       * @param matrix - Optional transformation matrix
-       * @see {@link Bounds#addFrame} For adding rectangular frames
-       * @see {@link Matrix} For transformation details
-       */
-      addVertexData(vertexData, beginOffset, endOffset, matrix) {
-        let minX = this.minX;
-        let minY = this.minY;
-        let maxX = this.maxX;
-        let maxY = this.maxY;
-        matrix || (matrix = this.matrix);
-        const a3 = matrix.a;
-        const b3 = matrix.b;
-        const c3 = matrix.c;
-        const d3 = matrix.d;
-        const tx = matrix.tx;
-        const ty = matrix.ty;
-        for (let i3 = beginOffset; i3 < endOffset; i3 += 2) {
-          const localX = vertexData[i3];
-          const localY = vertexData[i3 + 1];
-          const x3 = a3 * localX + c3 * localY + tx;
-          const y4 = b3 * localX + d3 * localY + ty;
-          minX = x3 < minX ? x3 : minX;
-          minY = y4 < minY ? y4 : minY;
-          maxX = x3 > maxX ? x3 : maxX;
-          maxY = y4 > maxY ? y4 : maxY;
-        }
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
-      }
-      /**
-       * Checks if a point is contained within the bounds.
-       * Returns true if the point's coordinates fall within the bounds' area.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * // Basic point check
-       * console.log(bounds.containsPoint(50, 50)); // true
-       * console.log(bounds.containsPoint(150, 150)); // false
-       *
-       * // Check edges
-       * console.log(bounds.containsPoint(0, 0));   // true, includes edges
-       * console.log(bounds.containsPoint(100, 100)); // true, includes edges
-       * ```
-       * @param x - x coordinate to check
-       * @param y - y coordinate to check
-       * @returns True if the point is inside the bounds
-       * @see {@link Bounds#isPositive} For valid bounds check
-       * @see {@link Bounds#rectangle} For Rectangle representation
-       */
-      containsPoint(x3, y4) {
-        if (this.minX <= x3 && this.minY <= y4 && this.maxX >= x3 && this.maxY >= y4) {
-          return true;
-        }
-        return false;
-      }
-      /**
-       * Returns a string representation of the bounds.
-       * Useful for debugging and logging bounds information.
-       * @example
-       * ```ts
-       * const bounds = new Bounds(0, 0, 100, 100);
-       * console.log(bounds.toString()); // "[pixi.js:Bounds minX=0 minY=0 maxX=100 maxY=100 width=100 height=100]"
-       * ```
-       * @returns A string describing the bounds
-       * @see {@link Bounds#copyFrom} For copying bounds
-       * @see {@link Bounds#clone} For creating a new instance
-       */
-      toString() {
-        return `[pixi.js:Bounds minX=${this.minX} minY=${this.minY} maxX=${this.maxX} maxY=${this.maxY} width=${this.width} height=${this.height}]`;
-      }
-      /**
-       * Copies the bounds from another bounds object.
-       * Useful for reusing bounds objects and avoiding allocations.
-       * @example
-       * ```ts
-       * const sourceBounds = new Bounds(0, 0, 100, 100);
-       * // Copy bounds
-       * const targetBounds = new Bounds();
-       * targetBounds.copyFrom(sourceBounds);
-       * ```
-       * @param bounds - The bounds to copy from
-       * @returns This bounds object for chaining
-       * @see {@link Bounds#clone} For creating new instances
-       */
-      copyFrom(bounds) {
-        this.minX = bounds.minX;
-        this.minY = bounds.minY;
-        this.maxX = bounds.maxX;
-        this.maxY = bounds.maxY;
-        return this;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/bounds/utils/matrixAndBoundsPool.mjs
-var matrixPool, boundsPool;
-var init_matrixAndBoundsPool = __esm({
-  "node_modules/pixi.js/lib/scene/container/bounds/utils/matrixAndBoundsPool.mjs"() {
-    init_Matrix();
-    init_PoolGroup();
-    init_Bounds();
-    matrixPool = BigPool.getPool(Matrix);
-    boundsPool = BigPool.getPool(Bounds);
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/getFastGlobalBoundsMixin.mjs
-var tempMatrix2, getFastGlobalBoundsMixin;
-var init_getFastGlobalBoundsMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/getFastGlobalBoundsMixin.mjs"() {
-    init_Matrix();
-    init_Bounds();
-    init_matrixAndBoundsPool();
-    tempMatrix2 = new Matrix();
-    getFastGlobalBoundsMixin = {
-      getFastGlobalBounds(factorRenderLayers, bounds) {
-        bounds || (bounds = new Bounds());
-        bounds.clear();
-        this._getGlobalBoundsRecursive(!!factorRenderLayers, bounds, this.parentRenderLayer);
-        if (!bounds.isValid) {
-          bounds.set(0, 0, 0, 0);
-        }
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        bounds.applyMatrix(renderGroup.worldTransform);
-        return bounds;
-      },
-      _getGlobalBoundsRecursive(factorRenderLayers, bounds, currentLayer) {
-        let localBounds = bounds;
-        if (factorRenderLayers && this.parentRenderLayer && this.parentRenderLayer !== currentLayer) return;
-        if (this.localDisplayStatus !== 7 || !this.measurable) {
-          return;
-        }
-        const manageEffects = !!this.effects.length;
-        if (this.renderGroup || manageEffects) {
-          localBounds = boundsPool.get().clear();
-        }
-        if (this.boundsArea) {
-          bounds.addRect(this.boundsArea, this.worldTransform);
-        } else {
-          if (this.renderPipeId) {
-            const viewBounds = this.bounds;
-            localBounds.addFrame(
-              viewBounds.minX,
-              viewBounds.minY,
-              viewBounds.maxX,
-              viewBounds.maxY,
-              this.groupTransform
-            );
-          }
-          const children = this.children;
-          for (let i3 = 0; i3 < children.length; i3++) {
-            children[i3]._getGlobalBoundsRecursive(factorRenderLayers, localBounds, currentLayer);
-          }
-        }
-        if (manageEffects) {
-          let advanced = false;
-          const renderGroup = this.renderGroup || this.parentRenderGroup;
-          for (let i3 = 0; i3 < this.effects.length; i3++) {
-            if (this.effects[i3].addBounds) {
-              if (!advanced) {
-                advanced = true;
-                localBounds.applyMatrix(renderGroup.worldTransform);
-              }
-              this.effects[i3].addBounds(localBounds, true);
-            }
-          }
-          if (advanced) {
-            localBounds.applyMatrix(renderGroup.worldTransform.copyTo(tempMatrix2).invert());
-          }
-          bounds.addBounds(localBounds);
-          boundsPool.return(localBounds);
-        } else if (this.renderGroup) {
-          bounds.addBounds(localBounds, this.relativeGroupTransform);
-          boundsPool.return(localBounds);
-        }
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/bounds/getGlobalBounds.mjs
-function getGlobalBounds(target, skipUpdateTransform, bounds) {
-  bounds.clear();
-  let parentTransform;
-  let pooledMatrix;
-  if (target.parent) {
-    if (!skipUpdateTransform) {
-      pooledMatrix = matrixPool.get().identity();
-      parentTransform = updateTransformBackwards(target, pooledMatrix);
-    } else {
-      parentTransform = target.parent.worldTransform;
-    }
-  } else {
-    parentTransform = Matrix.IDENTITY;
-  }
-  _getGlobalBounds(target, bounds, parentTransform, skipUpdateTransform);
-  if (pooledMatrix) {
-    matrixPool.return(pooledMatrix);
-  }
-  if (!bounds.isValid) {
-    bounds.set(0, 0, 0, 0);
-  }
-  return bounds;
-}
-function _getGlobalBounds(target, bounds, parentTransform, skipUpdateTransform) {
-  if (!target.visible || !target.measurable) return;
-  let worldTransform;
-  if (!skipUpdateTransform) {
-    target.updateLocalTransform();
-    worldTransform = matrixPool.get();
-    worldTransform.appendFrom(target.localTransform, parentTransform);
-  } else {
-    worldTransform = target.worldTransform;
-  }
-  const parentBounds = bounds;
-  const preserveBounds = !!target.effects.length;
-  if (preserveBounds) {
-    bounds = boundsPool.get().clear();
-  }
-  if (target.boundsArea) {
-    bounds.addRect(target.boundsArea, worldTransform);
-  } else {
-    const renderableBounds = target.bounds;
-    if (renderableBounds && !renderableBounds.isEmpty()) {
-      bounds.matrix = worldTransform;
-      bounds.addBounds(renderableBounds);
-    }
-    for (let i3 = 0; i3 < target.children.length; i3++) {
-      _getGlobalBounds(target.children[i3], bounds, worldTransform, skipUpdateTransform);
-    }
-  }
-  if (preserveBounds) {
-    for (let i3 = 0; i3 < target.effects.length; i3++) {
-      target.effects[i3].addBounds?.(bounds);
-    }
-    parentBounds.addBounds(bounds, Matrix.IDENTITY);
-    boundsPool.return(bounds);
-  }
-  if (!skipUpdateTransform) {
-    matrixPool.return(worldTransform);
-  }
-}
-function updateTransformBackwards(target, parentTransform) {
-  const parent = target.parent;
-  if (parent) {
-    updateTransformBackwards(parent, parentTransform);
-    parent.updateLocalTransform();
-    parentTransform.append(parent.localTransform);
-  }
-  return parentTransform;
-}
-var init_getGlobalBounds = __esm({
-  "node_modules/pixi.js/lib/scene/container/bounds/getGlobalBounds.mjs"() {
-    init_Matrix();
-    init_matrixAndBoundsPool();
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/utils/multiplyHexColors.mjs
-function multiplyHexColors(color1, color2) {
-  if (color1 === 16777215 || !color2) return color2;
-  if (color2 === 16777215 || !color1) return color1;
-  const r1 = color1 >> 16 & 255;
-  const g1 = color1 >> 8 & 255;
-  const b1 = color1 & 255;
-  const r22 = color2 >> 16 & 255;
-  const g22 = color2 >> 8 & 255;
-  const b22 = color2 & 255;
-  const r4 = r1 * r22 / 255 | 0;
-  const g3 = g1 * g22 / 255 | 0;
-  const b3 = b1 * b22 / 255 | 0;
-  return (r4 << 16) + (g3 << 8) + b3;
-}
-var init_multiplyHexColors = __esm({
-  "node_modules/pixi.js/lib/scene/container/utils/multiplyHexColors.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/utils/multiplyColors.mjs
-function multiplyColors(localBGRColor, parentBGRColor) {
-  if (localBGRColor === WHITE_BGR) {
-    return parentBGRColor;
-  }
-  if (parentBGRColor === WHITE_BGR) {
-    return localBGRColor;
-  }
-  return multiplyHexColors(localBGRColor, parentBGRColor);
-}
-var WHITE_BGR;
-var init_multiplyColors = __esm({
-  "node_modules/pixi.js/lib/scene/container/utils/multiplyColors.mjs"() {
-    init_multiplyHexColors();
-    WHITE_BGR = 16777215;
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/getGlobalMixin.mjs
-function bgr2rgb(color) {
-  return ((color & 255) << 16) + (color & 65280) + (color >> 16 & 255);
-}
-var getGlobalMixin;
-var init_getGlobalMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/getGlobalMixin.mjs"() {
-    init_Matrix();
-    init_getGlobalBounds();
-    init_matrixAndBoundsPool();
-    init_multiplyColors();
-    getGlobalMixin = {
-      getGlobalAlpha(skipUpdate) {
-        if (skipUpdate) {
-          if (this.renderGroup) {
-            return this.renderGroup.worldAlpha;
-          }
-          if (this.parentRenderGroup) {
-            return this.parentRenderGroup.worldAlpha * this.alpha;
-          }
-          return this.alpha;
-        }
-        let alpha = this.alpha;
-        let current2 = this.parent;
-        while (current2) {
-          alpha *= current2.alpha;
-          current2 = current2.parent;
-        }
-        return alpha;
-      },
-      getGlobalTransform(matrix = new Matrix(), skipUpdate) {
-        if (skipUpdate) {
-          return matrix.copyFrom(this.worldTransform);
-        }
-        this.updateLocalTransform();
-        const parentTransform = updateTransformBackwards(this, matrixPool.get().identity());
-        matrix.appendFrom(this.localTransform, parentTransform);
-        matrixPool.return(parentTransform);
-        return matrix;
-      },
-      getGlobalTint(skipUpdate) {
-        if (skipUpdate) {
-          if (this.renderGroup) {
-            return bgr2rgb(this.renderGroup.worldColor);
-          }
-          if (this.parentRenderGroup) {
-            return bgr2rgb(
-              multiplyColors(this.localColor, this.parentRenderGroup.worldColor)
-            );
-          }
-          return this.tint;
-        }
-        let color = this.localColor;
-        let parent = this.parent;
-        while (parent) {
-          color = multiplyColors(color, parent.localColor);
-          parent = parent.parent;
-        }
-        return bgr2rgb(color);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/bounds/getLocalBounds.mjs
-function getLocalBounds(target, bounds, relativeMatrix) {
-  bounds.clear();
-  relativeMatrix || (relativeMatrix = Matrix.IDENTITY);
-  _getLocalBounds(target, bounds, relativeMatrix, target, true);
-  if (!bounds.isValid) {
-    bounds.set(0, 0, 0, 0);
-  }
-  return bounds;
-}
-function _getLocalBounds(target, bounds, parentTransform, rootContainer, isRoot) {
-  let relativeTransform;
-  if (!isRoot) {
-    if (!target.visible || !target.measurable) return;
-    target.updateLocalTransform();
-    const localTransform = target.localTransform;
-    relativeTransform = matrixPool.get();
-    relativeTransform.appendFrom(localTransform, parentTransform);
-  } else {
-    relativeTransform = matrixPool.get();
-    relativeTransform = parentTransform.copyTo(relativeTransform);
-  }
-  const parentBounds = bounds;
-  const preserveBounds = !!target.effects.length;
-  if (preserveBounds) {
-    bounds = boundsPool.get().clear();
-  }
-  if (target.boundsArea) {
-    bounds.addRect(target.boundsArea, relativeTransform);
-  } else {
-    if (target.renderPipeId) {
-      bounds.matrix = relativeTransform;
-      bounds.addBounds(target.bounds);
-    }
-    const children = target.children;
-    for (let i3 = 0; i3 < children.length; i3++) {
-      _getLocalBounds(children[i3], bounds, relativeTransform, rootContainer, false);
-    }
-  }
-  if (preserveBounds) {
-    for (let i3 = 0; i3 < target.effects.length; i3++) {
-      target.effects[i3].addLocalBounds?.(bounds, rootContainer);
-    }
-    parentBounds.addBounds(bounds, Matrix.IDENTITY);
-    boundsPool.return(bounds);
-  }
-  matrixPool.return(relativeTransform);
-}
-var init_getLocalBounds = __esm({
-  "node_modules/pixi.js/lib/scene/container/bounds/getLocalBounds.mjs"() {
-    init_Matrix();
-    init_matrixAndBoundsPool();
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/utils/checkChildrenDidChange.mjs
-function checkChildrenDidChange(container, previousData) {
-  const children = container.children;
-  for (let i3 = 0; i3 < children.length; i3++) {
-    const child = children[i3];
-    const uid3 = child.uid;
-    const didChange = (child._didViewChangeTick & 65535) << 16 | child._didContainerChangeTick & 65535;
-    const index2 = previousData.index;
-    if (previousData.data[index2] !== uid3 || previousData.data[index2 + 1] !== didChange) {
-      previousData.data[previousData.index] = uid3;
-      previousData.data[previousData.index + 1] = didChange;
-      previousData.didChange = true;
-    }
-    previousData.index = index2 + 2;
-    if (child.children.length) {
-      checkChildrenDidChange(child, previousData);
-    }
-  }
-  return previousData.didChange;
-}
-var init_checkChildrenDidChange = __esm({
-  "node_modules/pixi.js/lib/scene/container/utils/checkChildrenDidChange.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/measureMixin.mjs
-var tempMatrix3, measureMixin;
-var init_measureMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/measureMixin.mjs"() {
-    init_Matrix();
-    init_Bounds();
-    init_getGlobalBounds();
-    init_getLocalBounds();
-    init_checkChildrenDidChange();
-    tempMatrix3 = new Matrix();
-    measureMixin = {
-      _localBoundsCacheId: -1,
-      _localBoundsCacheData: null,
-      _setWidth(value, localWidth) {
-        const sign2 = Math.sign(this.scale.x) || 1;
-        if (localWidth !== 0) {
-          this.scale.x = value / localWidth * sign2;
-        } else {
-          this.scale.x = sign2;
-        }
-      },
-      _setHeight(value, localHeight) {
-        const sign2 = Math.sign(this.scale.y) || 1;
-        if (localHeight !== 0) {
-          this.scale.y = value / localHeight * sign2;
-        } else {
-          this.scale.y = sign2;
-        }
-      },
-      getLocalBounds() {
-        if (!this._localBoundsCacheData) {
-          this._localBoundsCacheData = {
-            data: [],
-            index: 1,
-            didChange: false,
-            localBounds: new Bounds()
-          };
-        }
-        const localBoundsCacheData = this._localBoundsCacheData;
-        localBoundsCacheData.index = 1;
-        localBoundsCacheData.didChange = false;
-        if (localBoundsCacheData.data[0] !== this._didViewChangeTick) {
-          localBoundsCacheData.didChange = true;
-          localBoundsCacheData.data[0] = this._didViewChangeTick;
-        }
-        checkChildrenDidChange(this, localBoundsCacheData);
-        if (localBoundsCacheData.didChange) {
-          getLocalBounds(this, localBoundsCacheData.localBounds, tempMatrix3);
-        }
-        return localBoundsCacheData.localBounds;
-      },
-      getBounds(skipUpdate, bounds) {
-        return getGlobalBounds(this, skipUpdate, bounds || new Bounds());
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/onRenderMixin.mjs
-var onRenderMixin;
-var init_onRenderMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/onRenderMixin.mjs"() {
-    "use strict";
-    onRenderMixin = {
-      _onRender: null,
-      set onRender(func) {
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        if (!func) {
-          if (this._onRender) {
-            renderGroup?.removeOnRender(this);
-          }
-          this._onRender = null;
-          return;
-        }
-        if (!this._onRender) {
-          renderGroup?.addOnRender(this);
-        }
-        this._onRender = func;
-      },
-      get onRender() {
-        return this._onRender;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/sortMixin.mjs
-function sortChildren(a3, b3) {
-  return a3._zIndex - b3._zIndex;
-}
-var sortMixin;
-var init_sortMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/sortMixin.mjs"() {
-    "use strict";
-    sortMixin = {
-      _zIndex: 0,
-      sortDirty: false,
-      sortableChildren: false,
-      get zIndex() {
-        return this._zIndex;
-      },
-      set zIndex(value) {
-        if (this._zIndex === value) return;
-        this._zIndex = value;
-        this.depthOfChildModified();
-      },
-      depthOfChildModified() {
-        if (this.parent) {
-          this.parent.sortableChildren = true;
-          this.parent.sortDirty = true;
-        }
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.structureDidChange = true;
-        }
-      },
-      sortChildren() {
-        if (!this.sortDirty) return;
-        this.sortDirty = false;
-        this.children.sort(sortChildren);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/container-mixins/toLocalGlobalMixin.mjs
-var toLocalGlobalMixin;
-var init_toLocalGlobalMixin = __esm({
-  "node_modules/pixi.js/lib/scene/container/container-mixins/toLocalGlobalMixin.mjs"() {
-    init_Point();
-    init_matrixAndBoundsPool();
-    toLocalGlobalMixin = {
-      getGlobalPosition(point = new Point(), skipUpdate = false) {
-        if (this.parent) {
-          this.parent.toGlobal(this._position, point, skipUpdate);
-        } else {
-          point.x = this._position.x;
-          point.y = this._position.y;
-        }
-        return point;
-      },
-      toGlobal(position, point, skipUpdate = false) {
-        const globalMatrix = this.getGlobalTransform(matrixPool.get(), skipUpdate);
-        point = globalMatrix.apply(position, point);
-        matrixPool.return(globalMatrix);
-        return point;
-      },
-      toLocal(position, from, point, skipUpdate) {
-        if (from) {
-          position = from.toGlobal(position, point, skipUpdate);
-        }
-        const globalMatrix = this.getGlobalTransform(matrixPool.get(), skipUpdate);
-        point = globalMatrix.applyInverse(position, point);
-        matrixPool.return(globalMatrix);
-        return point;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/instructions/InstructionSet.mjs
-var InstructionSet;
-var init_InstructionSet = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/instructions/InstructionSet.mjs"() {
-    init_uid();
-    InstructionSet = class {
-      constructor() {
-        this.uid = uid("instructionSet");
-        this.instructions = [];
-        this.instructionSize = 0;
-        this.renderables = [];
-        this.gcTick = 0;
-      }
-      /** reset the instruction set so it can be reused set size back to 0 */
-      reset() {
-        this.instructionSize = 0;
-      }
-      /**
-       * Destroy the instruction set, clearing the instructions and renderables.
-       * @internal
-       */
-      destroy() {
-        this.instructions.length = 0;
-        this.renderables.length = 0;
-        this.renderPipes = null;
-        this.gcTick = 0;
-      }
-      /**
-       * Add an instruction to the set
-       * @param instruction - add an instruction to the set
-       */
-      add(instruction) {
-        this.instructions[this.instructionSize++] = instruction;
-      }
-      /**
-       * Log the instructions to the console (for debugging)
-       * @internal
-       */
-      log() {
-        this.instructions.length = this.instructionSize;
-        console.table(this.instructions, ["type", "action"]);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/maths/misc/pow2.mjs
-function nextPow2(v4) {
-  v4 += v4 === 0 ? 1 : 0;
-  --v4;
-  v4 |= v4 >>> 1;
-  v4 |= v4 >>> 2;
-  v4 |= v4 >>> 4;
-  v4 |= v4 >>> 8;
-  v4 |= v4 >>> 16;
-  return v4 + 1;
-}
-function isPow2(v4) {
-  return !(v4 & v4 - 1) && !!v4;
-}
-var init_pow2 = __esm({
-  "node_modules/pixi.js/lib/maths/misc/pow2.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/utils/definedProps.mjs
-function definedProps(obj) {
-  const result = {};
-  for (const key in obj) {
-    if (obj[key] !== void 0) {
-      result[key] = obj[key];
-    }
-  }
-  return result;
-}
-var init_definedProps = __esm({
-  "node_modules/pixi.js/lib/scene/container/utils/definedProps.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureStyle.mjs
-function createResourceIdFromString(value) {
-  const id = idHash[value];
-  if (id === void 0) {
-    idHash[value] = uid("resource");
-  }
-  return id;
-}
-var idHash, _TextureStyle, TextureStyle;
-var init_TextureStyle = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureStyle.mjs"() {
-    init_eventemitter3();
-    init_uid();
-    init_deprecation();
-    idHash = /* @__PURE__ */ Object.create(null);
-    _TextureStyle = class _TextureStyle2 extends eventemitter3_default {
-      /**
-       * @param options - options for the style
-       */
-      constructor(options = {}) {
-        super();
-        this._resourceType = "textureSampler";
-        this._touched = 0;
-        this._maxAnisotropy = 1;
-        this.destroyed = false;
-        options = { ..._TextureStyle2.defaultOptions, ...options };
-        this.addressMode = options.addressMode;
-        this.addressModeU = options.addressModeU ?? this.addressModeU;
-        this.addressModeV = options.addressModeV ?? this.addressModeV;
-        this.addressModeW = options.addressModeW ?? this.addressModeW;
-        this.scaleMode = options.scaleMode;
-        this.magFilter = options.magFilter ?? this.magFilter;
-        this.minFilter = options.minFilter ?? this.minFilter;
-        this.mipmapFilter = options.mipmapFilter ?? this.mipmapFilter;
-        this.lodMinClamp = options.lodMinClamp;
-        this.lodMaxClamp = options.lodMaxClamp;
-        this.compare = options.compare;
-        this.maxAnisotropy = options.maxAnisotropy ?? 1;
-      }
-      set addressMode(value) {
-        this.addressModeU = value;
-        this.addressModeV = value;
-        this.addressModeW = value;
-      }
-      /** setting this will set wrapModeU,wrapModeV and wrapModeW all at once! */
-      get addressMode() {
-        return this.addressModeU;
-      }
-      set wrapMode(value) {
-        deprecation(v8_0_0, "TextureStyle.wrapMode is now TextureStyle.addressMode");
-        this.addressMode = value;
-      }
-      get wrapMode() {
-        return this.addressMode;
-      }
-      set scaleMode(value) {
-        this.magFilter = value;
-        this.minFilter = value;
-        this.mipmapFilter = value;
-      }
-      /** setting this will set magFilter,minFilter and mipmapFilter all at once!  */
-      get scaleMode() {
-        return this.magFilter;
-      }
-      /** Specifies the maximum anisotropy value clamp used by the sampler. */
-      set maxAnisotropy(value) {
-        this._maxAnisotropy = Math.min(value, 16);
-        if (this._maxAnisotropy > 1) {
-          this.scaleMode = "linear";
-        }
-      }
-      get maxAnisotropy() {
-        return this._maxAnisotropy;
-      }
-      // TODO - move this to WebGL?
-      get _resourceId() {
-        return this._sharedResourceId || this._generateResourceId();
-      }
-      update() {
-        this._sharedResourceId = null;
-        this.emit("change", this);
-      }
-      _generateResourceId() {
-        const bigKey = `${this.addressModeU}-${this.addressModeV}-${this.addressModeW}-${this.magFilter}-${this.minFilter}-${this.mipmapFilter}-${this.lodMinClamp}-${this.lodMaxClamp}-${this.compare}-${this._maxAnisotropy}`;
-        this._sharedResourceId = createResourceIdFromString(bigKey);
-        return this._resourceId;
-      }
-      /** Destroys the style */
-      destroy() {
-        this.destroyed = true;
-        this.emit("destroy", this);
-        this.emit("change", this);
-        this.removeAllListeners();
-      }
-    };
-    _TextureStyle.defaultOptions = {
-      addressMode: "clamp-to-edge",
-      scaleMode: "linear"
-    };
-    TextureStyle = _TextureStyle;
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/TextureSource.mjs
-var _TextureSource, TextureSource;
-var init_TextureSource = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/TextureSource.mjs"() {
-    init_eventemitter3();
-    init_pow2();
-    init_definedProps();
-    init_uid();
-    init_TextureStyle();
-    _TextureSource = class _TextureSource2 extends eventemitter3_default {
-      /**
-       * @param options - options for creating a new TextureSource
-       */
-      constructor(options = {}) {
-        super();
-        this.options = options;
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-        this._gcLastUsed = -1;
-        this.uid = uid("textureSource");
-        this._resourceType = "textureSource";
-        this._resourceId = uid("resource");
-        this.uploadMethodId = "unknown";
-        this._resolution = 1;
-        this.pixelWidth = 1;
-        this.pixelHeight = 1;
-        this.width = 1;
-        this.height = 1;
-        this.sampleCount = 1;
-        this.mipLevelCount = 1;
-        this.autoGenerateMipmaps = false;
-        this.format = "rgba8unorm";
-        this.dimension = "2d";
-        this.viewDimension = "2d";
-        this.arrayLayerCount = 1;
-        this.antialias = false;
-        this.transient = false;
-        this._touched = 0;
-        this._batchTick = -1;
-        this._textureBindLocation = -1;
-        options = { ..._TextureSource2.defaultOptions, ...options };
-        this.label = options.label ?? "";
-        this.resource = options.resource;
-        this.autoGarbageCollect = options.autoGarbageCollect;
-        this._resolution = options.resolution;
-        if (options.width) {
-          this.pixelWidth = options.width * this._resolution;
-        } else {
-          this.pixelWidth = this.resource ? this.resourceWidth ?? 1 : 1;
-        }
-        if (options.height) {
-          this.pixelHeight = options.height * this._resolution;
-        } else {
-          this.pixelHeight = this.resource ? this.resourceHeight ?? 1 : 1;
-        }
-        this.width = this.pixelWidth / this._resolution;
-        this.height = this.pixelHeight / this._resolution;
-        this.format = options.format;
-        this.dimension = options.dimensions;
-        this.viewDimension = options.viewDimension ?? options.dimensions;
-        this.arrayLayerCount = options.arrayLayerCount;
-        this.mipLevelCount = options.mipLevelCount;
-        this.autoGenerateMipmaps = options.autoGenerateMipmaps;
-        this.sampleCount = options.sampleCount;
-        this.antialias = options.antialias;
-        this.transient = options.transient ?? false;
-        this.alphaMode = options.alphaMode;
-        this.style = new TextureStyle(definedProps(options));
-        this.destroyed = false;
-        this._refreshPOT();
-      }
-      /** returns itself */
-      get source() {
-        return this;
-      }
-      /** the style of the texture */
-      get style() {
-        return this._style;
-      }
-      set style(value) {
-        if (this.style === value) return;
-        this._style?.off("change", this._onStyleChange, this);
-        this._style = value;
-        this._style?.on("change", this._onStyleChange, this);
-        this._onStyleChange();
-      }
-      /** Specifies the maximum anisotropy value clamp used by the sampler. */
-      set maxAnisotropy(value) {
-        this._style.maxAnisotropy = value;
-      }
-      get maxAnisotropy() {
-        return this._style.maxAnisotropy;
-      }
-      /** setting this will set wrapModeU, wrapModeV and wrapModeW all at once! */
-      get addressMode() {
-        return this._style.addressMode;
-      }
-      set addressMode(value) {
-        this._style.addressMode = value;
-      }
-      /** setting this will set wrapModeU, wrapModeV and wrapModeW all at once! */
-      get repeatMode() {
-        return this._style.addressMode;
-      }
-      set repeatMode(value) {
-        this._style.addressMode = value;
-      }
-      /** Specifies the sampling behavior when the sample footprint is smaller than or equal to one texel. */
-      get magFilter() {
-        return this._style.magFilter;
-      }
-      set magFilter(value) {
-        this._style.magFilter = value;
-      }
-      /** Specifies the sampling behavior when the sample footprint is larger than one texel. */
-      get minFilter() {
-        return this._style.minFilter;
-      }
-      set minFilter(value) {
-        this._style.minFilter = value;
-      }
-      /** Specifies behavior for sampling between mipmap levels. */
-      get mipmapFilter() {
-        return this._style.mipmapFilter;
-      }
-      set mipmapFilter(value) {
-        this._style.mipmapFilter = value;
-      }
-      /** Specifies the minimum and maximum levels of detail, respectively, used internally when sampling a texture. */
-      get lodMinClamp() {
-        return this._style.lodMinClamp;
-      }
-      set lodMinClamp(value) {
-        this._style.lodMinClamp = value;
-      }
-      /** Specifies the minimum and maximum levels of detail, respectively, used internally when sampling a texture. */
-      get lodMaxClamp() {
-        return this._style.lodMaxClamp;
-      }
-      set lodMaxClamp(value) {
-        this._style.lodMaxClamp = value;
-      }
-      _onStyleChange() {
-        this.emit("styleChange", this);
-      }
-      /** call this if you have modified the texture outside of the constructor */
-      update() {
-        if (this.resource) {
-          const resolution = this._resolution;
-          const didResize = this.resize(this.resourceWidth / resolution, this.resourceHeight / resolution);
-          if (didResize) return;
-        }
-        this.emit("update", this);
-      }
-      /** Destroys this texture source */
-      destroy() {
-        this.destroyed = true;
-        this.unload();
-        this.emit("destroy", this);
-        if (this._style) {
-          this._style.destroy();
-          this._style = null;
-        }
-        this.uploadMethodId = null;
-        this.resource = null;
-        this.removeAllListeners();
-      }
-      /**
-       * This will unload the Texture source from the GPU. This will free up the GPU memory
-       * As soon as it is required fore rendering, it will be re-uploaded.
-       */
-      unload() {
-        this._resourceId = uid("resource");
-        this.emit("change", this);
-        this.emit("unload", this);
-        for (const key in this._gpuData) {
-          this._gpuData[key]?.destroy?.();
-        }
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-      }
-      /** the width of the resource. This is the REAL pure number, not accounting resolution   */
-      get resourceWidth() {
-        const { resource } = this;
-        return resource.naturalWidth || resource.videoWidth || resource.displayWidth || resource.width;
-      }
-      /** the height of the resource. This is the REAL pure number, not accounting resolution */
-      get resourceHeight() {
-        const { resource } = this;
-        return resource.naturalHeight || resource.videoHeight || resource.displayHeight || resource.height;
-      }
-      /**
-       * the resolution of the texture. Changing this number, will not change the number of pixels in the actual texture
-       * but will the size of the texture when rendered.
-       *
-       * changing the resolution of this texture to 2 for example will make it appear twice as small when rendered (as pixel
-       * density will have increased)
-       */
-      get resolution() {
-        return this._resolution;
-      }
-      set resolution(resolution) {
-        if (this._resolution === resolution) return;
-        this._resolution = resolution;
-        this.width = this.pixelWidth / resolution;
-        this.height = this.pixelHeight / resolution;
-      }
-      /**
-       * Resize the texture, this is handy if you want to use the texture as a render texture
-       * @param width - the new width of the texture
-       * @param height - the new height of the texture
-       * @param resolution - the new resolution of the texture
-       * @returns - if the texture was resized
-       */
-      resize(width, height, resolution) {
-        resolution || (resolution = this._resolution);
-        width || (width = this.width);
-        height || (height = this.height);
-        const newPixelWidth = Math.round(width * resolution);
-        const newPixelHeight = Math.round(height * resolution);
-        this.width = newPixelWidth / resolution;
-        this.height = newPixelHeight / resolution;
-        this._resolution = resolution;
-        if (this.pixelWidth === newPixelWidth && this.pixelHeight === newPixelHeight) {
-          return false;
-        }
-        this._refreshPOT();
-        this.pixelWidth = newPixelWidth;
-        this.pixelHeight = newPixelHeight;
-        this.emit("resize", this);
-        this._resourceId = uid("resource");
-        this.emit("change", this);
-        return true;
-      }
-      /**
-       * Lets the renderer know that this texture has been updated and its mipmaps should be re-generated.
-       * This is only important for RenderTexture instances, as standard Texture instances will have their
-       * mipmaps generated on upload. You should call this method after you make any change to the texture
-       *
-       * The reason for this is is can be quite expensive to update mipmaps for a texture. So by default,
-       * We want you, the developer to specify when this action should happen.
-       *
-       * Generally you don't want to have mipmaps generated on Render targets that are changed every frame,
-       */
-      updateMipmaps() {
-        if (this.autoGenerateMipmaps && this.mipLevelCount > 1) {
-          this.emit("updateMipmaps", this);
-        }
-      }
-      set wrapMode(value) {
-        this._style.wrapMode = value;
-      }
-      get wrapMode() {
-        return this._style.wrapMode;
-      }
-      set scaleMode(value) {
-        this._style.scaleMode = value;
-      }
-      /** setting this will set magFilter,minFilter and mipmapFilter all at once!  */
-      get scaleMode() {
-        return this._style.scaleMode;
-      }
-      /**
-       * Refresh check for isPowerOfTwo texture based on size
-       * @private
-       */
-      _refreshPOT() {
-        this.isPowerOfTwo = isPow2(this.pixelWidth) && isPow2(this.pixelHeight);
-      }
-      static test(_resource) {
-        throw new Error("Unimplemented");
-      }
-    };
-    _TextureSource.defaultOptions = {
-      resolution: 1,
-      format: "bgra8unorm",
-      alphaMode: "premultiply-alpha-on-upload",
-      dimensions: "2d",
-      viewDimension: "2d",
-      arrayLayerCount: 1,
-      mipLevelCount: 1,
-      autoGenerateMipmaps: false,
-      sampleCount: 1,
-      antialias: false,
-      autoGarbageCollect: false
-    };
-    TextureSource = _TextureSource;
-  }
-});
-
-// node_modules/pixi.js/lib/maths/matrix/groupD8.mjs
-function init() {
-  for (let i3 = 0; i3 < 16; i3++) {
-    const row = [];
-    rotationCayley.push(row);
-    for (let j4 = 0; j4 < 16; j4++) {
-      const _ux = signum(ux[i3] * ux[j4] + vx[i3] * uy[j4]);
-      const _uy = signum(uy[i3] * ux[j4] + vy[i3] * uy[j4]);
-      const _vx = signum(ux[i3] * vx[j4] + vx[i3] * vy[j4]);
-      const _vy = signum(uy[i3] * vx[j4] + vy[i3] * vy[j4]);
-      for (let k3 = 0; k3 < 16; k3++) {
-        if (ux[k3] === _ux && uy[k3] === _uy && vx[k3] === _vx && vy[k3] === _vy) {
-          row.push(k3);
-          break;
-        }
-      }
-    }
-  }
-  for (let i3 = 0; i3 < 16; i3++) {
-    const mat = new Matrix();
-    mat.set(ux[i3], uy[i3], vx[i3], vy[i3], 0, 0);
-    rotationMatrices.push(mat);
-  }
-}
-var ux, uy, vx, vy, rotationCayley, rotationMatrices, signum, groupD8;
-var init_groupD8 = __esm({
-  "node_modules/pixi.js/lib/maths/matrix/groupD8.mjs"() {
-    init_Matrix();
-    ux = [1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1];
-    uy = [0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1];
-    vx = [0, -1, -1, -1, 0, 1, 1, 1, 0, 1, 1, 1, 0, -1, -1, -1];
-    vy = [1, 1, 0, -1, -1, -1, 0, 1, -1, -1, 0, 1, 1, 1, 0, -1];
-    rotationCayley = [];
-    rotationMatrices = [];
-    signum = Math.sign;
-    init();
-    groupD8 = {
-      /**
-       * | Rotation | Direction |
-       * |----------|-----------|
-       * | 0°       | East      |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      E: 0,
-      /**
-       * | Rotation | Direction |
-       * |----------|-----------|
-       * | 45°↻     | Southeast |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      SE: 1,
-      /**
-       * | Rotation | Direction |
-       * |----------|-----------|
-       * | 90°↻     | South     |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      S: 2,
-      /**
-       * | Rotation | Direction |
-       * |----------|-----------|
-       * | 135°↻    | Southwest |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      SW: 3,
-      /**
-       * | Rotation | Direction |
-       * |----------|-----------|
-       * | 180°     | West      |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      W: 4,
-      /**
-       * | Rotation    | Direction    |
-       * |-------------|--------------|
-       * | -135°/225°↻ | Northwest    |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      NW: 5,
-      /**
-       * | Rotation    | Direction    |
-       * |-------------|--------------|
-       * | -90°/270°↻  | North        |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      N: 6,
-      /**
-       * | Rotation    | Direction    |
-       * |-------------|--------------|
-       * | -45°/315°↻  | Northeast    |
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      NE: 7,
-      /**
-       * Reflection about Y-axis.
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      MIRROR_VERTICAL: 8,
-      /**
-       * Reflection about the main diagonal.
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      MAIN_DIAGONAL: 10,
-      /**
-       * Reflection about X-axis.
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      MIRROR_HORIZONTAL: 12,
-      /**
-       * Reflection about reverse diagonal.
-       * @group groupD8
-       * @type {GD8Symmetry}
-       */
-      REVERSE_DIAGONAL: 14,
-      /**
-       * @group groupD8
-       * @param {GD8Symmetry} ind - sprite rotation angle.
-       * @returns {GD8Symmetry} The X-component of the U-axis
-       *    after rotating the axes.
-       */
-      uX: (ind) => ux[ind],
-      /**
-       * @group groupD8
-       * @param {GD8Symmetry} ind - sprite rotation angle.
-       * @returns {GD8Symmetry} The Y-component of the U-axis
-       *    after rotating the axes.
-       */
-      uY: (ind) => uy[ind],
-      /**
-       * @group groupD8
-       * @param {GD8Symmetry} ind - sprite rotation angle.
-       * @returns {GD8Symmetry} The X-component of the V-axis
-       *    after rotating the axes.
-       */
-      vX: (ind) => vx[ind],
-      /**
-       * @group groupD8
-       * @param {GD8Symmetry} ind - sprite rotation angle.
-       * @returns {GD8Symmetry} The Y-component of the V-axis
-       *    after rotating the axes.
-       */
-      vY: (ind) => vy[ind],
-      /**
-       * @group groupD8
-       * @param {GD8Symmetry} rotation - symmetry whose opposite
-       *   is needed. Only rotations have opposite symmetries while
-       *   reflections don't.
-       * @returns {GD8Symmetry} The opposite symmetry of `rotation`
-       */
-      inv: (rotation) => {
-        if (rotation & 8) {
-          return rotation & 15;
-        }
-        return -rotation & 7;
-      },
-      /**
-       * Composes the two D8 operations.
-       *
-       * Taking `^` as reflection:
-       *
-       * |       | E=0 | S=2 | W=4 | N=6 | E^=8 | S^=10 | W^=12 | N^=14 |
-       * |-------|-----|-----|-----|-----|------|-------|-------|-------|
-       * | E=0   | E   | S   | W   | N   | E^   | S^    | W^    | N^    |
-       * | S=2   | S   | W   | N   | E   | S^   | W^    | N^    | E^    |
-       * | W=4   | W   | N   | E   | S   | W^   | N^    | E^    | S^    |
-       * | N=6   | N   | E   | S   | W   | N^   | E^    | S^    | W^    |
-       * | E^=8  | E^  | N^  | W^  | S^  | E    | N     | W     | S     |
-       * | S^=10 | S^  | E^  | N^  | W^  | S    | E     | N     | W     |
-       * | W^=12 | W^  | S^  | E^  | N^  | W    | S     | E     | N     |
-       * | N^=14 | N^  | W^  | S^  | E^  | N    | W     | S     | E     |
-       *
-       * [This is a Cayley table]{@link https://en.wikipedia.org/wiki/Cayley_table}
-       * @group groupD8
-       * @param {GD8Symmetry} rotationSecond - Second operation, which
-       *   is the row in the above cayley table.
-       * @param {GD8Symmetry} rotationFirst - First operation, which
-       *   is the column in the above cayley table.
-       * @returns {GD8Symmetry} Composed operation
-       */
-      add: (rotationSecond, rotationFirst) => rotationCayley[rotationSecond][rotationFirst],
-      /**
-       * Reverse of `add`.
-       * @group groupD8
-       * @param {GD8Symmetry} rotationSecond - Second operation
-       * @param {GD8Symmetry} rotationFirst - First operation
-       * @returns {GD8Symmetry} Result
-       */
-      sub: (rotationSecond, rotationFirst) => rotationCayley[rotationSecond][groupD8.inv(rotationFirst)],
-      /**
-       * Adds 180 degrees to rotation, which is a commutative
-       * operation.
-       * @group groupD8
-       * @param {number} rotation - The number to rotate.
-       * @returns {number} Rotated number
-       */
-      rotate180: (rotation) => rotation ^ 4,
-      /**
-       * Checks if the rotation angle is vertical, i.e. south
-       * or north. It doesn't work for reflections.
-       * @group groupD8
-       * @param {GD8Symmetry} rotation - The number to check.
-       * @returns {boolean} Whether or not the direction is vertical
-       */
-      isVertical: (rotation) => (rotation & 3) === 2,
-      // rotation % 4 === 2
-      /**
-       * Approximates the vector `V(dx,dy)` into one of the
-       * eight directions provided by `groupD8`.
-       * @group groupD8
-       * @param {number} dx - X-component of the vector
-       * @param {number} dy - Y-component of the vector
-       * @returns {GD8Symmetry} Approximation of the vector into
-       *  one of the eight symmetries.
-       */
-      byDirection: (dx, dy) => {
-        if (Math.abs(dx) * 2 <= Math.abs(dy)) {
-          if (dy >= 0) {
-            return groupD8.S;
-          }
-          return groupD8.N;
-        } else if (Math.abs(dy) * 2 <= Math.abs(dx)) {
-          if (dx > 0) {
-            return groupD8.E;
-          }
-          return groupD8.W;
-        } else if (dy > 0) {
-          if (dx > 0) {
-            return groupD8.SE;
-          }
-          return groupD8.SW;
-        } else if (dx > 0) {
-          return groupD8.NE;
-        }
-        return groupD8.NW;
-      },
-      /**
-       * Helps sprite to compensate texture packer rotation.
-       * @group groupD8
-       * @param {Matrix} matrix - sprite world matrix
-       * @param {GD8Symmetry} rotation - The rotation factor to use.
-       * @param {number} tx - sprite anchoring
-       * @param {number} ty - sprite anchoring
-       * @param {number} dw - sprite width
-       * @param {number} dh - sprite height
-       */
-      matrixAppendRotationInv: (matrix, rotation, tx = 0, ty = 0, dw = 0, dh = 0) => {
-        const mat = rotationMatrices[groupD8.inv(rotation)];
-        const a3 = mat.a;
-        const b3 = mat.b;
-        const c3 = mat.c;
-        const d3 = mat.d;
-        const finalTx = tx - Math.min(0, a3 * dw, c3 * dh, a3 * dw + c3 * dh);
-        const finalTy = ty - Math.min(0, b3 * dw, d3 * dh, b3 * dw + d3 * dh);
-        const a1 = matrix.a;
-        const b1 = matrix.b;
-        const c1 = matrix.c;
-        const d1 = matrix.d;
-        matrix.a = a3 * a1 + b3 * c1;
-        matrix.b = a3 * b1 + b3 * d1;
-        matrix.c = c3 * a1 + d3 * c1;
-        matrix.d = c3 * b1 + d3 * d1;
-        matrix.tx = finalTx * a1 + finalTy * c1 + matrix.tx;
-        matrix.ty = finalTx * b1 + finalTy * d1 + matrix.ty;
-      },
-      /**
-       * Transforms rectangle coordinates based on texture packer rotation.
-       * Used when texture atlas pages are rotated and coordinates need to be adjusted.
-       * @group groupD8
-       * @param {RectangleLike} rect - Rectangle with original coordinates to transform
-       * @param {RectangleLike} sourceFrame - Source texture frame (includes offset and dimensions)
-       * @param {GD8Symmetry} rotation - The groupD8 rotation value
-       * @param {Rectangle} out - Rectangle to store the result
-       * @returns {Rectangle} Transformed coordinates (includes source frame offset)
-       */
-      transformRectCoords: (rect, sourceFrame, rotation, out2) => {
-        const { x: x3, y: y4, width, height } = rect;
-        const { x: frameX, y: frameY, width: frameWidth, height: frameHeight } = sourceFrame;
-        if (rotation === groupD8.E) {
-          out2.set(x3 + frameX, y4 + frameY, width, height);
-          return out2;
-        } else if (rotation === groupD8.S) {
-          return out2.set(
-            frameWidth - y4 - height + frameX,
-            x3 + frameY,
-            height,
-            width
-          );
-        } else if (rotation === groupD8.W) {
-          return out2.set(
-            frameWidth - x3 - width + frameX,
-            frameHeight - y4 - height + frameY,
-            width,
-            height
-          );
-        } else if (rotation === groupD8.N) {
-          return out2.set(
-            y4 + frameX,
-            frameHeight - x3 - width + frameY,
-            height,
-            width
-          );
-        }
-        return out2.set(x3 + frameX, y4 + frameY, width, height);
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/utils/misc/NOOP.mjs
-var NOOP;
-var init_NOOP = __esm({
-  "node_modules/pixi.js/lib/utils/misc/NOOP.mjs"() {
-    "use strict";
-    NOOP = () => {
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/BufferImageSource.mjs
-var BufferImageSource;
-var init_BufferImageSource = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/sources/BufferImageSource.mjs"() {
-    init_Extensions();
-    init_TextureSource();
-    BufferImageSource = class extends TextureSource {
-      constructor(options) {
-        const buffer = options.resource || new Float32Array(options.width * options.height * 4);
-        let format = options.format;
-        if (!format) {
-          if (buffer instanceof Float32Array) {
-            format = "rgba32float";
-          } else if (buffer instanceof Int32Array) {
-            format = "rgba32uint";
-          } else if (buffer instanceof Uint32Array) {
-            format = "rgba32uint";
-          } else if (buffer instanceof Int16Array) {
-            format = "rgba16uint";
-          } else if (buffer instanceof Uint16Array) {
-            format = "rgba16uint";
-          } else if (buffer instanceof Int8Array) {
-            format = "bgra8unorm";
-          } else {
-            format = "bgra8unorm";
-          }
-        }
-        super({
-          ...options,
-          resource: buffer,
-          format
-        });
-        this.uploadMethodId = "buffer";
-      }
-      static test(resource) {
-        return resource instanceof Int8Array || resource instanceof Uint8Array || resource instanceof Uint8ClampedArray || resource instanceof Int16Array || resource instanceof Uint16Array || resource instanceof Int32Array || resource instanceof Uint32Array || resource instanceof Float32Array;
-      }
-    };
-    BufferImageSource.extension = ExtensionType.TextureSource;
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureMatrix.mjs
-var tempMat, TextureMatrix;
-var init_TextureMatrix = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TextureMatrix.mjs"() {
-    init_Matrix();
-    tempMat = new Matrix();
-    TextureMatrix = class {
-      /**
-       * @param texture - observed texture
-       * @param clampMargin - Changes frame clamping, 0.5 by default. Use -0.5 for extra border.
-       */
-      constructor(texture, clampMargin) {
-        this.mapCoord = new Matrix();
-        this.uClampFrame = new Float32Array(4);
-        this.uClampOffset = new Float32Array(2);
-        this._updateID = 0;
-        this.clampOffset = 0;
-        if (typeof clampMargin === "undefined") {
-          this.clampMargin = texture.width < 10 ? 0 : 0.5;
-        } else {
-          this.clampMargin = clampMargin;
-        }
-        this.isSimple = false;
-        this.texture = texture;
-      }
-      /** Texture property. */
-      get texture() {
-        return this._texture;
-      }
-      set texture(value) {
-        if (this._texture !== value) {
-          this._texture?.removeListener("update", this.update, this);
-          this._texture = value;
-          this._texture.addListener("update", this.update, this);
-        }
-        this.update();
-      }
-      /**
-       * Multiplies uvs array to transform
-       * @param uvs - mesh uvs
-       * @param [out=uvs] - output
-       * @returns - output
-       */
-      multiplyUvs(uvs, out2) {
-        if (out2 === void 0) {
-          out2 = uvs;
-        }
-        const mat = this.mapCoord;
-        for (let i3 = 0; i3 < uvs.length; i3 += 2) {
-          const x3 = uvs[i3];
-          const y4 = uvs[i3 + 1];
-          out2[i3] = x3 * mat.a + y4 * mat.c + mat.tx;
-          out2[i3 + 1] = x3 * mat.b + y4 * mat.d + mat.ty;
-        }
-        return out2;
-      }
-      /**
-       * Updates matrices if texture was changed
-       * @returns - whether or not it was updated
-       */
-      update() {
-        const tex = this._texture;
-        this._updateID++;
-        const uvs = tex.uvs;
-        this.mapCoord.set(uvs.x1 - uvs.x0, uvs.y1 - uvs.y0, uvs.x3 - uvs.x0, uvs.y3 - uvs.y0, uvs.x0, uvs.y0);
-        const orig = tex.orig;
-        const trim = tex.trim;
-        if (trim) {
-          tempMat.set(
-            orig.width / trim.width,
-            0,
-            0,
-            orig.height / trim.height,
-            -trim.x / trim.width,
-            -trim.y / trim.height
-          );
-          this.mapCoord.append(tempMat);
-        }
-        const texBase = tex.source;
-        const frame = this.uClampFrame;
-        const margin = this.clampMargin / texBase._resolution;
-        const offset4 = this.clampOffset / texBase._resolution;
-        frame[0] = (tex.frame.x + margin + offset4) / texBase.width;
-        frame[1] = (tex.frame.y + margin + offset4) / texBase.height;
-        frame[2] = (tex.frame.x + tex.frame.width - margin + offset4) / texBase.width;
-        frame[3] = (tex.frame.y + tex.frame.height - margin + offset4) / texBase.height;
-        this.uClampOffset[0] = this.clampOffset / texBase.pixelWidth;
-        this.uClampOffset[1] = this.clampOffset / texBase.pixelHeight;
-        this.isSimple = tex.frame.width === texBase.width && tex.frame.height === texBase.height && tex.rotate === 0;
-        return true;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/Texture.mjs
-var Texture;
-var init_Texture = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/Texture.mjs"() {
-    init_eventemitter3();
-    init_groupD8();
-    init_Rectangle();
-    init_uid();
-    init_deprecation();
-    init_NOOP();
-    init_BufferImageSource();
-    init_TextureSource();
-    init_TextureMatrix();
-    Texture = class extends eventemitter3_default {
-      /**
-       * @param {TextureOptions} options - Options for the texture
-       */
-      constructor({
-        source: source3,
-        label,
-        frame,
-        orig,
-        trim,
-        defaultAnchor,
-        defaultBorders,
-        rotate,
-        dynamic
-      } = {}) {
-        super();
-        this.uid = uid("texture");
-        this.uvs = { x0: 0, y0: 0, x1: 0, y1: 0, x2: 0, y2: 0, x3: 0, y3: 0 };
-        this.frame = new Rectangle();
-        this.noFrame = false;
-        this.dynamic = false;
-        this.isTexture = true;
-        this.label = label;
-        this.source = source3?.source ?? new TextureSource();
-        this.noFrame = !frame;
-        if (frame) {
-          this.frame.copyFrom(frame);
-        } else {
-          const { width, height } = this._source;
-          this.frame.width = width;
-          this.frame.height = height;
-        }
-        this.orig = orig || this.frame;
-        this.trim = trim;
-        this.rotate = rotate ?? 0;
-        this.defaultAnchor = defaultAnchor;
-        this.defaultBorders = defaultBorders;
-        this.destroyed = false;
-        this.dynamic = dynamic || false;
-        this.updateUvs();
-      }
-      set source(value) {
-        if (this._source) {
-          this._source.off("resize", this.update, this);
-        }
-        this._source = value;
-        value.on("resize", this.update, this);
-        this.emit("update", this);
-      }
-      /** the underlying source of the texture (equivalent of baseTexture in v7) */
-      get source() {
-        return this._source;
-      }
-      /** returns a TextureMatrix instance for this texture. By default, that object is not created because its heavy. */
-      get textureMatrix() {
-        if (!this._textureMatrix) {
-          this._textureMatrix = new TextureMatrix(this);
-        }
-        return this._textureMatrix;
-      }
-      /** The width of the Texture in pixels. */
-      get width() {
-        return this.orig.width;
-      }
-      /** The height of the Texture in pixels. */
-      get height() {
-        return this.orig.height;
-      }
-      /** Call this function when you have modified the frame of this texture. */
-      updateUvs() {
-        const { uvs, frame } = this;
-        const { width, height } = this._source;
-        const nX = frame.x / width;
-        const nY = frame.y / height;
-        const nW = frame.width / width;
-        const nH = frame.height / height;
-        let rotate = this.rotate;
-        if (rotate) {
-          const w22 = nW / 2;
-          const h22 = nH / 2;
-          const cX = nX + w22;
-          const cY = nY + h22;
-          rotate = groupD8.add(rotate, groupD8.NW);
-          uvs.x0 = cX + w22 * groupD8.uX(rotate);
-          uvs.y0 = cY + h22 * groupD8.uY(rotate);
-          rotate = groupD8.add(rotate, 2);
-          uvs.x1 = cX + w22 * groupD8.uX(rotate);
-          uvs.y1 = cY + h22 * groupD8.uY(rotate);
-          rotate = groupD8.add(rotate, 2);
-          uvs.x2 = cX + w22 * groupD8.uX(rotate);
-          uvs.y2 = cY + h22 * groupD8.uY(rotate);
-          rotate = groupD8.add(rotate, 2);
-          uvs.x3 = cX + w22 * groupD8.uX(rotate);
-          uvs.y3 = cY + h22 * groupD8.uY(rotate);
-        } else {
-          uvs.x0 = nX;
-          uvs.y0 = nY;
-          uvs.x1 = nX + nW;
-          uvs.y1 = nY;
-          uvs.x2 = nX + nW;
-          uvs.y2 = nY + nH;
-          uvs.x3 = nX;
-          uvs.y3 = nY + nH;
-        }
-      }
-      /**
-       * Destroys this texture
-       * @param destroySource - Destroy the source when the texture is destroyed.
-       */
-      destroy(destroySource = false) {
-        if (this._source) {
-          this._source.off("resize", this.update, this);
-          if (destroySource) {
-            this._source.destroy();
-            this._source = null;
-          }
-        }
-        this._textureMatrix = null;
-        this.destroyed = true;
-        this.emit("destroy", this);
-        this.removeAllListeners();
-      }
-      /**
-       * Call this if you have modified the `texture outside` of the constructor.
-       *
-       * If you have modified this texture's source, you must separately call `texture.source.update()` to see those changes.
-       */
-      update() {
-        if (this.noFrame) {
-          this.frame.width = this._source.width;
-          this.frame.height = this._source.height;
-        }
-        this.updateUvs();
-        this.emit("update", this);
-      }
-      /** @deprecated since 8.0.0 */
-      get baseTexture() {
-        deprecation(v8_0_0, "Texture.baseTexture is now Texture.source");
-        return this._source;
-      }
-    };
-    Texture.EMPTY = new Texture({
-      label: "EMPTY",
-      source: new TextureSource({
-        label: "EMPTY"
-      })
-    });
-    Texture.EMPTY.destroy = NOOP;
-    Texture.WHITE = new Texture({
-      source: new BufferImageSource({
-        resource: new Uint8Array([255, 255, 255, 255]),
-        width: 1,
-        height: 1,
-        alphaMode: "premultiply-alpha-on-upload",
-        label: "WHITE"
-      }),
-      label: "WHITE"
-    });
-    Texture.WHITE.destroy = NOOP;
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/texture/TexturePool.mjs
-var count3, TexturePoolClass, TexturePool;
-var init_TexturePool = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/texture/TexturePool.mjs"() {
-    init_pow2();
-    init_GlobalResourceRegistry();
-    init_TextureSource();
-    init_Texture();
-    init_TextureStyle();
-    count3 = 0;
-    TexturePoolClass = class {
-      /**
-       * @param textureOptions - options that will be passed to BaseRenderTexture constructor
-       * @param {SCALE_MODE} [textureOptions.scaleMode] - See {@link SCALE_MODE} for possible values.
-       */
-      constructor(textureOptions) {
-        this._poolKeyHash = /* @__PURE__ */ Object.create(null);
-        this._texturePool = {};
-        this.textureOptions = textureOptions || {};
-        this.enableFullScreen = false;
-        this.textureStyle = new TextureStyle(this.textureOptions);
-      }
-      /**
-       * Creates texture with params that were specified in pool constructor.
-       * @param pixelWidth - Width of texture in pixels.
-       * @param pixelHeight - Height of texture in pixels.
-       * @param antialias
-       * @param autoGenerateMipmaps - Whether to automatically generate mipmaps for this texture
-       */
-      createTexture(pixelWidth, pixelHeight, antialias, autoGenerateMipmaps) {
-        const textureSource = new TextureSource({
-          ...this.textureOptions,
-          width: pixelWidth,
-          height: pixelHeight,
-          resolution: 1,
-          antialias,
-          autoGarbageCollect: false,
-          autoGenerateMipmaps
-        });
-        return new Texture({
-          source: textureSource,
-          label: `texturePool_${count3++}`
-        });
-      }
-      /**
-       * Gets a Power-of-Two render texture or fullScreen texture
-       * @param frameWidth - The minimum width of the render texture.
-       * @param frameHeight - The minimum height of the render texture.
-       * @param resolution - The resolution of the render texture.
-       * @param antialias
-       * @param autoGenerateMipmaps - Whether to automatically generate mipmaps. Defaults to false.
-       * @returns The new render texture.
-       */
-      getOptimalTexture(frameWidth, frameHeight, resolution = 1, antialias, autoGenerateMipmaps = false) {
-        let po2Width = Math.ceil(frameWidth * resolution - 1e-6);
-        let po2Height = Math.ceil(frameHeight * resolution - 1e-6);
-        po2Width = nextPow2(po2Width);
-        po2Height = nextPow2(po2Height);
-        const antialiasFlag = antialias ? 1 : 0;
-        const mipmapFlag = autoGenerateMipmaps ? 1 : 0;
-        const key = (po2Width << 17) + (po2Height << 2) + (mipmapFlag << 1) + antialiasFlag;
-        if (!this._texturePool[key]) {
-          this._texturePool[key] = [];
-        }
-        let texture = this._texturePool[key].pop();
-        if (!texture) {
-          texture = this.createTexture(po2Width, po2Height, antialias, autoGenerateMipmaps);
-        }
-        texture.source._resolution = resolution;
-        texture.source.width = po2Width / resolution;
-        texture.source.height = po2Height / resolution;
-        texture.source.pixelWidth = po2Width;
-        texture.source.pixelHeight = po2Height;
-        texture.frame.x = 0;
-        texture.frame.y = 0;
-        texture.frame.width = frameWidth;
-        texture.frame.height = frameHeight;
-        texture.updateUvs();
-        this._poolKeyHash[texture.uid] = key;
-        return texture;
-      }
-      /**
-       * Gets a pooled texture matching the dimensions and resolution of the given texture.
-       *
-       * This is a convenience wrapper around {@link TexturePoolClass#getOptimalTexture|getOptimalTexture}
-       * that copies width, height, and resolution from an existing texture. Useful when a filter needs
-       * a temporary texture the same size as its input (e.g., for multi-pass blur).
-       * @param texture - The texture whose dimensions to match.
-       * @param antialias - Whether to use antialias on the pooled texture. Defaults to `false`.
-       * @returns A pooled texture with power-of-two backing dimensions at the source resolution.
-       */
-      getSameSizeTexture(texture, antialias = false) {
-        const source3 = texture.source;
-        return this.getOptimalTexture(texture.width, texture.height, source3._resolution, antialias);
-      }
-      /**
-       * Returns a texture to the pool so it can be reused by future
-       * {@link TexturePoolClass#getOptimalTexture|getOptimalTexture}
-       * or {@link TexturePoolClass#getSameSizeTexture|getSameSizeTexture} calls.
-       *
-       * If you modified the texture's style after obtaining it (e.g., changed filtering or wrapping),
-       * pass `resetStyle = true` to restore the pool's default {@link TexturePoolClass#textureStyle|textureStyle}.
-       * This prevents style changes from leaking into subsequent consumers of the same pooled texture.
-       * @param renderTexture - The texture to return to the pool.
-       * @param resetStyle - When `true`, replaces the texture source's style with the pool default. Defaults to `false`.
-       */
-      returnTexture(renderTexture, resetStyle = false) {
-        const key = this._poolKeyHash[renderTexture.uid];
-        if (resetStyle) {
-          renderTexture.source.style = this.textureStyle;
-        }
-        this._texturePool[key].push(renderTexture);
-      }
-      /**
-       * Clears the pool.
-       * @param destroyTextures - Destroy all stored textures.
-       */
-      clear(destroyTextures) {
-        destroyTextures = destroyTextures !== false;
-        if (destroyTextures) {
-          for (const i3 in this._texturePool) {
-            const textures = this._texturePool[i3];
-            if (textures) {
-              for (let j4 = 0; j4 < textures.length; j4++) {
-                textures[j4].destroy(true);
-              }
-            }
-          }
-        }
-        this._texturePool = {};
-      }
-    };
-    TexturePool = new TexturePoolClass();
-    GlobalResourceRegistry.register(TexturePool);
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/RenderGroup.mjs
-var RenderGroup;
-var init_RenderGroup = __esm({
-  "node_modules/pixi.js/lib/scene/container/RenderGroup.mjs"() {
-    init_Matrix();
-    init_InstructionSet();
-    init_TexturePool();
-    RenderGroup = class {
-      constructor() {
-        this.renderPipeId = "renderGroup";
-        this.root = null;
-        this.canBundle = false;
-        this.renderGroupParent = null;
-        this.renderGroupChildren = [];
-        this.worldTransform = new Matrix();
-        this.worldColorAlpha = 4294967295;
-        this.worldColor = 16777215;
-        this.worldAlpha = 1;
-        this.childrenToUpdate = /* @__PURE__ */ Object.create(null);
-        this.updateTick = 0;
-        this.gcTick = 0;
-        this.childrenRenderablesToUpdate = { list: [], index: 0 };
-        this.structureDidChange = true;
-        this.instructionSet = new InstructionSet();
-        this._onRenderContainers = [];
-        this.textureNeedsUpdate = true;
-        this.isCachedAsTexture = false;
-        this._matrixDirty = 7;
-      }
-      init(root) {
-        this.root = root;
-        if (root._onRender) this.addOnRender(root);
-        root.didChange = true;
-        const children = root.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          const child = children[i3];
-          child._updateFlags = 15;
-          this.addChild(child);
-        }
-      }
-      enableCacheAsTexture(options = {}) {
-        this.textureOptions = options;
-        this.isCachedAsTexture = true;
-        this.textureNeedsUpdate = true;
-      }
-      disableCacheAsTexture() {
-        this.isCachedAsTexture = false;
-        if (this.texture) {
-          TexturePool.returnTexture(this.texture, true);
-          this.texture = null;
-        }
-      }
-      updateCacheTexture() {
-        this.textureNeedsUpdate = true;
-        const cachedParent = this._parentCacheAsTextureRenderGroup;
-        if (cachedParent && !cachedParent.textureNeedsUpdate) {
-          cachedParent.updateCacheTexture();
-        }
-      }
-      reset() {
-        this.renderGroupChildren.length = 0;
-        for (const i3 in this.childrenToUpdate) {
-          const childrenAtDepth = this.childrenToUpdate[i3];
-          childrenAtDepth.list.fill(null);
-          childrenAtDepth.index = 0;
-        }
-        this.childrenRenderablesToUpdate.index = 0;
-        this.childrenRenderablesToUpdate.list.fill(null);
-        this.root = null;
-        this.updateTick = 0;
-        this.structureDidChange = true;
-        this._onRenderContainers.length = 0;
-        this.renderGroupParent = null;
-        this.disableCacheAsTexture();
-      }
-      get localTransform() {
-        return this.root.localTransform;
-      }
-      addRenderGroupChild(renderGroupChild) {
-        if (renderGroupChild.renderGroupParent) {
-          renderGroupChild.renderGroupParent._removeRenderGroupChild(renderGroupChild);
-        }
-        renderGroupChild.renderGroupParent = this;
-        this.renderGroupChildren.push(renderGroupChild);
-      }
-      _removeRenderGroupChild(renderGroupChild) {
-        const index2 = this.renderGroupChildren.indexOf(renderGroupChild);
-        if (index2 > -1) {
-          this.renderGroupChildren.splice(index2, 1);
-        }
-        renderGroupChild.renderGroupParent = null;
-      }
-      addChild(child) {
-        this.structureDidChange = true;
-        child.parentRenderGroup = this;
-        child.updateTick = -1;
-        if (child.parent === this.root) {
-          child.relativeRenderGroupDepth = 1;
-        } else {
-          child.relativeRenderGroupDepth = child.parent.relativeRenderGroupDepth + 1;
-        }
-        child.didChange = true;
-        this.onChildUpdate(child);
-        if (child.renderGroup) {
-          this.addRenderGroupChild(child.renderGroup);
-          return;
-        }
-        if (child._onRender) this.addOnRender(child);
-        const children = child.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          this.addChild(children[i3]);
-        }
-      }
-      removeChild(child) {
-        this.structureDidChange = true;
-        if (child._onRender) {
-          if (!child.renderGroup) {
-            this.removeOnRender(child);
-          }
-        }
-        child.parentRenderGroup = null;
-        if (child.renderGroup) {
-          this._removeRenderGroupChild(child.renderGroup);
-          return;
-        }
-        const children = child.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          this.removeChild(children[i3]);
-        }
-      }
-      removeChildren(children) {
-        for (let i3 = 0; i3 < children.length; i3++) {
-          this.removeChild(children[i3]);
-        }
-      }
-      onChildUpdate(child) {
-        let childrenToUpdate = this.childrenToUpdate[child.relativeRenderGroupDepth];
-        if (!childrenToUpdate) {
-          childrenToUpdate = this.childrenToUpdate[child.relativeRenderGroupDepth] = {
-            index: 0,
-            list: []
-          };
-        }
-        childrenToUpdate.list[childrenToUpdate.index++] = child;
-      }
-      updateRenderable(renderable) {
-        if (renderable.globalDisplayStatus < 7) return;
-        this.instructionSet.renderPipes[renderable.renderPipeId].updateRenderable(renderable);
-        renderable.didViewUpdate = false;
-      }
-      onChildViewUpdate(child) {
-        this.childrenRenderablesToUpdate.list[this.childrenRenderablesToUpdate.index++] = child;
-      }
-      get isRenderable() {
-        return this.root.localDisplayStatus === 7 && this.worldAlpha > 0;
-      }
-      /**
-       * adding a container to the onRender list will make sure the user function
-       * passed in to the user defined 'onRender` callBack
-       * @param container - the container to add to the onRender list
-       */
-      addOnRender(container) {
-        this._onRenderContainers.push(container);
-      }
-      removeOnRender(container) {
-        this._onRenderContainers.splice(this._onRenderContainers.indexOf(container), 1);
-      }
-      runOnRender(renderer) {
-        for (let i3 = 0; i3 < this._onRenderContainers.length; i3++) {
-          this._onRenderContainers[i3]._onRender(renderer);
-        }
-      }
-      destroy() {
-        this.disableCacheAsTexture();
-        this.renderGroupParent = null;
-        this.root = null;
-        this.childrenRenderablesToUpdate = null;
-        this.childrenToUpdate = null;
-        this.renderGroupChildren = null;
-        this._onRenderContainers = null;
-        this.instructionSet = null;
-      }
-      getChildren(out2 = []) {
-        const children = this.root.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          this._getChildren(children[i3], out2);
-        }
-        return out2;
-      }
-      _getChildren(container, out2 = []) {
-        out2.push(container);
-        if (container.renderGroup) return out2;
-        const children = container.children;
-        for (let i3 = 0; i3 < children.length; i3++) {
-          this._getChildren(children[i3], out2);
-        }
-        return out2;
-      }
-      invalidateMatrices() {
-        this._matrixDirty = 7;
-      }
-      /**
-       * Returns the inverse of the world transform matrix.
-       * @returns {Matrix} The inverse of the world transform matrix.
-       */
-      get inverseWorldTransform() {
-        if ((this._matrixDirty & 1) === 0) return this._inverseWorldTransform;
-        this._matrixDirty &= ~1;
-        this._inverseWorldTransform || (this._inverseWorldTransform = new Matrix());
-        return this._inverseWorldTransform.copyFrom(this.worldTransform).invert();
-      }
-      /**
-       * Returns the inverse of the texture offset transform matrix.
-       * @returns {Matrix} The inverse of the texture offset transform matrix.
-       */
-      get textureOffsetInverseTransform() {
-        if ((this._matrixDirty & 2) === 0) return this._textureOffsetInverseTransform;
-        this._matrixDirty &= ~2;
-        this._textureOffsetInverseTransform || (this._textureOffsetInverseTransform = new Matrix());
-        return this._textureOffsetInverseTransform.copyFrom(this.inverseWorldTransform).translate(
-          -this._textureBounds.x,
-          -this._textureBounds.y
-        );
-      }
-      /**
-       * Returns the inverse of the parent texture transform matrix.
-       * This is used to properly transform coordinates when rendering into cached textures.
-       * @returns {Matrix} The inverse of the parent texture transform matrix.
-       */
-      get inverseParentTextureTransform() {
-        if ((this._matrixDirty & 4) === 0) return this._inverseParentTextureTransform;
-        this._matrixDirty &= ~4;
-        const parentCacheAsTexture = this._parentCacheAsTextureRenderGroup;
-        if (parentCacheAsTexture) {
-          this._inverseParentTextureTransform || (this._inverseParentTextureTransform = new Matrix());
-          return this._inverseParentTextureTransform.copyFrom(this.worldTransform).prepend(parentCacheAsTexture.inverseWorldTransform).translate(
-            -parentCacheAsTexture._textureBounds.x,
-            -parentCacheAsTexture._textureBounds.y
-          );
-        }
-        return this.worldTransform;
-      }
-      /**
-       * Returns a matrix that transforms coordinates to the correct coordinate space of the texture being rendered to.
-       * This is the texture offset inverse transform of the closest parent RenderGroup that is cached as a texture.
-       * @returns {Matrix | null} The transform matrix for the cached texture coordinate space,
-       * or null if no parent is cached as texture.
-       */
-      get cacheToLocalTransform() {
-        if (this.isCachedAsTexture) {
-          return this.textureOffsetInverseTransform;
-        }
-        if (!this._parentCacheAsTextureRenderGroup) return null;
-        return this._parentCacheAsTextureRenderGroup.textureOffsetInverseTransform;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/utils/assignWithIgnore.mjs
-function assignWithIgnore(target, options, ignore = {}) {
-  for (const key in options) {
-    if (!ignore[key] && options[key] !== void 0) {
-      target[key] = options[key];
-    }
-  }
-}
-var init_assignWithIgnore = __esm({
-  "node_modules/pixi.js/lib/scene/container/utils/assignWithIgnore.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/scene/container/Container.mjs
-var defaultSkew, defaultPivot, defaultScale, defaultOrigin, UPDATE_COLOR, UPDATE_BLEND, UPDATE_VISIBLE, Container;
-var init_Container = __esm({
-  "node_modules/pixi.js/lib/scene/container/Container.mjs"() {
-    init_eventemitter3();
-    init_Color();
-    init_cullingMixin();
-    init_Extensions();
-    init_Matrix();
-    init_const();
-    init_ObservablePoint();
-    init_uid();
-    init_deprecation();
-    init_warn();
-    init_PoolGroup();
-    init_cacheAsTextureMixin();
-    init_childrenHelperMixin();
-    init_collectRenderablesMixin();
-    init_effectsMixin();
-    init_findMixin();
-    init_getFastGlobalBoundsMixin();
-    init_getGlobalMixin();
-    init_measureMixin();
-    init_onRenderMixin();
-    init_sortMixin();
-    init_toLocalGlobalMixin();
-    init_RenderGroup();
-    init_assignWithIgnore();
-    defaultSkew = new ObservablePoint(null);
-    defaultPivot = new ObservablePoint(null);
-    defaultScale = new ObservablePoint(null, 1, 1);
-    defaultOrigin = new ObservablePoint(null);
-    UPDATE_COLOR = 1;
-    UPDATE_BLEND = 2;
-    UPDATE_VISIBLE = 4;
-    Container = class _Container extends eventemitter3_default {
-      constructor(options = {}) {
-        super();
-        this.uid = uid("renderable");
-        this._updateFlags = 15;
-        this.renderGroup = null;
-        this.parentRenderGroup = null;
-        this.parentRenderGroupIndex = 0;
-        this.didChange = false;
-        this.didViewUpdate = false;
-        this.relativeRenderGroupDepth = 0;
-        this.children = [];
-        this.parent = null;
-        this.includeInBuild = true;
-        this.measurable = true;
-        this.isSimple = true;
-        this.parentRenderLayer = null;
-        this.updateTick = -1;
-        this.localTransform = new Matrix();
-        this.relativeGroupTransform = new Matrix();
-        this.groupTransform = this.relativeGroupTransform;
-        this.destroyed = false;
-        this._position = new ObservablePoint(this, 0, 0);
-        this._scale = defaultScale;
-        this._pivot = defaultPivot;
-        this._origin = defaultOrigin;
-        this._skew = defaultSkew;
-        this._cx = 1;
-        this._sx = 0;
-        this._cy = 0;
-        this._sy = 1;
-        this._rotation = 0;
-        this.localColor = 16777215;
-        this.localAlpha = 1;
-        this.groupAlpha = 1;
-        this.groupColor = 16777215;
-        this.groupColorAlpha = 4294967295;
-        this.localBlendMode = "inherit";
-        this.groupBlendMode = "normal";
-        this.localDisplayStatus = 7;
-        this.globalDisplayStatus = 7;
-        this._didContainerChangeTick = 0;
-        this._didViewChangeTick = 0;
-        this._didLocalTransformChangeId = -1;
-        this.effects = [];
-        assignWithIgnore(this, options, {
-          children: true,
-          parent: true,
-          effects: true
-        });
-        options.children?.forEach((child) => this.addChild(child));
-        options.parent?.addChild(this);
-      }
-      /**
-       * Mixes all enumerable properties and methods from a source object to Container.
-       * @param source - The source of properties and methods to mix in.
-       * @deprecated since 8.8.0
-       */
-      static mixin(source3) {
-        deprecation("8.8.0", "Container.mixin is deprecated, please use extensions.mixin instead.");
-        extensions.mixin(_Container, source3);
-      }
-      // = 'default';
-      /**
-       * We now use the _didContainerChangeTick and _didViewChangeTick to track changes
-       * @deprecated since 8.2.6
-       * @ignore
-       */
-      set _didChangeId(value) {
-        this._didViewChangeTick = value >> 12 & 4095;
-        this._didContainerChangeTick = value & 4095;
-      }
-      /** @ignore */
-      get _didChangeId() {
-        return this._didContainerChangeTick & 4095 | (this._didViewChangeTick & 4095) << 12;
-      }
-      /**
-       * Adds one or more children to the container.
-       * The children will be rendered as part of this container's display list.
-       * @example
-       * ```ts
-       * // Add a single child
-       * container.addChild(sprite);
-       *
-       * // Add multiple children
-       * container.addChild(background, player, foreground);
-       *
-       * // Add with type checking
-       * const sprite = container.addChild<Sprite>(new Sprite(texture));
-       * sprite.tint = 'red';
-       * ```
-       * @param children - The Container(s) to add to the container
-       * @returns The first child that was added
-       * @see {@link Container#removeChild} For removing children
-       * @see {@link Container#addChildAt} For adding at specific index
-       */
-      addChild(...children) {
-        if (!this.allowChildren) {
-          deprecation(v8_0_0, "addChild: Only Containers will be allowed to add children in v8.0.0");
-        }
-        if (children.length > 1) {
-          for (let i3 = 0; i3 < children.length; i3++) {
-            this.addChild(children[i3]);
-          }
-          return children[0];
-        }
-        const child = children[0];
-        const renderGroup = this.renderGroup || this.parentRenderGroup;
-        if (child.parent === this) {
-          this.children.splice(this.children.indexOf(child), 1);
-          this.children.push(child);
-          if (renderGroup) {
-            renderGroup.structureDidChange = true;
-          }
-          return child;
-        }
-        if (child.parent) {
-          child.parent.removeChild(child);
-        }
-        this.children.push(child);
-        if (this.sortableChildren) this.sortDirty = true;
-        child.parent = this;
-        child.didChange = true;
-        child._updateFlags = 15;
-        if (renderGroup) {
-          renderGroup.addChild(child);
-        }
-        this.emit("childAdded", child, this, this.children.length - 1);
-        child.emit("added", this);
-        this._didViewChangeTick++;
-        if (child._zIndex !== 0) {
-          child.depthOfChildModified();
-        }
-        return child;
-      }
-      /**
-       * Removes one or more children from the container.
-       * When removing multiple children, events will be triggered for each child in sequence.
-       * @example
-       * ```ts
-       * // Remove a single child
-       * const removed = container.removeChild(sprite);
-       *
-       * // Remove multiple children
-       * const bg = container.removeChild(background, player, userInterface);
-       *
-       * // Remove with type checking
-       * const sprite = container.removeChild<Sprite>(childSprite);
-       * sprite.texture = newTexture;
-       * ```
-       * @param children - The Container(s) to remove
-       * @returns The first child that was removed
-       * @see {@link Container#addChild} For adding children
-       * @see {@link Container#removeChildren} For removing multiple children
-       */
-      removeChild(...children) {
-        if (children.length > 1) {
-          for (let i3 = 0; i3 < children.length; i3++) {
-            this.removeChild(children[i3]);
-          }
-          return children[0];
-        }
-        const child = children[0];
-        const index2 = this.children.indexOf(child);
-        if (index2 > -1) {
-          this._didViewChangeTick++;
-          this.children.splice(index2, 1);
-          if (this.renderGroup) {
-            this.renderGroup.removeChild(child);
-          } else if (this.parentRenderGroup) {
-            this.parentRenderGroup.removeChild(child);
-          }
-          if (child.parentRenderLayer) {
-            child.parentRenderLayer.detach(child);
-          }
-          child.parent = null;
-          this.emit("childRemoved", child, this, index2);
-          child.emit("removed", this);
-        }
-        return child;
-      }
-      /** @ignore */
-      _onUpdate(point) {
-        if (point) {
-          if (point === this._skew) {
-            this._updateSkew();
-          }
-        }
-        this._didContainerChangeTick++;
-        if (this.didChange) return;
-        this.didChange = true;
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.onChildUpdate(this);
-        }
-      }
-      set isRenderGroup(value) {
-        if (!!this.renderGroup === value) return;
-        if (value) {
-          this.enableRenderGroup();
-        } else {
-          this.disableRenderGroup();
-        }
-      }
-      /**
-       * Returns true if this container is a render group.
-       * This means that it will be rendered as a separate pass, with its own set of instructions
-       * @advanced
-       */
-      get isRenderGroup() {
-        return !!this.renderGroup;
-      }
-      /**
-       * Calling this enables a render group for this container.
-       * This means it will be rendered as a separate set of instructions.
-       * The transform of the container will also be handled on the GPU rather than the CPU.
-       * @advanced
-       */
-      enableRenderGroup() {
-        if (this.renderGroup) return;
-        const parentRenderGroup = this.parentRenderGroup;
-        parentRenderGroup?.removeChild(this);
-        this.renderGroup = BigPool.get(RenderGroup, this);
-        this.groupTransform = Matrix.IDENTITY;
-        parentRenderGroup?.addChild(this);
-        this._updateIsSimple();
-      }
-      /**
-       * This will disable the render group for this container.
-       * @advanced
-       */
-      disableRenderGroup() {
-        if (!this.renderGroup) return;
-        const parentRenderGroup = this.parentRenderGroup;
-        parentRenderGroup?.removeChild(this);
-        BigPool.return(this.renderGroup);
-        this.renderGroup = null;
-        this.groupTransform = this.relativeGroupTransform;
-        parentRenderGroup?.addChild(this);
-        this._updateIsSimple();
-      }
-      /** @ignore */
-      _updateIsSimple() {
-        this.isSimple = !this.renderGroup && this.effects.length === 0;
-      }
-      /**
-       * Current transform of the object based on world (parent) factors.
-       *
-       * This matrix represents the absolute transformation in the scene graph.
-       * @example
-       * ```ts
-       * // Get world position
-       * const worldPos = container.worldTransform;
-       * console.log(`World position: (${worldPos.tx}, ${worldPos.ty})`);
-       * ```
-       * @readonly
-       * @see {@link Container#localTransform} For local space transform
-       */
-      get worldTransform() {
-        this._worldTransform || (this._worldTransform = new Matrix());
-        if (this.renderGroup) {
-          this._worldTransform.copyFrom(this.renderGroup.worldTransform);
-        } else if (this.parentRenderGroup) {
-          this._worldTransform.appendFrom(this.relativeGroupTransform, this.parentRenderGroup.worldTransform);
-        }
-        return this._worldTransform;
-      }
-      /**
-       * The position of the container on the x axis relative to the local coordinates of the parent.
-       *
-       * An alias to position.x
-       * @example
-       * ```ts
-       * // Basic position
-       * container.x = 100;
-       * ```
-       */
-      get x() {
-        return this._position.x;
-      }
-      set x(value) {
-        this._position.x = value;
-      }
-      /**
-       * The position of the container on the y axis relative to the local coordinates of the parent.
-       *
-       * An alias to position.y
-       * @example
-       * ```ts
-       * // Basic position
-       * container.y = 200;
-       * ```
-       */
-      get y() {
-        return this._position.y;
-      }
-      set y(value) {
-        this._position.y = value;
-      }
-      /**
-       * The coordinate of the object relative to the local coordinates of the parent.
-       * @example
-       * ```ts
-       * // Basic position setting
-       * container.position.set(100, 200);
-       * container.position.set(100); // Sets both x and y to 100
-       * // Using point data
-       * container.position = { x: 50, y: 75 };
-       * ```
-       * @since 4.0.0
-       */
-      get position() {
-        return this._position;
-      }
-      set position(value) {
-        this._position.copyFrom(value);
-      }
-      /**
-       * The rotation of the object in radians.
-       *
-       * > [!NOTE] 'rotation' and 'angle' have the same effect on a display object;
-       * > rotation is in radians, angle is in degrees.
-       * @example
-       * ```ts
-       * // Basic rotation
-       * container.rotation = Math.PI / 4; // 45 degrees
-       *
-       * // Convert from degrees
-       * const degrees = 45;
-       * container.rotation = degrees * Math.PI / 180;
-       *
-       * // Rotate around center
-       * container.pivot.set(container.width / 2, container.height / 2);
-       * container.rotation = Math.PI; // 180 degrees
-       *
-       * // Rotate around center with origin
-       * container.origin.set(container.width / 2, container.height / 2);
-       * container.rotation = Math.PI; // 180 degrees
-       * ```
-       */
-      get rotation() {
-        return this._rotation;
-      }
-      set rotation(value) {
-        if (this._rotation !== value) {
-          this._rotation = value;
-          this._onUpdate(this._skew);
-        }
-      }
-      /**
-       * The angle of the object in degrees.
-       *
-       * > [!NOTE] 'rotation' and 'angle' have the same effect on a display object;
-       * > rotation is in radians, angle is in degrees.
-       * @example
-       * ```ts
-       * // Basic angle rotation
-       * sprite.angle = 45; // 45 degrees
-       *
-       * // Rotate around center
-       * sprite.pivot.set(sprite.width / 2, sprite.height / 2);
-       * sprite.angle = 180; // Half rotation
-       *
-       * // Rotate around center with origin
-       * sprite.origin.set(sprite.width / 2, sprite.height / 2);
-       * sprite.angle = 180; // Half rotation
-       *
-       * // Reset rotation
-       * sprite.angle = 0;
-       * ```
-       */
-      get angle() {
-        return this.rotation * RAD_TO_DEG;
-      }
-      set angle(value) {
-        this.rotation = value * DEG_TO_RAD;
-      }
-      /**
-       * The center of rotation, scaling, and skewing for this display object in its local space.
-       * The `position` is the projection of `pivot` in the parent's local space.
-       *
-       * By default, the pivot is the origin (0, 0).
-       * @example
-       * ```ts
-       * // Rotate around center
-       * container.pivot.set(container.width / 2, container.height / 2);
-       * container.rotation = Math.PI; // Rotates around center
-       * ```
-       * @since 4.0.0
-       */
-      get pivot() {
-        if (this._pivot === defaultPivot) {
-          this._pivot = new ObservablePoint(this, 0, 0);
-        }
-        return this._pivot;
-      }
-      set pivot(value) {
-        if (this._pivot === defaultPivot) {
-          this._pivot = new ObservablePoint(this, 0, 0);
-          if (this._origin !== defaultOrigin) {
-            warn(`Setting both a pivot and origin on a Container is not recommended. This can lead to unexpected behavior if not handled carefully.`);
-          }
-        }
-        typeof value === "number" ? this._pivot.set(value) : this._pivot.copyFrom(value);
-      }
-      /**
-       * The skew factor for the object in radians. Skewing is a transformation that distorts
-       * the object by rotating it differently at each point, creating a non-uniform shape.
-       * @example
-       * ```ts
-       * // Basic skewing
-       * container.skew.set(0.5, 0); // Skew horizontally
-       * container.skew.set(0, 0.5); // Skew vertically
-       *
-       * // Skew with point data
-       * container.skew = { x: 0.3, y: 0.3 }; // Diagonal skew
-       *
-       * // Reset skew
-       * container.skew.set(0, 0);
-       *
-       * // Animate skew
-       * app.ticker.add(() => {
-       *     // Create wave effect
-       *     container.skew.x = Math.sin(Date.now() / 1000) * 0.3;
-       * });
-       *
-       * // Combine with rotation
-       * container.rotation = Math.PI / 4; // 45 degrees
-       * container.skew.set(0.2, 0.2); // Skew the rotated object
-       * ```
-       * @since 4.0.0
-       * @type {ObservablePoint} Point-like object with x/y properties in radians
-       * @default {x: 0, y: 0}
-       */
-      get skew() {
-        if (this._skew === defaultSkew) {
-          this._skew = new ObservablePoint(this, 0, 0);
-        }
-        return this._skew;
-      }
-      set skew(value) {
-        if (this._skew === defaultSkew) {
-          this._skew = new ObservablePoint(this, 0, 0);
-        }
-        this._skew.copyFrom(value);
-      }
-      /**
-       * The scale factors of this object along the local coordinate axes.
-       *
-       * The default scale is (1, 1).
-       * @example
-       * ```ts
-       * // Basic scaling
-       * container.scale.set(2, 2); // Scales to double size
-       * container.scale.set(2); // Scales uniformly to double size
-       * container.scale = 2; // Scales uniformly to double size
-       * // Scale to a specific width and height
-       * container.setSize(200, 100); // Sets width to 200 and height to 100
-       * ```
-       * @since 4.0.0
-       */
-      get scale() {
-        if (this._scale === defaultScale) {
-          this._scale = new ObservablePoint(this, 1, 1);
-        }
-        return this._scale;
-      }
-      set scale(value) {
-        if (this._scale === defaultScale) {
-          this._scale = new ObservablePoint(this, 0, 0);
-        }
-        if (typeof value === "string") {
-          value = parseFloat(value);
-        }
-        typeof value === "number" ? this._scale.set(value) : this._scale.copyFrom(value);
-      }
-      /**
-       * @experimental
-       * The origin point around which the container rotates and scales without affecting its position.
-       * Unlike pivot, changing the origin will not move the container's position.
-       * @example
-       * ```ts
-       * // Rotate around center point
-       * container.origin.set(container.width / 2, container.height / 2);
-       * container.rotation = Math.PI; // Rotates around center
-       *
-       * // Reset origin
-       * container.origin.set(0, 0);
-       * ```
-       */
-      get origin() {
-        if (this._origin === defaultOrigin) {
-          this._origin = new ObservablePoint(this, 0, 0);
-        }
-        return this._origin;
-      }
-      set origin(value) {
-        if (this._origin === defaultOrigin) {
-          this._origin = new ObservablePoint(this, 0, 0);
-          if (this._pivot !== defaultPivot) {
-            warn(`Setting both a pivot and origin on a Container is not recommended. This can lead to unexpected behavior if not handled carefully.`);
-          }
-        }
-        typeof value === "number" ? this._origin.set(value) : this._origin.copyFrom(value);
-      }
-      /**
-       * The width of the Container, setting this will actually modify the scale to achieve the value set.
-       * > [!NOTE] Changing the width will adjust the scale.x property of the container while maintaining its aspect ratio.
-       * > [!NOTE] If you want to set both width and height at the same time, use {@link Container#setSize}
-       * as it is more optimized by not recalculating the local bounds twice.
-       * @example
-       * ```ts
-       * // Basic width setting
-       * container.width = 100;
-       * // Optimized width setting
-       * container.setSize(100, 100);
-       * ```
-       */
-      get width() {
-        return Math.abs(this.scale.x * this.getLocalBounds().width);
-      }
-      set width(value) {
-        const localWidth = this.getLocalBounds().width;
-        this._setWidth(value, localWidth);
-      }
-      /**
-       * The height of the Container,
-       * > [!NOTE] Changing the height will adjust the scale.y property of the container while maintaining its aspect ratio.
-       * > [!NOTE] If you want to set both width and height at the same time, use {@link Container#setSize}
-       * as it is more optimized by not recalculating the local bounds twice.
-       * @example
-       * ```ts
-       * // Basic height setting
-       * container.height = 200;
-       * // Optimized height setting
-       * container.setSize(100, 200);
-       * ```
-       */
-      get height() {
-        return Math.abs(this.scale.y * this.getLocalBounds().height);
-      }
-      set height(value) {
-        const localHeight = this.getLocalBounds().height;
-        this._setHeight(value, localHeight);
-      }
-      /**
-       * Retrieves the size of the container as a [Size]{@link Size} object.
-       *
-       * This is faster than get the width and height separately.
-       * @example
-       * ```ts
-       * // Basic size retrieval
-       * const size = container.getSize();
-       * console.log(`Size: ${size.width}x${size.height}`);
-       *
-       * // Reuse existing size object
-       * const reuseSize = { width: 0, height: 0 };
-       * container.getSize(reuseSize);
-       * ```
-       * @param out - Optional object to store the size in.
-       * @returns The size of the container.
-       */
-      getSize(out2) {
-        if (!out2) {
-          out2 = {};
-        }
-        const bounds = this.getLocalBounds();
-        out2.width = Math.abs(this.scale.x * bounds.width);
-        out2.height = Math.abs(this.scale.y * bounds.height);
-        return out2;
-      }
-      /**
-       * Sets the size of the container to the specified width and height.
-       * This is more efficient than setting width and height separately as it only recalculates bounds once.
-       * @example
-       * ```ts
-       * // Basic size setting
-       * container.setSize(100, 200);
-       *
-       * // Set uniform size
-       * container.setSize(100); // Sets both width and height to 100
-       * ```
-       * @param value - This can be either a number or a [Size]{@link Size} object.
-       * @param height - The height to set. Defaults to the value of `width` if not provided.
-       */
-      setSize(value, height) {
-        const size4 = this.getLocalBounds();
-        if (typeof value === "object") {
-          height = value.height ?? value.width;
-          value = value.width;
-        } else {
-          height ?? (height = value);
-        }
-        value !== void 0 && this._setWidth(value, size4.width);
-        height !== void 0 && this._setHeight(height, size4.height);
-      }
-      /** Called when the skew or the rotation changes. */
-      _updateSkew() {
-        const rotation = this._rotation;
-        const skew = this._skew;
-        this._cx = Math.cos(rotation + skew._y);
-        this._sx = Math.sin(rotation + skew._y);
-        this._cy = -Math.sin(rotation - skew._x);
-        this._sy = Math.cos(rotation - skew._x);
-      }
-      /**
-       * Updates the transform properties of the container.
-       * Allows partial updates of transform properties for optimized manipulation.
-       * @example
-       * ```ts
-       * // Basic transform update
-       * container.updateTransform({
-       *     x: 100,
-       *     y: 200,
-       *     rotation: Math.PI / 4
-       * });
-       *
-       * // Scale and rotate around center
-       * sprite.updateTransform({
-       *     pivotX: sprite.width / 2,
-       *     pivotY: sprite.height / 2,
-       *     scaleX: 2,
-       *     scaleY: 2,
-       *     rotation: Math.PI
-       * });
-       *
-       * // Update position only
-       * button.updateTransform({
-       *     x: button.x + 10, // Move right
-       *     y: button.y      // Keep same y
-       * });
-       * ```
-       * @param opts - Transform options to update
-       * @param opts.x - The x position
-       * @param opts.y - The y position
-       * @param opts.scaleX - The x-axis scale factor
-       * @param opts.scaleY - The y-axis scale factor
-       * @param opts.rotation - The rotation in radians
-       * @param opts.skewX - The x-axis skew factor
-       * @param opts.skewY - The y-axis skew factor
-       * @param opts.pivotX - The x-axis pivot point
-       * @param opts.pivotY - The y-axis pivot point
-       * @returns This container, for chaining
-       * @see {@link Container#setFromMatrix} For matrix-based transforms
-       * @see {@link Container#position} For direct position access
-       */
-      updateTransform(opts) {
-        this.position.set(
-          typeof opts.x === "number" ? opts.x : this.position.x,
-          typeof opts.y === "number" ? opts.y : this.position.y
-        );
-        this.scale.set(
-          typeof opts.scaleX === "number" ? opts.scaleX : this.scale.x,
-          typeof opts.scaleY === "number" ? opts.scaleY : this.scale.y
-        );
-        this.rotation = typeof opts.rotation === "number" ? opts.rotation : this.rotation;
-        this.skew.set(
-          typeof opts.skewX === "number" ? opts.skewX : this.skew.x,
-          typeof opts.skewY === "number" ? opts.skewY : this.skew.y
-        );
-        this.pivot.set(
-          typeof opts.pivotX === "number" ? opts.pivotX : this.pivot.x,
-          typeof opts.pivotY === "number" ? opts.pivotY : this.pivot.y
-        );
-        this.origin.set(
-          typeof opts.originX === "number" ? opts.originX : this.origin.x,
-          typeof opts.originY === "number" ? opts.originY : this.origin.y
-        );
-        return this;
-      }
-      /**
-       * Updates the local transform properties by decomposing the given matrix.
-       * Extracts position, scale, rotation, and skew from a transformation matrix.
-       * @example
-       * ```ts
-       * // Basic matrix transform
-       * const matrix = new Matrix()
-       *     .translate(100, 100)
-       *     .rotate(Math.PI / 4)
-       *     .scale(2, 2);
-       *
-       * container.setFromMatrix(matrix);
-       *
-       * // Copy transform from another container
-       * const source = new Container();
-       * source.position.set(100, 100);
-       * source.rotation = Math.PI / 2;
-       *
-       * target.setFromMatrix(source.localTransform);
-       *
-       * // Reset transform
-       * container.setFromMatrix(Matrix.IDENTITY);
-       * ```
-       * @param matrix - The matrix to use for updating the transform
-       * @see {@link Container#updateTransform} For property-based updates
-       * @see {@link Matrix#decompose} For matrix decomposition details
-       */
-      setFromMatrix(matrix) {
-        matrix.decompose(this);
-      }
-      /** Updates the local transform. */
-      updateLocalTransform() {
-        const localTransformChangeId = this._didContainerChangeTick;
-        if (this._didLocalTransformChangeId === localTransformChangeId) return;
-        this._didLocalTransformChangeId = localTransformChangeId;
-        const lt = this.localTransform;
-        const scale = this._scale;
-        const pivot = this._pivot;
-        const origin = this._origin;
-        const position = this._position;
-        const sx = scale._x;
-        const sy = scale._y;
-        const px = pivot._x;
-        const py = pivot._y;
-        const ox = -origin._x;
-        const oy = -origin._y;
-        lt.a = this._cx * sx;
-        lt.b = this._sx * sx;
-        lt.c = this._cy * sy;
-        lt.d = this._sy * sy;
-        lt.tx = position._x - (px * lt.a + py * lt.c) + (ox * lt.a + oy * lt.c) - ox;
-        lt.ty = position._y - (px * lt.b + py * lt.d) + (ox * lt.b + oy * lt.d) - oy;
-      }
-      // / ///// color related stuff
-      set alpha(value) {
-        if (value === this.localAlpha) return;
-        this.localAlpha = value;
-        this._updateFlags |= UPDATE_COLOR;
-        this._onUpdate();
-      }
-      /**
-       * The opacity of the object relative to its parent's opacity.
-       * Value ranges from 0 (fully transparent) to 1 (fully opaque).
-       * @example
-       * ```ts
-       * // Basic transparency
-       * sprite.alpha = 0.5; // 50% opacity
-       *
-       * // Inherited opacity
-       * container.alpha = 0.5;
-       * const child = new Sprite(texture);
-       * child.alpha = 0.5;
-       * container.addChild(child);
-       * // child's effective opacity is 0.25 (0.5 * 0.5)
-       * ```
-       * @default 1
-       * @see {@link Container#visible} For toggling visibility
-       * @see {@link Container#renderable} For render control
-       */
-      get alpha() {
-        return this.localAlpha;
-      }
-      set tint(value) {
-        const tempColor = Color.shared.setValue(value ?? 16777215);
-        const bgr = tempColor.toBgrNumber();
-        if (bgr === this.localColor) return;
-        this.localColor = bgr;
-        this._updateFlags |= UPDATE_COLOR;
-        this._onUpdate();
-      }
-      /**
-       * The tint applied to the sprite.
-       *
-       * This can be any valid {@link ColorSource}.
-       * @example
-       * ```ts
-       * // Basic color tinting
-       * container.tint = 0xff0000; // Red tint
-       * container.tint = 'red';    // Same as above
-       * container.tint = '#00ff00'; // Green
-       * container.tint = 'rgb(0,0,255)'; // Blue
-       *
-       * // Remove tint
-       * container.tint = 0xffffff; // White = no tint
-       * container.tint = null;     // Also removes tint
-       * ```
-       * @default 0xFFFFFF
-       * @see {@link Container#alpha} For transparency
-       * @see {@link Container#visible} For visibility control
-       */
-      get tint() {
-        return bgr2rgb(this.localColor);
-      }
-      // / //////////////// blend related stuff
-      set blendMode(value) {
-        if (this.localBlendMode === value) return;
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.structureDidChange = true;
-        }
-        this._updateFlags |= UPDATE_BLEND;
-        this.localBlendMode = value;
-        this._onUpdate();
-      }
-      /**
-       * The blend mode to be applied to the sprite. Controls how pixels are blended when rendering.
-       *
-       * Setting to 'normal' will reset to default blending.
-       * > [!NOTE] More blend modes are available after importing the `pixi.js/advanced-blend-modes` sub-export.
-       * @example
-       * ```ts
-       * // Basic blend modes
-       * sprite.blendMode = 'add';        // Additive blending
-       * sprite.blendMode = 'multiply';   // Multiply colors
-       * sprite.blendMode = 'screen';     // Screen blend
-       *
-       * // Reset blend mode
-       * sprite.blendMode = 'normal';     // Normal blending
-       * ```
-       * @default 'normal'
-       * @see {@link Container#alpha} For transparency
-       * @see {@link Container#tint} For color adjustments
-       */
-      get blendMode() {
-        return this.localBlendMode;
-      }
-      // / ///////// VISIBILITY / RENDERABLE /////////////////
-      /**
-       * The visibility of the object. If false the object will not be drawn,
-       * and the transform will not be updated.
-       * @example
-       * ```ts
-       * // Basic visibility toggle
-       * sprite.visible = false; // Hide sprite
-       * sprite.visible = true;  // Show sprite
-       * ```
-       * @default true
-       * @see {@link Container#renderable} For render-only control
-       * @see {@link Container#alpha} For transparency
-       */
-      get visible() {
-        return !!(this.localDisplayStatus & 2);
-      }
-      set visible(value) {
-        const valueNumber = value ? 2 : 0;
-        if ((this.localDisplayStatus & 2) === valueNumber) return;
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.structureDidChange = true;
-        }
-        this._updateFlags |= UPDATE_VISIBLE;
-        this.localDisplayStatus ^= 2;
-        this._onUpdate();
-        this.emit("visibleChanged", value);
-      }
-      /** @ignore */
-      get culled() {
-        return !(this.localDisplayStatus & 4);
-      }
-      /** @ignore */
-      set culled(value) {
-        const valueNumber = value ? 0 : 4;
-        if ((this.localDisplayStatus & 4) === valueNumber) return;
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.structureDidChange = true;
-        }
-        this._updateFlags |= UPDATE_VISIBLE;
-        this.localDisplayStatus ^= 4;
-        this._onUpdate();
-      }
-      /**
-       * Controls whether this object can be rendered. If false the object will not be drawn,
-       * but the transform will still be updated. This is different from visible, which skips
-       * transform updates.
-       * @example
-       * ```ts
-       * // Basic render control
-       * sprite.renderable = false; // Skip rendering
-       * sprite.renderable = true;  // Enable rendering
-       * ```
-       * @default true
-       * @see {@link Container#visible} For skipping transform updates
-       * @see {@link Container#alpha} For transparency
-       */
-      get renderable() {
-        return !!(this.localDisplayStatus & 1);
-      }
-      set renderable(value) {
-        const valueNumber = value ? 1 : 0;
-        if ((this.localDisplayStatus & 1) === valueNumber) return;
-        this._updateFlags |= UPDATE_VISIBLE;
-        this.localDisplayStatus ^= 1;
-        if (this.parentRenderGroup) {
-          this.parentRenderGroup.structureDidChange = true;
-        }
-        this._onUpdate();
-      }
-      /**
-       * Whether or not the object should be rendered.
-       * @advanced
-       */
-      get isRenderable() {
-        return this.localDisplayStatus === 7 && this.groupAlpha > 0;
-      }
-      /**
-       * Removes all internal references and listeners as well as removes children from the display list.
-       * Do not use a Container after calling `destroy`.
-       * @param options - Options parameter. A boolean will act as if all options
-       *  have been set to that value
-       * @example
-       * ```ts
-       * container.destroy();
-       * container.destroy(true);
-       * container.destroy({ children: true });
-       * container.destroy({ children: true, texture: true, textureSource: true });
-       * ```
-       */
-      destroy(options = false) {
-        if (this.destroyed) return;
-        this.destroyed = true;
-        let oldChildren;
-        if (this.children.length) {
-          oldChildren = this.removeChildren(0, this.children.length);
-        }
-        this.removeFromParent();
-        this.parent = null;
-        this._maskEffect = null;
-        this._filterEffect = null;
-        this.effects = null;
-        this._position = null;
-        this._scale = null;
-        this._pivot = null;
-        this._origin = null;
-        this._skew = null;
-        this.emit("destroyed", this);
-        this.removeAllListeners();
-        const destroyChildren = typeof options === "boolean" ? options : options?.children;
-        if (destroyChildren && oldChildren) {
-          for (let i3 = 0; i3 < oldChildren.length; ++i3) {
-            oldChildren[i3].destroy(options);
-          }
-        }
-        this.renderGroup?.destroy();
-        this.renderGroup = null;
-      }
-    };
-    extensions.mixin(
-      Container,
-      childrenHelperMixin,
-      getFastGlobalBoundsMixin,
-      toLocalGlobalMixin,
-      onRenderMixin,
-      measureMixin,
-      effectsMixin,
-      findMixin,
-      sortMixin,
-      cullingMixin,
-      cacheAsTextureMixin,
-      getGlobalMixin,
-      collectRenderablesMixin
-    );
-  }
-});
-
 // node_modules/pixi.js/lib/ticker/const.mjs
 var UPDATE_PRIORITY;
-var init_const2 = __esm({
+var init_const4 = __esm({
   "node_modules/pixi.js/lib/ticker/const.mjs"() {
     "use strict";
     UPDATE_PRIORITY = /* @__PURE__ */ ((UPDATE_PRIORITY2) => {
@@ -20828,7 +23999,7 @@ var init_TickerListener = __esm({
 var _Ticker, Ticker;
 var init_Ticker = __esm({
   "node_modules/pixi.js/lib/ticker/Ticker.mjs"() {
-    init_const2();
+    init_const4();
     init_TickerListener();
     _Ticker = class _Ticker2 {
       constructor() {
@@ -21349,7 +24520,7 @@ var init_Ticker = __esm({
 var CanvasObserver;
 var init_CanvasObserver = __esm({
   "node_modules/pixi.js/lib/dom/CanvasObserver.mjs"() {
-    init_const2();
+    init_const4();
     init_Ticker();
     CanvasObserver = class {
       constructor(options) {
@@ -22548,7 +25719,7 @@ var init_init2 = __esm({
 var EventsTickerClass, EventsTicker;
 var init_EventTicker = __esm({
   "node_modules/pixi.js/lib/events/EventTicker.mjs"() {
-    init_const2();
+    init_const4();
     init_Ticker();
     EventsTickerClass = class {
       constructor() {
@@ -29040,26 +32211,6 @@ var init_FilterPipe = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/shared/utils/createIdFromString.mjs
-function createIdFromString(value, groupId) {
-  let id = idHash2[value];
-  if (id === void 0) {
-    if (idCounts[groupId] === void 0) {
-      idCounts[groupId] = 1;
-    }
-    idHash2[value] = id = idCounts[groupId]++;
-  }
-  return id;
-}
-var idCounts, idHash2;
-var init_createIdFromString = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/utils/createIdFromString.mjs"() {
-    "use strict";
-    idCounts = /* @__PURE__ */ Object.create(null);
-    idHash2 = /* @__PURE__ */ Object.create(null);
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getTestContext.mjs
 function getTestContext() {
   if (!context || context?.isContextLost()) {
@@ -29287,49 +32438,6 @@ var init_GlProgram = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getAttributeInfoFromFormat.mjs
-function getAttributeInfoFromFormat(format) {
-  return attributeFormatData[format] ?? attributeFormatData.float32;
-}
-var attributeFormatData;
-var init_getAttributeInfoFromFormat = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getAttributeInfoFromFormat.mjs"() {
-    "use strict";
-    attributeFormatData = {
-      uint8x2: { size: 2, stride: 2, normalised: false },
-      uint8x4: { size: 4, stride: 4, normalised: false },
-      sint8x2: { size: 2, stride: 2, normalised: false },
-      sint8x4: { size: 4, stride: 4, normalised: false },
-      unorm8x2: { size: 2, stride: 2, normalised: true },
-      unorm8x4: { size: 4, stride: 4, normalised: true },
-      snorm8x2: { size: 2, stride: 2, normalised: true },
-      snorm8x4: { size: 4, stride: 4, normalised: true },
-      uint16x2: { size: 2, stride: 4, normalised: false },
-      uint16x4: { size: 4, stride: 8, normalised: false },
-      sint16x2: { size: 2, stride: 4, normalised: false },
-      sint16x4: { size: 4, stride: 8, normalised: false },
-      unorm16x2: { size: 2, stride: 4, normalised: true },
-      unorm16x4: { size: 4, stride: 8, normalised: true },
-      snorm16x2: { size: 2, stride: 4, normalised: true },
-      snorm16x4: { size: 4, stride: 8, normalised: true },
-      float16x2: { size: 2, stride: 4, normalised: false },
-      float16x4: { size: 4, stride: 8, normalised: false },
-      float32: { size: 1, stride: 4, normalised: false },
-      float32x2: { size: 2, stride: 8, normalised: false },
-      float32x3: { size: 3, stride: 12, normalised: false },
-      float32x4: { size: 4, stride: 16, normalised: false },
-      uint32: { size: 1, stride: 4, normalised: false },
-      uint32x2: { size: 2, stride: 8, normalised: false },
-      uint32x3: { size: 3, stride: 12, normalised: false },
-      uint32x4: { size: 4, stride: 16, normalised: false },
-      sint32: { size: 1, stride: 4, normalised: false },
-      sint32x2: { size: 2, stride: 8, normalised: false },
-      sint32x3: { size: 3, stride: 12, normalised: false },
-      sint32x4: { size: 4, stride: 16, normalised: false }
-    };
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/extractAttributesFromGpuProgram.mjs
 function parseLocations(str, results) {
   let match;
@@ -29463,7 +32571,7 @@ var init_extractStructAndGroups = __esm({
 
 // node_modules/pixi.js/lib/rendering/renderers/shared/shader/const.mjs
 var ShaderStage;
-var init_const3 = __esm({
+var init_const5 = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/shared/shader/const.mjs"() {
     "use strict";
     ShaderStage = /* @__PURE__ */ ((ShaderStage2) => {
@@ -29538,7 +32646,7 @@ function generateGpuLayoutGroups({ groups }) {
 }
 var init_generateGpuLayoutGroups = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/generateGpuLayoutGroups.mjs"() {
-    init_const3();
+    init_const5();
   }
 });
 
@@ -29757,7 +32865,7 @@ var init_BindGroup = __esm({
 
 // node_modules/pixi.js/lib/rendering/renderers/types.mjs
 var RendererType;
-var init_types = __esm({
+var init_types2 = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/types.mjs"() {
     "use strict";
     RendererType = /* @__PURE__ */ ((RendererType2) => {
@@ -29770,160 +32878,6 @@ var init_types = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/types.mjs
-var UNIFORM_TYPES_VALUES, UNIFORM_TYPES_MAP;
-var init_types2 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/types.mjs"() {
-    "use strict";
-    UNIFORM_TYPES_VALUES = [
-      "f32",
-      "i32",
-      "vec2<f32>",
-      "vec3<f32>",
-      "vec4<f32>",
-      "mat2x2<f32>",
-      "mat3x3<f32>",
-      "mat4x4<f32>",
-      "mat3x2<f32>",
-      "mat4x2<f32>",
-      "mat2x3<f32>",
-      "mat4x3<f32>",
-      "mat2x4<f32>",
-      "mat3x4<f32>",
-      "vec2<i32>",
-      "vec3<i32>",
-      "vec4<i32>"
-    ];
-    UNIFORM_TYPES_MAP = UNIFORM_TYPES_VALUES.reduce((acc, type) => {
-      acc[type] = true;
-      return acc;
-    }, {});
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/getDefaultUniformValue.mjs
-function getDefaultUniformValue(type, size4) {
-  switch (type) {
-    case "f32":
-      return 0;
-    case "vec2<f32>":
-      return new Float32Array(2 * size4);
-    case "vec3<f32>":
-      return new Float32Array(3 * size4);
-    case "vec4<f32>":
-      return new Float32Array(4 * size4);
-    case "mat2x2<f32>":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        1
-      ]);
-    case "mat3x3<f32>":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1
-      ]);
-    case "mat4x4<f32>":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1
-      ]);
-  }
-  return null;
-}
-var init_getDefaultUniformValue = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/getDefaultUniformValue.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/UniformGroup.mjs
-var _UniformGroup, UniformGroup;
-var init_UniformGroup = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/UniformGroup.mjs"() {
-    init_uid();
-    init_createIdFromString();
-    init_types2();
-    init_getDefaultUniformValue();
-    _UniformGroup = class _UniformGroup2 {
-      /**
-       * Create a new Uniform group
-       * @param uniformStructures - The structures of the uniform group
-       * @param options - The optional parameters of this uniform group
-       */
-      constructor(uniformStructures, options) {
-        this._touched = 0;
-        this.uid = uid("uniform");
-        this._resourceType = "uniformGroup";
-        this._resourceId = uid("resource");
-        this.isUniformGroup = true;
-        this._dirtyId = 0;
-        this.destroyed = false;
-        options = { ..._UniformGroup2.defaultOptions, ...options };
-        this.uniformStructures = uniformStructures;
-        const uniforms = {};
-        for (const i3 in uniformStructures) {
-          const uniformData = uniformStructures[i3];
-          uniformData.name = i3;
-          uniformData.size = uniformData.size ?? 1;
-          if (!UNIFORM_TYPES_MAP[uniformData.type]) {
-            const arrayMatch = uniformData.type.match(/^array<(\w+(?:<\w+>)?),\s*(\d+)>$/);
-            if (arrayMatch) {
-              const [, innerType, size4] = arrayMatch;
-              throw new Error(
-                `Uniform type ${uniformData.type} is not supported. Use type: '${innerType}', size: ${size4} instead.`
-              );
-            }
-            throw new Error(`Uniform type ${uniformData.type} is not supported. Supported uniform types are: ${UNIFORM_TYPES_VALUES.join(", ")}`);
-          }
-          uniformData.value ?? (uniformData.value = getDefaultUniformValue(uniformData.type, uniformData.size));
-          uniforms[i3] = uniformData.value;
-        }
-        this.uniforms = uniforms;
-        this._dirtyId = 1;
-        this.ubo = options.ubo;
-        this.isStatic = options.isStatic;
-        this._signature = createIdFromString(Object.keys(uniforms).map(
-          (i3) => `${i3}-${uniformStructures[i3].type}`
-        ).join("-"), "uniform-group");
-      }
-      /** Call this if you want the uniform groups data to be uploaded to the GPU only useful if `isStatic` is true. */
-      update() {
-        this._dirtyId++;
-      }
-    };
-    _UniformGroup.defaultOptions = {
-      /** if true the UniformGroup is handled as an Uniform buffer object. */
-      ubo: false,
-      /** if true, then you are responsible for when the data is uploaded to the GPU by calling `update()` */
-      isStatic: false
-    };
-    UniformGroup = _UniformGroup;
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/shared/shader/Shader.mjs
 var Shader;
 var init_Shader = __esm({
@@ -29933,7 +32887,7 @@ var init_Shader = __esm({
     init_GlProgram();
     init_BindGroup();
     init_GpuProgram();
-    init_types();
+    init_types2();
     init_UniformGroup();
     Shader = class _Shader extends eventemitter3_default {
       constructor(options) {
@@ -30408,366 +33362,6 @@ var init_PassthroughFilter = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/const.mjs
-var BufferUsage;
-var init_const4 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/const.mjs"() {
-    "use strict";
-    BufferUsage = /* @__PURE__ */ ((BufferUsage2) => {
-      BufferUsage2[BufferUsage2["MAP_READ"] = 1] = "MAP_READ";
-      BufferUsage2[BufferUsage2["MAP_WRITE"] = 2] = "MAP_WRITE";
-      BufferUsage2[BufferUsage2["COPY_SRC"] = 4] = "COPY_SRC";
-      BufferUsage2[BufferUsage2["COPY_DST"] = 8] = "COPY_DST";
-      BufferUsage2[BufferUsage2["INDEX"] = 16] = "INDEX";
-      BufferUsage2[BufferUsage2["VERTEX"] = 32] = "VERTEX";
-      BufferUsage2[BufferUsage2["UNIFORM"] = 64] = "UNIFORM";
-      BufferUsage2[BufferUsage2["STORAGE"] = 128] = "STORAGE";
-      BufferUsage2[BufferUsage2["INDIRECT"] = 256] = "INDIRECT";
-      BufferUsage2[BufferUsage2["QUERY_RESOLVE"] = 512] = "QUERY_RESOLVE";
-      BufferUsage2[BufferUsage2["STATIC"] = 1024] = "STATIC";
-      return BufferUsage2;
-    })(BufferUsage || {});
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/Buffer.mjs
-var Buffer2;
-var init_Buffer = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/Buffer.mjs"() {
-    init_eventemitter3();
-    init_uid();
-    init_const4();
-    Buffer2 = class extends eventemitter3_default {
-      /**
-       * Creates a new Buffer with the given options
-       * @param options - the options for the buffer
-       */
-      constructor(options) {
-        let { data, size: size4 } = options;
-        const { usage, label, shrinkToFit } = options;
-        super();
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-        this._gcLastUsed = -1;
-        this.autoGarbageCollect = true;
-        this.uid = uid("buffer");
-        this._resourceType = "buffer";
-        this._resourceId = uid("resource");
-        this._touched = 0;
-        this._updateID = 1;
-        this._dataInt32 = null;
-        this.shrinkToFit = true;
-        this.destroyed = false;
-        if (data instanceof Array) {
-          data = new Float32Array(data);
-        }
-        this._data = data;
-        size4 ?? (size4 = data?.byteLength);
-        const mappedAtCreation = !!data;
-        this.descriptor = {
-          size: size4,
-          usage,
-          mappedAtCreation,
-          label
-        };
-        this.shrinkToFit = shrinkToFit ?? true;
-      }
-      /** the data in the buffer */
-      get data() {
-        return this._data;
-      }
-      set data(value) {
-        this.setDataWithSize(value, value.length, true);
-      }
-      get dataInt32() {
-        if (!this._dataInt32) {
-          this._dataInt32 = new Int32Array(this.data.buffer);
-        }
-        return this._dataInt32;
-      }
-      /** whether the buffer is static or not */
-      get static() {
-        return !!(this.descriptor.usage & BufferUsage.STATIC);
-      }
-      set static(value) {
-        if (value) {
-          this.descriptor.usage |= BufferUsage.STATIC;
-        } else {
-          this.descriptor.usage &= ~BufferUsage.STATIC;
-        }
-      }
-      /**
-       * Sets the data in the buffer to the given value. This will immediately update the buffer on the GPU.
-       * If you only want to update a subset of the buffer, you can pass in the size of the data.
-       * @param value - the data to set
-       * @param size - the size of the data in bytes
-       * @param syncGPU - should the buffer be updated on the GPU immediately?
-       */
-      setDataWithSize(value, size4, syncGPU) {
-        this._updateID++;
-        this._updateSize = size4 * value.BYTES_PER_ELEMENT;
-        if (this._data === value) {
-          if (syncGPU) this.emit("update", this);
-          return;
-        }
-        const oldData = this._data;
-        this._data = value;
-        this._dataInt32 = null;
-        if (!oldData || oldData.length !== value.length) {
-          if (!this.shrinkToFit && oldData && value.byteLength < oldData.byteLength) {
-            if (syncGPU) this.emit("update", this);
-          } else {
-            this.descriptor.size = value.byteLength;
-            this._resourceId = uid("resource");
-            this.emit("change", this);
-          }
-          return;
-        }
-        if (syncGPU) this.emit("update", this);
-      }
-      /**
-       * updates the buffer on the GPU to reflect the data in the buffer.
-       * By default it will update the entire buffer. If you only want to update a subset of the buffer,
-       * you can pass in the size of the buffer to update.
-       * @param sizeInBytes - the new size of the buffer in bytes
-       */
-      update(sizeInBytes) {
-        this._updateSize = sizeInBytes ?? this._updateSize;
-        this._updateID++;
-        this.emit("update", this);
-      }
-      /** Unloads the buffer from the GPU */
-      unload() {
-        this.emit("unload", this);
-        for (const key in this._gpuData) {
-          this._gpuData[key]?.destroy();
-        }
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-      }
-      /** Destroys the buffer */
-      destroy() {
-        this.destroyed = true;
-        this.unload();
-        this.emit("destroy", this);
-        this.emit("change", this);
-        this._data = null;
-        this.descriptor = null;
-        this.removeAllListeners();
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/ensureIsBuffer.mjs
-function ensureIsBuffer(buffer, index2) {
-  if (!(buffer instanceof Buffer2)) {
-    let usage = index2 ? BufferUsage.INDEX : BufferUsage.VERTEX;
-    if (buffer instanceof Array) {
-      if (index2) {
-        buffer = new Uint32Array(buffer);
-        usage = BufferUsage.INDEX | BufferUsage.COPY_DST;
-      } else {
-        buffer = new Float32Array(buffer);
-        usage = BufferUsage.VERTEX | BufferUsage.COPY_DST;
-      }
-    }
-    buffer = new Buffer2({
-      data: buffer,
-      label: index2 ? "index-mesh-buffer" : "vertex-mesh-buffer",
-      usage
-    });
-  }
-  return buffer;
-}
-var init_ensureIsBuffer = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/ensureIsBuffer.mjs"() {
-    init_Buffer();
-    init_const4();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getGeometryBounds.mjs
-function getGeometryBounds(geometry, attributeId, bounds) {
-  const attribute = geometry.getAttribute(attributeId);
-  if (!attribute) {
-    bounds.minX = 0;
-    bounds.minY = 0;
-    bounds.maxX = 0;
-    bounds.maxY = 0;
-    return bounds;
-  }
-  const data = attribute.buffer.data;
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  const byteSize = data.BYTES_PER_ELEMENT;
-  const offset4 = (attribute.offset || 0) / byteSize;
-  const stride = (attribute.stride || 2 * 4) / byteSize;
-  for (let i3 = offset4; i3 < data.length; i3 += stride) {
-    const x3 = data[i3];
-    const y4 = data[i3 + 1];
-    if (x3 > maxX) maxX = x3;
-    if (y4 > maxY) maxY = y4;
-    if (x3 < minX) minX = x3;
-    if (y4 < minY) minY = y4;
-  }
-  bounds.minX = minX;
-  bounds.minY = minY;
-  bounds.maxX = maxX;
-  bounds.maxY = maxY;
-  return bounds;
-}
-var init_getGeometryBounds = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/utils/getGeometryBounds.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/geometry/Geometry.mjs
-function ensureIsAttribute(attribute) {
-  if (attribute instanceof Buffer2 || Array.isArray(attribute) || attribute.BYTES_PER_ELEMENT) {
-    attribute = {
-      buffer: attribute
-    };
-  }
-  attribute.buffer = ensureIsBuffer(attribute.buffer, false);
-  return attribute;
-}
-var Geometry;
-var init_Geometry = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/geometry/Geometry.mjs"() {
-    init_eventemitter3();
-    init_Bounds();
-    init_uid();
-    init_Buffer();
-    init_ensureIsBuffer();
-    init_getGeometryBounds();
-    Geometry = class extends eventemitter3_default {
-      /**
-       * Create a new instance of a geometry
-       * @param options - The options for the geometry.
-       */
-      constructor(options = {}) {
-        super();
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-        this.autoGarbageCollect = true;
-        this._gcLastUsed = -1;
-        this.uid = uid("geometry");
-        this._layoutKey = 0;
-        this.instanceCount = 1;
-        this._bounds = new Bounds();
-        this._boundsDirty = true;
-        const { attributes, indexBuffer, topology } = options;
-        this.buffers = [];
-        this.attributes = {};
-        if (attributes) {
-          for (const i3 in attributes) {
-            this.addAttribute(i3, attributes[i3]);
-          }
-        }
-        this.instanceCount = options.instanceCount ?? 1;
-        if (indexBuffer) {
-          this.addIndex(indexBuffer);
-        }
-        this.topology = topology || "triangle-list";
-      }
-      onBufferUpdate() {
-        this._boundsDirty = true;
-        this.emit("update", this);
-      }
-      /**
-       * Returns the requested attribute.
-       * @param id - The name of the attribute required
-       * @returns - The attribute requested.
-       */
-      getAttribute(id) {
-        return this.attributes[id];
-      }
-      /**
-       * Returns the index buffer
-       * @returns - The index buffer.
-       */
-      getIndex() {
-        return this.indexBuffer;
-      }
-      /**
-       * Returns the requested buffer.
-       * @param id - The name of the buffer required.
-       * @returns - The buffer requested.
-       */
-      getBuffer(id) {
-        return this.getAttribute(id).buffer;
-      }
-      /**
-       * Used to figure out how many vertices there are in this geometry
-       * @returns the number of vertices in the geometry
-       */
-      getSize() {
-        for (const i3 in this.attributes) {
-          const attribute = this.attributes[i3];
-          const buffer = attribute.buffer;
-          return buffer.data.length / (attribute.stride / 4 || attribute.size);
-        }
-        return 0;
-      }
-      /**
-       * Adds an attribute to the geometry.
-       * @param name - The name of the attribute to add.
-       * @param attributeOption - The attribute option to add.
-       */
-      addAttribute(name, attributeOption) {
-        const attribute = ensureIsAttribute(attributeOption);
-        const bufferIndex = this.buffers.indexOf(attribute.buffer);
-        if (bufferIndex === -1) {
-          this.buffers.push(attribute.buffer);
-          attribute.buffer.on("update", this.onBufferUpdate, this);
-          attribute.buffer.on("change", this.onBufferUpdate, this);
-        }
-        this.attributes[name] = attribute;
-      }
-      /**
-       * Adds an index buffer to the geometry.
-       * @param indexBuffer - The index buffer to add. Can be a Buffer, TypedArray, or an array of numbers.
-       */
-      addIndex(indexBuffer) {
-        this.indexBuffer = ensureIsBuffer(indexBuffer, true);
-        this.buffers.push(this.indexBuffer);
-      }
-      /** Returns the bounds of the geometry. */
-      get bounds() {
-        if (!this._boundsDirty) return this._bounds;
-        this._boundsDirty = false;
-        return getGeometryBounds(this, "aPosition", this._bounds);
-      }
-      /** Unloads the geometry from the GPU. */
-      unload() {
-        this.emit("unload", this);
-        for (const key in this._gpuData) {
-          this._gpuData[key]?.destroy();
-        }
-        this._gpuData = /* @__PURE__ */ Object.create(null);
-      }
-      /**
-       * destroys the geometry.
-       * @param destroyBuffers - destroy the buffers associated with this geometry
-       */
-      destroy(destroyBuffers = false) {
-        this.emit("destroy", this);
-        this.removeAllListeners();
-        if (destroyBuffers) {
-          this.buffers.forEach((buffer) => buffer.destroy());
-        }
-        this.unload();
-        this.indexBuffer?.destroy();
-        this.attributes = null;
-        this.buffers = null;
-        this.indexBuffer = null;
-        this._bounds = null;
-      }
-    };
-  }
-});
-
 // node_modules/pixi.js/lib/filters/FilterSystem.mjs
 var quadGeometry, FilterData, FilterSystem;
 var init_FilterSystem = __esm({
@@ -30780,7 +33374,7 @@ var init_FilterSystem = __esm({
     init_UniformGroup();
     init_Texture();
     init_TexturePool();
-    init_types();
+    init_types2();
     init_Bounds();
     init_getRenderableBounds();
     init_warn();
@@ -31396,945 +33990,6 @@ var init_webworkerAll = __esm({
     init_init4();
     init_init5();
     init_init6();
-  }
-});
-
-// node_modules/pixi.js/lib/environment/autoDetectEnvironment.mjs
-async function loadEnvironmentExtensions(skip) {
-  if (skip) return;
-  for (let i3 = 0; i3 < environments.length; i3++) {
-    const env = environments[i3];
-    if (env.value.test()) {
-      await env.value.load();
-      return;
-    }
-  }
-}
-var environments;
-var init_autoDetectEnvironment = __esm({
-  "node_modules/pixi.js/lib/environment/autoDetectEnvironment.mjs"() {
-    init_Extensions();
-    environments = [];
-    extensions.handleByNamedList(ExtensionType.Environment, environments);
-  }
-});
-
-// node_modules/pixi.js/lib/utils/browser/unsafeEvalSupported.mjs
-function unsafeEvalSupported() {
-  if (typeof unsafeEval === "boolean") {
-    return unsafeEval;
-  }
-  try {
-    const func = new Function("param1", "param2", "param3", "return param1[param2] === param3;");
-    unsafeEval = func({ a: "b" }, "a", "b") === true;
-  } catch (_e2) {
-    unsafeEval = false;
-  }
-  return unsafeEval;
-}
-var unsafeEval;
-var init_unsafeEvalSupported = __esm({
-  "node_modules/pixi.js/lib/utils/browser/unsafeEvalSupported.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/earcut/src/earcut.js
-function earcut(data, holeIndices, dim = 2) {
-  const hasHoles = holeIndices && holeIndices.length;
-  const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
-  let outerNode = linkedList(data, 0, outerLen, dim, true);
-  const triangles = [];
-  if (!outerNode || outerNode.next === outerNode.prev) return triangles;
-  let minX, minY, invSize;
-  if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
-  if (data.length > 80 * dim) {
-    minX = data[0];
-    minY = data[1];
-    let maxX = minX;
-    let maxY = minY;
-    for (let i3 = dim; i3 < outerLen; i3 += dim) {
-      const x3 = data[i3];
-      const y4 = data[i3 + 1];
-      if (x3 < minX) minX = x3;
-      if (y4 < minY) minY = y4;
-      if (x3 > maxX) maxX = x3;
-      if (y4 > maxY) maxY = y4;
-    }
-    invSize = Math.max(maxX - minX, maxY - minY);
-    invSize = invSize !== 0 ? 32767 / invSize : 0;
-  }
-  earcutLinked(outerNode, triangles, dim, minX, minY, invSize, 0);
-  return triangles;
-}
-function linkedList(data, start, end, dim, clockwise) {
-  let last;
-  if (clockwise === signedArea(data, start, end, dim) > 0) {
-    for (let i3 = start; i3 < end; i3 += dim) last = insertNode(i3 / dim | 0, data[i3], data[i3 + 1], last);
-  } else {
-    for (let i3 = end - dim; i3 >= start; i3 -= dim) last = insertNode(i3 / dim | 0, data[i3], data[i3 + 1], last);
-  }
-  if (last && equals(last, last.next)) {
-    removeNode(last);
-    last = last.next;
-  }
-  return last;
-}
-function filterPoints(start, end) {
-  if (!start) return start;
-  if (!end) end = start;
-  let p3 = start, again;
-  do {
-    again = false;
-    if (!p3.steiner && (equals(p3, p3.next) || area(p3.prev, p3, p3.next) === 0)) {
-      removeNode(p3);
-      p3 = end = p3.prev;
-      if (p3 === p3.next) break;
-      again = true;
-    } else {
-      p3 = p3.next;
-    }
-  } while (again || p3 !== end);
-  return end;
-}
-function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
-  if (!ear) return;
-  if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
-  let stop = ear;
-  while (ear.prev !== ear.next) {
-    const prev = ear.prev;
-    const next = ear.next;
-    if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
-      triangles.push(prev.i, ear.i, next.i);
-      removeNode(ear);
-      ear = next.next;
-      stop = next.next;
-      continue;
-    }
-    ear = next;
-    if (ear === stop) {
-      if (!pass) {
-        earcutLinked(filterPoints(ear), triangles, dim, minX, minY, invSize, 1);
-      } else if (pass === 1) {
-        ear = cureLocalIntersections(filterPoints(ear), triangles);
-        earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
-      } else if (pass === 2) {
-        splitEarcut(ear, triangles, dim, minX, minY, invSize);
-      }
-      break;
-    }
-  }
-}
-function isEar(ear) {
-  const a3 = ear.prev, b3 = ear, c3 = ear.next;
-  if (area(a3, b3, c3) >= 0) return false;
-  const ax = a3.x, bx = b3.x, cx2 = c3.x, ay = a3.y, by = b3.y, cy = c3.y;
-  const x0 = Math.min(ax, bx, cx2), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx2), y1 = Math.max(ay, by, cy);
-  let p3 = c3.next;
-  while (p3 !== a3) {
-    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
-    p3 = p3.next;
-  }
-  return true;
-}
-function isEarHashed(ear, minX, minY, invSize) {
-  const a3 = ear.prev, b3 = ear, c3 = ear.next;
-  if (area(a3, b3, c3) >= 0) return false;
-  const ax = a3.x, bx = b3.x, cx2 = c3.x, ay = a3.y, by = b3.y, cy = c3.y;
-  const x0 = Math.min(ax, bx, cx2), y0 = Math.min(ay, by, cy), x1 = Math.max(ax, bx, cx2), y1 = Math.max(ay, by, cy);
-  const minZ = zOrder(x0, y0, minX, minY, invSize), maxZ = zOrder(x1, y1, minX, minY, invSize);
-  let p3 = ear.prevZ, n3 = ear.nextZ;
-  while (p3 && p3.z >= minZ && n3 && n3.z <= maxZ) {
-    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && p3 !== a3 && p3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
-    p3 = p3.prevZ;
-    if (n3.x >= x0 && n3.x <= x1 && n3.y >= y0 && n3.y <= y1 && n3 !== a3 && n3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, n3.x, n3.y) && area(n3.prev, n3, n3.next) >= 0) return false;
-    n3 = n3.nextZ;
-  }
-  while (p3 && p3.z >= minZ) {
-    if (p3.x >= x0 && p3.x <= x1 && p3.y >= y0 && p3.y <= y1 && p3 !== a3 && p3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, p3.x, p3.y) && area(p3.prev, p3, p3.next) >= 0) return false;
-    p3 = p3.prevZ;
-  }
-  while (n3 && n3.z <= maxZ) {
-    if (n3.x >= x0 && n3.x <= x1 && n3.y >= y0 && n3.y <= y1 && n3 !== a3 && n3 !== c3 && pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, n3.x, n3.y) && area(n3.prev, n3, n3.next) >= 0) return false;
-    n3 = n3.nextZ;
-  }
-  return true;
-}
-function cureLocalIntersections(start, triangles) {
-  let p3 = start;
-  do {
-    const a3 = p3.prev, b3 = p3.next.next;
-    if (!equals(a3, b3) && intersects(a3, p3, p3.next, b3) && locallyInside(a3, b3) && locallyInside(b3, a3)) {
-      triangles.push(a3.i, p3.i, b3.i);
-      removeNode(p3);
-      removeNode(p3.next);
-      p3 = start = b3;
-    }
-    p3 = p3.next;
-  } while (p3 !== start);
-  return filterPoints(p3);
-}
-function splitEarcut(start, triangles, dim, minX, minY, invSize) {
-  let a3 = start;
-  do {
-    let b3 = a3.next.next;
-    while (b3 !== a3.prev) {
-      if (a3.i !== b3.i && isValidDiagonal(a3, b3)) {
-        let c3 = splitPolygon(a3, b3);
-        a3 = filterPoints(a3, a3.next);
-        c3 = filterPoints(c3, c3.next);
-        earcutLinked(a3, triangles, dim, minX, minY, invSize, 0);
-        earcutLinked(c3, triangles, dim, minX, minY, invSize, 0);
-        return;
-      }
-      b3 = b3.next;
-    }
-    a3 = a3.next;
-  } while (a3 !== start);
-}
-function eliminateHoles(data, holeIndices, outerNode, dim) {
-  const queue = [];
-  for (let i3 = 0, len = holeIndices.length; i3 < len; i3++) {
-    const start = holeIndices[i3] * dim;
-    const end = i3 < len - 1 ? holeIndices[i3 + 1] * dim : data.length;
-    const list = linkedList(data, start, end, dim, false);
-    if (list === list.next) list.steiner = true;
-    queue.push(getLeftmost(list));
-  }
-  queue.sort(compareXYSlope);
-  for (let i3 = 0; i3 < queue.length; i3++) {
-    outerNode = eliminateHole(queue[i3], outerNode);
-  }
-  return outerNode;
-}
-function compareXYSlope(a3, b3) {
-  let result = a3.x - b3.x;
-  if (result === 0) {
-    result = a3.y - b3.y;
-    if (result === 0) {
-      const aSlope = (a3.next.y - a3.y) / (a3.next.x - a3.x);
-      const bSlope = (b3.next.y - b3.y) / (b3.next.x - b3.x);
-      result = aSlope - bSlope;
-    }
-  }
-  return result;
-}
-function eliminateHole(hole, outerNode) {
-  const bridge = findHoleBridge(hole, outerNode);
-  if (!bridge) {
-    return outerNode;
-  }
-  const bridgeReverse = splitPolygon(bridge, hole);
-  filterPoints(bridgeReverse, bridgeReverse.next);
-  return filterPoints(bridge, bridge.next);
-}
-function findHoleBridge(hole, outerNode) {
-  let p3 = outerNode;
-  const hx = hole.x;
-  const hy = hole.y;
-  let qx = -Infinity;
-  let m3;
-  if (equals(hole, p3)) return p3;
-  do {
-    if (equals(hole, p3.next)) return p3.next;
-    else if (hy <= p3.y && hy >= p3.next.y && p3.next.y !== p3.y) {
-      const x3 = p3.x + (hy - p3.y) * (p3.next.x - p3.x) / (p3.next.y - p3.y);
-      if (x3 <= hx && x3 > qx) {
-        qx = x3;
-        m3 = p3.x < p3.next.x ? p3 : p3.next;
-        if (x3 === hx) return m3;
-      }
-    }
-    p3 = p3.next;
-  } while (p3 !== outerNode);
-  if (!m3) return null;
-  const stop = m3;
-  const mx = m3.x;
-  const my = m3.y;
-  let tanMin = Infinity;
-  p3 = m3;
-  do {
-    if (hx >= p3.x && p3.x >= mx && hx !== p3.x && pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p3.x, p3.y)) {
-      const tan = Math.abs(hy - p3.y) / (hx - p3.x);
-      if (locallyInside(p3, hole) && (tan < tanMin || tan === tanMin && (p3.x > m3.x || p3.x === m3.x && sectorContainsSector(m3, p3)))) {
-        m3 = p3;
-        tanMin = tan;
-      }
-    }
-    p3 = p3.next;
-  } while (p3 !== stop);
-  return m3;
-}
-function sectorContainsSector(m3, p3) {
-  return area(m3.prev, m3, p3.prev) < 0 && area(p3.next, m3, m3.next) < 0;
-}
-function indexCurve(start, minX, minY, invSize) {
-  let p3 = start;
-  do {
-    if (p3.z === 0) p3.z = zOrder(p3.x, p3.y, minX, minY, invSize);
-    p3.prevZ = p3.prev;
-    p3.nextZ = p3.next;
-    p3 = p3.next;
-  } while (p3 !== start);
-  p3.prevZ.nextZ = null;
-  p3.prevZ = null;
-  sortLinked(p3);
-}
-function sortLinked(list) {
-  let numMerges;
-  let inSize = 1;
-  do {
-    let p3 = list;
-    let e4;
-    list = null;
-    let tail = null;
-    numMerges = 0;
-    while (p3) {
-      numMerges++;
-      let q2 = p3;
-      let pSize = 0;
-      for (let i3 = 0; i3 < inSize; i3++) {
-        pSize++;
-        q2 = q2.nextZ;
-        if (!q2) break;
-      }
-      let qSize = inSize;
-      while (pSize > 0 || qSize > 0 && q2) {
-        if (pSize !== 0 && (qSize === 0 || !q2 || p3.z <= q2.z)) {
-          e4 = p3;
-          p3 = p3.nextZ;
-          pSize--;
-        } else {
-          e4 = q2;
-          q2 = q2.nextZ;
-          qSize--;
-        }
-        if (tail) tail.nextZ = e4;
-        else list = e4;
-        e4.prevZ = tail;
-        tail = e4;
-      }
-      p3 = q2;
-    }
-    tail.nextZ = null;
-    inSize *= 2;
-  } while (numMerges > 1);
-  return list;
-}
-function zOrder(x3, y4, minX, minY, invSize) {
-  x3 = (x3 - minX) * invSize | 0;
-  y4 = (y4 - minY) * invSize | 0;
-  x3 = (x3 | x3 << 8) & 16711935;
-  x3 = (x3 | x3 << 4) & 252645135;
-  x3 = (x3 | x3 << 2) & 858993459;
-  x3 = (x3 | x3 << 1) & 1431655765;
-  y4 = (y4 | y4 << 8) & 16711935;
-  y4 = (y4 | y4 << 4) & 252645135;
-  y4 = (y4 | y4 << 2) & 858993459;
-  y4 = (y4 | y4 << 1) & 1431655765;
-  return x3 | y4 << 1;
-}
-function getLeftmost(start) {
-  let p3 = start, leftmost = start;
-  do {
-    if (p3.x < leftmost.x || p3.x === leftmost.x && p3.y < leftmost.y) leftmost = p3;
-    p3 = p3.next;
-  } while (p3 !== start);
-  return leftmost;
-}
-function pointInTriangle(ax, ay, bx, by, cx2, cy, px, py) {
-  return (cx2 - px) * (ay - py) >= (ax - px) * (cy - py) && (ax - px) * (by - py) >= (bx - px) * (ay - py) && (bx - px) * (cy - py) >= (cx2 - px) * (by - py);
-}
-function pointInTriangleExceptFirst(ax, ay, bx, by, cx2, cy, px, py) {
-  return !(ax === px && ay === py) && pointInTriangle(ax, ay, bx, by, cx2, cy, px, py);
-}
-function isValidDiagonal(a3, b3) {
-  return a3.next.i !== b3.i && a3.prev.i !== b3.i && !intersectsPolygon(a3, b3) && // doesn't intersect other edges
-  (locallyInside(a3, b3) && locallyInside(b3, a3) && middleInside(a3, b3) && // locally visible
-  (area(a3.prev, a3, b3.prev) || area(a3, b3.prev, b3)) || // does not create opposite-facing sectors
-  equals(a3, b3) && area(a3.prev, a3, a3.next) > 0 && area(b3.prev, b3, b3.next) > 0);
-}
-function area(p3, q2, r4) {
-  return (q2.y - p3.y) * (r4.x - q2.x) - (q2.x - p3.x) * (r4.y - q2.y);
-}
-function equals(p1, p22) {
-  return p1.x === p22.x && p1.y === p22.y;
-}
-function intersects(p1, q1, p22, q2) {
-  const o1 = sign(area(p1, q1, p22));
-  const o22 = sign(area(p1, q1, q2));
-  const o3 = sign(area(p22, q2, p1));
-  const o4 = sign(area(p22, q2, q1));
-  if (o1 !== o22 && o3 !== o4) return true;
-  if (o1 === 0 && onSegment(p1, p22, q1)) return true;
-  if (o22 === 0 && onSegment(p1, q2, q1)) return true;
-  if (o3 === 0 && onSegment(p22, p1, q2)) return true;
-  if (o4 === 0 && onSegment(p22, q1, q2)) return true;
-  return false;
-}
-function onSegment(p3, q2, r4) {
-  return q2.x <= Math.max(p3.x, r4.x) && q2.x >= Math.min(p3.x, r4.x) && q2.y <= Math.max(p3.y, r4.y) && q2.y >= Math.min(p3.y, r4.y);
-}
-function sign(num) {
-  return num > 0 ? 1 : num < 0 ? -1 : 0;
-}
-function intersectsPolygon(a3, b3) {
-  let p3 = a3;
-  do {
-    if (p3.i !== a3.i && p3.next.i !== a3.i && p3.i !== b3.i && p3.next.i !== b3.i && intersects(p3, p3.next, a3, b3)) return true;
-    p3 = p3.next;
-  } while (p3 !== a3);
-  return false;
-}
-function locallyInside(a3, b3) {
-  return area(a3.prev, a3, a3.next) < 0 ? area(a3, b3, a3.next) >= 0 && area(a3, a3.prev, b3) >= 0 : area(a3, b3, a3.prev) < 0 || area(a3, a3.next, b3) < 0;
-}
-function middleInside(a3, b3) {
-  let p3 = a3;
-  let inside = false;
-  const px = (a3.x + b3.x) / 2;
-  const py = (a3.y + b3.y) / 2;
-  do {
-    if (p3.y > py !== p3.next.y > py && p3.next.y !== p3.y && px < (p3.next.x - p3.x) * (py - p3.y) / (p3.next.y - p3.y) + p3.x)
-      inside = !inside;
-    p3 = p3.next;
-  } while (p3 !== a3);
-  return inside;
-}
-function splitPolygon(a3, b3) {
-  const a22 = createNode(a3.i, a3.x, a3.y), b22 = createNode(b3.i, b3.x, b3.y), an = a3.next, bp = b3.prev;
-  a3.next = b3;
-  b3.prev = a3;
-  a22.next = an;
-  an.prev = a22;
-  b22.next = a22;
-  a22.prev = b22;
-  bp.next = b22;
-  b22.prev = bp;
-  return b22;
-}
-function insertNode(i3, x3, y4, last) {
-  const p3 = createNode(i3, x3, y4);
-  if (!last) {
-    p3.prev = p3;
-    p3.next = p3;
-  } else {
-    p3.next = last.next;
-    p3.prev = last;
-    last.next.prev = p3;
-    last.next = p3;
-  }
-  return p3;
-}
-function removeNode(p3) {
-  p3.next.prev = p3.prev;
-  p3.prev.next = p3.next;
-  if (p3.prevZ) p3.prevZ.nextZ = p3.nextZ;
-  if (p3.nextZ) p3.nextZ.prevZ = p3.prevZ;
-}
-function createNode(i3, x3, y4) {
-  return {
-    i: i3,
-    // vertex index in coordinates array
-    x: x3,
-    y: y4,
-    // vertex coordinates
-    prev: null,
-    // previous and next vertex nodes in a polygon ring
-    next: null,
-    z: 0,
-    // z-order curve value
-    prevZ: null,
-    // previous and next nodes in z-order
-    nextZ: null,
-    steiner: false
-    // indicates whether this is a steiner point
-  };
-}
-function signedArea(data, start, end, dim) {
-  let sum = 0;
-  for (let i3 = start, j4 = end - dim; i3 < end; i3 += dim) {
-    sum += (data[j4] - data[i3]) * (data[i3 + 1] + data[j4 + 1]);
-    j4 = i3;
-  }
-  return sum;
-}
-var init_earcut = __esm({
-  "node_modules/earcut/src/earcut.js"() {
-  }
-});
-
-// node_modules/pixi.js/lib/utils/utils.mjs
-var earcut2;
-var init_utils = __esm({
-  "node_modules/pixi.js/lib/utils/utils.mjs"() {
-    init_earcut();
-    init_eventemitter3();
-    earcut2 = earcut.default || earcut;
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/const.mjs
-var CLEAR;
-var init_const5 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/const.mjs"() {
-    "use strict";
-    CLEAR = /* @__PURE__ */ ((CLEAR2) => {
-      CLEAR2[CLEAR2["NONE"] = 0] = "NONE";
-      CLEAR2[CLEAR2["COLOR"] = 16384] = "COLOR";
-      CLEAR2[CLEAR2["STENCIL"] = 1024] = "STENCIL";
-      CLEAR2[CLEAR2["DEPTH"] = 256] = "DEPTH";
-      CLEAR2[CLEAR2["COLOR_DEPTH"] = 16640] = "COLOR_DEPTH";
-      CLEAR2[CLEAR2["COLOR_STENCIL"] = 17408] = "COLOR_STENCIL";
-      CLEAR2[CLEAR2["DEPTH_STENCIL"] = 1280] = "DEPTH_STENCIL";
-      CLEAR2[CLEAR2["ALL"] = 17664] = "ALL";
-      return CLEAR2;
-    })(CLEAR || {});
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/system/SystemRunner.mjs
-var SystemRunner;
-var init_SystemRunner = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/system/SystemRunner.mjs"() {
-    "use strict";
-    SystemRunner = class {
-      /**
-       * @param name - The function name that will be executed on the listeners added to this Runner.
-       */
-      constructor(name) {
-        this.items = [];
-        this._name = name;
-      }
-      /* jsdoc/check-param-names */
-      /**
-       * Dispatch/Broadcast Runner to all listeners added to the queue.
-       * @param {...any} params - (optional) parameters to pass to each listener
-       */
-      /* jsdoc/check-param-names */
-      emit(a0, a1, a22, a3, a4, a5, a6, a7) {
-        const { name, items } = this;
-        for (let i3 = 0, len = items.length; i3 < len; i3++) {
-          items[i3][name](a0, a1, a22, a3, a4, a5, a6, a7);
-        }
-        return this;
-      }
-      /**
-       * Add a listener to the Runner
-       *
-       * Runners do not need to have scope or functions passed to them.
-       * All that is required is to pass the listening object and ensure that it has contains a function that has the same name
-       * as the name provided to the Runner when it was created.
-       *
-       * Eg A listener passed to this Runner will require a 'complete' function.
-       *
-       * ```ts
-       * import { Runner } from 'pixi.js';
-       *
-       * const complete = new Runner('complete');
-       * ```
-       *
-       * The scope used will be the object itself.
-       * @param {any} item - The object that will be listening.
-       */
-      add(item) {
-        if (item[this._name]) {
-          this.remove(item);
-          this.items.push(item);
-        }
-        return this;
-      }
-      /**
-       * Remove a single listener from the dispatch queue.
-       * @param {any} item - The listener that you would like to remove.
-       */
-      remove(item) {
-        const index2 = this.items.indexOf(item);
-        if (index2 !== -1) {
-          this.items.splice(index2, 1);
-        }
-        return this;
-      }
-      /**
-       * Check to see if the listener is already in the Runner
-       * @param {any} item - The listener that you would like to check.
-       */
-      contains(item) {
-        return this.items.indexOf(item) !== -1;
-      }
-      /** Remove all listeners from the Runner */
-      removeAll() {
-        this.items.length = 0;
-        return this;
-      }
-      /** Remove all references, don't use after this. */
-      destroy() {
-        this.removeAll();
-        this.items = null;
-        this._name = null;
-      }
-      /**
-       * `true` if there are no this Runner contains no listeners
-       * @readonly
-       */
-      get empty() {
-        return this.items.length === 0;
-      }
-      /**
-       * The name of the runner.
-       * @readonly
-       */
-      get name() {
-        return this._name;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs
-var defaultRunners, _AbstractRenderer, AbstractRenderer;
-var init_AbstractRenderer = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs"() {
-    init_Color();
-    init_autoDetectEnvironment();
-    init_Container();
-    init_unsafeEvalSupported();
-    init_uid();
-    init_deprecation();
-    init_GlobalResourceRegistry();
-    init_const5();
-    init_SystemRunner();
-    init_eventemitter3();
-    defaultRunners = [
-      "init",
-      "destroy",
-      "contextChange",
-      "resolutionChange",
-      "resetState",
-      "renderEnd",
-      "renderStart",
-      "render",
-      "update",
-      "postrender",
-      "prerender"
-    ];
-    _AbstractRenderer = class _AbstractRenderer2 extends eventemitter3_default {
-      /**
-       * Set up a system with a collection of SystemClasses and runners.
-       * Systems are attached dynamically to this class when added.
-       * @param config - the config for the system manager
-       */
-      constructor(config) {
-        super();
-        this.tick = 0;
-        this.uid = uid("renderer");
-        this.runners = /* @__PURE__ */ Object.create(null);
-        this.renderPipes = /* @__PURE__ */ Object.create(null);
-        this._initOptions = {};
-        this._systemsHash = /* @__PURE__ */ Object.create(null);
-        this.type = config.type;
-        this.name = config.name;
-        this.config = config;
-        const combinedRunners = [...defaultRunners, ...this.config.runners ?? []];
-        this._addRunners(...combinedRunners);
-        this._unsafeEvalCheck();
-      }
-      /**
-       * Initialize the renderer.
-       * @param options - The options to use to create the renderer.
-       */
-      async init(options = {}) {
-        const skip = options.skipExtensionImports === true ? true : options.manageImports === false;
-        await loadEnvironmentExtensions(skip);
-        this._addSystems(this.config.systems);
-        this._addPipes(this.config.renderPipes, this.config.renderPipeAdaptors);
-        for (const systemName in this._systemsHash) {
-          const system = this._systemsHash[systemName];
-          const defaultSystemOptions = system.constructor.defaultOptions;
-          options = { ...defaultSystemOptions, ...options };
-        }
-        options = { ..._AbstractRenderer2.defaultOptions, ...options };
-        this._roundPixels = options.roundPixels ? 1 : 0;
-        for (let i3 = 0; i3 < this.runners.init.items.length; i3++) {
-          await this.runners.init.items[i3].init(options);
-        }
-        this._initOptions = options;
-      }
-      render(args, deprecated) {
-        this.tick++;
-        let options = args;
-        if (options instanceof Container) {
-          options = { container: options };
-          if (deprecated) {
-            deprecation(v8_0_0, "passing a second argument is deprecated, please use render options instead");
-            options.target = deprecated.renderTexture;
-          }
-        }
-        options.target || (options.target = this.view.renderTarget);
-        if (options.target === this.view.renderTarget) {
-          this._lastObjectRendered = options.container;
-          options.clearColor ?? (options.clearColor = this.background.colorRgba);
-          options.clear ?? (options.clear = this.background.clearBeforeRender);
-        }
-        if (options.clearColor) {
-          const isRGBAArray = Array.isArray(options.clearColor) && options.clearColor.length === 4;
-          options.clearColor = isRGBAArray ? options.clearColor : Color.shared.setValue(options.clearColor).toArray();
-        }
-        if (!options.transform) {
-          options.container.updateLocalTransform();
-          options.transform = options.container.localTransform;
-        }
-        if (!options.container.visible) {
-          return;
-        }
-        options.container.enableRenderGroup();
-        this.runners.prerender.emit(options);
-        this.runners.renderStart.emit(options);
-        this.runners.render.emit(options);
-        this.runners.renderEnd.emit(options);
-        this.runners.postrender.emit(options);
-      }
-      /**
-       * Resizes the WebGL view to the specified width and height.
-       * @param desiredScreenWidth - The desired width of the screen.
-       * @param desiredScreenHeight - The desired height of the screen.
-       * @param resolution - The resolution / device pixel ratio of the renderer.
-       */
-      resize(desiredScreenWidth, desiredScreenHeight, resolution) {
-        const previousResolution = this.view.resolution;
-        this.view.resize(desiredScreenWidth, desiredScreenHeight, resolution);
-        this.emit("resize", this.view.screen.width, this.view.screen.height, this.view.resolution);
-        if (resolution !== void 0 && resolution !== previousResolution) {
-          this.runners.resolutionChange.emit(resolution);
-        }
-      }
-      /**
-       * Clears the render target.
-       * @param options - The options to use when clearing the render target.
-       * @param options.target - The render target to clear.
-       * @param options.clearColor - The color to clear with.
-       * @param options.clear - The clear mode to use.
-       * @advanced
-       */
-      clear(options = {}) {
-        const renderer = this;
-        options.target || (options.target = renderer.renderTarget.renderTarget);
-        options.clearColor || (options.clearColor = this.background.colorRgba);
-        options.clear ?? (options.clear = CLEAR.ALL);
-        const { clear, clearColor, target, mipLevel, layer } = options;
-        Color.shared.setValue(clearColor ?? this.background.colorRgba);
-        renderer.renderTarget.clear(target, clear, Color.shared.toArray(), mipLevel ?? 0, layer ?? 0);
-      }
-      /** The resolution / device pixel ratio of the renderer. */
-      get resolution() {
-        return this.view.resolution;
-      }
-      set resolution(value) {
-        this.view.resolution = value;
-        this.runners.resolutionChange.emit(value);
-      }
-      /**
-       * Same as view.width, actual number of pixels in the canvas by horizontal.
-       * @type {number}
-       * @readonly
-       * @default 800
-       */
-      get width() {
-        return this.view.texture.frame.width;
-      }
-      /**
-       * Same as view.height, actual number of pixels in the canvas by vertical.
-       * @default 600
-       */
-      get height() {
-        return this.view.texture.frame.height;
-      }
-      // NOTE: this was `view` in v7
-      /**
-       * The canvas element that everything is drawn to.
-       * @type {environment.ICanvas}
-       */
-      get canvas() {
-        return this.view.canvas;
-      }
-      /**
-       * the last object rendered by the renderer. Useful for other plugins like interaction managers
-       * @readonly
-       */
-      get lastObjectRendered() {
-        return this._lastObjectRendered;
-      }
-      /**
-       * Flag if we are rendering to the screen vs renderTexture
-       * @readonly
-       * @default true
-       */
-      get renderingToScreen() {
-        const renderer = this;
-        return renderer.renderTarget.renderingToScreen;
-      }
-      /**
-       * Measurements of the screen. (0, 0, screenWidth, screenHeight).
-       *
-       * Its safe to use as filterArea or hitArea for the whole stage.
-       */
-      get screen() {
-        return this.view.screen;
-      }
-      /**
-       * Create a bunch of runners based of a collection of ids
-       * @param runnerIds - the runner ids to add
-       */
-      _addRunners(...runnerIds) {
-        runnerIds.forEach((runnerId) => {
-          this.runners[runnerId] = new SystemRunner(runnerId);
-        });
-      }
-      _addSystems(systems4) {
-        let i3;
-        for (i3 in systems4) {
-          const val = systems4[i3];
-          this._addSystem(val.value, val.name);
-        }
-      }
-      /**
-       * Add a new system to the renderer.
-       * @param ClassRef - Class reference
-       * @param name - Property name for system, if not specified
-       *        will use a static `name` property on the class itself. This
-       *        name will be assigned as s property on the Renderer so make
-       *        sure it doesn't collide with properties on Renderer.
-       * @returns Return instance of renderer
-       */
-      _addSystem(ClassRef, name) {
-        const system = new ClassRef(this);
-        if (this[name]) {
-          throw new Error(`Whoops! The name "${name}" is already in use`);
-        }
-        this[name] = system;
-        this._systemsHash[name] = system;
-        for (const i3 in this.runners) {
-          this.runners[i3].add(system);
-        }
-        return this;
-      }
-      _addPipes(pipes, pipeAdaptors) {
-        const adaptors = pipeAdaptors.reduce((acc, adaptor) => {
-          acc[adaptor.name] = adaptor.value;
-          return acc;
-        }, {});
-        pipes.forEach((pipe) => {
-          const PipeClass = pipe.value;
-          const name = pipe.name;
-          const Adaptor = adaptors[name];
-          this.renderPipes[name] = new PipeClass(
-            this,
-            Adaptor ? new Adaptor() : null
-          );
-          this.runners.destroy.add(this.renderPipes[name]);
-        });
-      }
-      destroy(options = false) {
-        this.runners.destroy.items.reverse();
-        this.runners.destroy.emit(options);
-        if (options === true || typeof options === "object" && options.releaseGlobalResources) {
-          GlobalResourceRegistry.release();
-        }
-        Object.values(this.runners).forEach((runner) => {
-          runner.destroy();
-        });
-        this._systemsHash = null;
-        this.renderPipes = null;
-        this.removeAllListeners();
-      }
-      /**
-       * Generate a texture from a container.
-       * @param options - options or container target to use when generating the texture
-       * @returns a texture
-       */
-      generateTexture(options) {
-        return this.textureGenerator.generateTexture(options);
-      }
-      /**
-       * Whether the renderer will round coordinates to whole pixels when rendering.
-       * Can be overridden on a per scene item basis.
-       */
-      get roundPixels() {
-        return !!this._roundPixels;
-      }
-      /**
-       * Overridable function by `pixi.js/unsafe-eval` to silence
-       * throwing an error if platform doesn't support unsafe-evals.
-       * @private
-       * @ignore
-       */
-      _unsafeEvalCheck() {
-        if (!unsafeEvalSupported()) {
-          throw new Error("Current environment does not allow unsafe-eval, please use pixi.js/unsafe-eval module to enable support.");
-        }
-      }
-      /**
-       * Resets the rendering state of the renderer.
-       * This is useful when you want to use the WebGL context directly and need to ensure PixiJS's internal state
-       * stays synchronized. When modifying the WebGL context state externally, calling this method before the next Pixi
-       * render will reset all internal caches and ensure it executes correctly.
-       *
-       * This is particularly useful when combining PixiJS with other rendering engines like Three.js:
-       * ```js
-       * // Reset Three.js state
-       * threeRenderer.resetState();
-       *
-       * // Render a Three.js scene
-       * threeRenderer.render(threeScene, threeCamera);
-       *
-       * // Reset PixiJS state since Three.js modified the WebGL context
-       * pixiRenderer.resetState();
-       *
-       * // Now render Pixi content
-       * pixiRenderer.render(pixiScene);
-       * ```
-       * @advanced
-       */
-      resetState() {
-        this.runners.resetState.emit();
-      }
-    };
-    _AbstractRenderer.defaultOptions = {
-      /**
-       * Default resolution / device pixel ratio of the renderer.
-       * @default 1
-       */
-      resolution: 1,
-      /**
-       * Should the `failIfMajorPerformanceCaveat` flag be enabled as a context option used in the `isWebGLSupported`
-       * function. If set to true, a WebGL renderer can fail to be created if the browser thinks there could be
-       * performance issues when using WebGL.
-       *
-       * In PixiJS v6 this has changed from true to false by default, to allow WebGL to work in as many
-       * scenarios as possible. However, some users may have a poor experience, for example, if a user has a gpu or
-       * driver version blacklisted by the
-       * browser.
-       *
-       * If your application requires high performance rendering, you may wish to set this to false.
-       * We recommend one of two options if you decide to set this flag to false:
-       *
-       * 1: Use the Canvas renderer as a fallback in case high performance WebGL is
-       *    not supported.
-       *
-       * 2: Call `isWebGLSupported` (which if found in the utils package) in your code before attempting to create a
-       *    PixiJS renderer, and show an error message to the user if the function returns false, explaining that their
-       *    device & browser combination does not support high performance WebGL.
-       *    This is a much better strategy than trying to create a PixiJS renderer and finding it then fails.
-       * @default false
-       */
-      failIfMajorPerformanceCaveat: false,
-      /**
-       * Should round pixels be forced when rendering?
-       * @default false
-       */
-      roundPixels: false
-    };
-    AbstractRenderer = _AbstractRenderer;
   }
 });
 
@@ -34015,114 +35670,6 @@ var init_globalHooks = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/utils/data/ViewableBuffer.mjs
-var ViewableBuffer;
-var init_ViewableBuffer = __esm({
-  "node_modules/pixi.js/lib/utils/data/ViewableBuffer.mjs"() {
-    "use strict";
-    ViewableBuffer = class {
-      constructor(sizeOrBuffer) {
-        if (typeof sizeOrBuffer === "number") {
-          this.rawBinaryData = new ArrayBuffer(sizeOrBuffer);
-        } else if (sizeOrBuffer instanceof Uint8Array) {
-          this.rawBinaryData = sizeOrBuffer.buffer;
-        } else {
-          this.rawBinaryData = sizeOrBuffer;
-        }
-        this.uint32View = new Uint32Array(this.rawBinaryData);
-        this.float32View = new Float32Array(this.rawBinaryData);
-        this.size = this.rawBinaryData.byteLength;
-      }
-      /** View on the raw binary data as a `Int8Array`. */
-      get int8View() {
-        if (!this._int8View) {
-          this._int8View = new Int8Array(this.rawBinaryData);
-        }
-        return this._int8View;
-      }
-      /** View on the raw binary data as a `Uint8Array`. */
-      get uint8View() {
-        if (!this._uint8View) {
-          this._uint8View = new Uint8Array(this.rawBinaryData);
-        }
-        return this._uint8View;
-      }
-      /**  View on the raw binary data as a `Int16Array`. */
-      get int16View() {
-        if (!this._int16View) {
-          this._int16View = new Int16Array(this.rawBinaryData);
-        }
-        return this._int16View;
-      }
-      /** View on the raw binary data as a `Int32Array`. */
-      get int32View() {
-        if (!this._int32View) {
-          this._int32View = new Int32Array(this.rawBinaryData);
-        }
-        return this._int32View;
-      }
-      /** View on the raw binary data as a `Float64Array`. */
-      get float64View() {
-        if (!this._float64Array) {
-          this._float64Array = new Float64Array(this.rawBinaryData);
-        }
-        return this._float64Array;
-      }
-      /** View on the raw binary data as a `BigUint64Array`. */
-      get bigUint64View() {
-        if (!this._bigUint64Array) {
-          this._bigUint64Array = new BigUint64Array(this.rawBinaryData);
-        }
-        return this._bigUint64Array;
-      }
-      /**
-       * Returns the view of the given type.
-       * @param type - One of `int8`, `uint8`, `int16`,
-       *    `uint16`, `int32`, `uint32`, and `float32`.
-       * @returns - typed array of given type
-       */
-      view(type) {
-        return this[`${type}View`];
-      }
-      /** Destroys all buffer references. Do not use after calling this. */
-      destroy() {
-        this.rawBinaryData = null;
-        this.uint32View = null;
-        this.float32View = null;
-        this.uint16View = null;
-        this._int8View = null;
-        this._uint8View = null;
-        this._int16View = null;
-        this._int32View = null;
-        this._float64Array = null;
-        this._bigUint64Array = null;
-      }
-      /**
-       * Returns the size of the given type in bytes.
-       * @param type - One of `int8`, `uint8`, `int16`,
-       *   `uint16`, `int32`, `uint32`, and `float32`.
-       * @returns - size of the type in bytes
-       */
-      static sizeOf(type) {
-        switch (type) {
-          case "int8":
-          case "uint8":
-            return 1;
-          case "int16":
-          case "uint16":
-            return 2;
-          case "int32":
-          case "uint32":
-          case "float32":
-            return 4;
-          default:
-            throw new Error(`${type} isn't a valid view type`);
-        }
-      }
-    };
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/shared/buffer/utils/fastCopy.mjs
 function fastCopy(sourceBuffer, destinationBuffer, sourceOffset, byteLength) {
   sourceOffset ?? (sourceOffset = 0);
@@ -34648,7 +36195,7 @@ var placeHolderBufferData, placeHolderIndexData, BatchGeometry;
 var init_BatchGeometry = __esm({
   "node_modules/pixi.js/lib/rendering/batcher/shared/BatchGeometry.mjs"() {
     init_Buffer();
-    init_const4();
+    init_const();
     init_Geometry();
     placeHolderBufferData = new Float32Array(1);
     placeHolderIndexData = new Uint32Array(1);
@@ -35108,7 +36655,7 @@ var init_AlphaMaskPipe = __esm({
     init_PoolGroup();
     init_Texture();
     init_TexturePool();
-    init_types();
+    init_types2();
     tempBounds3 = new Bounds();
     AlphaMaskEffect = class extends FilterEffect {
       constructor() {
@@ -35341,7 +36888,7 @@ var StencilMaskPipe;
 var init_StencilMaskPipe = __esm({
   "node_modules/pixi.js/lib/rendering/mask/stencil/StencilMaskPipe.mjs"() {
     init_Extensions();
-    init_const5();
+    init_const3();
     init_const7();
     StencilMaskPipe = class {
       constructor(renderer) {
@@ -36596,7 +38143,7 @@ var init_GlobalUniformSystem = __esm({
     init_Point();
     init_colorToUniform();
     init_BindGroup();
-    init_types();
+    init_types2();
     init_UniformGroup();
     GlobalUniformSystem = class {
       constructor(renderer) {
@@ -36849,7 +38396,7 @@ var init_HelloSystem = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/shared/startup/HelloSystem.mjs"() {
     init_Extensions();
     init_sayHello();
-    init_types();
+    init_types2();
     HelloSystem = class {
       constructor(renderer) {
         this._renderer = renderer;
@@ -38031,536 +39578,6 @@ var init_GpuStencilSystem = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/UboSystem.mjs
-var UboSystem;
-var init_UboSystem = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/UboSystem.mjs"() {
-    init_unsafeEvalSupported();
-    init_Buffer();
-    init_const4();
-    UboSystem = class {
-      constructor(adaptor) {
-        this._syncFunctionHash = /* @__PURE__ */ Object.create(null);
-        this._adaptor = adaptor;
-        this._systemCheck();
-      }
-      /**
-       * Overridable function by `pixi.js/unsafe-eval` to silence
-       * throwing an error if platform doesn't support unsafe-evals.
-       * @private
-       */
-      _systemCheck() {
-        if (!unsafeEvalSupported()) {
-          throw new Error("Current environment does not allow unsafe-eval, please use pixi.js/unsafe-eval module to enable support.");
-        }
-      }
-      ensureUniformGroup(uniformGroup) {
-        const uniformData = this.getUniformGroupData(uniformGroup);
-        uniformGroup.buffer || (uniformGroup.buffer = new Buffer2({
-          data: new Float32Array(uniformData.layout.size / 4),
-          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST
-        }));
-      }
-      getUniformGroupData(uniformGroup) {
-        return this._syncFunctionHash[uniformGroup._signature] || this._initUniformGroup(uniformGroup);
-      }
-      _initUniformGroup(uniformGroup) {
-        const uniformGroupSignature = uniformGroup._signature;
-        let uniformData = this._syncFunctionHash[uniformGroupSignature];
-        if (!uniformData) {
-          const elements = Object.keys(uniformGroup.uniformStructures).map((i3) => uniformGroup.uniformStructures[i3]);
-          const layout = this._adaptor.createUboElements(elements);
-          const syncFunction = this._generateUboSync(layout.uboElements);
-          uniformData = this._syncFunctionHash[uniformGroupSignature] = {
-            layout,
-            syncFunction
-          };
-        }
-        return this._syncFunctionHash[uniformGroupSignature];
-      }
-      _generateUboSync(uboElements) {
-        return this._adaptor.generateUboSync(uboElements);
-      }
-      syncUniformGroup(uniformGroup, data, offset4) {
-        const uniformGroupData = this.getUniformGroupData(uniformGroup);
-        uniformGroup.buffer || (uniformGroup.buffer = new Buffer2({
-          data: new Float32Array(uniformGroupData.layout.size / 4),
-          usage: BufferUsage.UNIFORM | BufferUsage.COPY_DST
-        }));
-        let dataInt32 = null;
-        if (!data) {
-          data = uniformGroup.buffer.data;
-          dataInt32 = uniformGroup.buffer.dataInt32;
-        }
-        offset4 || (offset4 = 0);
-        uniformGroupData.syncFunction(uniformGroup.uniforms, data, dataInt32, offset4);
-        return true;
-      }
-      updateUniformGroup(uniformGroup) {
-        if (uniformGroup.isStatic && !uniformGroup._dirtyId) return false;
-        uniformGroup._dirtyId = 0;
-        const synced = this.syncUniformGroup(uniformGroup);
-        uniformGroup.buffer.update();
-        return synced;
-      }
-      destroy() {
-        this._syncFunctionHash = null;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboElementsWGSL.mjs
-function createUboElementsWGSL(uniformData) {
-  const uboElements = uniformData.map((data) => ({
-    data,
-    offset: 0,
-    size: 0
-  }));
-  let offset4 = 0;
-  for (let i3 = 0; i3 < uboElements.length; i3++) {
-    const uboElement = uboElements[i3];
-    let size4 = WGSL_ALIGN_SIZE_DATA[uboElement.data.type].size;
-    const align = WGSL_ALIGN_SIZE_DATA[uboElement.data.type].align;
-    if (!WGSL_ALIGN_SIZE_DATA[uboElement.data.type]) {
-      throw new Error(`[Pixi.js] WebGPU UniformBuffer: Unknown type ${uboElement.data.type}`);
-    }
-    if (uboElement.data.size > 1) {
-      size4 = Math.max(size4, align) * uboElement.data.size;
-    }
-    offset4 = Math.ceil(offset4 / align) * align;
-    uboElement.size = size4;
-    uboElement.offset = offset4;
-    offset4 += size4;
-  }
-  offset4 = Math.ceil(offset4 / 16) * 16;
-  return { uboElements, size: offset4 };
-}
-var WGSL_ALIGN_SIZE_DATA;
-var init_createUboElementsWGSL = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboElementsWGSL.mjs"() {
-    "use strict";
-    WGSL_ALIGN_SIZE_DATA = {
-      i32: { align: 4, size: 4 },
-      u32: { align: 4, size: 4 },
-      f32: { align: 4, size: 4 },
-      f16: { align: 2, size: 2 },
-      "vec2<i32>": { align: 8, size: 8 },
-      "vec2<u32>": { align: 8, size: 8 },
-      "vec2<f32>": { align: 8, size: 8 },
-      "vec2<f16>": { align: 4, size: 4 },
-      "vec3<i32>": { align: 16, size: 12 },
-      "vec3<u32>": { align: 16, size: 12 },
-      "vec3<f32>": { align: 16, size: 12 },
-      "vec3<f16>": { align: 8, size: 6 },
-      "vec4<i32>": { align: 16, size: 16 },
-      "vec4<u32>": { align: 16, size: 16 },
-      "vec4<f32>": { align: 16, size: 16 },
-      "vec4<f16>": { align: 8, size: 8 },
-      "mat2x2<f32>": { align: 8, size: 16 },
-      "mat2x2<f16>": { align: 4, size: 8 },
-      "mat3x2<f32>": { align: 8, size: 24 },
-      "mat3x2<f16>": { align: 4, size: 12 },
-      "mat4x2<f32>": { align: 8, size: 32 },
-      "mat4x2<f16>": { align: 4, size: 16 },
-      "mat2x3<f32>": { align: 16, size: 32 },
-      "mat2x3<f16>": { align: 8, size: 16 },
-      "mat3x3<f32>": { align: 16, size: 48 },
-      "mat3x3<f16>": { align: 8, size: 24 },
-      "mat4x3<f32>": { align: 16, size: 64 },
-      "mat4x3<f16>": { align: 8, size: 32 },
-      "mat2x4<f32>": { align: 16, size: 32 },
-      "mat2x4<f16>": { align: 8, size: 16 },
-      "mat3x4<f32>": { align: 16, size: 48 },
-      "mat3x4<f16>": { align: 8, size: 24 },
-      "mat4x4<f32>": { align: 16, size: 64 },
-      "mat4x4<f16>": { align: 8, size: 32 }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uniformParsers.mjs
-var uniformParsers;
-var init_uniformParsers = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uniformParsers.mjs"() {
-    "use strict";
-    uniformParsers = [
-      // uploading pixi matrix object to mat3
-      {
-        type: "mat3x3<f32>",
-        test: (data) => {
-          const value = data.value;
-          return value.a !== void 0;
-        },
-        ubo: `
-            var matrix = uv[name].toArray(true);
-            data[offset] = matrix[0];
-            data[offset + 1] = matrix[1];
-            data[offset + 2] = matrix[2];
-            data[offset + 4] = matrix[3];
-            data[offset + 5] = matrix[4];
-            data[offset + 6] = matrix[5];
-            data[offset + 8] = matrix[6];
-            data[offset + 9] = matrix[7];
-            data[offset + 10] = matrix[8];
-        `,
-        uniform: `
-            gl.uniformMatrix3fv(ud[name].location, false, uv[name].toArray(true));
-        `
-      },
-      // uploading a pixi rectangle as a vec4
-      {
-        type: "vec4<f32>",
-        test: (data) => data.type === "vec4<f32>" && data.size === 1 && data.value.width !== void 0,
-        ubo: `
-            v = uv[name];
-            data[offset] = v.x;
-            data[offset + 1] = v.y;
-            data[offset + 2] = v.width;
-            data[offset + 3] = v.height;
-        `,
-        uniform: `
-            cv = ud[name].value;
-            v = uv[name];
-            if (cv[0] !== v.x || cv[1] !== v.y || cv[2] !== v.width || cv[3] !== v.height) {
-                cv[0] = v.x;
-                cv[1] = v.y;
-                cv[2] = v.width;
-                cv[3] = v.height;
-                gl.uniform4f(ud[name].location, v.x, v.y, v.width, v.height);
-            }
-        `
-      },
-      // uploading a pixi point as a vec2
-      {
-        type: "vec2<f32>",
-        test: (data) => data.type === "vec2<f32>" && data.size === 1 && data.value.x !== void 0,
-        ubo: `
-            v = uv[name];
-            data[offset] = v.x;
-            data[offset + 1] = v.y;
-        `,
-        uniform: `
-            cv = ud[name].value;
-            v = uv[name];
-            if (cv[0] !== v.x || cv[1] !== v.y) {
-                cv[0] = v.x;
-                cv[1] = v.y;
-                gl.uniform2f(ud[name].location, v.x, v.y);
-            }
-        `
-      },
-      // uploading a pixi color as a vec4
-      {
-        type: "vec4<f32>",
-        test: (data) => data.type === "vec4<f32>" && data.size === 1 && data.value.red !== void 0,
-        ubo: `
-            v = uv[name];
-            data[offset] = v.red;
-            data[offset + 1] = v.green;
-            data[offset + 2] = v.blue;
-            data[offset + 3] = v.alpha;
-        `,
-        uniform: `
-            cv = ud[name].value;
-            v = uv[name];
-            if (cv[0] !== v.red || cv[1] !== v.green || cv[2] !== v.blue || cv[3] !== v.alpha) {
-                cv[0] = v.red;
-                cv[1] = v.green;
-                cv[2] = v.blue;
-                cv[3] = v.alpha;
-                gl.uniform4f(ud[name].location, v.red, v.green, v.blue, v.alpha);
-            }
-        `
-      },
-      // uploading a pixi color as a vec3
-      {
-        type: "vec3<f32>",
-        test: (data) => data.type === "vec3<f32>" && data.size === 1 && data.value.red !== void 0,
-        ubo: `
-            v = uv[name];
-            data[offset] = v.red;
-            data[offset + 1] = v.green;
-            data[offset + 2] = v.blue;
-        `,
-        uniform: `
-            cv = ud[name].value;
-            v = uv[name];
-            if (cv[0] !== v.red || cv[1] !== v.green || cv[2] !== v.blue) {
-                cv[0] = v.red;
-                cv[1] = v.green;
-                cv[2] = v.blue;
-                gl.uniform3f(ud[name].location, v.red, v.green, v.blue);
-            }
-        `
-      }
-    ];
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/createUboSyncFunction.mjs
-function createUboSyncFunction(uboElements, parserCode, arrayGenerationFunction, singleSettersMap) {
-  const funcFragments = [`
-        var v = null;
-        var v2 = null;
-        var t = 0;
-        var index = 0;
-        var name = null;
-        var arrayOffset = null;
-    `];
-  let prev = 0;
-  for (let i3 = 0; i3 < uboElements.length; i3++) {
-    const uboElement = uboElements[i3];
-    const name = uboElement.data.name;
-    let parsed = false;
-    let offset4 = 0;
-    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
-      const uniformParser = uniformParsers[j4];
-      if (uniformParser.test(uboElement.data)) {
-        offset4 = uboElement.offset / 4;
-        funcFragments.push(
-          `name = "${name}";`,
-          `offset += ${offset4 - prev};`,
-          uniformParsers[j4][parserCode] || uniformParsers[j4].ubo
-        );
-        parsed = true;
-        break;
-      }
-    }
-    if (!parsed) {
-      if (uboElement.data.size > 1) {
-        offset4 = uboElement.offset / 4;
-        funcFragments.push(arrayGenerationFunction(uboElement, offset4 - prev));
-      } else {
-        const template = singleSettersMap[uboElement.data.type];
-        offset4 = uboElement.offset / 4;
-        funcFragments.push(
-          /* wgsl */
-          `
-                    v = uv.${name};
-                    offset += ${offset4 - prev};
-                    ${template};
-                `
-        );
-      }
-    }
-    prev = offset4;
-  }
-  const fragmentSrc = funcFragments.join("\n");
-  return new Function(
-    "uv",
-    "data",
-    "dataInt32",
-    "offset",
-    fragmentSrc
-  );
-}
-var init_createUboSyncFunction = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/createUboSyncFunction.mjs"() {
-    init_uniformParsers();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uboSyncFunctions.mjs
-function loopMatrix(col, row) {
-  const total = col * row;
-  return `
-        for (let i = 0; i < ${total}; i++) {
-            data[offset + (((i / ${col})|0) * 4) + (i % ${col})] = v[i];
-        }
-    `;
-}
-var uboSyncFunctionsSTD40, uboSyncFunctionsWGSL;
-var init_uboSyncFunctions = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/shader/utils/uboSyncFunctions.mjs"() {
-    "use strict";
-    uboSyncFunctionsSTD40 = {
-      f32: `
-        data[offset] = v;`,
-      i32: `
-        dataInt32[offset] = v;`,
-      "vec2<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];`,
-      "vec3<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];
-        data[offset + 2] = v[2];`,
-      "vec4<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];
-        data[offset + 2] = v[2];
-        data[offset + 3] = v[3];`,
-      "vec2<i32>": `
-        dataInt32[offset] = v[0];
-        dataInt32[offset + 1] = v[1];`,
-      "vec3<i32>": `
-        dataInt32[offset] = v[0];
-        dataInt32[offset + 1] = v[1];
-        dataInt32[offset + 2] = v[2];`,
-      "vec4<i32>": `
-        dataInt32[offset] = v[0];
-        dataInt32[offset + 1] = v[1];
-        dataInt32[offset + 2] = v[2];
-        dataInt32[offset + 3] = v[3];`,
-      "mat2x2<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];
-        data[offset + 4] = v[2];
-        data[offset + 5] = v[3];`,
-      "mat3x3<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];
-        data[offset + 2] = v[2];
-        data[offset + 4] = v[3];
-        data[offset + 5] = v[4];
-        data[offset + 6] = v[5];
-        data[offset + 8] = v[6];
-        data[offset + 9] = v[7];
-        data[offset + 10] = v[8];`,
-      "mat4x4<f32>": `
-        for (let i = 0; i < 16; i++) {
-            data[offset + i] = v[i];
-        }`,
-      "mat3x2<f32>": loopMatrix(3, 2),
-      "mat4x2<f32>": loopMatrix(4, 2),
-      "mat2x3<f32>": loopMatrix(2, 3),
-      "mat4x3<f32>": loopMatrix(4, 3),
-      "mat2x4<f32>": loopMatrix(2, 4),
-      "mat3x4<f32>": loopMatrix(3, 4)
-    };
-    uboSyncFunctionsWGSL = {
-      ...uboSyncFunctionsSTD40,
-      "mat2x2<f32>": `
-        data[offset] = v[0];
-        data[offset + 1] = v[1];
-        data[offset + 2] = v[2];
-        data[offset + 3] = v[3];
-    `
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/generateArraySyncWGSL.mjs
-function generateArraySyncWGSL(uboElement, offsetToAdd) {
-  const { size: size4, align } = WGSL_ALIGN_SIZE_DATA[uboElement.data.type];
-  const remainder = (align - size4) / 4;
-  const data = uboElement.data.type.indexOf("i32") >= 0 ? "dataInt32" : "data";
-  return `
-         v = uv.${uboElement.data.name};
-         ${offsetToAdd !== 0 ? `offset += ${offsetToAdd};` : ""}
-
-         arrayOffset = offset;
-
-         t = 0;
-
-         for(var i=0; i < ${uboElement.data.size * (size4 / 4)}; i++)
-         {
-             for(var j = 0; j < ${size4 / 4}; j++)
-             {
-                 ${data}[arrayOffset++] = v[t++];
-             }
-             ${remainder !== 0 ? `arrayOffset += ${remainder};` : ""}
-         }
-     `;
-}
-var init_generateArraySyncWGSL = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/generateArraySyncWGSL.mjs"() {
-    init_createUboElementsWGSL();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboSyncFunctionWGSL.mjs
-function createUboSyncFunctionWGSL(uboElements) {
-  return createUboSyncFunction(
-    uboElements,
-    "uboWgsl",
-    generateArraySyncWGSL,
-    uboSyncFunctionsWGSL
-  );
-}
-var init_createUboSyncFunctionWGSL = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gpu/shader/utils/createUboSyncFunctionWGSL.mjs"() {
-    init_createUboSyncFunction();
-    init_uboSyncFunctions();
-    init_generateArraySyncWGSL();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gpu/GpuUboSystem.mjs
-var GpuUboSystem;
-var init_GpuUboSystem = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gpu/GpuUboSystem.mjs"() {
-    init_Extensions();
-    init_UboSystem();
-    init_createUboElementsWGSL();
-    init_createUboSyncFunctionWGSL();
-    GpuUboSystem = class extends UboSystem {
-      constructor() {
-        super({
-          createUboElements: createUboElementsWGSL,
-          generateUboSync: createUboSyncFunctionWGSL
-        });
-      }
-    };
-    GpuUboSystem.extension = {
-      type: [ExtensionType.WebGPUSystem],
-      name: "ubo"
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/shared/buffer/BufferResource.mjs
-var BufferResource;
-var init_BufferResource = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/shared/buffer/BufferResource.mjs"() {
-    init_eventemitter3();
-    init_uid();
-    BufferResource = class extends eventemitter3_default {
-      /**
-       * Create a new Buffer Resource.
-       * @param options - The options for the buffer resource
-       * @param options.buffer - The underlying buffer that this resource is using
-       * @param options.offset - The offset of the buffer this resource is using.
-       * If not provided, then it will use the offset of the buffer.
-       * @param options.size - The size of the buffer this resource is using.
-       * If not provided, then it will use the size of the buffer.
-       */
-      constructor({ buffer, offset: offset4, size: size4 }) {
-        super();
-        this.uid = uid("buffer");
-        this._resourceType = "bufferResource";
-        this._touched = 0;
-        this._resourceId = uid("resource");
-        this._bufferResource = true;
-        this.destroyed = false;
-        this.buffer = buffer;
-        this.offset = offset4 | 0;
-        this.size = size4;
-        this.buffer.on("change", this.onBufferChange, this);
-      }
-      onBufferChange() {
-        this._resourceId = uid("resource");
-        this.emit("change", this);
-      }
-      /**
-       * Destroys this resource. Make sure the underlying buffer is not used anywhere else
-       * if you want to destroy it as well, or code will explode
-       * @param destroyBuffer - Should the underlying buffer be destroyed as well?
-       */
-      destroy(destroyBuffer = false) {
-        this.destroyed = true;
-        if (destroyBuffer) {
-          this.buffer.destroy();
-        }
-        this.emit("change", this);
-        this.buffer = null;
-        this.removeAllListeners();
-      }
-    };
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/gpu/buffer/UboBatch.mjs
 var UboBatch;
 var init_UboBatch = __esm({
@@ -38610,7 +39627,7 @@ var init_GpuUniformBatchPipe = __esm({
     init_Extensions();
     init_Buffer();
     init_BufferResource();
-    init_const4();
+    init_const();
     init_UboBatch();
     init_BindGroup();
     minUniformOffsetAlignment = 128;
@@ -39115,7 +40132,7 @@ var init_RenderTargetSystem = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/shared/renderTarget/RenderTargetSystem.mjs"() {
     init_Matrix();
     init_Rectangle();
-    init_const5();
+    init_const3();
     init_calculateProjection();
     init_SystemRunner();
     init_CanvasSource();
@@ -39472,7 +40489,7 @@ var init_GpuRenderTarget = __esm({
 var GpuRenderTargetAdaptor;
 var init_GpuRenderTargetAdaptor = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/gpu/renderTarget/GpuRenderTargetAdaptor.mjs"() {
-    init_const5();
+    init_const3();
     init_CanvasSource();
     init_TextureSource();
     init_GpuRenderTarget();
@@ -40549,7 +41566,7 @@ var init_WebGPURenderer = __esm({
     init_GpuBatchAdaptor();
     init_AbstractRenderer();
     init_SharedSystems();
-    init_types();
+    init_types2();
     init_BindGroupSystem();
     init_GpuBufferSystem();
     init_GpuColorMaskSystem();
@@ -40843,7 +41860,7 @@ var init_GlBufferSystem = __esm({
   "node_modules/pixi.js/lib/rendering/renderers/gl/buffer/GlBufferSystem.mjs"() {
     init_Extensions();
     init_GCManagedHash();
-    init_const4();
+    init_const();
     init_const8();
     init_GlBuffer();
     GlBufferSystem = class {
@@ -42036,145 +43053,6 @@ var init_GlStencilSystem = __esm({
   }
 });
 
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboElementsSTD40.mjs
-function createUboElementsSTD40(uniformData) {
-  const uboElements = uniformData.map((data) => ({
-    data,
-    offset: 0,
-    size: 0
-  }));
-  const chunkSize = 16;
-  let size4 = 0;
-  let offset4 = 0;
-  for (let i3 = 0; i3 < uboElements.length; i3++) {
-    const uboElement = uboElements[i3];
-    size4 = WGSL_TO_STD40_SIZE[uboElement.data.type];
-    if (!size4) {
-      throw new Error(`Unknown type ${uboElement.data.type}`);
-    }
-    if (uboElement.data.size > 1) {
-      size4 = Math.max(size4, chunkSize) * uboElement.data.size;
-    }
-    const boundary = size4 === 12 ? 16 : size4;
-    uboElement.size = size4;
-    const curOffset = offset4 % chunkSize;
-    if (curOffset > 0 && chunkSize - curOffset < boundary) {
-      offset4 += (chunkSize - curOffset) % 16;
-    } else {
-      offset4 += (size4 - curOffset % size4) % size4;
-    }
-    uboElement.offset = offset4;
-    offset4 += size4;
-  }
-  offset4 = Math.ceil(offset4 / 16) * 16;
-  return { uboElements, size: offset4 };
-}
-var WGSL_TO_STD40_SIZE;
-var init_createUboElementsSTD40 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboElementsSTD40.mjs"() {
-    "use strict";
-    WGSL_TO_STD40_SIZE = {
-      f32: 4,
-      i32: 4,
-      "vec2<f32>": 8,
-      "vec3<f32>": 12,
-      "vec4<f32>": 16,
-      "vec2<i32>": 8,
-      "vec3<i32>": 12,
-      "vec4<i32>": 16,
-      "mat2x2<f32>": 16 * 2,
-      "mat3x3<f32>": 16 * 3,
-      "mat4x4<f32>": 16 * 4
-      // TODO - not essential for now but support these in the future
-      // int:      4,
-      // ivec2:    8,
-      // ivec3:    12,
-      // ivec4:    16,
-      // uint:     4,
-      // uvec2:    8,
-      // uvec3:    12,
-      // uvec4:    16,
-      // bool:     4,
-      // bvec2:    8,
-      // bvec3:    12,
-      // bvec4:    16,
-      // mat2:     16 * 2,
-      // mat3:     16 * 3,
-      // mat4:     16 * 4,
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateArraySyncSTD40.mjs
-function generateArraySyncSTD40(uboElement, offsetToAdd) {
-  const rowSize = Math.max(WGSL_TO_STD40_SIZE[uboElement.data.type] / 16, 1);
-  const elementSize = uboElement.data.value.length / uboElement.data.size;
-  const remainder = (4 - elementSize % 4) % 4;
-  const data = uboElement.data.type.indexOf("i32") >= 0 ? "dataInt32" : "data";
-  return `
-        v = uv.${uboElement.data.name};
-        offset += ${offsetToAdd};
-
-        arrayOffset = offset;
-
-        t = 0;
-
-        for(var i=0; i < ${uboElement.data.size * rowSize}; i++)
-        {
-            for(var j = 0; j < ${elementSize}; j++)
-            {
-                ${data}[arrayOffset++] = v[t++];
-            }
-            ${remainder !== 0 ? `arrayOffset += ${remainder};` : ""}
-        }
-    `;
-}
-var init_generateArraySyncSTD40 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateArraySyncSTD40.mjs"() {
-    init_createUboElementsSTD40();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboSyncSTD40.mjs
-function createUboSyncFunctionSTD40(uboElements) {
-  return createUboSyncFunction(
-    uboElements,
-    "uboStd40",
-    generateArraySyncSTD40,
-    uboSyncFunctionsSTD40
-  );
-}
-var init_createUboSyncSTD40 = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/createUboSyncSTD40.mjs"() {
-    init_createUboSyncFunction();
-    init_uboSyncFunctions();
-    init_generateArraySyncSTD40();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/GlUboSystem.mjs
-var GlUboSystem;
-var init_GlUboSystem = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/GlUboSystem.mjs"() {
-    init_Extensions();
-    init_UboSystem();
-    init_createUboElementsSTD40();
-    init_createUboSyncSTD40();
-    GlUboSystem = class extends UboSystem {
-      constructor() {
-        super({
-          createUboElements: createUboElementsSTD40,
-          generateUboSync: createUboSyncFunctionSTD40
-        });
-      }
-    };
-    GlUboSystem.extension = {
-      type: [ExtensionType.WebGLSystem],
-      name: "ubo"
-    };
-  }
-});
-
 // node_modules/pixi.js/lib/rendering/renderers/gl/GlRenderTarget.mjs
 var GlRenderTarget;
 var init_GlRenderTarget = __esm({
@@ -42200,7 +43078,7 @@ var init_GlRenderTargetAdaptor = __esm({
     init_Rectangle();
     init_warn();
     init_CanvasSource();
-    init_const5();
+    init_const3();
     init_GlRenderTarget();
     GlRenderTargetAdaptor = class {
       constructor() {
@@ -42617,884 +43495,6 @@ var init_GlRenderTargetSystem = __esm({
     GlRenderTargetSystem.extension = {
       type: [ExtensionType.WebGLSystem],
       name: "renderTarget"
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GenerateShaderSyncCode.mjs
-function generateShaderSyncCode(shader, shaderSystem) {
-  const funcFragments = [];
-  const headerFragments = [`
-        var g = s.groups;
-        var sS = r.shader;
-        var p = s.glProgram;
-        var ugS = r.uniformGroup;
-        var resources;
-    `];
-  let addedTextreSystem = false;
-  let textureCount = 0;
-  const programData = shaderSystem._getProgramData(shader.glProgram);
-  for (const i3 in shader.groups) {
-    const group = shader.groups[i3];
-    funcFragments.push(`
-            resources = g[${i3}].resources;
-        `);
-    for (const j4 in group.resources) {
-      const resource = group.resources[j4];
-      if (resource instanceof UniformGroup) {
-        if (resource.ubo) {
-          const resName = shader._uniformBindMap[i3][Number(j4)];
-          funcFragments.push(`
-                        sS.bindUniformBlock(
-                            resources[${j4}],
-                            '${resName}',
-                            ${shader.glProgram._uniformBlockData[resName].index}
-                        );
-                    `);
-        } else {
-          funcFragments.push(`
-                        ugS.updateUniformGroup(resources[${j4}], p, sD);
-                    `);
-        }
-      } else if (resource instanceof BufferResource) {
-        const resName = shader._uniformBindMap[i3][Number(j4)];
-        funcFragments.push(`
-                    sS.bindUniformBlock(
-                        resources[${j4}],
-                        '${resName}',
-                        ${shader.glProgram._uniformBlockData[resName].index}
-                    );
-                `);
-      } else if (resource instanceof TextureSource) {
-        const uniformName = shader._uniformBindMap[i3][j4];
-        const uniformData = programData.uniformData[uniformName];
-        if (uniformData) {
-          if (!addedTextreSystem) {
-            addedTextreSystem = true;
-            headerFragments.push(`
-                        var tS = r.texture;
-                        `);
-          }
-          shaderSystem._gl.uniform1i(uniformData.location, textureCount);
-          funcFragments.push(`
-                        tS.bind(resources[${j4}], ${textureCount});
-                    `);
-          textureCount++;
-        }
-      }
-    }
-  }
-  const functionSource = [...headerFragments, ...funcFragments].join("\n");
-  return new Function("r", "s", "sD", functionSource);
-}
-var init_GenerateShaderSyncCode = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GenerateShaderSyncCode.mjs"() {
-    init_BufferResource();
-    init_UniformGroup();
-    init_TextureSource();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlProgramData.mjs
-var GlProgramData;
-var init_GlProgramData = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlProgramData.mjs"() {
-    "use strict";
-    GlProgramData = class {
-      /**
-       * Makes a new Pixi program.
-       * @param program - webgl program
-       * @param uniformData - uniforms
-       */
-      constructor(program, uniformData) {
-        this.program = program;
-        this.uniformData = uniformData;
-        this.uniformGroups = {};
-        this.uniformDirtyGroups = {};
-        this.uniformBlockBindings = {};
-      }
-      /** Destroys this program. */
-      destroy() {
-        this.uniformData = null;
-        this.uniformGroups = null;
-        this.uniformDirtyGroups = null;
-        this.uniformBlockBindings = null;
-        this.program = null;
-      }
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/compileShader.mjs
-function compileShader(gl, type, src) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
-  return shader;
-}
-var init_compileShader = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/compileShader.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/defaultValue.mjs
-function booleanArray(size4) {
-  const array = new Array(size4);
-  for (let i3 = 0; i3 < array.length; i3++) {
-    array[i3] = false;
-  }
-  return array;
-}
-function defaultValue2(type, size4) {
-  switch (type) {
-    case "float":
-      return 0;
-    case "vec2":
-      return new Float32Array(2 * size4);
-    case "vec3":
-      return new Float32Array(3 * size4);
-    case "vec4":
-      return new Float32Array(4 * size4);
-    case "int":
-    case "uint":
-    case "sampler2D":
-    case "sampler2DArray":
-      return 0;
-    case "ivec2":
-      return new Int32Array(2 * size4);
-    case "ivec3":
-      return new Int32Array(3 * size4);
-    case "ivec4":
-      return new Int32Array(4 * size4);
-    case "uvec2":
-      return new Uint32Array(2 * size4);
-    case "uvec3":
-      return new Uint32Array(3 * size4);
-    case "uvec4":
-      return new Uint32Array(4 * size4);
-    case "bool":
-      return false;
-    case "bvec2":
-      return booleanArray(2 * size4);
-    case "bvec3":
-      return booleanArray(3 * size4);
-    case "bvec4":
-      return booleanArray(4 * size4);
-    case "mat2":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        1
-      ]);
-    case "mat3":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1
-      ]);
-    case "mat4":
-      return new Float32Array([
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1
-      ]);
-  }
-  return null;
-}
-var init_defaultValue = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/defaultValue.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/mapType.mjs
-function mapType(gl, type) {
-  if (!GL_TABLE) {
-    const typeNames = Object.keys(GL_TO_GLSL_TYPES);
-    GL_TABLE = {};
-    for (let i3 = 0; i3 < typeNames.length; ++i3) {
-      const tn = typeNames[i3];
-      GL_TABLE[gl[tn]] = GL_TO_GLSL_TYPES[tn];
-    }
-  }
-  return GL_TABLE[type];
-}
-function mapGlToVertexFormat(gl, type) {
-  const typeValue = mapType(gl, type);
-  return GLSL_TO_VERTEX_TYPES[typeValue] || "float32";
-}
-var GL_TABLE, GL_TO_GLSL_TYPES, GLSL_TO_VERTEX_TYPES;
-var init_mapType = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/mapType.mjs"() {
-    "use strict";
-    GL_TABLE = null;
-    GL_TO_GLSL_TYPES = {
-      FLOAT: "float",
-      FLOAT_VEC2: "vec2",
-      FLOAT_VEC3: "vec3",
-      FLOAT_VEC4: "vec4",
-      INT: "int",
-      INT_VEC2: "ivec2",
-      INT_VEC3: "ivec3",
-      INT_VEC4: "ivec4",
-      UNSIGNED_INT: "uint",
-      UNSIGNED_INT_VEC2: "uvec2",
-      UNSIGNED_INT_VEC3: "uvec3",
-      UNSIGNED_INT_VEC4: "uvec4",
-      BOOL: "bool",
-      BOOL_VEC2: "bvec2",
-      BOOL_VEC3: "bvec3",
-      BOOL_VEC4: "bvec4",
-      FLOAT_MAT2: "mat2",
-      FLOAT_MAT3: "mat3",
-      FLOAT_MAT4: "mat4",
-      SAMPLER_2D: "sampler2D",
-      INT_SAMPLER_2D: "sampler2D",
-      UNSIGNED_INT_SAMPLER_2D: "sampler2D",
-      SAMPLER_CUBE: "samplerCube",
-      INT_SAMPLER_CUBE: "samplerCube",
-      UNSIGNED_INT_SAMPLER_CUBE: "samplerCube",
-      SAMPLER_2D_ARRAY: "sampler2DArray",
-      INT_SAMPLER_2D_ARRAY: "sampler2DArray",
-      UNSIGNED_INT_SAMPLER_2D_ARRAY: "sampler2DArray"
-    };
-    GLSL_TO_VERTEX_TYPES = {
-      float: "float32",
-      vec2: "float32x2",
-      vec3: "float32x3",
-      vec4: "float32x4",
-      int: "sint32",
-      ivec2: "sint32x2",
-      ivec3: "sint32x3",
-      ivec4: "sint32x4",
-      uint: "uint32",
-      uvec2: "uint32x2",
-      uvec3: "uint32x3",
-      uvec4: "uint32x4",
-      bool: "uint32",
-      bvec2: "uint32x2",
-      bvec3: "uint32x3",
-      bvec4: "uint32x4"
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/extractAttributesFromGlProgram.mjs
-function extractAttributesFromGlProgram(program, gl, sortAttributes = false) {
-  const attributes = {};
-  const totalAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-  for (let i3 = 0; i3 < totalAttributes; i3++) {
-    const attribData = gl.getActiveAttrib(program, i3);
-    if (attribData.name.startsWith("gl_")) {
-      continue;
-    }
-    const format = mapGlToVertexFormat(gl, attribData.type);
-    attributes[attribData.name] = {
-      location: 0,
-      // set further down..
-      format,
-      stride: getAttributeInfoFromFormat(format).stride,
-      offset: 0,
-      instance: false,
-      start: 0
-    };
-  }
-  const keys = Object.keys(attributes);
-  if (sortAttributes) {
-    keys.sort((a3, b3) => a3 > b3 ? 1 : -1);
-    for (let i3 = 0; i3 < keys.length; i3++) {
-      attributes[keys[i3]].location = i3;
-      gl.bindAttribLocation(program, i3, keys[i3]);
-    }
-    gl.linkProgram(program);
-  } else {
-    for (let i3 = 0; i3 < keys.length; i3++) {
-      attributes[keys[i3]].location = gl.getAttribLocation(program, keys[i3]);
-    }
-  }
-  return attributes;
-}
-var init_extractAttributesFromGlProgram = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/extractAttributesFromGlProgram.mjs"() {
-    init_getAttributeInfoFromFormat();
-    init_mapType();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUboData.mjs
-function getUboData(program, gl) {
-  if (!gl.ACTIVE_UNIFORM_BLOCKS) return {};
-  const uniformBlocks = {};
-  const totalUniformsBlocks = gl.getProgramParameter(program, gl.ACTIVE_UNIFORM_BLOCKS);
-  for (let i3 = 0; i3 < totalUniformsBlocks; i3++) {
-    const name = gl.getActiveUniformBlockName(program, i3);
-    const uniformBlockIndex = gl.getUniformBlockIndex(program, name);
-    const size4 = gl.getActiveUniformBlockParameter(program, i3, gl.UNIFORM_BLOCK_DATA_SIZE);
-    uniformBlocks[name] = {
-      name,
-      index: uniformBlockIndex,
-      size: size4
-    };
-  }
-  return uniformBlocks;
-}
-var init_getUboData = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUboData.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUniformData.mjs
-function getUniformData(program, gl) {
-  const uniforms = {};
-  const totalUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-  for (let i3 = 0; i3 < totalUniforms; i3++) {
-    const uniformData = gl.getActiveUniform(program, i3);
-    const name = uniformData.name.replace(/\[.*?\]$/, "");
-    const isArray2 = !!uniformData.name.match(/\[.*?\]$/);
-    const type = mapType(gl, uniformData.type);
-    uniforms[name] = {
-      name,
-      index: i3,
-      type,
-      size: uniformData.size,
-      isArray: isArray2,
-      value: defaultValue2(type, uniformData.size)
-    };
-  }
-  return uniforms;
-}
-var init_getUniformData = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/getUniformData.mjs"() {
-    init_defaultValue();
-    init_mapType();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/logProgramError.mjs
-function logPrettyShaderError(gl, shader) {
-  const rawSource = gl.getShaderSource(shader);
-  if (rawSource === null) {
-    console.error("PixiJS Error: Could not retrieve shader source (WebGL context may be lost).");
-    return;
-  }
-  const shaderSrc = rawSource.split("\n").map((line, index2) => `${index2}: ${line}`);
-  const shaderLog = gl.getShaderInfoLog(shader) ?? "";
-  const splitShader = shaderLog.split("\n");
-  const dedupe = {};
-  const lineNumbers = splitShader.map((line) => parseFloat(line.replace(/^ERROR\: 0\:([\d]+)\:.*$/, "$1"))).filter((n3) => {
-    if (n3 && !dedupe[n3]) {
-      dedupe[n3] = true;
-      return true;
-    }
-    return false;
-  });
-  const logArgs = [""];
-  lineNumbers.forEach((number2) => {
-    shaderSrc[number2 - 1] = `%c${shaderSrc[number2 - 1]}%c`;
-    logArgs.push("background: #FF0000; color:#FFFFFF; font-size: 10px", "font-size: 10px");
-  });
-  const fragmentSourceToLog = shaderSrc.join("\n");
-  logArgs[0] = fragmentSourceToLog;
-  console.error(shaderLog);
-  console.groupCollapsed("click to view full shader code");
-  console.warn(...logArgs);
-  console.groupEnd();
-}
-function logProgramError(gl, program, vertexShader, fragmentShader) {
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-      logPrettyShaderError(gl, vertexShader);
-    }
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-      logPrettyShaderError(gl, fragmentShader);
-    }
-    console.error("PixiJS Error: Could not initialize shader.");
-    if (gl.getProgramInfoLog(program) !== "") {
-      console.warn("PixiJS Warning: gl.getProgramInfoLog()", gl.getProgramInfoLog(program));
-    }
-  }
-}
-var init_logProgramError = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/logProgramError.mjs"() {
-    "use strict";
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/generateProgram.mjs
-function generateProgram(gl, program) {
-  const glVertShader = compileShader(gl, gl.VERTEX_SHADER, program.vertex);
-  const glFragShader = compileShader(gl, gl.FRAGMENT_SHADER, program.fragment);
-  const webGLProgram = gl.createProgram();
-  gl.attachShader(webGLProgram, glVertShader);
-  gl.attachShader(webGLProgram, glFragShader);
-  const transformFeedbackVaryings = program.transformFeedbackVaryings;
-  if (transformFeedbackVaryings) {
-    if (typeof gl.transformFeedbackVaryings !== "function") {
-      warn(`TransformFeedback is not supported but TransformFeedbackVaryings are given.`);
-    } else {
-      gl.transformFeedbackVaryings(
-        webGLProgram,
-        transformFeedbackVaryings.names,
-        transformFeedbackVaryings.bufferMode === "separate" ? gl.SEPARATE_ATTRIBS : gl.INTERLEAVED_ATTRIBS
-      );
-    }
-  }
-  gl.linkProgram(webGLProgram);
-  if (!gl.getProgramParameter(webGLProgram, gl.LINK_STATUS)) {
-    logProgramError(gl, webGLProgram, glVertShader, glFragShader);
-  }
-  program._attributeData = extractAttributesFromGlProgram(
-    webGLProgram,
-    gl,
-    !/^[ \t]*#[ \t]*version[ \t]+300[ \t]+es[ \t]*$/m.test(program.vertex)
-  );
-  program._uniformData = getUniformData(webGLProgram, gl);
-  program._uniformBlockData = getUboData(webGLProgram, gl);
-  gl.deleteShader(glVertShader);
-  gl.deleteShader(glFragShader);
-  const uniformData = {};
-  for (const i3 in program._uniformData) {
-    const data = program._uniformData[i3];
-    uniformData[i3] = {
-      location: gl.getUniformLocation(webGLProgram, i3),
-      value: defaultValue2(data.type, data.size)
-    };
-  }
-  const glProgram = new GlProgramData(webGLProgram, uniformData);
-  return glProgram;
-}
-var init_generateProgram = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/program/generateProgram.mjs"() {
-    init_warn();
-    init_GlProgramData();
-    init_compileShader();
-    init_defaultValue();
-    init_extractAttributesFromGlProgram();
-    init_getUboData();
-    init_getUniformData();
-    init_logProgramError();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlShaderSystem.mjs
-var defaultSyncData, GlShaderSystem;
-var init_GlShaderSystem = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlShaderSystem.mjs"() {
-    init_Extensions();
-    init_GenerateShaderSyncCode();
-    init_generateProgram();
-    defaultSyncData = {
-      textureCount: 0,
-      blockIndex: 0
-    };
-    GlShaderSystem = class {
-      constructor(renderer) {
-        this._activeProgram = null;
-        this._programDataHash = /* @__PURE__ */ Object.create(null);
-        this._shaderSyncFunctions = /* @__PURE__ */ Object.create(null);
-        this._renderer = renderer;
-      }
-      contextChange(gl) {
-        this._gl = gl;
-        this._programDataHash = /* @__PURE__ */ Object.create(null);
-        this._shaderSyncFunctions = /* @__PURE__ */ Object.create(null);
-        this._activeProgram = null;
-      }
-      /**
-       * Changes the current shader to the one given in parameter.
-       * @param shader - the new shader
-       * @param skipSync - false if the shader should automatically sync its uniforms.
-       * @returns the glProgram that belongs to the shader.
-       */
-      bind(shader, skipSync) {
-        this._setProgram(shader.glProgram);
-        if (skipSync) return;
-        defaultSyncData.textureCount = 0;
-        defaultSyncData.blockIndex = 0;
-        let syncFunction = this._shaderSyncFunctions[shader.glProgram._key];
-        if (!syncFunction) {
-          syncFunction = this._shaderSyncFunctions[shader.glProgram._key] = this._generateShaderSync(shader, this);
-        }
-        this._renderer.buffer.nextBindBase(!!shader.glProgram.transformFeedbackVaryings);
-        syncFunction(this._renderer, shader, defaultSyncData);
-      }
-      /**
-       * Updates the uniform group.
-       * @param uniformGroup - the uniform group to update
-       */
-      updateUniformGroup(uniformGroup) {
-        this._renderer.uniformGroup.updateUniformGroup(uniformGroup, this._activeProgram, defaultSyncData);
-      }
-      /**
-       * Binds a uniform block to the shader.
-       * @param uniformGroup - the uniform group to bind
-       * @param name - the name of the uniform block
-       * @param index - the index of the uniform block
-       */
-      bindUniformBlock(uniformGroup, name, index2 = 0) {
-        const bufferSystem = this._renderer.buffer;
-        const programData = this._getProgramData(this._activeProgram);
-        const isBufferResource = uniformGroup._bufferResource;
-        if (!isBufferResource) {
-          this._renderer.ubo.updateUniformGroup(uniformGroup);
-        }
-        const buffer = uniformGroup.buffer;
-        const glBuffer = bufferSystem.updateBuffer(buffer);
-        const boundLocation = bufferSystem.freeLocationForBufferBase(glBuffer);
-        if (isBufferResource) {
-          const { offset: offset4, size: size4 } = uniformGroup;
-          if (offset4 === 0 && size4 === buffer.data.byteLength) {
-            bufferSystem.bindBufferBase(glBuffer, boundLocation);
-          } else {
-            bufferSystem.bindBufferRange(glBuffer, boundLocation, offset4);
-          }
-        } else if (bufferSystem.getLastBindBaseLocation(glBuffer) !== boundLocation) {
-          bufferSystem.bindBufferBase(glBuffer, boundLocation);
-        }
-        const uniformBlockIndex = this._activeProgram._uniformBlockData[name].index;
-        if (programData.uniformBlockBindings[index2] === boundLocation) return;
-        programData.uniformBlockBindings[index2] = boundLocation;
-        this._renderer.gl.uniformBlockBinding(programData.program, uniformBlockIndex, boundLocation);
-      }
-      _setProgram(program) {
-        if (this._activeProgram === program) return;
-        this._activeProgram = program;
-        const programData = this._getProgramData(program);
-        this._gl.useProgram(programData.program);
-      }
-      /**
-       * @param program - the program to get the data for
-       * @internal
-       */
-      _getProgramData(program) {
-        return this._programDataHash[program._key] || this._createProgramData(program);
-      }
-      _createProgramData(program) {
-        const key = program._key;
-        this._programDataHash[key] = generateProgram(this._gl, program);
-        return this._programDataHash[key];
-      }
-      destroy() {
-        for (const key of Object.keys(this._programDataHash)) {
-          this._programDataHash[key].destroy();
-        }
-        this._programDataHash = null;
-        this._shaderSyncFunctions = null;
-        this._activeProgram = null;
-        this._renderer = null;
-        this._gl = null;
-      }
-      /**
-       * Creates a function that can be executed that will sync the shader as efficiently as possible.
-       * Overridden by the unsafe eval package if you don't want eval used in your project.
-       * @param shader - the shader to generate the sync function for
-       * @param shaderSystem - the shader system to use
-       * @returns - the generated sync function
-       * @ignore
-       */
-      _generateShaderSync(shader, shaderSystem) {
-        return generateShaderSyncCode(shader, shaderSystem);
-      }
-      resetState() {
-        this._activeProgram = null;
-      }
-    };
-    GlShaderSystem.extension = {
-      type: [
-        ExtensionType.WebGLSystem
-      ],
-      name: "shader"
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSyncTypes.mjs
-var UNIFORM_TO_SINGLE_SETTERS, UNIFORM_TO_ARRAY_SETTERS;
-var init_generateUniformsSyncTypes = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSyncTypes.mjs"() {
-    "use strict";
-    UNIFORM_TO_SINGLE_SETTERS = {
-      f32: `if (cv !== v) {
-            cu.value = v;
-            gl.uniform1f(location, v);
-        }`,
-      "vec2<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            gl.uniform2f(location, v[0], v[1]);
-        }`,
-      "vec3<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            gl.uniform3f(location, v[0], v[1], v[2]);
-        }`,
-      "vec4<f32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            cv[3] = v[3];
-            gl.uniform4f(location, v[0], v[1], v[2], v[3]);
-        }`,
-      i32: `if (cv !== v) {
-            cu.value = v;
-            gl.uniform1i(location, v);
-        }`,
-      "vec2<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            gl.uniform2i(location, v[0], v[1]);
-        }`,
-      "vec3<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            gl.uniform3i(location, v[0], v[1], v[2]);
-        }`,
-      "vec4<i32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            cv[3] = v[3];
-            gl.uniform4i(location, v[0], v[1], v[2], v[3]);
-        }`,
-      u32: `if (cv !== v) {
-            cu.value = v;
-            gl.uniform1ui(location, v);
-        }`,
-      "vec2<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            gl.uniform2ui(location, v[0], v[1]);
-        }`,
-      "vec3<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            gl.uniform3ui(location, v[0], v[1], v[2]);
-        }`,
-      "vec4<u32>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            cv[3] = v[3];
-            gl.uniform4ui(location, v[0], v[1], v[2], v[3]);
-        }`,
-      bool: `if (cv !== v) {
-            cu.value = v;
-            gl.uniform1i(location, v);
-        }`,
-      "vec2<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            gl.uniform2i(location, v[0], v[1]);
-        }`,
-      "vec3<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            gl.uniform3i(location, v[0], v[1], v[2]);
-        }`,
-      "vec4<bool>": `if (cv[0] !== v[0] || cv[1] !== v[1] || cv[2] !== v[2] || cv[3] !== v[3]) {
-            cv[0] = v[0];
-            cv[1] = v[1];
-            cv[2] = v[2];
-            cv[3] = v[3];
-            gl.uniform4i(location, v[0], v[1], v[2], v[3]);
-        }`,
-      "mat2x2<f32>": `gl.uniformMatrix2fv(location, false, v);`,
-      "mat3x3<f32>": `gl.uniformMatrix3fv(location, false, v);`,
-      "mat4x4<f32>": `gl.uniformMatrix4fv(location, false, v);`
-    };
-    UNIFORM_TO_ARRAY_SETTERS = {
-      f32: `gl.uniform1fv(location, v);`,
-      "vec2<f32>": `gl.uniform2fv(location, v);`,
-      "vec3<f32>": `gl.uniform3fv(location, v);`,
-      "vec4<f32>": `gl.uniform4fv(location, v);`,
-      "mat2x2<f32>": `gl.uniformMatrix2fv(location, false, v);`,
-      "mat3x3<f32>": `gl.uniformMatrix3fv(location, false, v);`,
-      "mat4x4<f32>": `gl.uniformMatrix4fv(location, false, v);`,
-      i32: `gl.uniform1iv(location, v);`,
-      "vec2<i32>": `gl.uniform2iv(location, v);`,
-      "vec3<i32>": `gl.uniform3iv(location, v);`,
-      "vec4<i32>": `gl.uniform4iv(location, v);`,
-      u32: `gl.uniform1iv(location, v);`,
-      "vec2<u32>": `gl.uniform2iv(location, v);`,
-      "vec3<u32>": `gl.uniform3iv(location, v);`,
-      "vec4<u32>": `gl.uniform4iv(location, v);`,
-      bool: `gl.uniform1iv(location, v);`,
-      "vec2<bool>": `gl.uniform2iv(location, v);`,
-      "vec3<bool>": `gl.uniform3iv(location, v);`,
-      "vec4<bool>": `gl.uniform4iv(location, v);`
-    };
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSync.mjs
-function generateUniformsSync(group, uniformData) {
-  const funcFragments = [`
-        var v = null;
-        var cv = null;
-        var cu = null;
-        var t = 0;
-        var gl = renderer.gl;
-        var name = null;
-    `];
-  for (const i3 in group.uniforms) {
-    if (!uniformData[i3]) {
-      if (group.uniforms[i3] instanceof UniformGroup) {
-        if (group.uniforms[i3].ubo) {
-          funcFragments.push(`
-                        renderer.shader.bindUniformBlock(uv.${i3}, "${i3}");
-                    `);
-        } else {
-          funcFragments.push(`
-                        renderer.shader.updateUniformGroup(uv.${i3});
-                    `);
-        }
-      } else if (group.uniforms[i3] instanceof BufferResource) {
-        funcFragments.push(`
-                        renderer.shader.bindBufferResource(uv.${i3}, "${i3}");
-                    `);
-      }
-      continue;
-    }
-    const uniform = group.uniformStructures[i3];
-    let parsed = false;
-    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
-      const parser = uniformParsers[j4];
-      if (uniform.type === parser.type && parser.test(uniform)) {
-        funcFragments.push(`name = "${i3}";`, uniformParsers[j4].uniform);
-        parsed = true;
-        break;
-      }
-    }
-    if (!parsed) {
-      const templateType = uniform.size === 1 ? UNIFORM_TO_SINGLE_SETTERS : UNIFORM_TO_ARRAY_SETTERS;
-      const template = templateType[uniform.type].replace("location", `ud["${i3}"].location`);
-      funcFragments.push(`
-            cu = ud["${i3}"];
-            cv = cu.value;
-            v = uv["${i3}"];
-            ${template};`);
-    }
-  }
-  return new Function("ud", "uv", "renderer", "syncData", funcFragments.join("\n"));
-}
-var init_generateUniformsSync = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/utils/generateUniformsSync.mjs"() {
-    init_BufferResource();
-    init_UniformGroup();
-    init_uniformParsers();
-    init_generateUniformsSyncTypes();
-  }
-});
-
-// node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlUniformGroupSystem.mjs
-var GlUniformGroupSystem;
-var init_GlUniformGroupSystem = __esm({
-  "node_modules/pixi.js/lib/rendering/renderers/gl/shader/GlUniformGroupSystem.mjs"() {
-    init_Extensions();
-    init_generateUniformsSync();
-    GlUniformGroupSystem = class {
-      /** @param renderer - The renderer this System works for. */
-      constructor(renderer) {
-        this._cache = {};
-        this._uniformGroupSyncHash = {};
-        this._renderer = renderer;
-        this.gl = null;
-        this._cache = {};
-      }
-      contextChange(gl) {
-        this.gl = gl;
-      }
-      /**
-       * Uploads the uniforms values to the currently bound shader.
-       * @param group - the uniforms values that be applied to the current shader
-       * @param program
-       * @param syncData
-       * @param syncData.textureCount
-       */
-      updateUniformGroup(group, program, syncData) {
-        const programData = this._renderer.shader._getProgramData(program);
-        if (!group.isStatic || group._dirtyId !== programData.uniformDirtyGroups[group.uid]) {
-          programData.uniformDirtyGroups[group.uid] = group._dirtyId;
-          const syncFunc = this._getUniformSyncFunction(group, program);
-          syncFunc(programData.uniformData, group.uniforms, this._renderer, syncData);
-        }
-      }
-      /**
-       * Overridable by the pixi.js/unsafe-eval package to use static syncUniforms instead.
-       * @param group
-       * @param program
-       */
-      _getUniformSyncFunction(group, program) {
-        return this._uniformGroupSyncHash[group._signature]?.[program._key] || this._createUniformSyncFunction(group, program);
-      }
-      _createUniformSyncFunction(group, program) {
-        const uniformGroupSyncHash = this._uniformGroupSyncHash[group._signature] || (this._uniformGroupSyncHash[group._signature] = {});
-        const id = this._getSignature(group, program._uniformData, "u");
-        if (!this._cache[id]) {
-          this._cache[id] = this._generateUniformsSync(group, program._uniformData);
-        }
-        uniformGroupSyncHash[program._key] = this._cache[id];
-        return uniformGroupSyncHash[program._key];
-      }
-      _generateUniformsSync(group, uniformData) {
-        return generateUniformsSync(group, uniformData);
-      }
-      /**
-       * Takes a uniform group and data and generates a unique signature for them.
-       * @param group - The uniform group to get signature of
-       * @param group.uniforms
-       * @param uniformData - Uniform information generated by the shader
-       * @param preFix
-       * @returns Unique signature of the uniform group
-       */
-      _getSignature(group, uniformData, preFix) {
-        const uniforms = group.uniforms;
-        const strings = [`${preFix}-`];
-        for (const i3 in uniforms) {
-          strings.push(i3);
-          if (uniformData[i3]) {
-            strings.push(uniformData[i3].type);
-          }
-        }
-        return strings.join("-");
-      }
-      /** Destroys this System and removes all its textures. */
-      destroy() {
-        this._renderer = null;
-        this._cache = null;
-      }
-    };
-    GlUniformGroupSystem.extension = {
-      type: [
-        ExtensionType.WebGLSystem
-      ],
-      name: "uniformGroup"
     };
   }
 });
@@ -44945,7 +44945,7 @@ var init_WebGLRenderer = __esm({
     init_GlBatchAdaptor();
     init_AbstractRenderer();
     init_SharedSystems();
-    init_types();
+    init_types2();
     init_GlBufferSystem();
     init_GlContextSystem();
     init_GlGeometrySystem();
@@ -52291,7 +52291,7 @@ var init_CanvasRenderer = __esm({
     init_BlendModePipe();
     init_AbstractRenderer();
     init_SharedSystems();
-    init_types();
+    init_types2();
     init_CanvasContextSystem();
     init_CanvasLimitsSystem();
     init_CanvasRenderTargetSystem();
@@ -54475,6 +54475,952 @@ var init_TextStyle = __esm({
   }
 });
 
+// node_modules/pixi.js/lib/unsafe-eval/init.mjs
+init_GlUboSystem();
+init_GlShaderSystem();
+init_GlUniformGroupSystem();
+init_GpuUboSystem();
+init_UboSystem();
+init_AbstractRenderer();
+
+// node_modules/pixi.js/lib/scene/particle-container/shared/ParticleBuffer.mjs
+init_Buffer();
+init_const();
+init_Geometry();
+init_getAttributeInfoFromFormat();
+init_ViewableBuffer();
+
+// node_modules/pixi.js/lib/scene/particle-container/shared/utils/createIndicesForQuads.mjs
+function createIndicesForQuads(size4, outBuffer = null) {
+  const totalIndices = size4 * 6;
+  if (totalIndices > 65535) {
+    outBuffer || (outBuffer = new Uint32Array(totalIndices));
+  } else {
+    outBuffer || (outBuffer = new Uint16Array(totalIndices));
+  }
+  if (outBuffer.length !== totalIndices) {
+    throw new Error(`Out buffer length is incorrect, got ${outBuffer.length} and expected ${totalIndices}`);
+  }
+  for (let i3 = 0, j4 = 0; i3 < totalIndices; i3 += 6, j4 += 4) {
+    outBuffer[i3 + 0] = j4 + 0;
+    outBuffer[i3 + 1] = j4 + 1;
+    outBuffer[i3 + 2] = j4 + 2;
+    outBuffer[i3 + 3] = j4 + 0;
+    outBuffer[i3 + 4] = j4 + 2;
+    outBuffer[i3 + 5] = j4 + 3;
+  }
+  return outBuffer;
+}
+
+// node_modules/pixi.js/lib/scene/particle-container/shared/utils/generateParticleUpdateFunction.mjs
+init_getAttributeInfoFromFormat();
+function generateParticleUpdateFunction(properties2) {
+  return {
+    dynamicUpdate: generateUpdateFunction(properties2, true),
+    staticUpdate: generateUpdateFunction(properties2, false)
+  };
+}
+function generateUpdateFunction(properties2, dynamic) {
+  const funcFragments = [];
+  funcFragments.push(`
+
+        var index = 0;
+
+        for (let i = 0; i < ps.length; ++i)
+        {
+            const p = ps[i];
+
+            `);
+  let offset4 = 0;
+  for (const i3 in properties2) {
+    const property = properties2[i3];
+    if (dynamic !== property.dynamic) continue;
+    funcFragments.push(`offset = index + ${offset4}`);
+    funcFragments.push(property.code);
+    const attributeInfo = getAttributeInfoFromFormat(property.format);
+    offset4 += attributeInfo.stride / 4;
+  }
+  funcFragments.push(`
+            index += stride * 4;
+        }
+    `);
+  funcFragments.unshift(`
+        var stride = ${offset4};
+    `);
+  const functionSource = funcFragments.join("\n");
+  return new Function("ps", "f32v", "u32v", functionSource);
+}
+
+// node_modules/pixi.js/lib/scene/particle-container/shared/ParticleBuffer.mjs
+var ParticleBuffer = class {
+  constructor(options) {
+    this._size = 0;
+    this._generateParticleUpdateCache = {};
+    const size4 = this._size = options.size ?? 1e3;
+    const properties2 = options.properties;
+    let staticVertexSize = 0;
+    let dynamicVertexSize = 0;
+    for (const i3 in properties2) {
+      const property = properties2[i3];
+      const attributeInfo = getAttributeInfoFromFormat(property.format);
+      if (property.dynamic) {
+        dynamicVertexSize += attributeInfo.stride;
+      } else {
+        staticVertexSize += attributeInfo.stride;
+      }
+    }
+    this._dynamicStride = dynamicVertexSize / 4;
+    this._staticStride = staticVertexSize / 4;
+    this.staticAttributeBuffer = new ViewableBuffer(size4 * 4 * staticVertexSize);
+    this.dynamicAttributeBuffer = new ViewableBuffer(size4 * 4 * dynamicVertexSize);
+    this.indexBuffer = createIndicesForQuads(size4);
+    const geometry = new Geometry();
+    let dynamicOffset = 0;
+    let staticOffset = 0;
+    this._staticBuffer = new Buffer2({
+      data: new Float32Array(1),
+      label: "static-particle-buffer",
+      shrinkToFit: false,
+      usage: BufferUsage.VERTEX | BufferUsage.COPY_DST
+    });
+    this._dynamicBuffer = new Buffer2({
+      data: new Float32Array(1),
+      label: "dynamic-particle-buffer",
+      shrinkToFit: false,
+      usage: BufferUsage.VERTEX | BufferUsage.COPY_DST
+    });
+    for (const i3 in properties2) {
+      const property = properties2[i3];
+      const attributeInfo = getAttributeInfoFromFormat(property.format);
+      if (property.dynamic) {
+        geometry.addAttribute(property.attributeName, {
+          buffer: this._dynamicBuffer,
+          stride: this._dynamicStride * 4,
+          offset: dynamicOffset * 4,
+          format: property.format
+        });
+        dynamicOffset += attributeInfo.size;
+      } else {
+        geometry.addAttribute(property.attributeName, {
+          buffer: this._staticBuffer,
+          stride: this._staticStride * 4,
+          offset: staticOffset * 4,
+          format: property.format
+        });
+        staticOffset += attributeInfo.size;
+      }
+    }
+    geometry.addIndex(this.indexBuffer);
+    const uploadFunction = this.getParticleUpdate(properties2);
+    this._dynamicUpload = uploadFunction.dynamicUpdate;
+    this._staticUpload = uploadFunction.staticUpdate;
+    this.geometry = geometry;
+  }
+  getParticleUpdate(properties2) {
+    const key = getParticleSyncKey(properties2);
+    if (this._generateParticleUpdateCache[key]) {
+      return this._generateParticleUpdateCache[key];
+    }
+    this._generateParticleUpdateCache[key] = this.generateParticleUpdate(properties2);
+    return this._generateParticleUpdateCache[key];
+  }
+  generateParticleUpdate(properties2) {
+    return generateParticleUpdateFunction(properties2);
+  }
+  update(particles, uploadStatic) {
+    if (particles.length > this._size) {
+      uploadStatic = true;
+      this._size = Math.max(particles.length, this._size * 1.5 | 0);
+      this.staticAttributeBuffer = new ViewableBuffer(this._size * this._staticStride * 4 * 4);
+      this.dynamicAttributeBuffer = new ViewableBuffer(this._size * this._dynamicStride * 4 * 4);
+      this.indexBuffer = createIndicesForQuads(this._size);
+      this.geometry.indexBuffer.setDataWithSize(
+        this.indexBuffer,
+        this.indexBuffer.byteLength,
+        true
+      );
+    }
+    const dynamicAttributeBuffer = this.dynamicAttributeBuffer;
+    this._dynamicUpload(particles, dynamicAttributeBuffer.float32View, dynamicAttributeBuffer.uint32View);
+    this._dynamicBuffer.setDataWithSize(
+      this.dynamicAttributeBuffer.float32View,
+      particles.length * this._dynamicStride * 4,
+      true
+    );
+    if (uploadStatic) {
+      const staticAttributeBuffer = this.staticAttributeBuffer;
+      this._staticUpload(particles, staticAttributeBuffer.float32View, staticAttributeBuffer.uint32View);
+      this._staticBuffer.setDataWithSize(
+        staticAttributeBuffer.float32View,
+        particles.length * this._staticStride * 4,
+        true
+      );
+    }
+  }
+  destroy() {
+    this._staticBuffer.destroy();
+    this._dynamicBuffer.destroy();
+    this.geometry.destroy();
+  }
+};
+function getParticleSyncKey(properties2) {
+  const keyGen = [];
+  for (const key in properties2) {
+    const property = properties2[key];
+    keyGen.push(key, property.code, property.dynamic ? "d" : "s");
+  }
+  return keyGen.join("_");
+}
+
+// node_modules/pixi.js/lib/unsafe-eval/particle/generateParticleUpdatePolyfill.mjs
+init_getAttributeInfoFromFormat();
+
+// node_modules/pixi.js/lib/unsafe-eval/particle/particleUpdateFunctions.mjs
+var particleUpdateFunctions = {
+  aVertex: (ps, f32v, _u32v, offset4, stride) => {
+    let w0 = 0;
+    let w1 = 0;
+    let h0 = 0;
+    let h1 = 0;
+    for (let i3 = 0; i3 < ps.length; ++i3) {
+      const p3 = ps[i3];
+      const texture = p3.texture;
+      const sx = p3.scaleX;
+      const sy = p3.scaleY;
+      const ax = p3.anchorX;
+      const ay = p3.anchorY;
+      const trim = texture.trim;
+      const orig = texture.orig;
+      if (trim) {
+        w1 = trim.x - ax * orig.width;
+        w0 = w1 + trim.width;
+        h1 = trim.y - ay * orig.height;
+        h0 = h1 + trim.height;
+      } else {
+        w0 = orig.width * (1 - ax);
+        w1 = orig.width * -ax;
+        h0 = orig.height * (1 - ay);
+        h1 = orig.height * -ay;
+      }
+      f32v[offset4] = w1 * sx;
+      f32v[offset4 + 1] = h1 * sy;
+      f32v[offset4 + stride] = w0 * sx;
+      f32v[offset4 + stride + 1] = h1 * sy;
+      f32v[offset4 + stride * 2] = w0 * sx;
+      f32v[offset4 + stride * 2 + 1] = h0 * sy;
+      f32v[offset4 + stride * 3] = w1 * sx;
+      f32v[offset4 + stride * 3 + 1] = h0 * sy;
+      offset4 += stride * 4;
+    }
+  },
+  aPosition: (ps, f32v, _u32v, offset4, stride) => {
+    for (let i3 = 0; i3 < ps.length; ++i3) {
+      const p3 = ps[i3];
+      const x3 = p3.x;
+      const y4 = p3.y;
+      f32v[offset4] = x3;
+      f32v[offset4 + 1] = y4;
+      f32v[offset4 + stride] = x3;
+      f32v[offset4 + stride + 1] = y4;
+      f32v[offset4 + stride * 2] = x3;
+      f32v[offset4 + stride * 2 + 1] = y4;
+      f32v[offset4 + stride * 3] = x3;
+      f32v[offset4 + stride * 3 + 1] = y4;
+      offset4 += stride * 4;
+    }
+  },
+  aRotation: (ps, f32v, _u32v, offset4, stride) => {
+    for (let i3 = 0; i3 < ps.length; ++i3) {
+      const rotation = ps[i3].rotation;
+      f32v[offset4] = rotation;
+      f32v[offset4 + stride] = rotation;
+      f32v[offset4 + stride * 2] = rotation;
+      f32v[offset4 + stride * 3] = rotation;
+      offset4 += stride * 4;
+    }
+  },
+  aUV: (ps, f32v, _u32v, offset4, stride) => {
+    for (let i3 = 0; i3 < ps.length; ++i3) {
+      const uvs = ps[i3].texture.uvs;
+      f32v[offset4] = uvs.x0;
+      f32v[offset4 + 1] = uvs.y0;
+      f32v[offset4 + stride] = uvs.x1;
+      f32v[offset4 + stride + 1] = uvs.y1;
+      f32v[offset4 + stride * 2] = uvs.x2;
+      f32v[offset4 + stride * 2 + 1] = uvs.y2;
+      f32v[offset4 + stride * 3] = uvs.x3;
+      f32v[offset4 + stride * 3 + 1] = uvs.y3;
+      offset4 += stride * 4;
+    }
+  },
+  aColor: (ps, _f32v, u32v, offset4, stride) => {
+    for (let i3 = 0; i3 < ps.length; ++i3) {
+      const c3 = ps[i3].color;
+      u32v[offset4] = c3;
+      u32v[offset4 + stride] = c3;
+      u32v[offset4 + stride * 2] = c3;
+      u32v[offset4 + stride * 3] = c3;
+      offset4 += stride * 4;
+    }
+  }
+};
+
+// node_modules/pixi.js/lib/unsafe-eval/particle/generateParticleUpdatePolyfill.mjs
+function generateParticleUpdatePolyfill(properties2) {
+  const allProperties = Object.values(properties2);
+  const dynamicProperties = allProperties.filter((p3) => p3.dynamic);
+  const staticProperties = allProperties.filter((p3) => !p3.dynamic);
+  return {
+    dynamicUpdate: generateUpdateFunction2(dynamicProperties),
+    staticUpdate: generateUpdateFunction2(staticProperties)
+  };
+}
+function generateUpdateFunction2(properties2) {
+  let stride = 0;
+  const updateData = [];
+  for (let i3 = 0; i3 < properties2.length; i3++) {
+    const property = properties2[i3];
+    const attributeStride = getAttributeInfoFromFormat(property.format).stride / 4;
+    stride += attributeStride;
+    updateData.push({
+      stride: attributeStride,
+      updateFunction: property.updateFunction || particleUpdateFunctions[property.attributeName]
+    });
+  }
+  return (ps, f32v, u32v) => {
+    let offset4 = 0;
+    for (let i3 = 0; i3 < updateData.length; i3++) {
+      const obx = updateData[i3];
+      obx.updateFunction(ps, f32v, u32v, offset4, stride);
+      offset4 += obx.stride;
+    }
+  };
+}
+
+// node_modules/pixi.js/lib/unsafe-eval/shader/generateShaderSyncPolyfill.mjs
+init_BufferResource();
+init_UniformGroup();
+init_TextureSource();
+init_TextureStyle();
+function generateShaderSyncPolyfill() {
+  return syncShader;
+}
+function syncShader(renderer, shader, syncData) {
+  const gl = renderer.gl;
+  const shaderSystem = renderer.shader;
+  const programData = shaderSystem._getProgramData(shader.glProgram);
+  for (const i3 in shader.groups) {
+    const bindGroup = shader.groups[i3];
+    for (const j4 in bindGroup.resources) {
+      const resource = bindGroup.resources[j4];
+      if (resource instanceof UniformGroup) {
+        if (resource.ubo) {
+          shaderSystem.bindUniformBlock(
+            resource,
+            shader._uniformBindMap[i3][j4],
+            syncData.blockIndex++
+          );
+        } else {
+          shaderSystem.updateUniformGroup(resource);
+        }
+      } else if (resource instanceof BufferResource) {
+        shaderSystem.bindUniformBlock(
+          resource,
+          shader._uniformBindMap[i3][j4],
+          syncData.blockIndex++
+        );
+      } else if (resource instanceof TextureSource) {
+        renderer.texture.bind(resource, syncData.textureCount);
+        const uniformName = shader._uniformBindMap[i3][j4];
+        const uniformData = programData.uniformData[uniformName];
+        if (uniformData) {
+          if (uniformData.value !== syncData.textureCount) {
+            gl.uniform1i(uniformData.location, syncData.textureCount);
+          }
+          syncData.textureCount++;
+        }
+      } else if (resource instanceof TextureStyle) {
+      }
+    }
+  }
+}
+
+// node_modules/pixi.js/lib/unsafe-eval/ubo/generateUboSyncPolyfill.mjs
+init_createUboElementsSTD40();
+init_createUboElementsWGSL();
+init_uniformParsers();
+
+// node_modules/pixi.js/lib/unsafe-eval/ubo/uboSyncFunctions.mjs
+var uboParserFunctions = [
+  (name, data, offset4, uv, _v) => {
+    const matrix = uv[name].toArray(true);
+    data[offset4] = matrix[0];
+    data[offset4 + 1] = matrix[1];
+    data[offset4 + 2] = matrix[2];
+    data[offset4 + 4] = matrix[3];
+    data[offset4 + 5] = matrix[4];
+    data[offset4 + 6] = matrix[5];
+    data[offset4 + 8] = matrix[6];
+    data[offset4 + 9] = matrix[7];
+    data[offset4 + 10] = matrix[8];
+  },
+  (name, data, offset4, uv, v4) => {
+    v4 = uv[name];
+    data[offset4] = v4.x;
+    data[offset4 + 1] = v4.y;
+    data[offset4 + 2] = v4.width;
+    data[offset4 + 3] = v4.height;
+  },
+  (name, data, offset4, uv, v4) => {
+    v4 = uv[name];
+    data[offset4] = v4.x;
+    data[offset4 + 1] = v4.y;
+  },
+  (name, data, offset4, uv, v4) => {
+    v4 = uv[name];
+    data[offset4] = v4.red;
+    data[offset4 + 1] = v4.green;
+    data[offset4 + 2] = v4.blue;
+    data[offset4 + 3] = v4.alpha;
+  },
+  (name, data, offset4, uv, v4) => {
+    v4 = uv[name];
+    data[offset4] = v4.red;
+    data[offset4 + 1] = v4.green;
+    data[offset4 + 2] = v4.blue;
+  }
+];
+var uboSingleFunctionsWGSL = {
+  f32: (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4;
+  },
+  i32: (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4;
+  },
+  "vec2<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+  },
+  "vec3<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+  },
+  "vec4<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+    data[offset4 + 3] = v4[3];
+  },
+  "mat2x2<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+    data[offset4 + 3] = v4[3];
+  },
+  "mat3x3<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+    data[offset4 + 4] = v4[3];
+    data[offset4 + 5] = v4[4];
+    data[offset4 + 6] = v4[5];
+    data[offset4 + 8] = v4[6];
+    data[offset4 + 9] = v4[7];
+    data[offset4 + 10] = v4[8];
+  },
+  "mat4x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 16; i3++) {
+      data[offset4 + i3] = v4[i3];
+    }
+  },
+  "mat3x2<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 6; i3++) {
+      data[offset4 + (i3 / 3 | 0) * 4 + i3 % 3] = v4[i3];
+    }
+  },
+  "mat4x2<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 8; i3++) {
+      data[offset4 + (i3 / 4 | 0) * 4 + i3 % 4] = v4[i3];
+    }
+  },
+  "mat2x3<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 6; i3++) {
+      data[offset4 + (i3 / 2 | 0) * 4 + i3 % 2] = v4[i3];
+    }
+  },
+  "mat4x3<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 12; i3++) {
+      data[offset4 + (i3 / 4 | 0) * 4 + i3 % 4] = v4[i3];
+    }
+  },
+  "mat2x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 8; i3++) {
+      data[offset4 + (i3 / 2 | 0) * 4 + i3 % 2] = v4[i3];
+    }
+  },
+  "mat3x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 12; i3++) {
+      data[offset4 + (i3 / 3 | 0) * 4 + i3 % 3] = v4[i3];
+    }
+  }
+};
+var uboSingleFunctionsSTD40 = {
+  f32: (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4;
+  },
+  i32: (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4;
+  },
+  "vec2<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+  },
+  "vec3<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+  },
+  "vec4<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+    data[offset4 + 3] = v4[3];
+  },
+  "mat2x2<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 4] = v4[2];
+    data[offset4 + 5] = v4[3];
+  },
+  "mat3x3<f32>": (_name, data, offset4, _uv, v4) => {
+    data[offset4] = v4[0];
+    data[offset4 + 1] = v4[1];
+    data[offset4 + 2] = v4[2];
+    data[offset4 + 4] = v4[3];
+    data[offset4 + 5] = v4[4];
+    data[offset4 + 6] = v4[5];
+    data[offset4 + 8] = v4[6];
+    data[offset4 + 9] = v4[7];
+    data[offset4 + 10] = v4[8];
+  },
+  "mat4x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 16; i3++) {
+      data[offset4 + i3] = v4[i3];
+    }
+  },
+  "mat3x2<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 6; i3++) {
+      data[offset4 + (i3 / 3 | 0) * 4 + i3 % 3] = v4[i3];
+    }
+  },
+  "mat4x2<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 8; i3++) {
+      data[offset4 + (i3 / 4 | 0) * 4 + i3 % 4] = v4[i3];
+    }
+  },
+  "mat2x3<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 6; i3++) {
+      data[offset4 + (i3 / 2 | 0) * 4 + i3 % 2] = v4[i3];
+    }
+  },
+  "mat4x3<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 12; i3++) {
+      data[offset4 + (i3 / 4 | 0) * 4 + i3 % 4] = v4[i3];
+    }
+  },
+  "mat2x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 8; i3++) {
+      data[offset4 + (i3 / 2 | 0) * 4 + i3 % 2] = v4[i3];
+    }
+  },
+  "mat3x4<f32>": (_name, data, offset4, _uv, v4) => {
+    for (let i3 = 0; i3 < 12; i3++) {
+      data[offset4 + (i3 / 3 | 0) * 4 + i3 % 3] = v4[i3];
+    }
+  }
+};
+
+// node_modules/pixi.js/lib/unsafe-eval/ubo/generateUboSyncPolyfill.mjs
+function generateUboSyncPolyfillSTD40(uboElements) {
+  return generateUboSyncPolyfill(
+    uboElements,
+    uboSingleFunctionsSTD40,
+    (uboElement) => {
+      const rowSize = Math.max(WGSL_TO_STD40_SIZE[uboElement.data.type] / 16, 1);
+      const elementSize = uboElement.data.value.length / uboElement.data.size;
+      const remainder = (4 - elementSize % 4) % 4;
+      return (_name, data, offset4, _uv, v4) => {
+        let t3 = 0;
+        for (let i3 = 0; i3 < uboElement.data.size * rowSize; i3++) {
+          for (let j4 = 0; j4 < elementSize; j4++) {
+            data[offset4++] = v4[t3++];
+          }
+          offset4 += remainder;
+        }
+      };
+    }
+  );
+}
+function generateUboSyncPolyfillWGSL(uboElements) {
+  return generateUboSyncPolyfill(
+    uboElements,
+    uboSingleFunctionsWGSL,
+    (uboElement) => {
+      const { size: size4, align } = WGSL_ALIGN_SIZE_DATA[uboElement.data.type];
+      const remainder = (size4 - align) / 4;
+      return (_name, data, offset4, _uv, v4) => {
+        let t3 = 0;
+        for (let i3 = 0; i3 < uboElement.data.size * (size4 / 4); i3++) {
+          for (let j4 = 0; j4 < size4 / 4; j4++) {
+            data[offset4++] = v4[t3++];
+          }
+          offset4 += remainder;
+        }
+      };
+    }
+  );
+}
+function generateUboSyncPolyfill(uboElements, uboFunctions, arrayUploadFunction) {
+  const functionMap = {};
+  for (const i3 in uboElements) {
+    const uboElement = uboElements[i3];
+    const uniform = uboElement.data;
+    let parsed = false;
+    functionMap[uniform.name] = {
+      offset: uboElement.offset / 4,
+      func: null
+    };
+    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
+      const parser = uniformParsers[j4];
+      if (uniform.type === parser.type && parser.test(uniform)) {
+        functionMap[uniform.name].func = uboParserFunctions[j4];
+        parsed = true;
+        break;
+      }
+    }
+    if (!parsed) {
+      if (uniform.size === 1) {
+        functionMap[uniform.name].func = uboFunctions[uniform.type];
+      } else {
+        functionMap[uniform.name].func = arrayUploadFunction(uboElement);
+      }
+    }
+  }
+  return (uniforms, data, offset4) => {
+    for (const i3 in functionMap) {
+      functionMap[i3].func(i3, data, offset4 + functionMap[i3].offset, uniforms, uniforms[i3]);
+    }
+  };
+}
+
+// node_modules/pixi.js/lib/unsafe-eval/uniforms/generateUniformsSyncPolyfill.mjs
+init_uniformParsers();
+
+// node_modules/pixi.js/lib/unsafe-eval/uniforms/uniformSyncFunctions.mjs
+var uniformSingleParserFunctions = {
+  f32(name, cu, cv, v4, ud, _uv, gl) {
+    if (cv !== v4) {
+      cu.value = v4;
+      gl.uniform1f(ud[name].location, v4);
+    }
+  },
+  "vec2<f32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      gl.uniform2f(ud[name].location, v4[0], v4[1]);
+    }
+  },
+  "vec3<f32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      gl.uniform3f(ud[name].location, v4[0], v4[1], v4[2]);
+    }
+  },
+  "vec4<f32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2] || cv[3] !== v4[3]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      cv[3] = v4[3];
+      gl.uniform4f(ud[name].location, v4[0], v4[1], v4[2], v4[3]);
+    }
+  },
+  i32(name, cu, cv, v4, ud, _uv, gl) {
+    if (cv !== v4) {
+      cu.value = v4;
+      gl.uniform1i(ud[name].location, v4);
+    }
+  },
+  "vec2<i32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      gl.uniform2i(ud[name].location, v4[0], v4[1]);
+    }
+  },
+  "vec3<i32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      gl.uniform3i(ud[name].location, v4[0], v4[1], v4[2]);
+    }
+  },
+  "vec4<i32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2] || cv[3] !== v4[3]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      cv[3] = v4[3];
+      gl.uniform4i(ud[name].location, v4[0], v4[1], v4[2], v4[3]);
+    }
+  },
+  u32(name, cu, cv, v4, ud, _uv, gl) {
+    if (cv !== v4) {
+      cu.value = v4;
+      gl.uniform1ui(ud[name].location, v4);
+    }
+  },
+  "vec2<u32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      gl.uniform2ui(ud[name].location, v4[0], v4[1]);
+    }
+  },
+  "vec3<u32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      gl.uniform3ui(ud[name].location, v4[0], v4[1], v4[2]);
+    }
+  },
+  "vec4<u32>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2] || cv[3] !== v4[3]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      cv[3] = v4[3];
+      gl.uniform4ui(ud[name].location, v4[0], v4[1], v4[2], v4[3]);
+    }
+  },
+  bool(name, cu, cv, v4, ud, _uv, gl) {
+    if (cv !== v4) {
+      cu.value = v4;
+      gl.uniform1i(ud[name].location, v4);
+    }
+  },
+  "vec2<bool>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      gl.uniform2i(ud[name].location, v4[0], v4[1]);
+    }
+  },
+  "vec3<bool>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      gl.uniform3i(ud[name].location, v4[0], v4[1], v4[2]);
+    }
+  },
+  "vec4<bool>"(name, _cu, cv, v4, ud, _uv, gl) {
+    if (cv[0] !== v4[0] || cv[1] !== v4[1] || cv[2] !== v4[2] || cv[3] !== v4[3]) {
+      cv[0] = v4[0];
+      cv[1] = v4[1];
+      cv[2] = v4[2];
+      cv[3] = v4[3];
+      gl.uniform4i(ud[name].location, v4[0], v4[1], v4[2], v4[3]);
+    }
+  },
+  "mat2x2<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix2fv(ud[name].location, false, v4);
+  },
+  "mat3x3<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix3fv(ud[name].location, false, v4);
+  },
+  "mat4x4<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix4fv(ud[name].location, false, v4);
+  }
+};
+var uniformArrayParserFunctions = {
+  f32(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform1fv(ud[name].location, v4);
+  },
+  "vec2<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform2fv(ud[name].location, v4);
+  },
+  "vec3<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform3fv(ud[name].location, v4);
+  },
+  "vec4<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform4fv(ud[name].location, v4);
+  },
+  "mat2x2<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix2fv(ud[name].location, false, v4);
+  },
+  "mat3x3<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix3fv(ud[name].location, false, v4);
+  },
+  "mat4x4<f32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniformMatrix4fv(ud[name].location, false, v4);
+  },
+  i32(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform1iv(ud[name].location, v4);
+  },
+  "vec2<i32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform2iv(ud[name].location, v4);
+  },
+  "vec3<i32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform3iv(ud[name].location, v4);
+  },
+  "vec4<i32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform4iv(ud[name].location, v4);
+  },
+  u32(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform1iv(ud[name].location, v4);
+  },
+  "vec2<u32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform2iv(ud[name].location, v4);
+  },
+  "vec3<u32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform3iv(ud[name].location, v4);
+  },
+  "vec4<u32>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform4iv(ud[name].location, v4);
+  },
+  bool(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform1iv(ud[name].location, v4);
+  },
+  "vec2<bool>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform2iv(ud[name].location, v4);
+  },
+  "vec3<bool>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform3iv(ud[name].location, v4);
+  },
+  "vec4<bool>"(name, _cu, _cv, v4, ud, _uv, gl) {
+    gl.uniform4iv(ud[name].location, v4);
+  }
+};
+var uniformParserFunctions = [
+  (name, _cu, _cv, _v, ud, uv, gl) => {
+    gl.uniformMatrix3fv(ud[name].location, false, uv[name].toArray(true));
+  },
+  (name, _cu, cv, v4, ud, uv, gl) => {
+    cv = ud[name].value;
+    v4 = uv[name];
+    if (cv[0] !== v4.x || cv[1] !== v4.y || cv[2] !== v4.width || cv[3] !== v4.height) {
+      cv[0] = v4.x;
+      cv[1] = v4.y;
+      cv[2] = v4.width;
+      cv[3] = v4.height;
+      gl.uniform4f(ud[name].location, v4.x, v4.y, v4.width, v4.height);
+    }
+  },
+  (name, _cu, cv, v4, ud, uv, gl) => {
+    cv = ud[name].value;
+    v4 = uv[name];
+    if (cv[0] !== v4.x || cv[1] !== v4.y) {
+      cv[0] = v4.x;
+      cv[1] = v4.y;
+      gl.uniform2f(ud[name].location, v4.x, v4.y);
+    }
+  },
+  (name, _cu, cv, v4, ud, uv, gl) => {
+    cv = ud[name].value;
+    v4 = uv[name];
+    if (cv[0] !== v4.red || cv[1] !== v4.green || cv[2] !== v4.blue || cv[3] !== v4.alpha) {
+      cv[0] = v4.red;
+      cv[1] = v4.green;
+      cv[2] = v4.blue;
+      cv[3] = v4.alpha;
+      gl.uniform4f(ud[name].location, v4.red, v4.green, v4.blue, v4.alpha);
+    }
+  },
+  (name, _cu, cv, v4, ud, uv, gl) => {
+    cv = ud[name].value;
+    v4 = uv[name];
+    if (cv[0] !== v4.red || cv[1] !== v4.green || cv[2] !== v4.blue) {
+      cv[0] = v4.red;
+      cv[1] = v4.green;
+      cv[2] = v4.blue;
+      gl.uniform3f(ud[name].location, v4.red, v4.green, v4.blue);
+    }
+  }
+];
+
+// node_modules/pixi.js/lib/unsafe-eval/uniforms/generateUniformsSyncPolyfill.mjs
+function generateUniformsSyncPolyfill(group, uniformData) {
+  const functionMap = {};
+  for (const i3 in group.uniformStructures) {
+    if (!uniformData[i3]) continue;
+    const uniform = group.uniformStructures[i3];
+    let parsed = false;
+    for (let j4 = 0; j4 < uniformParsers.length; j4++) {
+      const parser = uniformParsers[j4];
+      if (uniform.type === parser.type && parser.test(uniform)) {
+        functionMap[i3] = uniformParserFunctions[j4];
+        parsed = true;
+        break;
+      }
+    }
+    if (!parsed) {
+      const templateType = uniform.size === 1 ? uniformSingleParserFunctions : uniformArrayParserFunctions;
+      functionMap[i3] = templateType[uniform.type];
+    }
+  }
+  return (ud, uv, renderer) => {
+    const gl = renderer.gl;
+    for (const i3 in functionMap) {
+      const v4 = uv[i3];
+      const cu = ud[i3];
+      const cv = ud[i3].value;
+      functionMap[i3](i3, cu, cv, v4, ud, uv, gl);
+    }
+  };
+}
+
+// node_modules/pixi.js/lib/unsafe-eval/init.mjs
+function selfInstall() {
+  Object.assign(AbstractRenderer.prototype, {
+    // override unsafeEval check, as we don't need to use it
+    _unsafeEvalCheck() {
+    }
+  });
+  Object.assign(UboSystem.prototype, {
+    // override unsafeEval check, as we don't need to use it
+    _systemCheck() {
+    }
+  });
+  Object.assign(GlUniformGroupSystem.prototype, {
+    // use polyfill which avoids eval method
+    _generateUniformsSync: generateUniformsSyncPolyfill
+  });
+  Object.assign(GlUboSystem.prototype, {
+    // use polyfill which avoids eval method
+    _generateUboSync: generateUboSyncPolyfillSTD40
+  });
+  Object.assign(GpuUboSystem.prototype, {
+    // use polyfill which avoids eval method
+    _generateUboSync: generateUboSyncPolyfillWGSL
+  });
+  Object.assign(GlShaderSystem.prototype, {
+    // use polyfill which avoids eval method
+    _generateShaderSync: generateShaderSyncPolyfill
+  });
+  Object.assign(ParticleBuffer.prototype, {
+    // use polyfill which avoids eval method
+    generateParticleUpdate: generateParticleUpdatePolyfill
+  });
+}
+selfInstall();
+
 // src/plugin-entry.tsx
 var import_react29 = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
@@ -54496,18 +55442,18 @@ function _extends() {
     return n3;
   }, _extends.apply(null, arguments);
 }
-var l = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : {};
-function u(e4) {
+var l2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : {};
+function u2(e4) {
   return e4 && e4.__esModule && Object.prototype.hasOwnProperty.call(e4, "default") ? e4.default : e4;
 }
-var c;
-var m = {
+var c2;
+var m2 = {
   exports: {}
 };
-var d;
-var f;
-var p;
-var v = (c || (c = 1, d = m, function() {
+var d2;
+var f2;
+var p2;
+var v2 = (c2 || (c2 = 1, d2 = m2, function() {
   var e4 = {}.hasOwnProperty;
   function t3() {
     for (var e5 = "", t4 = 0; t4 < arguments.length; t4++) {
@@ -54528,25 +55474,25 @@ var v = (c || (c = 1, d = m, function() {
   function s3(e5, t4) {
     return t4 ? e5 ? e5 + " " + t4 : e5 + t4 : e5;
   }
-  d.exports ? (t3.default = t3, d.exports = t3) : window.classNames = t3;
-}()), m.exports);
-var S = u(v);
+  d2.exports ? (t3.default = t3, d2.exports = t3) : window.classNames = t3;
+}()), m2.exports);
+var S2 = u2(v2);
 var z;
-var w;
-var g = (p || (p = 1, f = function e2(t3, i3) {
+var w2;
+var g2 = (p2 || (p2 = 1, f2 = function e3(t3, i3) {
   if (t3 === i3) return true;
   if (t3 && i3 && "object" == typeof t3 && "object" == typeof i3) {
     if (t3.constructor !== i3.constructor) return false;
     var s3, n3, r4;
     if (Array.isArray(t3)) {
       if ((s3 = t3.length) != i3.length) return false;
-      for (n3 = s3; 0 !== n3--; ) if (!e2(t3[n3], i3[n3])) return false;
+      for (n3 = s3; 0 !== n3--; ) if (!e3(t3[n3], i3[n3])) return false;
       return true;
     }
     if (t3 instanceof Map && i3 instanceof Map) {
       if (t3.size !== i3.size) return false;
       for (n3 of t3.entries()) if (!i3.has(n3[0])) return false;
-      for (n3 of t3.entries()) if (!e2(n3[1], i3.get(n3[0]))) return false;
+      for (n3 of t3.entries()) if (!e3(n3[1], i3.get(n3[0]))) return false;
       return true;
     }
     if (t3 instanceof Set && i3 instanceof Set) {
@@ -54566,18 +55512,18 @@ var g = (p || (p = 1, f = function e2(t3, i3) {
     for (n3 = s3; 0 !== n3--; ) if (!Object.prototype.hasOwnProperty.call(i3, r4[n3])) return false;
     for (n3 = s3; 0 !== n3--; ) {
       var o3 = r4[n3];
-      if (!e2(t3[o3], i3[o3])) return false;
+      if (!e3(t3[o3], i3[o3])) return false;
     }
     return true;
   }
   return t3 != t3 && i3 != i3;
-}), f);
-var y = u(g);
-var b;
+}), f2);
+var y2 = u2(g2);
+var b2;
 var I;
-var x = u(function() {
-  if (w) return z;
-  w = 1;
+var x2 = u2(function() {
+  if (w2) return z;
+  w2 = 1;
   var e4 = /^\s+|\s+$/g, t3 = /^[-+]0x[0-9a-f]+$/i, i3 = /^0b[01]+$/i, s3 = /^0o[0-7]+$/i, n3 = parseInt, r4 = Object.prototype.toString;
   function o3(e5) {
     var t4 = typeof e5;
@@ -54605,10 +55551,10 @@ var x = u(function() {
     }(a3(e5), t4, i4);
   };
 }());
-var _ = u(function() {
-  if (I) return b;
+var _ = u2(function() {
+  if (I) return b2;
   I = 1;
-  var e4 = /^\s+|\s+$/g, t3 = /^[-+]0x[0-9a-f]+$/i, i3 = /^0b[01]+$/i, s3 = /^0o[0-7]+$/i, n3 = parseInt, r4 = "object" == typeof l && l && l.Object === Object && l, o3 = "object" == typeof self && self && self.Object === Object && self, a3 = r4 || o3 || Function("return this")(), h3 = Object.prototype.toString, u3 = Math.max, c3 = Math.min, m3 = function m4() {
+  var e4 = /^\s+|\s+$/g, t3 = /^[-+]0x[0-9a-f]+$/i, i3 = /^0b[01]+$/i, s3 = /^0o[0-7]+$/i, n3 = parseInt, r4 = "object" == typeof l2 && l2 && l2.Object === Object && l2, o3 = "object" == typeof self && self && self.Object === Object && self, a3 = r4 || o3 || Function("return this")(), h3 = Object.prototype.toString, u3 = Math.max, c3 = Math.min, m3 = function m4() {
     return a3.Date.now();
   };
   function d3(e5) {
@@ -54631,7 +55577,7 @@ var _ = u(function() {
     var a4 = i3.test(r5);
     return a4 || s3.test(r5) ? n3(r5.slice(2), a4 ? 2 : 8) : t3.test(r5) ? NaN : +r5;
   }
-  return b = function(e5, t4, i4) {
+  return b2 = function(e5, t4, i4) {
     var s4, n4, r5, o4, a4, h4, l3 = 0, p3 = false, v4 = false, S3 = true;
     if ("function" != typeof e5) throw new TypeError("Expected a function");
     function z2(t5) {
@@ -54691,7 +55637,7 @@ function E(e4) {
     if (!r4.current) return;
     if ("undefined" == typeof window || !("ResizeObserver" in window)) return;
     const e5 = new ResizeObserver(([e6]) => {
-      const t3 = "border-box" === o3 ? "borderBoxSize" : "device-pixel-content-box" === o3 ? "devicePixelContentBoxSize" : "contentBoxSize", i3 = N(e6, t3, "inlineSize"), s3 = N(e6, t3, "blockSize");
+      const t3 = "border-box" === o3 ? "borderBoxSize" : "device-pixel-content-box" === o3 ? "devicePixelContentBoxSize" : "contentBoxSize", i3 = N2(e6, t3, "inlineSize"), s3 = N2(e6, t3, "blockSize");
       if (c3.current.width !== i3 || c3.current.height !== s3) {
         const _e2 = {
           width: i3,
@@ -54710,24 +55656,24 @@ function E(e4) {
     height: h3
   };
 }
-function N(e4, t3, i3) {
+function N2(e4, t3, i3) {
   return e4[t3] ? Array.isArray(e4[t3]) ? e4[t3][0][i3] : e4[t3][i3] : "contentBoxSize" === t3 ? e4.contentRect["inlineSize" === i3 ? "width" : "height"] : void 0;
 }
 var L = "allotment-module_splitView__L-yRc";
 var D = "allotment-module_sashContainer__fzwJF";
 var O = "allotment-module_splitViewContainer__rQnVa";
-var M = "allotment-module_splitViewView__MGZ6O";
+var M2 = "allotment-module_splitViewView__MGZ6O";
 var P = "allotment-module_vertical__WSwwa";
 var T = "allotment-module_horizontal__7doS8";
 var C = "allotment-module_separatorBorder__x-rDS";
 var A;
-var j = false;
+var j2 = false;
 var F = false;
-"object" == typeof navigator && (A = navigator.userAgent, F = A.indexOf("Macintosh") >= 0, j = (A.indexOf("Macintosh") >= 0 || A.indexOf("iPad") >= 0 || A.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
-var H = j;
+"object" == typeof navigator && (A = navigator.userAgent, F = A.indexOf("Macintosh") >= 0, j2 = (A.indexOf("Macintosh") >= 0 || A.indexOf("iPad") >= 0 || A.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+var H2 = j2;
 var Y = F;
-var k = "undefined" != typeof window && void 0 !== window.document && void 0 !== window.document.createElement ? import_react.useLayoutEffect : import_react.useEffect;
-var $ = class {
+var k2 = "undefined" != typeof window && void 0 !== window.document && void 0 !== window.document.createElement ? import_react.useLayoutEffect : import_react.useEffect;
+var $2 = class {
   constructor() {
     this._size = void 0;
   }
@@ -54840,7 +55786,7 @@ var X = (R || (R = 1, function(e4) {
     return e5 ? (t4 = i3 ? i3 + e5 : e5, this._events[t4] && o3(this, t4)) : (this._events = new s3(), this._eventsCount = 0), this;
   }, a3.prototype.off = a3.prototype.removeListener, a3.prototype.addListener = a3.prototype.on, a3.prefixed = i3, a3.EventEmitter = a3, e4.exports = a3;
 }(W)), W.exports);
-var G = u(X);
+var G = u2(X);
 function J(e4, t3) {
   const i3 = e4.indexOf(t3);
   i3 > -1 && (e4.splice(i3, 1), e4.unshift(t3));
@@ -54870,7 +55816,7 @@ var oe = function(e4) {
 var ae = function(e4) {
   return e4.Disabled = "DISABLED", e4.Minimum = "MINIMUM", e4.Maximum = "MAXIMUM", e4.Enabled = "ENABLED", e4;
 }({});
-var he = H ? 20 : 8;
+var he = H2 ? 20 : 8;
 var le = new G();
 var ue = class extends G {
   get state() {
@@ -54945,7 +55891,7 @@ var de = function(e4) {
 }({});
 var fe = class {
   constructor(e4, t3, i3) {
-    this.container = void 0, this.view = void 0, this._size = void 0, this._cachedVisibleSize = void 0, this.container = e4, this.view = t3, this.container.classList.add("split-view-view", M), this.container.dataset.testid = "split-view-view", "number" == typeof i3 ? (this._size = i3, this._cachedVisibleSize = void 0, e4.classList.add("split-view-view-visible")) : (this._size = 0, this._cachedVisibleSize = i3.cachedVisibleSize);
+    this.container = void 0, this.view = void 0, this._size = void 0, this._cachedVisibleSize = void 0, this.container = e4, this.view = t3, this.container.classList.add("split-view-view", M2), this.container.dataset.testid = "split-view-view", "number" == typeof i3 ? (this._size = i3, this._cachedVisibleSize = void 0, e4.classList.add("split-view-view-visible")) : (this._size = 0, this._cachedVisibleSize = i3.cachedVisibleSize);
   }
   set size(e4) {
     this._size = e4;
@@ -54966,7 +55912,7 @@ var fe = class {
     return void 0 === this._cachedVisibleSize;
   }
   setVisible(e4, t3) {
-    e4 !== this.visible && (e4 ? (this.size = x(this._cachedVisibleSize, this.viewMinimumSize, this.viewMaximumSize), this._cachedVisibleSize = void 0) : (this._cachedVisibleSize = "number" == typeof t3 ? t3 : this.size, this.size = 0), this.container.classList.toggle("split-view-view-visible", e4), this.view.setVisible && this.view.setVisible(e4));
+    e4 !== this.visible && (e4 ? (this.size = x2(this._cachedVisibleSize, this.viewMinimumSize, this.viewMaximumSize), this._cachedVisibleSize = void 0) : (this._cachedVisibleSize = "number" == typeof t3 ? t3 : this.size, this.size = 0), this.container.classList.toggle("split-view-view-visible", e4), this.view.setVisible && this.view.setVisible(e4));
   }
   get minimumSize() {
     return this.visible ? this.view.minimumSize : 0;
@@ -55092,7 +56038,7 @@ var Se = class extends G {
     const t3 = Math.max(this.size, this.contentSize);
     if (this.size = e4, this.proportions) for (let _t4 = 0; _t4 < this.viewItems.length; _t4++) {
       const i3 = this.viewItems[_t4];
-      i3.size = x(Math.round(this.proportions[_t4] * e4), i3.minimumSize, i3.maximumSize);
+      i3.size = x2(Math.round(this.proportions[_t4] * e4), i3.minimumSize, i3.maximumSize);
     }
     else {
       const i3 = K(0, this.viewItems.length), s3 = i3.filter((e5) => this.viewItems[e5].priority === de.Low), n3 = i3.filter((e5) => this.viewItems[e5].priority === de.High);
@@ -55103,13 +56049,13 @@ var Se = class extends G {
   resizeView(e4, t3) {
     if (e4 < 0 || e4 >= this.viewItems.length) return;
     const i3 = K(0, this.viewItems.length).filter((t4) => t4 !== e4), s3 = [...i3.filter((e5) => this.viewItems[e5].priority === de.Low), e4], n3 = i3.filter((e5) => this.viewItems[e5].priority === de.High), r4 = this.viewItems[e4];
-    t3 = Math.round(t3), t3 = x(t3, r4.minimumSize, Math.min(r4.maximumSize, this.size)), r4.size = t3, this.relayout(s3, n3);
+    t3 = Math.round(t3), t3 = x2(t3, r4.minimumSize, Math.min(r4.maximumSize, this.size)), r4.size = t3, this.relayout(s3, n3);
   }
   resizeViews(e4) {
     for (let t3 = 0; t3 < e4.length; t3++) {
       const i3 = this.viewItems[t3];
       let s3 = e4[t3];
-      s3 = Math.round(s3), s3 = x(s3, i3.minimumSize, Math.min(i3.maximumSize, this.size)), i3.size = s3;
+      s3 = Math.round(s3), s3 = x2(s3, i3.minimumSize, Math.min(i3.maximumSize, this.size)), i3.size = s3;
     }
     this.contentSize = this.viewItems.reduce((e5, t3) => e5 + t3.size, 0), this.saveProportions(), this.layout(this.size);
   }
@@ -55129,7 +56075,7 @@ var Se = class extends G {
     let t3 = 0;
     for (const _i3 of this.viewItems) _i3.maximumSize - _i3.minimumSize > 0 && (e4.push(_i3), t3 += _i3.size);
     const i3 = Math.floor(t3 / e4.length);
-    for (const _t5 of e4) _t5.size = x(i3, _t5.minimumSize, _t5.maximumSize);
+    for (const _t5 of e4) _t5.size = x2(i3, _t5.minimumSize, _t5.maximumSize);
     const s3 = K(0, this.viewItems.length), n3 = s3.filter((e5) => this.viewItems[e5].priority === de.Low), r4 = s3.filter((e5) => this.viewItems[e5].priority === de.High);
     this.relayout(n3, r4);
   }
@@ -55216,12 +56162,12 @@ var Se = class extends G {
       y4 = _i5 !== _e1.visible, _e1.setVisible(_i5, h3.size);
     }
     if (y4) return this.resize(e4, t3, i3, s3, n3, r4, o3);
-    for (let _e10 = 0, _i6 = t3 = x(t3, w3, g3); _e10 < c3.length; _e10++) {
-      const _t8 = c3[_e10], _s2 = x(m3[_e10] + _i6, _t8.minimumSize, _t8.maximumSize);
+    for (let _e10 = 0, _i6 = t3 = x2(t3, w3, g3); _e10 < c3.length; _e10++) {
+      const _t8 = c3[_e10], _s2 = x2(m3[_e10] + _i6, _t8.minimumSize, _t8.maximumSize);
       _i6 -= _s2 - m3[_e10], _t8.size = _s2;
     }
     for (let _e11 = 0, _i7 = t3; _e11 < d3.length; _e11++) {
-      const _t9 = d3[_e11], _s3 = x(f3[_e11] - _i7, _t9.minimumSize, _t9.maximumSize);
+      const _t9 = d3[_e11], _s3 = x2(f3[_e11] - _i7, _t9.minimumSize, _t9.maximumSize);
       _i7 += _s3 - f3[_e11], _t9.size = _s3;
     }
     return t3;
@@ -55232,7 +56178,7 @@ var Se = class extends G {
     const s3 = K(0, this.viewItems.length), n3 = [], r4 = s3.filter((e5) => this.viewItems[e5].priority === de.Low), o3 = s3.filter((e5) => this.viewItems[e5].priority === de.Normal), a3 = s3.filter((e5) => this.viewItems[e5].priority === de.High);
     n3.push(...a3, ...o3, ...r4), "number" == typeof e4 && U(n3, e4);
     for (let _e12 = 0; 0 !== i3 && _e12 < n3.length; _e12++) {
-      const _t0 = this.viewItems[n3[_e12]], _s4 = x(_t0.size + i3, _t0.minimumSize, _t0.maximumSize);
+      const _t0 = this.viewItems[n3[_e12]], _s4 = x2(_t0.size + i3, _t0.minimumSize, _t0.maximumSize);
       i3 -= _s4 - _t0.size, _t0.size = _s4;
     }
   }
@@ -55349,7 +56295,7 @@ var Ie = (0, import_react.forwardRef)(({
   children: i3
 }, s3) => import_react.default.createElement("div", {
   ref: s3,
-  className: S("split-view-view", M, t3)
+  className: S2("split-view-view", M2, t3)
 }, i3));
 Ie.displayName = "Allotment.Pane";
 var xe = (0, import_react.forwardRef)(({
@@ -55370,7 +56316,7 @@ var xe = (0, import_react.forwardRef)(({
   onDragStart: I2,
   onDragEnd: x3
 }, _3) => {
-  const V2 = (0, import_react.useRef)(null), N3 = (0, import_react.useRef)([]), D2 = (0, import_react.useRef)(/* @__PURE__ */ new Map()), M3 = (0, import_react.useRef)(null), A2 = (0, import_react.useRef)(/* @__PURE__ */ new Map()), j4 = (0, import_react.useRef)(new $()), F2 = (0, import_react.useRef)([]), [Y2, B2] = (0, import_react.useState)(false);
+  const V2 = (0, import_react.useRef)(null), N3 = (0, import_react.useRef)([]), D2 = (0, import_react.useRef)(/* @__PURE__ */ new Map()), M3 = (0, import_react.useRef)(null), A2 = (0, import_react.useRef)(/* @__PURE__ */ new Map()), j4 = (0, import_react.useRef)(new $2()), F2 = (0, import_react.useRef)([]), [Y2, B2] = (0, import_react.useState)(false);
   const R2 = (0, import_react.useMemo)(() => import_react.default.Children.toArray(r4).filter(import_react.default.isValidElement), [r4]), W2 = (0, import_react.useCallback)((e4) => {
     var _F$current, _M$current;
     const t3 = (_F$current = F2.current) == null ? void 0 : _F$current[e4];
@@ -55389,7 +56335,7 @@ var xe = (0, import_react.forwardRef)(({
       var _M$current3;
       (_M$current3 = M3.current) == null || _M$current3.resizeViews(e4);
     }
-  })), k(() => {
+  })), k2(() => {
     let e4 = true;
     p3 && A2.current.size !== p3.length && (e4 = false, console.warn(`Expected ${p3.length} children based on defaultSizes but found ${A2.current.size}`)), e4 && p3 && (N3.current = R2.map((e5) => e5.key));
     const t3 = _extends({
@@ -55445,7 +56391,7 @@ var xe = (0, import_react.forwardRef)(({
     return () => {
       i3.dispose();
     };
-  }, []), k(() => {
+  }, []), k2(() => {
     if (Y2) {
       const e4 = R2.map((e5) => e5.key), t3 = [...N3.current], i3 = e4.filter((e5) => !N3.current.includes(e5)), s3 = e4.filter((e5) => N3.current.includes(e5)), n3 = N3.current.map((t4) => !e4.includes(t4));
       for (let _e21 = n3.length - 1; _e21 >= 0; _e21--) {
@@ -55466,7 +56412,7 @@ var xe = (0, import_react.forwardRef)(({
         }));
         (_M$current6 = M3.current) != null && _M$current6.addView(A2.current.get(_s6), _n2, ce.Distribute, e4.findIndex((e5) => e5 === _s6)), t3.splice(e4.findIndex((e5) => e5 === _s6), 0, _s6), F2.current.splice(e4.findIndex((e5) => e5 === _s6), 0, _n2);
       }
-      for (; !y(e4, t3); ) for (const [_i0, _s7] of e4.entries()) {
+      for (; !y2(e4, t3); ) for (const [_i0, _s7] of e4.entries()) {
         const _e22 = t3.findIndex((e5) => e5 === _s7);
         if (_e22 !== _i0) {
           var _M$current7;
@@ -55513,17 +56459,17 @@ var xe = (0, import_react.forwardRef)(({
       e4 && t3 && ((_M$current10 = M3.current) != null && _M$current10.layout(z2 ? t3 : e4), j4.current.setSize(z2 ? t3 : e4), B2(true));
     }
   }), (0, import_react.useEffect)(() => {
-    H && _e(20);
+    H2 && _e(20);
   }, []), import_react.default.createElement("div", {
     ref: V2,
-    className: S("split-view", z2 ? "split-view-vertical" : "split-view-horizontal", {
+    className: S2("split-view", z2 ? "split-view-vertical" : "split-view-horizontal", {
       "split-view-separator-border": d3
     }, L, z2 ? P : T, {
       [C]: d3
     }, o3),
     id: l3
   }, import_react.default.createElement("div", {
-    className: S("split-view-container", O)
+    className: S2("split-view-container", O)
   }, import_react.default.Children.toArray(r4).map((t3) => {
     if (!import_react.default.isValidElement(t3)) return null;
     const i3 = t3.key;
@@ -55542,7 +56488,7 @@ var xe = (0, import_react.forwardRef)(({
   })));
 });
 function _e(e4) {
-  const t3 = x(e4, 4, 20), i3 = x(e4, 1, 8);
+  const t3 = x2(e4, 4, 20), i3 = x2(e4, 1, 8);
   document.documentElement.style.setProperty("--sash-size", t3 + "px"), document.documentElement.style.setProperty("--sash-hover-size", i3 + "px"), function(e5) {
     he = e5, le.emit("onDidChangeGlobalSize", e5);
   }(t3);
@@ -57234,17 +58180,17 @@ var useStore2 = create()(
 );
 
 // node_modules/clsx/dist/clsx.mjs
-function r2(e4) {
+function r3(e4) {
   var t3, f3, n3 = "";
   if ("string" == typeof e4 || "number" == typeof e4) n3 += e4;
   else if ("object" == typeof e4) if (Array.isArray(e4)) {
     var o3 = e4.length;
-    for (t3 = 0; t3 < o3; t3++) e4[t3] && (f3 = r2(e4[t3])) && (n3 && (n3 += " "), n3 += f3);
+    for (t3 = 0; t3 < o3; t3++) e4[t3] && (f3 = r3(e4[t3])) && (n3 && (n3 += " "), n3 += f3);
   } else for (f3 in e4) e4[f3] && (n3 && (n3 += " "), n3 += f3);
   return n3;
 }
 function clsx() {
-  for (var e4, t3, f3 = 0, n3 = "", o3 = arguments.length; f3 < o3; f3++) (e4 = arguments[f3]) && (t3 = r2(e4)) && (n3 && (n3 += " "), n3 += t3);
+  for (var e4, t3, f3 = 0, n3 = "", o3 = arguments.length; f3 < o3; f3++) (e4 = arguments[f3]) && (t3 = r3(e4)) && (n3 && (n3 += " "), n3 += t3);
   return n3;
 }
 
@@ -61198,11 +62144,11 @@ function getElementRef2(element) {
 // node_modules/@radix-ui/react-id/dist/index.mjs
 var React10 = __toESM(require_react(), 1);
 var useReactId = React10[" useId ".trim().toString()] || (() => void 0);
-var count = 0;
+var count2 = 0;
 function useId(deterministicId) {
   const [id, setId] = React10.useState(useReactId());
   useLayoutEffect2(() => {
-    if (!deterministicId) setId((reactId) => reactId ?? String(count++));
+    if (!deterministicId) setId((reactId) => reactId ?? String(count2++));
   }, [deterministicId]);
   return deterministicId || (id ? `radix-${id}` : "");
 }
@@ -61696,7 +62642,7 @@ Portal.displayName = PORTAL_NAME;
 
 // node_modules/@radix-ui/react-focus-guards/dist/index.mjs
 var React17 = __toESM(require_react(), 1);
-var count2 = 0;
+var count3 = 0;
 var guards = null;
 function useFocusGuards() {
   React17.useEffect(() => {
@@ -61710,14 +62656,14 @@ function useFocusGuards() {
     if (document.body.lastElementChild !== end) {
       document.body.insertAdjacentElement("beforeend", end);
     }
-    count2++;
+    count3++;
     return () => {
-      if (count2 === 1) {
+      if (count3 === 1) {
         guards?.start.remove();
         guards?.end.remove();
         guards = null;
       }
-      count2 = Math.max(0, count2 - 1);
+      count3 = Math.max(0, count3 - 1);
     };
   }, []);
 }
@@ -73634,7 +74580,7 @@ var MeasuringFrequency;
 (function(MeasuringFrequency2) {
   MeasuringFrequency2["Optimized"] = "optimized";
 })(MeasuringFrequency || (MeasuringFrequency = {}));
-var defaultValue = /* @__PURE__ */ new Map();
+var defaultValue2 = /* @__PURE__ */ new Map();
 function useDroppableMeasuring(containers, _ref) {
   let {
     dragging,
@@ -73667,9 +74613,9 @@ function useDroppableMeasuring(containers, _ref) {
   const timeoutId = (0, import_react12.useRef)(null);
   const droppableRects = useLazyMemo((previousValue) => {
     if (disabled && !dragging) {
-      return defaultValue;
+      return defaultValue2;
     }
-    if (!previousValue || previousValue === defaultValue || containersRef.current !== containers || queue != null) {
+    if (!previousValue || previousValue === defaultValue2 || containersRef.current !== containers || queue != null) {
       const map = /* @__PURE__ */ new Map();
       for (let container of containers) {
         if (!container) {
@@ -76652,7 +77598,7 @@ ResizePlugin.extension = ExtensionType.Application;
 
 // node_modules/pixi.js/lib/app/TickerPlugin.mjs
 init_Extensions();
-init_const2();
+init_const4();
 init_Ticker();
 var TickerPlugin = class {
   /**
