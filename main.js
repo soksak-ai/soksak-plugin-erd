@@ -89086,44 +89086,7 @@ function registerCommands(ctx, store) {
 // src/plugin/persist.ts
 var PERSIST_KEY = "doc:default";
 var PERSIST_DOC_VERSION = 1;
-var PERSIST_NS = "soksak-plugin-erd";
 var FLUSH_DEBOUNCE_MS = 500;
-function selectKvPort(app) {
-  const a3 = app;
-  const kv = a3?.data?.kv;
-  if (kv && typeof kv.get === "function" && typeof kv.set === "function") {
-    return {
-      backend: "data",
-      get: (key) => kv.get(key),
-      set: (key, value) => kv.set(key, value),
-      watch: typeof kv.watch === "function" ? (cb) => kv.watch(cb) : void 0
-    };
-  }
-  const exec = a3?.commands?.execute;
-  if (typeof exec === "function") {
-    const call = exec.bind(a3.commands);
-    return {
-      backend: "exec",
-      get: async (key) => {
-        const r4 = await call("data.kv.get", { ns: PERSIST_NS, key });
-        if (!r4?.ok) throw new KvCommandError("data.kv.get", r4?.code, r4?.message);
-        return r4.data?.value ?? null;
-      },
-      set: async (key, value) => {
-        const r4 = await call("data.kv.set", { ns: PERSIST_NS, key, value });
-        if (!r4?.ok) throw new KvCommandError("data.kv.set", r4?.code, r4?.message);
-      }
-    };
-  }
-  return null;
-}
-var KvCommandError = class extends Error {
-  code;
-  constructor(command, code, message) {
-    super(`${command} failed: ${code ?? "NO_RESPONSE"}${message ? ` \u2014 ${message}` : ""}`);
-    this.code = code ?? "NO_RESPONSE";
-  }
-};
 function serializeDoc(s3) {
   return {
     v: PERSIST_DOC_VERSION,
@@ -89150,7 +89113,7 @@ function applyDoc(store, doc) {
   });
   if (doc.dialect === "mysql" || doc.dialect === "postgresql") st2.setDialect(doc.dialect);
 }
-function createPersistence(port, store) {
+function createPersistence(kv, store) {
   let hydrated = false;
   let restored = false;
   let dirty = false;
@@ -89159,7 +89122,7 @@ function createPersistence(port, store) {
   let timer = null;
   let lastSavedAt = null;
   let lastError = null;
-  let disabled = port ? null : "no storage surface on this host";
+  let disabled = kv ? null : 'app.data.kv is unavailable ("data" permission?)';
   let unsubscribe = null;
   let unwatch = null;
   const disable = (reason) => {
@@ -89169,14 +89132,8 @@ function createPersistence(port, store) {
       timer = null;
     }
   };
-  const recordError = (e4) => {
-    lastError = e4 instanceof Error ? e4.message : String(e4);
-    if (e4 instanceof KvCommandError && e4.code === "UNKNOWN_COMMAND") {
-      disable("data.kv.* commands are not available on this core");
-    }
-  };
   const flushNow = async () => {
-    if (!port || disabled || !dirty) return false;
+    if (!kv || disabled || !dirty) return false;
     if (timer) {
       clearTimeout(timer);
       timer = null;
@@ -89185,20 +89142,20 @@ function createPersistence(port, store) {
     writing++;
     try {
       const doc = serializeDoc(store.getState());
-      await port.set(PERSIST_KEY, doc);
+      await kv.set(PERSIST_KEY, doc);
       lastSavedAt = doc.savedAt;
       lastError = null;
       return true;
     } catch (e4) {
       dirty = true;
-      recordError(e4);
+      lastError = e4 instanceof Error ? e4.message : String(e4);
       return false;
     } finally {
       writing--;
     }
   };
   const scheduleFlush = () => {
-    if (!port || disabled) return;
+    if (!kv || disabled) return;
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       timer = null;
@@ -89207,7 +89164,7 @@ function createPersistence(port, store) {
   };
   const durableChanged = (s3, p3) => s3.tables !== p3.tables || s3.relationships !== p3.relationships || s3.nodePositions !== p3.nodePositions || s3.collapsedNodes !== p3.collapsedNodes || s3.viewport !== p3.viewport || s3.dialect !== p3.dialect;
   const readDoc = async () => {
-    const raw = await port.get(PERSIST_KEY);
+    const raw = await kv.get(PERSIST_KEY);
     if (raw == null) return null;
     const doc = raw;
     if (typeof doc !== "object" || typeof doc.v !== "number") {
@@ -89228,7 +89185,7 @@ function createPersistence(port, store) {
     }
   };
   const rehydrate = async () => {
-    if (!port || disabled) return false;
+    if (!kv || disabled) return false;
     if (dirty) return false;
     try {
       const doc = await readDoc();
@@ -89239,13 +89196,13 @@ function createPersistence(port, store) {
       restored = true;
       return true;
     } catch (e4) {
-      recordError(e4);
+      lastError = e4 instanceof Error ? e4.message : String(e4);
       return false;
     }
   };
   const hydrate = async () => {
     if (hydrated) return;
-    if (port && !disabled) {
+    if (kv && !disabled) {
       try {
         const doc = await readDoc();
         if (doc) {
@@ -89254,19 +89211,19 @@ function createPersistence(port, store) {
           restored = true;
         }
       } catch (e4) {
-        recordError(e4);
+        lastError = e4 instanceof Error ? e4.message : String(e4);
       }
     }
     hydrated = true;
-    if (port && !disabled) {
+    if (kv && !disabled) {
       unsubscribe = store.subscribe((s3, p3) => {
         if (applying) return;
         if (!durableChanged(s3, p3)) return;
         dirty = true;
         scheduleFlush();
       });
-      if (port.watch) {
-        unwatch = port.watch((key) => {
+      if (kv.watch) {
+        unwatch = kv.watch((key) => {
           if (key !== PERSIST_KEY) return;
           if (writing > 0) return;
           void rehydrate();
@@ -89294,7 +89251,7 @@ function createPersistence(port, store) {
     rehydrate,
     flush: flushNow,
     status: () => ({
-      backend: disabled && !port ? "none" : port?.backend ?? "none",
+      enabled: kv != null && !disabled,
       hydrated,
       restored,
       dirty,
@@ -89327,12 +89284,12 @@ function registerPersistCommands(ctx, persistence) {
   );
   ctx.subscriptions.push(
     register("persist-status", {
-      description: "Report durable persistence state (backend, hydrated, restored, dirty, lastSavedAt)",
-      triggers: { ko: "\uC601\uC18D \uC0C1\uD0DC \uD655\uC778 \uC800\uC7A5 \uBC31\uC5D4\uB4DC \uBCF5\uC6D0" },
+      description: "Report durable persistence state (enabled, hydrated, restored, dirty, lastSavedAt)",
+      triggers: { ko: "\uC601\uC18D \uC0C1\uD0DC \uD655\uC778 \uC800\uC7A5 \uBCF5\uC6D0" },
       message: (d3) => {
         const s3 = d3;
         if (s3.disabled) return `\uC601\uC18D \uC800\uC7A5\uC774 \uBE44\uD65C\uC131\uC785\uB2C8\uB2E4: ${s3.disabled}`;
-        return `backend=${s3.backend}${s3.restored ? ", \uBCF5\uC6D0\uB428" : ""}${s3.dirty ? ", \uBBF8\uAE30\uB85D \uBCC0\uACBD \uC788\uC74C" : ", \uAE30\uB85D \uC644\uB8CC"}`;
+        return `\uC601\uC18D \uC800\uC7A5 \uD65C\uC131${s3.restored ? ", \uBCF5\uC6D0\uB428" : ""}${s3.dirty ? ", \uBBF8\uAE30\uB85D \uBCC0\uACBD \uC788\uC74C" : ", \uAE30\uB85D \uC644\uB8CC"}`;
       },
       params: {},
       handler: async () => ({ ok: true, ...persistence.status() })
@@ -89601,7 +89558,7 @@ var plugin_entry_default = {
         }
       })
     );
-    const persistence = createPersistence(selectKvPort(app), useStore2);
+    const persistence = createPersistence(app.data?.kv ?? null, useStore2);
     await persistence.hydrate();
     ctx.subscriptions.push({ dispose: () => persistence.dispose() });
     if (app.commands?.register) {

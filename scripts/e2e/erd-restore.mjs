@@ -131,7 +131,7 @@ async function main() {
   ok(gvp.ok && v.zoom === 1.5 && v.x === 33 && v.y === -10, "뷰포트 복원", gvp);
 
   const st = val(await rpc(P + "persist-status"));
-  ok(st.ok && st.restored === true, `persist-status 복원 보고(backend=${st.backend})`, st);
+  ok(st.ok && st.restored === true && st.enabled === true, "persist-status 복원 보고(enabled)", st);
 
   // 5) 회수(멱등 종료) — ns 제거 후 빈 런타임 확인.
   ok(await resetAll(), "회수(ns 제거 + 재적재)");

@@ -10,7 +10,7 @@ import { createRoot, type Root } from "react-dom/client";
 import App from "@/App";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
-import { createPersistence, registerPersistCommands, selectKvPort } from "@/plugin/persist";
+import { createPersistence, registerPersistCommands } from "@/plugin/persist";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
 // console.error 로 원인도 남긴다(소켓/dev 진단).
@@ -108,7 +108,7 @@ export default {
 
     // 내구 영속 — persist.ts 계약: hydrate 는 커맨드 등록 전(헤드리스 호출이 복원 전 상태를
     // 볼 수 없도록), 구독 설치는 hydrate 안에서 완료 후. hydrate 는 throw 하지 않는다.
-    const persistence = createPersistence(selectKvPort(app), useStore);
+    const persistence = createPersistence(app.data?.kv ?? null, useStore);
     await persistence.hydrate();
     ctx.subscriptions.push({ dispose: () => persistence.dispose() });
 
