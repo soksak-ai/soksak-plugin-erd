@@ -802,6 +802,8 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
       positionedCount: Object.keys(s.nodePositions).length,
       collapsedCount: Object.values(s.collapsedNodes).filter(Boolean).length,
       selectedCount: s.selectedNodeIds.length,
+      // 캔버스가 실제로 만든 렌더러 수(store 수치와 다르면 첫 페인트 회귀) — 미마운트면 null.
+      rendererCount: s.renderStatsFn?.().rendererCount ?? null,
       viewport: s.viewport,
     };
   });

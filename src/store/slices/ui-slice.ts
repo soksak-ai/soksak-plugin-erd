@@ -45,6 +45,9 @@ export interface UISlice {
   setZoomOutFn: (fn: (() => void) | null) => void;
   setSetZoomToFn: (fn: ((zoom: number) => void) | null) => void;
   setPanToFn: (fn: ((x: number, y: number) => void) | null) => void;
+  // 캔버스 렌더러 introspection — get-render-state 가 store 가 아닌 캔버스 진실을 보고한다.
+  renderStatsFn: (() => { rendererCount: number }) | null;
+  setRenderStatsFn: (fn: (() => { rendererCount: number }) | null) => void;
 
   // Actions
   toggleLeftSidebar: () => void;
@@ -97,6 +100,7 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   setZoomToFn: null,
   panToFn: null,
   fitViewFn: null,
+  renderStatsFn: null,
 
   triggerAutoLayout: () => set((state) => { state.autoLayoutTrigger += 1; }),
   setAutoLayoutRunning: (running) => set((state) => { state.autoLayoutRunning = running; }),
@@ -142,4 +146,5 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
     state.relationshipCreateSourceTableId = null;
   }),
   setFitViewFn: (fn) => set((state) => { state.fitViewFn = fn; }),
+  setRenderStatsFn: (fn) => set((state) => { state.renderStatsFn = fn; }),
 });

@@ -57688,6 +57688,7 @@ var createUISlice = (set2) => ({
   setZoomToFn: null,
   panToFn: null,
   fitViewFn: null,
+  renderStatsFn: null,
   triggerAutoLayout: () => set2((state) => {
     state.autoLayoutTrigger += 1;
   }),
@@ -57770,6 +57771,9 @@ var createUISlice = (set2) => ({
   }),
   setFitViewFn: (fn) => set2((state) => {
     state.fitViewFn = fn;
+  }),
+  setRenderStatsFn: (fn) => set2((state) => {
+    state.renderStatsFn = fn;
   })
 });
 
@@ -80976,6 +80980,7 @@ function PixiERDCanvas() {
   const workerRef = (0, import_react22.useRef)(null);
   const [canvasApi, setCanvasApi] = (0, import_react22.useState)(null);
   const [hoverEdgeUi, setHoverEdgeUi] = (0, import_react22.useState)(null);
+  const [pixiReady, setPixiReady] = (0, import_react22.useState)(false);
   const wakeRenderLoop = () => wakeRenderLoopRef.current?.();
   const tables = useStore2((s3) => s3.tables);
   const relationships = useStore2((s3) => s3.relationships);
@@ -81076,6 +81081,7 @@ function PixiERDCanvas() {
       const vp = useStore2.getState().viewport;
       camRef.current = { x: vp.x, y: vp.y, zoom: vp.zoom || 1 };
       camDirty.current = true;
+      setPixiReady(true);
       wakeRenderLoopRef.current = () => {
         lastActivityAtRef.current = performance.now();
         if (!app.ticker.started) app.ticker.start();
@@ -81600,7 +81606,7 @@ function PixiERDCanvas() {
     return () => {
       tablesSyncGenRef.current += 1;
     };
-  }, [tables, relationships]);
+  }, [tables, relationships, pixiReady]);
   (0, import_react22.useEffect)(() => {
     const renderers = nodeRenderers.current;
     if (renderers.size === 0) return;
@@ -82177,6 +82183,7 @@ function PixiERDCanvas() {
     store.setZoomOutFn(doZoomOut);
     store.setSetZoomToFn(doZoomTo);
     store.setPanToFn(doPanTo);
+    store.setRenderStatsFn(() => ({ rendererCount: nodeRenderers.current.size }));
     return () => {
       const s3 = useStore2.getState();
       s3.setFitViewFn(null);
@@ -82184,6 +82191,7 @@ function PixiERDCanvas() {
       s3.setZoomOutFn(null);
       s3.setSetZoomToFn(null);
       s3.setPanToFn(null);
+      s3.setRenderStatsFn(null);
     };
   }, []);
   (0, import_react22.useEffect)(() => {
@@ -88803,6 +88811,8 @@ function registerCommands(ctx, store) {
       positionedCount: Object.keys(s3.nodePositions).length,
       collapsedCount: Object.values(s3.collapsedNodes).filter(Boolean).length,
       selectedCount: s3.selectedNodeIds.length,
+      // 캔버스가 실제로 만든 렌더러 수(store 수치와 다르면 첫 페인트 회귀) — 미마운트면 null.
+      rendererCount: s3.renderStatsFn?.().rendererCount ?? null,
       viewport: s3.viewport
     };
   });

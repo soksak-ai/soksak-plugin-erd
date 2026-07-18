@@ -367,6 +367,9 @@ export function PixiERDCanvas() {
   // Canvas API for context menu
   const [canvasApi, setCanvasApi] = useState<PixiCanvasAPI | null>(null);
   const [hoverEdgeUi, setHoverEdgeUi] = useState<{ edgeId: string; x: number; y: number } | null>(null);
+  // Pixi init(비동기) 완료 신호 — 마운트 이전부터 store 에 있던 스키마(영속 복원 경로)도
+  // 동기화 effect 가 다시 보게 한다. ref 만으로는 effect 가 재실행되지 않는다.
+  const [pixiReady, setPixiReady] = useState(false);
   const wakeRenderLoop = () => wakeRenderLoopRef.current?.();
 
   // ── Store selectors ────────────────────────────────────────────────
@@ -498,6 +501,9 @@ export function PixiERDCanvas() {
       const vp = useStore.getState().viewport;
       camRef.current = { x: vp.x, y: vp.y, zoom: vp.zoom || 1 };
       camDirty.current = true;
+
+      // 레이어 준비 완료 — 동기화 effect 재실행 신호(복원된 스키마의 첫 페인트 보장).
+      setPixiReady(true);
 
       wakeRenderLoopRef.current = () => {
         lastActivityAtRef.current = performance.now();
@@ -1107,7 +1113,10 @@ export function PixiERDCanvas() {
     return () => {
       tablesSyncGenRef.current += 1;
     };
-  }, [tables, relationships]);
+    // pixiReady: init 완료 전 이 effect 는 nodeLayer 부재로 조기 반환한다 — 마운트 이전부터
+    // 존재하던 스키마(영속 복원)는 tables 참조가 다시 바뀌지 않으므로, init 완료가 재실행을
+    // 트리거해야 첫 페인트가 성립한다.
+  }, [tables, relationships, pixiReady]);
 
   // Position-only sync (auto layout / load position apply): do not rebuild node content.
   useEffect(() => {
@@ -1777,6 +1786,9 @@ export function PixiERDCanvas() {
     store.setZoomOutFn(doZoomOut);
     store.setSetZoomToFn(doZoomTo);
     store.setPanToFn(doPanTo);
+    // 렌더러 수 introspection — get-render-state 가 store 수치가 아닌 캔버스 진실을 보고한다
+    // (복원 첫 페인트 회귀의 관측점).
+    store.setRenderStatsFn(() => ({ rendererCount: nodeRenderers.current.size }));
 
     return () => {
       const s = useStore.getState();
@@ -1785,6 +1797,7 @@ export function PixiERDCanvas() {
       s.setZoomOutFn(null);
       s.setSetZoomToFn(null);
       s.setPanToFn(null);
+      s.setRenderStatsFn(null);
     };
   }, []);
 
