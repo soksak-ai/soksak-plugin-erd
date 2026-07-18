@@ -11,6 +11,7 @@ Every capability is exposed as a command, so you design and evolve a database sc
 - **File-based `.mig` migrations** — a DB-independent migration DSL; generate from an incremental diff, render to any dialect, apply/revert.
 - **Directional relationships** — `source` = referenced/PK side, `target` = FK holder; `autoFk` auto-creates the FK column on the target.
 - **Batch & atomic** — build a whole schema in one `apply`; any op fails → the whole batch rolls back as a single undo entry.
+- **Durable by default** — every edit is debounce-written to the host's durable store and restored on the next activation; a plugin reload or app restart does not lose the working schema (positions, viewport, and dialect included). `persist-flush` forces the write; `persist-status` reports backend/restored/dirty. The contract lives in `src/plugin/persist.ts` and is enforced by `src/plugin/persist.test.ts`.
 - **Import / export** — DBML, Prisma, Mermaid, SQL.
 
 ## Usage
@@ -36,7 +37,7 @@ sok plugin.soksak-plugin-erd.auto-layout direction=TB
 sok plugin.soksak-plugin-erd.export-sql dialect=postgresql
 ```
 
-Conventions: every command returns `{ok:true,…}` or `{ok:false,error}` — branch on `ok`, never throws. Address tables/columns by name (id optional). Prefer `apply` (batch) for multi-step builds.
+Conventions: every command returns `{ok:true,…}` or `{ok:false,code,message}` — branch on `ok`, never throws. Address tables/columns by name (id optional). Prefer `apply` (batch) for multi-step builds.
 
 The bundled `soksak-erd` skill (`contributes.skill`) carries the full mental model and workflow for AI agents.
 

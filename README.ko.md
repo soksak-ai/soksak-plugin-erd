@@ -11,6 +11,7 @@ soksak 터미널 앱을 위한 LLM-native 데이터베이스 스키마 설계(ER
 - **파일 기반 `.mig` 마이그레이션** — DB 독립 마이그레이션 DSL. 증분 diff 에서 생성, 임의 다이얼렉트로 렌더, 적용/되돌림.
 - **방향 있는 관계** — `source` = 참조/PK 측, `target` = FK 보유 측. `autoFk` 가 target 에 FK 컬럼 자동 생성.
 - **배치·원자성** — `apply` 하나로 전체 스키마 구성. 한 op 라도 실패하면 전체 롤백(단일 undo).
+- **기본 내구 저장** — 모든 편집이 디바운스로 호스트 내구 저장소에 기록되고 다음 활성화에서 복원된다. 플러그인 재적재·앱 재시작에도 작업 스키마(좌표·뷰포트·다이얼렉트 포함)를 잃지 않는다. `persist-flush` 는 즉시 기록, `persist-status` 는 backend/restored/dirty 보고. 계약은 `src/plugin/persist.ts`, 강제는 `src/plugin/persist.test.ts`.
 - **임포트/익스포트** — DBML, Prisma, Mermaid, SQL.
 
 ## 사용
@@ -36,7 +37,7 @@ sok plugin.soksak-plugin-erd.auto-layout direction=TB
 sok plugin.soksak-plugin-erd.export-sql dialect=postgresql
 ```
 
-규약: 모든 명령은 `{ok:true,…}` 또는 `{ok:false,error}` 를 돌려준다 — `ok` 로 분기, throw 없음. 테이블/컬럼은 이름으로 지칭(id 선택). 다단계 구성은 `apply`(배치) 권장.
+규약: 모든 명령은 `{ok:true,…}` 또는 `{ok:false,code,message}` 를 돌려준다 — `ok` 로 분기, throw 없음. 테이블/컬럼은 이름으로 지칭(id 선택). 다단계 구성은 `apply`(배치) 권장.
 
 동봉된 `soksak-erd` 스킬(`contributes.skill`)이 AI 에이전트용 멘탈모델과 워크플로 전체를 담는다.
 
