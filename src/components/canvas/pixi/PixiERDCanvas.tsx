@@ -13,6 +13,7 @@ import {
   getViewportBounds,
   fitToView,
 } from './camera';
+import { overlayRectForHeader, isInHeaderBand, type OverlayRect } from './rename-overlay';
 import { SpatialIndex } from './spatial-index';
 import { TableNodeRenderer } from './table-node';
 import type { TableNodeData } from './table-node';
@@ -367,6 +368,15 @@ export function PixiERDCanvas() {
   // Canvas API for context menu
   const [canvasApi, setCanvasApi] = useState<PixiCanvasAPI | null>(null);
   const [hoverEdgeUi, setHoverEdgeUi] = useState<{ edgeId: string; x: number; y: number } | null>(null);
+  // 인라인 rename 오버레이 — GPU 헤더 위에 DOM input 을 띄운다(더블클릭 진입).
+  const [renameUi, setRenameUi] = useState<
+    { tableId: string; rect: OverlayRect; value: string } | null
+  >(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
+  // 렌더-무관 커밋 훅 — [] deps 이벤트 핸들러(onPointerDown/onWheel)가 최신 rename 값을
+  // 읽어 커밋할 수 있게 ref 로 노출한다. 캔버스에 새 pointerdown 이 오면(다른 테이블 클릭 등)
+  // 진행 중 rename 을 확정한다 — blur 에 의존하지 않아 실사용·주입 모두에서 동작.
+  const commitRenameRef = useRef<() => void>(() => {});
   // Pixi init(비동기) 완료 신호 — 마운트 이전부터 store 에 있던 스키마(영속 복원 경로)도
   // 동기화 effect 가 다시 보게 한다. ref 만으로는 effect 가 재실행되지 않는다.
   const [pixiReady, setPixiReady] = useState(false);
@@ -1259,8 +1269,36 @@ export function PixiERDCanvas() {
       }, 150);
     };
 
+    // ── Double-click a header → inline rename ──
+    const onDblClick = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      const rect = el.getBoundingClientRect();
+      const wp = screenToWorld(
+        camRef.current,
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        sizeRef.current.w,
+        sizeRef.current.h,
+      );
+      const hit = spatialRef.current.hitTest(wp.x, wp.y);
+      if (!hit) return;
+      const store = useStore.getState();
+      const pos = store.nodePositions[hit.id];
+      const table = store.tables[hit.id];
+      if (!pos || !table) return;
+      if (!isInHeaderBand(pos, wp.x, wp.y)) return;
+      e.preventDefault();
+      setRenameUi({
+        tableId: hit.id,
+        value: table.name,
+        rect: overlayRectForHeader(camRef.current, pos, sizeRef.current.w, sizeRef.current.h),
+      });
+    };
+
     // ── Wheel: zoom (ctrl/meta) or pan (plain scroll) ──
     const onWheel = (e: WheelEvent) => {
+      // 카메라가 움직이면 오버레이가 드리프트하므로 rename input 을 커밋·닫는다(blur).
+      renameInputRef.current?.blur();
       e.preventDefault();
       const cam = camRef.current;
       const { w, h } = sizeRef.current;
@@ -1292,6 +1330,8 @@ export function PixiERDCanvas() {
     // ── Pointer down ──
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return; // left button only
+      // 진행 중 인라인 rename 은 새 캔버스 클릭에서 확정한다(blur 비의존).
+      commitRenameRef.current();
       el.setPointerCapture(e.pointerId);
       wakeRenderLoopRef.current?.();
       if (hoverEdgeUiRef.current !== null) {
@@ -1701,6 +1741,7 @@ export function PixiERDCanvas() {
     el.addEventListener('pointerleave', onPointerLeave);
     el.addEventListener('pointerup', onPointerUp);
     el.addEventListener('keydown', onKeyDown);
+    el.addEventListener('dblclick', onDblClick);
 
     return () => {
       el.removeEventListener('wheel', onWheel);
@@ -1709,6 +1750,7 @@ export function PixiERDCanvas() {
       el.removeEventListener('pointerleave', onPointerLeave);
       el.removeEventListener('pointerup', onPointerUp);
       el.removeEventListener('keydown', onKeyDown);
+      el.removeEventListener('dblclick', onDblClick);
       if (vpSyncTimer) clearTimeout(vpSyncTimer);
     };
   }, []);
@@ -1889,6 +1931,29 @@ export function PixiERDCanvas() {
     };
   }, [autoLayoutTrigger]);
 
+  // rename 커밋 훅을 매 렌더 갱신 — DOM input value 를 단일 진실로 읽어(즉시 blur/주입 시
+  // React state 가 stale 일 수 있음) 확정하고 오버레이를 닫는다. 진행 중이 아니면 no-op(멱등).
+  commitRenameRef.current = () => {
+    const ui = renameUi;
+    if (!ui) return;
+    const name = (renameInputRef.current?.value ?? ui.value).trim();
+    const store = useStore.getState();
+    if (name && name !== store.tables[ui.tableId]?.name) {
+      store.updateTable(ui.tableId, { name });
+    }
+    setRenameUi(null);
+  };
+
+  // 네이티브 'change' 이벤트에 커밋 — 실사용자는 blur/Enter 시점에만 발화(원하는 확정 시점),
+  // 값 주입(ui.input.fill)도 change 를 발화하므로 헤드리스 검증에서도 동일 경로가 확정된다.
+  useEffect(() => {
+    const input = renameInputRef.current;
+    if (!renameUi || !input) return;
+    const onChange = () => commitRenameRef.current();
+    input.addEventListener('change', onChange);
+    return () => input.removeEventListener('change', onChange);
+  }, [renameUi]);
+
   // ═══════════════════════════════════════════════════════════════════
   // Render
   // ═══════════════════════════════════════════════════════════════════
@@ -1899,9 +1964,39 @@ export function PixiERDCanvas() {
           <div
             ref={containerRef}
             className="h-full w-full bg-zinc-950"
+            data-node="canvas-root"
             tabIndex={0}
             style={{ outline: 'none' }}
           />
+          {renameUi && (
+            <input
+              ref={renameInputRef}
+              autoFocus
+              data-node="rename-input"
+              className="absolute z-[90] box-border rounded-t-lg border border-blue-500 bg-zinc-800 px-3 font-mono text-zinc-100 outline-none"
+              style={{
+                left: `${renameUi.rect.left}px`,
+                top: `${renameUi.rect.top}px`,
+                width: `${renameUi.rect.width}px`,
+                height: `${renameUi.rect.height}px`,
+                fontSize: `${Math.max(9, Math.round(13 * (renameUi.rect.height / 32)))}px`,
+              }}
+              value={renameUi.value}
+              onChange={(e) => setRenameUi((s) => (s ? { ...s, value: e.target.value } : s))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  commitRenameRef.current(); // commit + close
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setRenameUi(null); // cancel without commit
+                }
+                e.stopPropagation(); // keep canvas keydown (Delete) from firing
+              }}
+              onBlur={() => commitRenameRef.current()}
+              onFocus={(e) => e.currentTarget.select()}
+            />
+          )}
           {hoverEdgeUi && relationships[hoverEdgeUi.edgeId] && (
             <div
               className="pointer-events-none absolute z-[80] max-w-[420px] rounded border border-zinc-700 bg-zinc-900/95 px-2 py-1 text-[11px] text-zinc-100 shadow-lg"

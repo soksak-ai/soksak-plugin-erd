@@ -403,6 +403,14 @@
     ],
     "nodes": [
       {
+        "id": "canvas-root",
+        "description": "Canvas gesture-injection surface (center dispatch for E2E dblclick/click)"
+      },
+      {
+        "id": "rename-input",
+        "description": "Inline table-rename input, present only while renaming"
+      },
+      {
         "id": "add-table",
         "description": "Toolbar: open the create-table dialog"
       },
