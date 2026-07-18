@@ -82184,13 +82184,17 @@ function PixiERDCanvas() {
     store.setSetZoomToFn(doZoomTo);
     store.setPanToFn(doPanTo);
     store.setRenderStatsFn(() => {
+      const round3 = (r4) => ({ x: Math.round(r4.x), y: Math.round(r4.y), w: Math.round(r4.width), h: Math.round(r4.height) });
       const canvas = appRef.current?.canvas ?? null;
-      const rect = canvas?.getBoundingClientRect();
+      const el = containerRef.current;
+      const root = el?.getRootNode();
+      const host = root instanceof ShadowRoot ? root.host : null;
       return {
         rendererCount: nodeRenderers.current.size,
         canvasConnected: canvas?.isConnected ?? false,
-        canvasRect: rect ? { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) } : null,
-        documentCanvasCount: document.querySelectorAll("canvas").length
+        canvasRect: canvas ? round3(canvas.getBoundingClientRect()) : null,
+        elRect: el ? round3(el.getBoundingClientRect()) : null,
+        hostRect: host ? round3(host.getBoundingClientRect()) : null
       };
     });
     return () => {
@@ -88820,8 +88824,8 @@ function registerCommands(ctx, store) {
       positionedCount: Object.keys(s3.nodePositions).length,
       collapsedCount: Object.values(s3.collapsedNodes).filter(Boolean).length,
       selectedCount: s3.selectedNodeIds.length,
-      // 캔버스가 실제로 만든 렌더러 수(store 수치와 다르면 첫 페인트 회귀) — 미마운트면 null.
-      rendererCount: s3.renderStatsFn?.().rendererCount ?? null,
+      // 캔버스 진실(렌더러 수·캔버스 연결/위치·문서 내 canvas 수) — 미마운트면 null.
+      ...s3.renderStatsFn?.() ?? { rendererCount: null },
       viewport: s3.viewport
     };
   });

@@ -1789,15 +1789,17 @@ export function PixiERDCanvas() {
     // 캔버스 introspection — get-render-state 가 store 수치가 아닌 캔버스 진실을 보고한다
     // (복원 첫 페인트·잔존 캔버스·이탈 배치 회귀의 관측점).
     store.setRenderStatsFn(() => {
+      const round = (r: DOMRect) => ({ x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) });
       const canvas = (appRef.current?.canvas as HTMLCanvasElement | undefined) ?? null;
-      const rect = canvas?.getBoundingClientRect();
+      const el = containerRef.current;
+      const root = el?.getRootNode();
+      const host = root instanceof ShadowRoot ? (root.host as HTMLElement) : null;
       return {
         rendererCount: nodeRenderers.current.size,
         canvasConnected: canvas?.isConnected ?? false,
-        canvasRect: rect
-          ? { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) }
-          : null,
-        documentCanvasCount: document.querySelectorAll('canvas').length,
+        canvasRect: canvas ? round(canvas.getBoundingClientRect()) : null,
+        elRect: el ? round(el.getBoundingClientRect()) : null,
+        hostRect: host ? round(host.getBoundingClientRect()) : null,
       };
     });
 
