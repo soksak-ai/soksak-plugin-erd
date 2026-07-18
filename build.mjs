@@ -108,4 +108,10 @@ const [workerDefines, cssDefine] = await Promise.all([
   buildWorkerDefines(),
   buildCssDefine(),
 ]);
-await buildMain({ ...workerDefines, ...cssDefine });
+// 버전 리터럴의 단일진실은 plugin.json — 엔트리에는 __ERD_VERSION__ 으로 주입.
+const manifest = JSON.parse(await readFile(path.resolve(root, "plugin.json"), "utf8"));
+await buildMain({
+  ...workerDefines,
+  ...cssDefine,
+  __ERD_VERSION__: JSON.stringify(manifest.version),
+});

@@ -2,11 +2,15 @@
 // P1: 전체 abyss-erd 앱(<App/>)을 Shadow DOM 에 마운트한다. 워커는 build.mjs(Stage A)가
 // IIFE 문자열로 인라인(__ERD_WORKER_*), Tailwind+allotment CSS 는 Stage B 가 __ERD_CSS__ 로 주입.
 // 헤드리스 커맨드(registerCommands)는 그대로 유지 — 뷰 미오픈에도 sok/MCP/소켓 E2E 전부 동작.
+// 호스트 웹뷰가 CSP 로 unsafe-eval 을 막아도 렌더되도록 셰이더 프리컴파일 경로를 최우선 적재.
+// (Pixi v8 은 기본이 eval 기반 codegen — 이 import 가 렌더러 생성보다 먼저 실행돼야 한다.)
+import "pixi.js/unsafe-eval";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import App from "@/App";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
+import { createPersistence, registerPersistCommands, selectKvPort } from "@/plugin/persist";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
 // console.error 로 원인도 남긴다(소켓/dev 진단).
@@ -87,7 +91,7 @@ function unmountApp(container: HTMLElement) {
 }
 
 export default {
-  activate(ctx: any) {
+  async activate(ctx: any) {
     const app = ctx.app;
 
     // 뷰 등록 — content 탭에 <App/> 전체 마운트(placement 무관 동일 트리).
@@ -102,6 +106,12 @@ export default {
       }),
     );
 
+    // 내구 영속 — persist.ts 계약: hydrate 는 커맨드 등록 전(헤드리스 호출이 복원 전 상태를
+    // 볼 수 없도록), 구독 설치는 hydrate 안에서 완료 후. hydrate 는 throw 하지 않는다.
+    const persistence = createPersistence(selectKvPort(app), useStore);
+    await persistence.hydrate();
+    ctx.subscriptions.push({ dispose: () => persistence.dispose() });
+
     // E2E/적재 확인용 헤드리스 커맨드 — sok plugin.soksak-plugin-erd.ping / MCP / 소켓.
     if (app.commands?.register) {
       ctx.subscriptions.push(
@@ -111,7 +121,7 @@ export default {
           handler: async () => ({
             ok: true,
             plugin: "soksak-plugin-erd",
-            version: "0.0.1",
+            version: __ERD_VERSION__,
             phase: "P2",
           }),
         }),
@@ -121,6 +131,7 @@ export default {
     // 헤드리스 커맨드 카탈로그(introspection/mutation/batch/layout) 등록 — store(useStore)를 주입.
     // 뷰 미오픈에도 sok plugin.soksak-plugin-erd.* / MCP / 소켓 E2E 로 전부 동작.
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
+    registerPersistCommands(ctx, persistence);
   },
   deactivate() {},
 };

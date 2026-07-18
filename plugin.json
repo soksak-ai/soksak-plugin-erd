@@ -16,7 +16,8 @@
     "commands",
     "fs:read",
     "fs:write",
-    "programs"
+    "programs",
+    "data"
   ],
   "contributes": {
     "views": [
@@ -383,6 +384,20 @@
         "title": {
           "en": "Lint migration",
           "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \ub9b0\ud2b8"
+        }
+      },
+      {
+        "name": "persist-flush",
+        "title": {
+          "en": "Flush durable persistence now",
+          "ko": "\uc601\uc18d \uc989\uc2dc \uc800\uc7a5"
+        }
+      },
+      {
+        "name": "persist-status",
+        "title": {
+          "en": "Durable persistence status",
+          "ko": "\uc601\uc18d \uc0c1\ud0dc \ud655\uc778"
         }
       }
     ],

@@ -80,8 +80,17 @@ export function FileMenu() {
               viewport: project.diagramState.viewport ?? { x: 0, y: 0, zoom: 1 },
             });
           }
-        } catch {
-          // Invalid JSON - silently ignore
+
+          // Save 가 쓰는 migrations 블록을 대칭 복원한다(무단 폐기 금지).
+          if (project.migrations) {
+            useStore.setState({
+              migrationHistory: project.migrations.versions ?? [],
+              uncommittedOps: project.migrations.uncommittedOps ?? [],
+            });
+          }
+        } catch (err) {
+          // 파싱 실패를 삼키지 않는다 — 파일은 그대로 두고 원인을 남긴다.
+          console.error('[erd] .erd.json 열기 실패:', err);
         }
       };
       reader.readAsText(file);
