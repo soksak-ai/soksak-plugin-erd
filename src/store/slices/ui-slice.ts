@@ -3,12 +3,37 @@ import type { StoreState } from '../index';
 import type { SQLDialect } from '@/types/schema';
 import type { Theme } from '@/constants/theme';
 
+// 세션 간 영속되는 크롬 환경설정의 복원 입력. store 가 자기 필드의 유효범위를 소유하므로
+// applyChromePrefs 가 값별로 검증한다(손상/외부 문서가 store 를 망가뜨리지 못하게). 이 목록이
+// 곧 "무엇이 크롬 환경설정인가"의 단일 진실이다 — prefs 문서(plugin/prefs.ts)는 이걸 직렬화한다.
+export interface ChromePrefsInput {
+  leftSidebarOpen?: boolean;
+  rightSidebarOpen?: boolean;
+  bottomPanelOpen?: boolean;
+  bottomPanelTab?: 'sql' | 'mermaid' | 'console';
+  showMinimap?: boolean;
+  showGrid?: boolean;
+  renderQualityLevel?: 0 | 1 | 2;
+  showOnlyVisibleRelatedEdges?: boolean;
+  showOnlySelectedRelatedEdges?: boolean;
+  edgeRoutingMode?: 'direct' | 'ortho_short';
+  edgeWorkerEnabled?: boolean;
+  leftWidth?: number;
+  rightWidth?: number;
+  bottomHeight?: number;
+}
+
 export interface UISlice {
   // Sidebar & Panel visibility
   leftSidebarOpen: boolean;
   rightSidebarOpen: boolean;
   bottomPanelOpen: boolean;
   bottomPanelTab: 'sql' | 'mermaid' | 'console';
+
+  // Panel sizes (px) — store-owned so they persist across sessions (prefs 문서).
+  leftWidth: number;
+  rightWidth: number;
+  bottomHeight: number;
 
   // Dialogs
   createTableDialogOpen: boolean;
@@ -67,6 +92,8 @@ export interface UISlice {
   toggleOnlySelectedRelatedEdges: () => void;
   toggleEdgeWorkerEnabled: () => void;
   setEdgeRoutingMode: (mode: 'direct' | 'ortho_short') => void;
+  setPanelSizes: (sizes: { leftWidth?: number; rightWidth?: number; bottomHeight?: number }) => void;
+  applyChromePrefs: (prefs: ChromePrefsInput) => void;
   setRelationshipCreateMode: (mode: null | '1:N' | '1:1' | '1|N' | '1|1') => void;
   setRelationshipCreateSourceTableId: (tableId: string | null) => void;
   clearRelationshipCreateState: () => void;
@@ -78,6 +105,9 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   rightSidebarOpen: true,
   bottomPanelOpen: true,
   bottomPanelTab: 'sql',
+  leftWidth: 240,
+  rightWidth: 320,
+  bottomHeight: 260,
   createTableDialogOpen: false,
   importSQLDialogOpen: false,
   importMermaidDialogOpen: false,
@@ -113,6 +143,36 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   toggleRightSidebar: () => set((state) => { state.rightSidebarOpen = !state.rightSidebarOpen; }),
   toggleBottomPanel: () => set((state) => { state.bottomPanelOpen = !state.bottomPanelOpen; }),
   setBottomPanelTab: (tab) => set((state) => { state.bottomPanelTab = tab; }),
+  setPanelSizes: (sizes) => set((state) => {
+    if (sizes.leftWidth !== undefined) state.leftWidth = sizes.leftWidth;
+    if (sizes.rightWidth !== undefined) state.rightWidth = sizes.rightWidth;
+    if (sizes.bottomHeight !== undefined) state.bottomHeight = sizes.bottomHeight;
+  }),
+  // 크롬 환경설정 복원 — 값별로 검증한다(손상/외부 문서 방어). 유효하지 않은 값은 무시(기본 유지).
+  applyChromePrefs: (prefs) => set((state) => {
+    const bool = (v: unknown): v is boolean => typeof v === 'boolean';
+    const size = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0;
+    if (bool(prefs.leftSidebarOpen)) state.leftSidebarOpen = prefs.leftSidebarOpen;
+    if (bool(prefs.rightSidebarOpen)) state.rightSidebarOpen = prefs.rightSidebarOpen;
+    if (bool(prefs.bottomPanelOpen)) state.bottomPanelOpen = prefs.bottomPanelOpen;
+    if (prefs.bottomPanelTab === 'sql' || prefs.bottomPanelTab === 'mermaid' || prefs.bottomPanelTab === 'console') {
+      state.bottomPanelTab = prefs.bottomPanelTab;
+    }
+    if (bool(prefs.showMinimap)) state.showMinimap = prefs.showMinimap;
+    if (bool(prefs.showGrid)) state.showGrid = prefs.showGrid;
+    if (prefs.renderQualityLevel === 0 || prefs.renderQualityLevel === 1 || prefs.renderQualityLevel === 2) {
+      state.renderQualityLevel = prefs.renderQualityLevel;
+    }
+    if (bool(prefs.showOnlyVisibleRelatedEdges)) state.showOnlyVisibleRelatedEdges = prefs.showOnlyVisibleRelatedEdges;
+    if (bool(prefs.showOnlySelectedRelatedEdges)) state.showOnlySelectedRelatedEdges = prefs.showOnlySelectedRelatedEdges;
+    if (prefs.edgeRoutingMode === 'direct' || prefs.edgeRoutingMode === 'ortho_short') {
+      state.edgeRoutingMode = prefs.edgeRoutingMode;
+    }
+    if (bool(prefs.edgeWorkerEnabled)) state.edgeWorkerEnabled = prefs.edgeWorkerEnabled;
+    if (size(prefs.leftWidth)) state.leftWidth = prefs.leftWidth;
+    if (size(prefs.rightWidth)) state.rightWidth = prefs.rightWidth;
+    if (size(prefs.bottomHeight)) state.bottomHeight = prefs.bottomHeight;
+  }),
   setCreateTableDialogOpen: (open) => set((state) => { state.createTableDialogOpen = open; }),
   setImportSQLDialogOpen: (open) => set((state) => { state.importSQLDialogOpen = open; }),
   setImportMermaidDialogOpen: (open) => set((state) => { state.importMermaidDialogOpen = open; }),

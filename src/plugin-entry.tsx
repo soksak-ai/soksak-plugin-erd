@@ -11,6 +11,7 @@ import App from "@/App";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
+import { createPrefsPersistence, registerPrefsCommands } from "@/plugin/prefs";
 import { registerNotificationCommands } from "@/plugin/notifications";
 import { registerPaletteCommands } from "@/plugin/palette";
 import { createHistory } from "@/store/history";
@@ -115,6 +116,12 @@ export default {
     await persistence.hydrate();
     ctx.subscriptions.push({ dispose: () => persistence.dispose() });
 
+    // 크롬 환경설정 영속 — 별도 prefs:default 문서(스키마 문서와 분리). 같은 계약: hydrate 는
+    // 커맨드 등록 전, 구독은 hydrate 안에서 설치. 스키마 문서와 독립이라 서로를 절대 기록하지 않는다.
+    const prefs = createPrefsPersistence(app.data?.kv ?? null, useStore);
+    await prefs.hydrate();
+    ctx.subscriptions.push({ dispose: () => prefs.dispose() });
+
     // undo/redo 이력 — hydrate 이후 설치(복원된 상태가 첫 undo 대상이 되지 않도록 baseline 고정).
     const history = createHistory(useStore);
     ctx.subscriptions.push({ dispose: () => history.dispose() });
@@ -139,6 +146,7 @@ export default {
     // 뷰 미오픈에도 sok plugin.soksak-plugin-erd.* / MCP / 소켓 E2E 로 전부 동작.
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
     registerPersistCommands(ctx, persistence);
+    registerPrefsCommands(ctx, prefs, useStore);
     registerNotificationCommands(ctx);
     registerPaletteCommands(ctx);
   },
