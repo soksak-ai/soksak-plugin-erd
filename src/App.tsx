@@ -6,6 +6,7 @@ import { ImportSQLDialog } from '@/components/dialogs/ImportSQLDialog';
 import { ImportMermaidDialog } from '@/components/dialogs/ImportMermaidDialog';
 import { ImportMWBDialog } from '@/components/dialogs/ImportMWBDialog';
 import { Toaster } from '@/components/Toaster';
+import { CommandPalette } from '@/components/CommandPalette';
 import { useThemeEffect } from '@/hooks/useTheme';
 import { useStore } from '@/store';
 import { PortalRootProvider } from '@/components/ui/portal-context';
@@ -47,6 +48,7 @@ function App({ portalRoot }: AppProps) {
         <ImportMermaidDialog />
         <ImportMWBDialog />
         <Toaster />
+        <CommandPalette />
       </div>
     </PortalRootProvider>
   );

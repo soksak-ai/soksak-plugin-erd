@@ -12,6 +12,7 @@ import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
 import { registerNotificationCommands } from "@/plugin/notifications";
+import { registerPaletteCommands } from "@/plugin/palette";
 import { createHistory } from "@/store/history";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
@@ -139,6 +140,7 @@ export default {
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
     registerPersistCommands(ctx, persistence);
     registerNotificationCommands(ctx);
+    registerPaletteCommands(ctx);
   },
   deactivate() {},
 };

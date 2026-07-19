@@ -3,8 +3,8 @@ import { useStore } from '@/store';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Search, Table2, Eye, Plus, Link2 } from 'lucide-react';
-import { NODE_WIDTH } from '@/components/canvas/pixi/constants';
 import { Minimap } from '@/components/canvas/pixi/Minimap';
+import { focusTable } from '@/features/navigation/focus-table';
 
 const ITEM_HEIGHT = 32; // px per table row
 const OVERSCAN = 10; // extra items rendered above/below viewport
@@ -20,8 +20,6 @@ const MODE_SLUG: Record<'1:N' | '1:1' | '1|N' | '1|1', string> = {
 export function TableNavigator() {
   const tables = useStore((s) => s.tables);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
-  const setSelectedNodeIds = useStore((s) => s.setSelectedNodeIds);
-  const nodePositions = useStore((s) => s.nodePositions);
   const setCreateTableDialogOpen = useStore((s) => s.setCreateTableDialogOpen);
   const relationshipCreateMode = useStore((s) => s.relationshipCreateMode);
   const relationshipCreateSourceTableId = useStore((s) => s.relationshipCreateSourceTableId);
@@ -43,16 +41,9 @@ export function TableNavigator() {
     ? tables[relationshipCreateSourceTableId]
     : null;
 
-  const focusTable = useCallback((tableId: string) => {
-    setSelectedNodeIds([tableId]);
-    const pos = nodePositions[tableId];
-    if (!pos) return;
-    const table = tables[tableId];
-    const estimatedHeight = 32 + (table?.columns?.length ?? 0) * 24;
-    const cx = pos.x + NODE_WIDTH / 2;
-    const cy = pos.y + estimatedHeight / 2;
-    useStore.getState().panToFn?.(cx, cy);
-  }, [setSelectedNodeIds, nodePositions, tables]);
+  const onFocusTable = useCallback((tableId: string) => {
+    focusTable(tableId);
+  }, []);
 
   // Virtual scroll state
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -126,7 +117,7 @@ export function TableNavigator() {
               return (
                 <button
                   key={table.id}
-                  onClick={() => focusTable(table.id)}
+                  onClick={() => onFocusTable(table.id)}
                   style={{ height: ITEM_HEIGHT }}
                   className={cn(
                     'group flex w-full items-center gap-2 rounded-lg px-2 text-left transition-colors cursor-pointer',
