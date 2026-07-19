@@ -162,6 +162,10 @@ export function TableNavigator() {
             );
           })}
         </div>
+        {/* 드래그-투-커넥트 발견성 힌트 — Alt+드래그로 즉시 1:N 연결. */}
+        <p className="mb-1.5 px-0.5 text-[9px] text-gray-400 dark:text-zinc-600">
+          팁: 테이블을 <span className="font-semibold">Alt+드래그</span>해 다른 테이블에 놓으면 1:N 관계가 생깁니다.
+        </p>
         {relationshipCreateMode && (
           <div className="mb-1.5 rounded border border-blue-500/40 bg-blue-500/10 px-2 py-1 text-[10px] text-blue-300">
             <p className="font-semibold">REL MODE {relationshipCreateMode}</p>

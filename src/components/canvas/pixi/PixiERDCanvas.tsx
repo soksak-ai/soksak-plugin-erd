@@ -8,6 +8,7 @@ import type { Camera } from './camera';
 import type { AnchorSide } from '@/types/schema';
 import {
   screenToWorld,
+  worldToScreen,
   zoomAtPoint,
   applyCameraToContainer,
   getViewportBounds,
@@ -15,6 +16,7 @@ import {
 } from './camera';
 import { overlayRectForHeader, isInHeaderBand, type OverlayRect } from './rename-overlay';
 import { toast } from '@/store/toast-store';
+import { createRelationship } from '@/features/relationship/create';
 import { SpatialIndex } from './spatial-index';
 import { TableNodeRenderer } from './table-node';
 import type { TableNodeData } from './table-node';
@@ -81,30 +83,6 @@ function computeFKColumnIds(
     }
   }
   return byTable;
-}
-
-function pickRelationshipColumns(
-  sourceTable: { name: string; columns: Array<{ id: string; name: string; isPrimaryKey: boolean }> },
-  targetTable: { columns: Array<{ id: string; name: string }> },
-): { sourceColumnIds: string[]; targetColumnIds: string[] } {
-  const sourcePks = sourceTable.columns.filter((c) => c.isPrimaryKey);
-  const source = sourcePks[0] ?? sourceTable.columns[0];
-  if (!source) return { sourceColumnIds: [], targetColumnIds: [] };
-
-  const srcName = source.name.toLowerCase();
-  const tableBase = sourceTable.name.toLowerCase();
-  const expected = `${tableBase}_${srcName}`;
-  const candidates = new Set([
-    expected,
-    `${tableBase}_id`,
-    `${tableBase}_seq`,
-    `${tableBase.replace(/s$/, '')}_id`,
-    `${tableBase.replace(/s$/, '')}_seq`,
-  ]);
-  const target = targetTable.columns.find((c) => candidates.has(c.name.toLowerCase()))
-    ?? null;
-  if (!target) return { sourceColumnIds: [source.id], targetColumnIds: [] };
-  return { sourceColumnIds: [source.id], targetColumnIds: [target.id] };
 }
 
 function drawGrid(
@@ -316,11 +294,15 @@ export function PixiERDCanvas() {
   // Pointer interaction state (mutable)
   const ptrRef = useRef({
     down: false,
-    mode: 'none' as 'none' | 'pan' | 'drag' | 'bend' | 'anchor',
+    mode: 'none' as 'none' | 'pan' | 'drag' | 'bend' | 'anchor' | 'connect',
     nodeId: null as string | null,
     edgeId: null as string | null,
     bendIndex: -1,
     anchorKind: null as null | 'sourceAnchor' | 'targetAnchor',
+    // connect 제스처(Alt-드래그): 소스 테이블 id + 프리뷰 라인 끝(스크린 px).
+    connectSourceId: null as string | null,
+    connectSX: 0,
+    connectSY: 0,
     sx: 0,
     sy: 0,
     camX: 0,
@@ -329,6 +311,10 @@ export function PixiERDCanvas() {
     nodeY: 0,
     moved: false,
   });
+  // 드래그-연결 프리뷰 라인 오버레이(스크린 좌표) — 소스 노드 중심 → 커서.
+  const [connectPreview, setConnectPreview] = useState<
+    { x1: number; y1: number; x2: number; y2: number } | null
+  >(null);
 
   // Worker
   const workerRef = useRef<Worker | null>(null);
@@ -1334,62 +1320,42 @@ export function PixiERDCanvas() {
           return;
         }
 
-        const sourceTable = store.tables[sourceTableId];
-        let targetTable = store.tables[nodeHit.id];
-        if (!sourceTable || !targetTable) return;
-        const pickedColumns = pickRelationshipColumns(sourceTable, targetTable);
-        const sourceColumnIds = pickedColumns.sourceColumnIds;
-        let targetColumnIds = pickedColumns.targetColumnIds;
-        if (sourceColumnIds.length === 0) {
-          // 침묵 실패 금지 — 소스 테이블에 참조할 컬럼이 없음을 알린다.
-          toast(`${sourceTable.name} 에 참조할 컬럼이 없어 관계를 만들 수 없습니다`, 'error');
-          store.setRelationshipCreateMode(null);
+        const sourceName = store.tables[sourceTableId]?.name ?? '?';
+        const targetName = store.tables[nodeHit.id]?.name ?? '?';
+        const res = createRelationship(useStore, sourceTableId, nodeHit.id, relMode);
+        store.setRelationshipCreateMode(null);
+        if (!res.ok) {
+          toast(res.message ?? '관계를 만들 수 없습니다', 'error');
           return;
         }
+        setState({ selectedNodeIds: [], selectedEdgeIds: [res.relId!] });
+        toast(`${sourceName} → ${targetName} 관계를 만들었습니다`, 'success');
+        return;
+      }
 
-        // Enforce FK naming with table prefix. If missing, create target column automatically.
-        if (targetColumnIds.length === 0) {
-          const sourcePk = sourceTable.columns.find((c) => c.id === sourceColumnIds[0]) ?? sourceTable.columns[0];
-          if (!sourcePk) return;
-          const fkName = `${sourceTable.name}_${sourcePk.name}`;
-          const existing = targetTable.columns.find((c) => c.name.toLowerCase() === fkName.toLowerCase());
-          if (existing) {
-            targetColumnIds = [existing.id];
-          } else {
-            const beforeIds = new Set(targetTable.columns.map((c) => c.id));
-            store.addColumn(nodeHit.id, {
-              name: fkName,
-              dataType: sourcePk.dataType,
-              nullable: true,
-              autoIncrement: false,
-              isPrimaryKey: false,
-              isUnique: false,
-            });
-            targetTable = useStore.getState().tables[nodeHit.id];
-            const created = targetTable?.columns.find((c) => !beforeIds.has(c.id) && c.name === fkName)
-              ?? targetTable?.columns.find((c) => c.name === fkName);
-            if (!created) return;
-            targetColumnIds = [created.id];
-          }
+      // Alt-드래그: 노드에서 시작하면 관계 연결 제스처(드래그-투-커넥트). 다른 테이블에 놓으면 FK 생성.
+      if (nodeHit && e.altKey) {
+        ptr.down = true;
+        ptr.mode = 'connect';
+        ptr.connectSourceId = nodeHit.id;
+        ptr.moved = false;
+        ptr.sx = e.clientX;
+        ptr.sy = e.clientY;
+        const r = el.getBoundingClientRect();
+        const startRenderer = nodeRenderers.current.get(nodeHit.id);
+        // 프리뷰 시작점 = 소스 노드 중심(스크린).
+        if (startRenderer) {
+          const b = startRenderer.getBounds();
+          const cw = worldToScreen(camRef.current, (b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2, sizeRef.current.w, sizeRef.current.h);
+          ptr.connectSX = cw.x;
+          ptr.connectSY = cw.y;
+        } else {
+          ptr.connectSX = e.clientX - r.left;
+          ptr.connectSY = e.clientY - r.top;
         }
-
-        const normalizedType: '1:N' | '1:1' = relMode.includes('N') ? '1:N' : '1:1';
-        const lineStyle: 'dashed' | 'solid' = relMode.includes('|') ? 'solid' : 'dashed';
-        const relId = store.addRelationship({
-          name: `${sourceTable.name}_${targetTable.name}_fk`,
-          sourceTableId,
-          targetTableId: nodeHit.id,
-          sourceColumnIds,
-          targetColumnIds,
-          type: normalizedType,
-          lineStyle,
-          onDelete: 'RESTRICT',
-          onUpdate: 'RESTRICT',
-        });
-        // Complete one pair and exit create mode to avoid ambiguous next action.
-        store.setRelationshipCreateMode(null);
-        setState({ selectedNodeIds: [], selectedEdgeIds: [relId] });
-        toast(`${sourceTable.name} → ${targetTable.name} 관계를 만들었습니다`, 'success');
+        setConnectPreview({ x1: ptr.connectSX, y1: ptr.connectSY, x2: e.clientX - r.left, y2: e.clientY - r.top });
+        el.style.cursor = 'crosshair';
+        setState({ selectedNodeIds: [nodeHit.id], selectedEdgeIds: [] });
         return;
       }
 
@@ -1567,6 +1533,13 @@ export function PixiERDCanvas() {
       const dy = e.clientY - ptr.sy;
       if (Math.abs(dx) > DRAG_START_THRESHOLD_PX || Math.abs(dy) > DRAG_START_THRESHOLD_PX) ptr.moved = true;
 
+      // 연결 제스처: 프리뷰 라인 끝을 커서로 갱신(월드 재계산 없이 스크린 좌표만).
+      if (ptr.mode === 'connect') {
+        const rect = el.getBoundingClientRect();
+        setConnectPreview({ x1: ptr.connectSX, y1: ptr.connectSY, x2: e.clientX - rect.left, y2: e.clientY - rect.top });
+        return;
+      }
+
       if (ptr.mode === 'pan') {
         camRef.current = {
           ...camRef.current,
@@ -1660,7 +1633,27 @@ export function PixiERDCanvas() {
       const ptr = ptrRef.current;
       if (!ptr.down) return;
 
-      if (ptr.mode === 'drag' && ptr.nodeId) {
+      if (ptr.mode === 'connect') {
+        // 연결 제스처 종료: 커서 위치의 테이블을 대상으로 FK 관계를 만든다.
+        setConnectPreview(null);
+        el.style.cursor = 'default';
+        const sourceId = ptr.connectSourceId;
+        const rect = el.getBoundingClientRect();
+        const wp = screenToWorld(camRef.current, e.clientX - rect.left, e.clientY - rect.top, sizeRef.current.w, sizeRef.current.h);
+        const dropHit = spatialRef.current.hitTest(wp.x, wp.y);
+        if (sourceId && dropHit && dropHit.id !== sourceId) {
+          const srcName = useStore.getState().tables[sourceId]?.name ?? '?';
+          const tgtName = useStore.getState().tables[dropHit.id]?.name ?? '?';
+          const res = createRelationship(useStore, sourceId, dropHit.id, '1:N');
+          if (res.ok) {
+            setState({ selectedNodeIds: [], selectedEdgeIds: [res.relId!] });
+            toast(`${srcName} → ${tgtName} 관계를 만들었습니다`, 'success');
+          } else if (res.code !== 'SAME_TABLE') {
+            toast(res.message ?? '관계를 만들 수 없습니다', 'error');
+          }
+        }
+        // 빈 공간에 놓거나 같은 테이블이면 조용히 취소(프리뷰만 사라짐).
+      } else if (ptr.mode === 'drag' && ptr.nodeId) {
         // Commit position only when an actual drag happened.
         if (ptr.moved) {
           const renderer = nodeRenderers.current.get(ptr.nodeId);
@@ -1701,6 +1694,7 @@ export function PixiERDCanvas() {
       ptr.edgeId = null;
       ptr.bendIndex = -1;
       ptr.anchorKind = null;
+      ptr.connectSourceId = null;
     };
 
     // ── Keyboard ──
@@ -1961,6 +1955,20 @@ export function PixiERDCanvas() {
             tabIndex={0}
             style={{ outline: 'none' }}
           />
+          {connectPreview && (
+            <svg className="pointer-events-none absolute inset-0 z-[70] h-full w-full" data-node="connect-preview">
+              <line
+                x1={connectPreview.x1}
+                y1={connectPreview.y1}
+                x2={connectPreview.x2}
+                y2={connectPreview.y2}
+                stroke="#60a5fa"
+                strokeWidth={2}
+                strokeDasharray="6 4"
+              />
+              <circle cx={connectPreview.x2} cy={connectPreview.y2} r={4} fill="#60a5fa" />
+            </svg>
+          )}
           {relationshipCreateMode && (
             <div
               className="pointer-events-none absolute left-1/2 top-3 z-[85] flex -translate-x-1/2 items-center gap-2 rounded-full border border-blue-400/60 bg-blue-500/95 px-3 py-1 text-[11px] font-medium text-white shadow-lg"
