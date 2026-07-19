@@ -488,6 +488,10 @@
         "description": "Column data-type combobox (data-node coltype/<column-id>, input at coltype/<column-id>-input)"
       },
       {
+        "id": "connect-preview",
+        "description": "Drag-to-connect preview line (present only during an Alt-drag connect gesture)"
+      },
+      {
         "id": "auto-layout",
         "description": "Toolbar: auto-arrange table positions"
       },
