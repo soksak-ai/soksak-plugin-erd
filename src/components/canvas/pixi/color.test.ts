@@ -1,5 +1,29 @@
 import { describe, it, expect } from 'vitest';
-import { parseHexColor, mixColor, tintHeader } from './color';
+import { parseHexColor, parseCssColor, toCssHex, mixColor, tintHeader } from './color';
+
+describe('parseCssColor', () => {
+  it('parses hex and the rgb()/rgba() forms getComputedStyle returns', () => {
+    expect(parseCssColor('#18181b')).toBe(0x18181b);
+    expect(parseCssColor('rgb(24, 24, 27)')).toBe(0x18181b);
+    expect(parseCssColor('rgb(255 255 255)')).toBe(0xffffff);
+    expect(parseCssColor('rgba(59, 130, 246, 0.5)')).toBe(0x3b82f6);
+    expect(parseCssColor('rgb(100%, 0%, 0%)')).toBe(0xff0000);
+  });
+  it('returns null for unresolved/unknown forms', () => {
+    expect(parseCssColor('oklch(0.5 0.1 20)')).toBeNull();
+    expect(parseCssColor('')).toBeNull();
+    expect(parseCssColor(undefined)).toBeNull();
+  });
+});
+
+describe('toCssHex', () => {
+  it('formats numeric colors as #rrggbb', () => {
+    expect(toCssHex(0x18181b)).toBe('#18181b');
+    expect(toCssHex(0x000000)).toBe('#000000');
+    expect(toCssHex(0xffffff)).toBe('#ffffff');
+    expect(toCssHex(0x0a0a0b)).toBe('#0a0a0b');
+  });
+});
 
 describe('parseHexColor', () => {
   it('parses #rrggbb, rrggbb, and #rgb', () => {

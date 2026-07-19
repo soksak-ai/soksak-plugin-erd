@@ -67,6 +67,19 @@ const STYLE_BADGE_UQ = new TextStyle({
   lineHeight: ROW_HEIGHT,
 });
 
+// Re-apply the live palette to the shared text styles after a theme change. TextStyle.fill is
+// reactive in Pixi v8 (setting it re-renders every Text using the style), so the graphics redraw
+// only needs to cover Graphics-drawn fills; text follows from here.
+export function refreshTableTextStyles(): void {
+  STYLE_HEADER_NAME.fill = COLORS.text;
+  STYLE_COLUMN_COUNT.fill = COLORS.textDim;
+  STYLE_COLUMN_NAME.fill = COLORS.text;
+  STYLE_COLUMN_TYPE.fill = COLORS.textDim;
+  STYLE_BADGE_PK.fill = COLORS.pkColor;
+  STYLE_BADGE_FK.fill = COLORS.fkColor;
+  STYLE_BADGE_UQ.fill = COLORS.uqColor;
+}
+
 // ── Constants ───────────────────────────────────────────────────────
 const CORNER_RADIUS = 8;
 const DOT_CORNER_RADIUS = 4;
@@ -167,6 +180,11 @@ export class TableNodeRenderer {
 
   update(data: TableNodeData): void {
     this.data = data;
+    this.render();
+  }
+
+  // Force a redraw at the current LOD/data (used after a theme change repaints the palette).
+  redraw(): void {
     this.render();
   }
 

@@ -15,6 +15,7 @@ import { createPrefsPersistence, registerPrefsCommands } from "@/plugin/prefs";
 import { registerNotificationCommands } from "@/plugin/notifications";
 import { registerPaletteCommands } from "@/plugin/palette";
 import { createHistory } from "@/store/history";
+import { resolveHostMode } from "@/features/theme/host";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
 // console.error 로 원인도 남긴다(소켓/dev 진단).
@@ -70,9 +71,9 @@ function mountApp(container: HTMLElement) {
   host.style.width = "100%";
   host.style.height = "100%";
   host.style.overflow = "hidden";
-  // 다크 기본값 — App 의 theme effect 가 portalRoot 에 light/dark 를 즉시 미러하지만,
-  // 첫 페인트 깜빡임 방지로 dark 를 선반영(store 기본 theme='dark').
-  host.classList.add("dark");
+  // 첫 페인트 깜빡임 방지 — App 의 useHostThemeSync 가 마운트 즉시 store→portalRoot 로 모드를
+  // 미러하지만, 그 전에 호스트 모드를 선반영해 다크↔라이트 플래시를 없앤다(호스트 root 는 안 건드림).
+  host.classList.add(resolveHostMode(document.documentElement));
   shadow.appendChild(host);
 
   const root = createRoot(host);

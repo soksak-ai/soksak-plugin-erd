@@ -18,12 +18,14 @@ import { overlayRectForHeader, isInHeaderBand, type OverlayRect } from './rename
 import { toast } from '@/store/toast-store';
 import { createRelationship } from '@/features/relationship/create';
 import { SpatialIndex } from './spatial-index';
-import { TableNodeRenderer } from './table-node';
+import { TableNodeRenderer, refreshTableTextStyles } from './table-node';
 import type { TableNodeData } from './table-node';
 import { EdgeRenderer } from './edge-renderer';
 import type { NodeEndpoint, EdgeData } from './edge-renderer';
 import { buildEdgeData } from './edge-data';
-import { NODE_WIDTH, COLORS, getLOD, LOD } from './constants';
+import { NODE_WIDTH, COLORS, applyCanvasColors, getLOD, LOD } from './constants';
+import { computeCanvasPalette } from '@/features/theme/host';
+import { useHostThemeEpoch } from '@/hooks/useTheme';
 import { CanvasContextMenu } from '../CanvasContextMenu';
 import { PixiCanvasProvider } from './PixiCanvasContext';
 import type { PixiCanvasAPI } from './PixiCanvasContext';
@@ -381,6 +383,19 @@ export function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [edgeRoutingMode]);
+
+  // Host theme adoption — derive the canvas palette from host tokens and repaint on the host's
+  // single change signal. applyCanvasColors runs synchronously on the first fire so tables first
+  // render with the host palette (the PixiApp inits async, tables render later).
+  useHostThemeEpoch(() => {
+    applyCanvasColors(computeCanvasPalette(document.documentElement));
+    refreshTableTextStyles();
+    for (const [, r] of nodeRenderers.current) r.redraw();
+    lastGridVisibleRef.current = null; // force a grid redraw with the new grid color
+    camDirty.current = true;
+    edgeDirty.current = true;
+    wakeRenderLoop();
+  });
 
   // ═══════════════════════════════════════════════════════════════════
   // Init PixiJS Application
@@ -1951,10 +1966,12 @@ export function PixiERDCanvas() {
         <div className="relative h-full w-full">
           <div
             ref={containerRef}
-            className="h-full w-full bg-zinc-950"
+            className="h-full w-full"
             data-node="canvas-root"
             tabIndex={0}
-            style={{ outline: 'none' }}
+            // 백드롭 = 호스트 --bg 토큰(투명 WebGL 뒤 배경). 캔버스 팔레트와 정확히 같은 토큰이라
+            // 라이트/다크가 캔버스와 함께 정합한다(하드코딩 bg-zinc-950 제거 — 라이트에서 안 바뀌던 레거시).
+            style={{ outline: 'none', background: 'var(--bg, #09090b)' }}
           />
           {connectPreview && (
             <svg className="pointer-events-none absolute inset-0 z-[70] h-full w-full" data-node="connect-preview">
@@ -1989,7 +2006,7 @@ export function PixiERDCanvas() {
               ref={renameInputRef}
               autoFocus
               data-node="rename-input"
-              className="absolute z-[90] box-border rounded-t-lg border border-blue-500 bg-zinc-800 px-3 font-mono text-zinc-100 outline-none"
+              className="absolute z-[90] box-border rounded-t-lg border border-blue-500 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 px-3 font-mono outline-none"
               style={{
                 left: `${renameUi.rect.left}px`,
                 top: `${renameUi.rect.top}px`,
@@ -2015,7 +2032,7 @@ export function PixiERDCanvas() {
           )}
           {hoverEdgeUi && relationships[hoverEdgeUi.edgeId] && (
             <div
-              className="pointer-events-none absolute z-[80] max-w-[420px] rounded border border-zinc-700 bg-zinc-900/95 px-2 py-1 text-[11px] text-zinc-100 shadow-lg"
+              className="pointer-events-none absolute z-[80] max-w-[420px] rounded border border-gray-300 bg-white/95 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-100 px-2 py-1 text-[11px] shadow-lg"
               style={{
                 left: `${hoverEdgeUi.x + 12}px`,
                 top: `${hoverEdgeUi.y + 12}px`,

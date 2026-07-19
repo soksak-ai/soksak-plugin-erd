@@ -1,6 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useStore } from '@/store';
 import { NODE_WIDTH, HEADER_HEIGHT, ROW_HEIGHT } from './constants';
+import { computeCanvasPalette } from '@/features/theme/host';
+import { toCssHex } from './color';
+import { useHostThemeEpoch } from '@/hooks/useTheme';
 
 const MAP_W = 200;
 const MAP_H = 140;
@@ -21,6 +24,9 @@ export function Minimap() {
   const viewport = useStore(s => s.viewport);
   const showMinimap = useStore(s => s.showMinimap);
   const zoomToFn = useStore(s => s.setZoomToFn);
+  // 호스트 테마 변경 시 미니맵 재그리기 트리거(2D 컨텍스트라 Pixi 재그리기와 별개).
+  const [themeVersion, setThemeVersion] = useState(0);
+  useHostThemeEpoch(() => setThemeVersion((v) => v + 1));
   const lastDrawAtRef = useRef(0);
   const drawTimerRef = useRef<number | null>(null);
   const drawRafRef = useRef<number | null>(null);
@@ -134,6 +140,13 @@ export function Minimap() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // 미니맵 색은 호스트 토큰에서 직접 파생(공유 COLORS 갱신 순서에 의존하지 않음 — 레이스 회피).
+    const pal = computeCanvasPalette(document.documentElement);
+    const cBg = toCssHex(pal.canvas);
+    const cNode = toCssHex(pal.edge);
+    const cViewport = toCssHex(pal.borderSelected);
+    const cBorder = toCssHex(pal.border);
+
     const drawNow = () => {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = MAP_W * dpr;
@@ -142,7 +155,7 @@ export function Minimap() {
       ctx.scale(dpr, dpr);
 
       // Clear
-      ctx.fillStyle = '#0a0a0b';
+      ctx.fillStyle = cBg;
       ctx.fillRect(0, 0, MAP_W, MAP_H);
 
       const tr = getMapTransform();
@@ -162,19 +175,19 @@ export function Minimap() {
           const mw = Math.max(NODE_WIDTH * tr.scale, 2);
           const mh = Math.max(h * tr.scale, 1);
 
-          ctx.fillStyle = '#52525b';
+          ctx.fillStyle = cNode;
           ctx.fillRect(mx, my, mw, mh);
         }
 
         // Draw viewport rectangle
         const drawRect = getEffectiveViewportRect();
-        ctx.strokeStyle = '#3b82f6';
+        ctx.strokeStyle = cViewport;
         ctx.lineWidth = 1.5;
         ctx.strokeRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h);
       }
 
       // Border
-      ctx.strokeStyle = '#27272a';
+      ctx.strokeStyle = cBorder;
       ctx.lineWidth = 1;
       ctx.strokeRect(0, 0, MAP_W, MAP_H);
       lastDrawAtRef.current = performance.now();
@@ -214,7 +227,7 @@ export function Minimap() {
         drawRafRef.current = null;
       }
     };
-  }, [tables, nodePositions, viewport, showMinimap, getMapTransform, getEffectiveViewportRect]);
+  }, [tables, nodePositions, viewport, showMinimap, getMapTransform, getEffectiveViewportRect, themeVersion]);
 
   const panByMapCenter = useCallback((mapCenterX: number, mapCenterY: number) => {
     const canvas = canvasRef.current;
@@ -330,8 +343,8 @@ export function Minimap() {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className="rounded border border-zinc-800 cursor-crosshair bg-zinc-950"
-          style={{ width: MAP_W, height: MAP_H, display: 'block' }}
+          className="rounded border border-gray-300 dark:border-zinc-800 cursor-crosshair"
+          style={{ width: MAP_W, height: MAP_H, display: 'block', background: 'var(--bg, #09090b)' }}
         />
         <div
           className="pointer-events-none absolute border border-blue-500/90"
@@ -344,12 +357,12 @@ export function Minimap() {
         />
       </div>
       <div className="mx-auto w-[200px]">
-        <div className="mb-1 flex items-center justify-between text-[10px] text-zinc-400">
+        <div className="mb-1 flex items-center justify-between text-[10px] text-gray-500 dark:text-zinc-400">
           <span>Zoom</span>
           <span>{zoomPct}%</span>
         </div>
         <div
-          className="h-1.5 w-full overflow-hidden rounded bg-zinc-800 cursor-ew-resize"
+          className="h-1.5 w-full overflow-hidden rounded bg-gray-200 dark:bg-zinc-800 cursor-ew-resize"
           onPointerDown={handleZoomPointerDown}
           onPointerMove={handleZoomPointerMove}
           onPointerUp={handleZoomPointerUp}

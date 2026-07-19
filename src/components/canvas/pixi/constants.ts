@@ -11,8 +11,31 @@ export const LOD_FULL = 0.5;      // zoom >= 0.5: full detail
 export const LOD_SKELETON = 0.15; // 0.15 <= zoom < 0.5: header + bars
 // zoom < 0.15: colored dot only
 
-// Dark theme colors
-export const COLORS = {
+// Canvas palette. `COLORS` is LIVE — the theme layer overwrites its fields (in place) from the
+// host theme tokens so every renderer that reads COLORS.<x> at draw time follows the host theme.
+// `DEFAULT_COLORS` is the frozen dark fallback used before the host is read and for any token the
+// host does not provide. Semantic badge colors (pk/fk/uq) intentionally stay fixed across themes —
+// they are a color code, not chrome. See features/theme/host.ts (computeCanvasPalette) and
+// PixiERDCanvas's theme effect (applyCanvasColors + refreshTableTextStyles + redraw).
+export interface CanvasPalette {
+  bg: number;
+  headerBg: number;
+  headerBgSelected: number;
+  border: number;
+  borderSelected: number;
+  text: number;
+  textDim: number;
+  pkColor: number;
+  fkColor: number;
+  uqColor: number;
+  separator: number;
+  edge: number;
+  edgeSelected: number;
+  canvas: number;
+  grid: number;
+}
+
+export const DEFAULT_COLORS: Readonly<CanvasPalette> = Object.freeze({
   bg: 0x18181b,
   headerBg: 0x27272a,
   headerBgSelected: 0x1e3a5f,
@@ -28,7 +51,14 @@ export const COLORS = {
   edgeSelected: 0x3b82f6,
   canvas: 0x09090b,
   grid: 0x1a1a1e,
-} as const;
+});
+
+export const COLORS: CanvasPalette = { ...DEFAULT_COLORS };
+
+// Overwrite the live palette in place (never reassign — renderers hold the same reference).
+export function applyCanvasColors(next: CanvasPalette): void {
+  Object.assign(COLORS, next);
+}
 
 export const FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
 

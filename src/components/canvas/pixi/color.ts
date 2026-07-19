@@ -16,6 +16,29 @@ export function parseHexColor(input: string | undefined | null): number | null {
   return parseInt(s, 16);
 }
 
+// Parse any resolved CSS color string that getComputedStyle can return for a custom property:
+// '#rgb'/'#rrggbb', and the 'rgb(r g b)' / 'rgb(r, g, b)' / 'rgba(...)' forms browsers normalize
+// to. Returns null for anything else (e.g. unresolved oklch()) so callers keep their fallback.
+// Percent channels are scaled; alpha is ignored (alpha is not a Pixi color).
+export function parseCssColor(input: string | undefined | null): number | null {
+  if (!input) return null;
+  const s = input.trim();
+  const hex = parseHexColor(s);
+  if (hex != null) return hex;
+  const m = s.match(/^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)/i);
+  if (!m) return null;
+  const chan = (v: string): number => {
+    const n = v.endsWith('%') ? (parseFloat(v) / 100) * 255 : parseFloat(v);
+    if (!Number.isFinite(n)) return NaN;
+    return Math.max(0, Math.min(255, Math.round(n)));
+  };
+  const r = chan(m[1]);
+  const g = chan(m[2]);
+  const b = chan(m[3]);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
+  return (r << 16) | (g << 8) | b;
+}
+
 // Linear per-channel blend: t=0 → a, t=1 → b. t is clamped to [0,1].
 export function mixColor(a: number, b: number, t: number): number {
   const k = t < 0 ? 0 : t > 1 ? 1 : t;
@@ -29,6 +52,11 @@ export function mixColor(a: number, b: number, t: number): number {
   const g = Math.round(ag + (bg - ag) * k);
   const bl = Math.round(ab + (bb - ab) * k);
   return (r << 16) | (g << 8) | bl;
+}
+
+// Numeric 0xRRGGBB → '#rrggbb' for Canvas2D / CSS consumers (the Minimap draws with a 2D context).
+export function toCssHex(n: number): string {
+  return '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 }
 
 // Header fill for a table: the base header background tinted toward the table's highlight

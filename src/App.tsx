@@ -7,7 +7,7 @@ import { ImportMermaidDialog } from '@/components/dialogs/ImportMermaidDialog';
 import { ImportMWBDialog } from '@/components/dialogs/ImportMWBDialog';
 import { Toaster } from '@/components/Toaster';
 import { CommandPalette } from '@/components/CommandPalette';
-import { useThemeEffect } from '@/hooks/useTheme';
+import { useHostThemeSync } from '@/hooks/useTheme';
 import { useStore } from '@/store';
 import { PortalRootProvider } from '@/components/ui/portal-context';
 import '@/lib/perf';
@@ -20,11 +20,12 @@ interface AppProps {
 }
 
 function App({ portalRoot }: AppProps) {
-  useThemeEffect();
+  // 호스트 테마 모드를 store.theme 로 반영(호스트 root 는 절대 건드리지 않는다).
+  useHostThemeSync();
 
-  // Shadow DOM 다크모드 — useThemeEffect 는 document.documentElement 에 class 를 단다. Shadow
-  // 안에서는 그 class 가 보이지 않으므로(@custom-variant dark 가 :is(.dark *) 로 끊김), 같은
-  // light/dark class 를 portalRoot(=shadow host)에도 미러해 shadow 내부 트리에서 보이게 한다.
+  // Shadow DOM 다크모드 — @custom-variant dark 가 :is(.dark *) 라 shadow 밖 documentElement 의
+  // class 는 shadow 내부에서 안 보인다. 그래서 store.theme(=호스트 모드 미러)를 portalRoot
+  // (=shadow host)에 light/dark 로 반영해 shadow 내부 트리의 dark: variant 가 해소되게 한다.
   const theme = useStore((s) => s.theme);
   useEffect(() => {
     if (!portalRoot) return;
