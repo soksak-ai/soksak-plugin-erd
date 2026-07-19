@@ -401,6 +401,20 @@
         }
       },
       {
+        "name": "prefs-flush",
+        "title": {
+          "en": "Flush chrome preferences now",
+          "ko": "\ud658\uacbd\uc124\uc815 \uc989\uc2dc \uc800\uc7a5"
+        }
+      },
+      {
+        "name": "prefs-status",
+        "title": {
+          "en": "Chrome-preference persistence status",
+          "ko": "\ud658\uacbd\uc124\uc815 \uc0c1\ud0dc \ud655\uc778"
+        }
+      },
+      {
         "name": "notifications",
         "title": {
           "en": "Recent action-feedback log",

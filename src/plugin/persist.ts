@@ -1,39 +1,34 @@
 // Durable persistence for the working schema — the plugin's restore contract.
 //
-// Rules (enforced by src/plugin/persist.test.ts — do not weaken):
-// 1. One durable document, version-tagged, under kv key `doc:default` in the plugin's own
-//    namespace. It holds exactly: schema (tables, relationships), diagram (nodePositions,
-//    collapsedNodes, viewport), dialect. Selection, dialogs, theme, and the migration slice
-//    are session state and never persist; .mig files remain the migration channel.
-// 2. Storage is the host's `app.data.kv` surface (requires the "data" permission). When the
-//    surface is absent, persistence is disabled and the plugin stays fully functional,
-//    memory-only — persist-status reports why.
-// 3. Lifecycle: hydrate during activate BEFORE command registration (headless callers can
-//    never observe pre-restore state); the store subscriber is installed only after
-//    hydrate resolves (hydration must not persist itself; an empty boot must not clobber
-//    a stored document). hydrate never throws — failure degrades to an empty schema and
-//    is reported via persist-status.
-// 4. Writes are debounced (trailing 500ms) and serialized from the live store at flush
-//    time. `persist-flush` forces a synchronous-order write (E2E determinism); dispose
-//    fires a best-effort final flush. The loss window is at most one debounce interval.
-// 5. Change detection is reference equality on the six durable subtrees (immer structural
-//    sharing guarantees identity for untouched subtrees). Selection churn never flushes.
-// 6. A stored document with a NEWER version than this build is never applied and never
-//    overwritten: persistence disables itself instead of destroying forward data.
-// 7. Cross-window: kv.watch rehydrates this window on foreign writes unless it has
-//    unflushed local edits (local edits win; last writer wins at the store). Self echoes
-//    are filtered by savedAt identity.
+// This document (`doc:default`) holds EXACTLY: schema (tables, relationships), diagram
+// (nodePositions, collapsedNodes, viewport), dialect. Selection, dialogs, theme, chrome
+// preferences, and the migration slice are NOT stored here — chrome preferences live in a
+// separate `prefs:default` document (see prefs.ts); .mig files remain the migration channel.
+// This exclusion is the contract: widening it silently is forbidden (persist.test.ts guards
+// the six durable subtrees; prefs.test.ts guards that prefs never bleed into this document).
+//
+// The cross-window lifecycle machinery (hydrate-before-registration, debounced flush,
+// version-forward guard, watch/rehydrate, self-echo filtering) is owned by durable-doc.ts;
+// this module only supplies the schema document's serialize/apply/change-detection.
 import type { StoreState } from '@/store/index';
 import type { Table, Relationship, SQLDialect } from '@/types/schema';
 import type { NodePosition, Viewport } from '@/types/diagram';
+import {
+  createDurableDoc,
+  type DataKv,
+  type DurableDoc,
+  type DurableEnvelope,
+  type DurableStatus,
+  type DurableStore,
+} from './durable-doc';
+
+export type { DataKv } from './durable-doc';
 
 export const PERSIST_KEY = 'doc:default';
 export const PERSIST_DOC_VERSION = 1;
 const FLUSH_DEBOUNCE_MS = 500;
 
-export interface PersistDoc {
-  v: number;
-  savedAt: number;
+export interface PersistDoc extends DurableEnvelope {
   schema: {
     tables: Record<string, Table>;
     relationships: Record<string, Relationship>;
@@ -46,39 +41,12 @@ export interface PersistDoc {
   dialect: SQLDialect;
 }
 
-// 호스트 app.data.kv 표면 중 persistence 가 쓰는 부분(ns 는 호스트가 주입).
-export interface DataKv {
-  get(key: string): Promise<unknown>;
-  set(key: string, value: unknown): Promise<void>;
-  watch?(cb: (key: string) => void): () => void;
-}
+// 하위호환 별칭 — 이전 공개 타입 이름을 유지한다.
+export type PersistStore = DurableStore<StoreState>;
+export type PersistStatus = DurableStatus;
+export type Persistence = DurableDoc;
 
-// zustand store 표면 중 persistence 가 쓰는 최소 계약(react/vanilla 공통).
-export interface PersistStore {
-  getState(): StoreState;
-  subscribe(listener: (state: StoreState, prev: StoreState) => void): () => void;
-}
-
-export interface PersistStatus {
-  enabled: boolean;
-  hydrated: boolean;
-  restored: boolean;
-  dirty: boolean;
-  pendingFlush: boolean;
-  lastSavedAt: number | null;
-  lastError: string | null;
-  disabled: string | null;
-}
-
-export interface Persistence {
-  hydrate(): Promise<void>;
-  rehydrate(): Promise<boolean>;
-  flush(): Promise<boolean>;
-  status(): PersistStatus;
-  dispose(): void;
-}
-
-// 살아있는 store 상태 → 내구 문서(규칙 1의 여섯 subtree만).
+// 살아있는 store 상태 → 내구 문서(여섯 subtree만).
 export function serializeDoc(s: StoreState): PersistDoc {
   return {
     v: PERSIST_DOC_VERSION,
@@ -108,176 +76,27 @@ export function applyDoc(store: PersistStore, doc: PersistDoc): void {
   if (doc.dialect === 'mysql' || doc.dialect === 'postgresql') st.setDialect(doc.dialect);
 }
 
-export function createPersistence(kv: DataKv | null, store: PersistStore): Persistence {
-  let hydrated = false;
-  let restored = false;
-  let dirty = false;
-  let applying = false;
-  let writing = 0;
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let lastSavedAt: number | null = null;
-  let lastError: string | null = null;
-  let disabled: string | null = kv ? null : 'app.data.kv is unavailable ("data" permission?)';
-  let unsubscribe: (() => void) | null = null;
-  let unwatch: (() => void) | null = null;
-
-  const disable = (reason: string) => {
-    disabled = reason;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  };
-
-  const flushNow = async (): Promise<boolean> => {
-    if (!kv || disabled || !dirty) return false;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    dirty = false;
-    writing++;
-    try {
-      const doc = serializeDoc(store.getState());
-      await kv.set(PERSIST_KEY, doc);
-      lastSavedAt = doc.savedAt;
-      lastError = null;
-      return true;
-    } catch (e) {
-      dirty = true;
-      lastError = e instanceof Error ? e.message : String(e);
-      return false;
-    } finally {
-      writing--;
-    }
-  };
-
-  const scheduleFlush = () => {
-    if (!kv || disabled) return;
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      timer = null;
-      void flushNow();
-    }, FLUSH_DEBOUNCE_MS);
-  };
-
-  // 규칙 5 — 내구 subtree 참조 동일성만 본다(immer 구조 공유).
-  const durableChanged = (s: StoreState, p: StoreState): boolean =>
+// 규칙 5 — 내구 subtree 참조 동일성만 본다(immer 구조 공유).
+function durableChanged(s: StoreState, p: StoreState): boolean {
+  return (
     s.tables !== p.tables ||
     s.relationships !== p.relationships ||
     s.nodePositions !== p.nodePositions ||
     s.collapsedNodes !== p.collapsedNodes ||
     s.viewport !== p.viewport ||
-    s.dialect !== p.dialect;
+    s.dialect !== p.dialect
+  );
+}
 
-  const readDoc = async (): Promise<PersistDoc | null> => {
-    const raw = await kv!.get(PERSIST_KEY);
-    if (raw == null) return null;
-    const doc = raw as PersistDoc;
-    if (typeof doc !== 'object' || typeof doc.v !== 'number') {
-      throw new Error('stored document has no version tag');
-    }
-    if (doc.v > PERSIST_DOC_VERSION) {
-      // 규칙 6 — 더 새로운 포맷을 파괴하지 않는다.
-      disable(`stored document v${doc.v} is newer than supported v${PERSIST_DOC_VERSION}`);
-      return null;
-    }
-    return doc;
-  };
-
-  const applyStored = (doc: PersistDoc) => {
-    applying = true;
-    try {
-      applyDoc(store, doc);
-    } finally {
-      applying = false;
-    }
-  };
-
-  const rehydrate = async (): Promise<boolean> => {
-    if (!kv || disabled) return false;
-    // 규칙 7 — 미기록 로컬 편집이 있으면 로컬이 이긴다.
-    if (dirty) return false;
-    try {
-      const doc = await readDoc();
-      if (!doc) return false;
-      // 자기 메아리(우리가 방금 쓴 문서) 필터 — savedAt 동일성.
-      if (lastSavedAt != null && doc.savedAt === lastSavedAt) return false;
-      applyStored(doc);
-      lastSavedAt = doc.savedAt;
-      restored = true;
-      return true;
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : String(e);
-      return false;
-    }
-  };
-
-  const hydrate = async (): Promise<void> => {
-    if (hydrated) return;
-    if (kv && !disabled) {
-      try {
-        const doc = await readDoc();
-        if (doc) {
-          applyStored(doc);
-          lastSavedAt = doc.savedAt;
-          restored = true;
-        }
-      } catch (e) {
-        lastError = e instanceof Error ? e.message : String(e);
-      }
-    }
-    hydrated = true;
-    if (kv && !disabled) {
-      // 규칙 3 — 구독은 hydrate 완료 후에만 설치한다.
-      unsubscribe = store.subscribe((s, p) => {
-        if (applying) return;
-        if (!durableChanged(s, p)) return;
-        dirty = true;
-        scheduleFlush();
-      });
-      if (kv.watch) {
-        unwatch = kv.watch((key) => {
-          if (key !== PERSIST_KEY) return;
-          if (writing > 0) return; // 자기 쓰기 브로드캐스트
-          void rehydrate();
-        });
-      }
-    }
-  };
-
-  const dispose = () => {
-    if (unsubscribe) {
-      unsubscribe();
-      unsubscribe = null;
-    }
-    if (unwatch) {
-      unwatch();
-      unwatch = null;
-    }
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    void flushNow(); // 마지막 변경 최선노력 기록(규칙 4)
-  };
-
-  return {
-    hydrate,
-    rehydrate,
-    flush: flushNow,
-    status: () => ({
-      enabled: kv != null && !disabled,
-      hydrated,
-      restored,
-      dirty,
-      pendingFlush: timer != null,
-      lastSavedAt,
-      lastError,
-      disabled,
-    }),
-    dispose,
-  };
+export function createPersistence(kv: DataKv | null, store: PersistStore): Persistence {
+  return createDurableDoc<PersistDoc, StoreState>(kv, store, {
+    key: PERSIST_KEY,
+    version: PERSIST_DOC_VERSION,
+    debounceMs: FLUSH_DEBOUNCE_MS,
+    serialize: serializeDoc,
+    apply: (doc) => applyDoc(store, doc),
+    changed: durableChanged,
+  });
 }
 
 // persist-flush / persist-status — commands.ts 의 카탈로그 규약(설명·message·envelope)과 동형.
