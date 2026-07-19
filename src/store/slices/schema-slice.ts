@@ -44,8 +44,10 @@ export const createSchemaSlice: StateCreator<StoreState, [['zustand/immer', neve
     const table: Table = {
       id,
       name: tableData.name,
-      columns: tableData.columns ?? [createDefaultPKColumn()],
-      indexes: tableData.indexes ?? [],
+      // 호출자(create-table 커맨드·apply 배치·임포터)가 id 없는 부분 컬럼/인덱스를 줄 수 있다.
+      // 모든 컬럼/인덱스에 안정 id 를 보장한다(id 없으면 부여) — duplicateTable 과 동일 규율.
+      columns: (tableData.columns ?? [createDefaultPKColumn()]).map((c) => (c.id ? c : { ...c, id: generateId() })),
+      indexes: (tableData.indexes ?? []).map((idx) => (idx.id ? idx : { ...idx, id: generateId() })),
       schema: tableData.schema,
       comment: tableData.comment,
       engine: tableData.engine,
