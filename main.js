@@ -81205,18 +81205,28 @@ var ONE_WIDTH = 8;
 var ONE_GAP = 4;
 var MANY_WIDTH = 10;
 var MANY_LENGTH = 12;
-function drawOneMarker(g3, x3, y4, angle, color, lineWidth) {
+var OPTIONAL_RADIUS = 4.5;
+function drawOneMarker(g3, x3, y4, angle, color, lineWidth, optional = false) {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
   const px = -sin;
   const py = cos;
-  for (const offset4 of [-ONE_GAP, ONE_GAP]) {
+  const bar = (offset4) => {
     const cx2 = x3 + cos * offset4;
     const cy = y4 + sin * offset4;
     g3.moveTo(cx2 + px * ONE_WIDTH, cy + py * ONE_WIDTH);
     g3.lineTo(cx2 - px * ONE_WIDTH, cy - py * ONE_WIDTH);
+  };
+  if (optional) {
+    bar(-ONE_GAP);
+    g3.stroke({ color, width: lineWidth });
+    const oc = ONE_GAP + OPTIONAL_RADIUS + 1;
+    g3.circle(x3 + cos * oc, y4 + sin * oc, OPTIONAL_RADIUS).stroke({ color, width: lineWidth });
+  } else {
+    bar(-ONE_GAP);
+    bar(ONE_GAP);
+    g3.stroke({ color, width: lineWidth });
   }
-  g3.stroke({ color, width: lineWidth });
 }
 function drawManyMarker(g3, x3, y4, angle, color, lineWidth) {
   const cos = Math.cos(angle);
@@ -81233,11 +81243,11 @@ function drawManyMarker(g3, x3, y4, angle, color, lineWidth) {
   g3.lineTo(x3 - px * MANY_WIDTH, y4 - py * MANY_WIDTH);
   g3.stroke({ color, width: lineWidth });
 }
-function drawSourceMarker(g3, x3, y4, angle, type, color = 5395035, lineWidth = 1.5) {
+function drawSourceMarker(g3, x3, y4, angle, type, color = 5395035, lineWidth = 1.5, optional = false) {
   if (type === "N:M") {
     drawManyMarker(g3, x3, y4, angle, color, lineWidth);
   } else {
-    drawOneMarker(g3, x3, y4, angle, color, lineWidth);
+    drawOneMarker(g3, x3, y4, angle, color, lineWidth, optional);
   }
 }
 function drawTargetMarker(g3, x3, y4, angle, type, color = 5395035, lineWidth = 1.5) {
@@ -81422,7 +81432,7 @@ var EdgeRenderer = class {
       }
       if (isFull && !simplify) {
         const srcAngle = portAngle(sourceSide);
-        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth);
+        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
         const tgtAngle = portAngle(targetSide);
         drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
       }
@@ -81676,8 +81686,24 @@ function distancePointToSegment(px, py, a3, b3) {
   return Math.hypot(px - cx2, py - cy);
 }
 
+// src/features/relationship/optionality.ts
+function isRelationshipOptional(rel, columns) {
+  if (rel.type === "N:M") return false;
+  const fkIds = rel.targetColumnIds ?? [];
+  if (fkIds.length === 0) return false;
+  return fkIds.every((id) => columns.get(id)?.nullable === true);
+}
+function columnsById(tables) {
+  const map = /* @__PURE__ */ new Map();
+  for (const t4 of Object.values(tables)) {
+    for (const c3 of t4.columns ?? []) map.set(c3.id, c3);
+  }
+  return map;
+}
+
 // src/components/canvas/pixi/edge-data.ts
-function buildEdgeData(relationships, selectedEdgeIds, selectedNodeIds = []) {
+var NO_COLUMNS = { get: () => void 0 };
+function buildEdgeData(relationships, selectedEdgeIds, selectedNodeIds = [], columns = NO_COLUMNS) {
   const selectedEdges = new Set(selectedEdgeIds);
   const selectedNodes = new Set(selectedNodeIds);
   return Object.values(relationships).map((r4) => ({
@@ -81688,6 +81714,7 @@ function buildEdgeData(relationships, selectedEdgeIds, selectedNodeIds = []) {
     sourceId: r4.sourceTableId,
     targetId: r4.targetTableId,
     type: r4.type,
+    optional: isRelationshipOptional(r4, columns),
     selected: selectedEdges.has(r4.id),
     // 직접 선택되지 않았어도 선택된 테이블에 연결된 엣지는 related 로 강조한다.
     related: selectedNodes.has(r4.sourceTableId) || selectedNodes.has(r4.targetTableId),
@@ -82800,7 +82827,8 @@ function PixiERDCanvas() {
     const allEdges = buildEdgeData(
       useStore2.getState().relationships,
       useStore2.getState().selectedEdgeIds,
-      useStore2.getState().selectedNodeIds
+      useStore2.getState().selectedNodeIds,
+      columnsById(useStore2.getState().tables)
     );
     edgeDataRef.current = allEdges;
     const byNode = /* @__PURE__ */ new Map();
@@ -82820,7 +82848,7 @@ function PixiERDCanvas() {
     cachedWorkerEndpointsRef.current = null;
     edgeDirty.current = true;
     wakeRenderLoop();
-  }, [relationships, selectedEdgeIds, selectedNodeIds]);
+  }, [relationships, selectedEdgeIds, selectedNodeIds, tables]);
   (0, import_react24.useEffect)(() => {
     camDirty.current = true;
     wakeRenderLoop();

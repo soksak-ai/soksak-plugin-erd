@@ -14,9 +14,12 @@ const MANY_LENGTH = 12; // how far back the prongs extend
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+const OPTIONAL_RADIUS = 4.5; // ○ (zero) marker radius for optional participation
+
 /**
- * Draw the "one" marker: two short perpendicular bars (||).
- * Drawn at (x, y) oriented along the given angle.
+ * Draw the "one" marker oriented along `angle` (pointing away from the table).
+ * - mandatory (exactly one): two short perpendicular bars (||).
+ * - optional (zero or one): one bar nearer the table + a ○ further out (○|).
  */
 function drawOneMarker(
   g: Graphics,
@@ -25,6 +28,7 @@ function drawOneMarker(
   angle: number,
   color: number,
   lineWidth: number,
+  optional = false,
 ): void {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
@@ -33,16 +37,25 @@ function drawOneMarker(
   const px = -sin;
   const py = cos;
 
-  // Two bars offset along the edge direction
-  for (const offset of [-ONE_GAP, ONE_GAP]) {
+  const bar = (offset: number) => {
     const cx = x + cos * offset;
     const cy = y + sin * offset;
-
     g.moveTo(cx + px * ONE_WIDTH, cy + py * ONE_WIDTH);
     g.lineTo(cx - px * ONE_WIDTH, cy - py * ONE_WIDTH);
-  }
+  };
 
-  g.stroke({ color, width: lineWidth });
+  if (optional) {
+    // 0..1 — a single bar near the table, then a hollow circle further out (the "zero").
+    bar(-ONE_GAP);
+    g.stroke({ color, width: lineWidth });
+    const oc = ONE_GAP + OPTIONAL_RADIUS + 1;
+    g.circle(x + cos * oc, y + sin * oc, OPTIONAL_RADIUS).stroke({ color, width: lineWidth });
+  } else {
+    // 1..1 — two bars.
+    bar(-ONE_GAP);
+    bar(ONE_GAP);
+    g.stroke({ color, width: lineWidth });
+  }
 }
 
 /**
@@ -111,12 +124,13 @@ export function drawSourceMarker(
   type: RelationType,
   color = 0x52525b,
   lineWidth = 1.5,
+  optional = false,
 ): void {
   if (type === 'N:M') {
     drawManyMarker(g, x, y, angle, color, lineWidth);
   } else {
-    // 1:1 and 1:N: source side is "one"
-    drawOneMarker(g, x, y, angle, color, lineWidth);
+    // 1:1 and 1:N: source side is "one" — carries the optional (○) marker when the FK is nullable.
+    drawOneMarker(g, x, y, angle, color, lineWidth, optional);
   }
 }
 
