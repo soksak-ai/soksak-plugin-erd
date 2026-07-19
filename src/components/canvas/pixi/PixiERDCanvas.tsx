@@ -1,7 +1,7 @@
 // PixiJS v8 ERD Canvas — WebGL-accelerated infinite canvas with viewport
 // culling, LOD rendering, and spatial-index-based hit testing.
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Application, Container, Graphics } from 'pixi.js';
 import { useStore } from '@/store';
 import type { Camera } from './camera';
@@ -24,6 +24,7 @@ import { EdgeRenderer } from './edge-renderer';
 import type { NodeEndpoint, EdgeData } from './edge-renderer';
 import { buildEdgeData } from './edge-data';
 import { columnsById } from '@/features/relationship/optionality';
+import { easeInOutCubic, lerpCamera, camerasClose } from './camera-tween';
 import { NODE_WIDTH, COLORS, applyCanvasColors, getLOD, LOD } from './constants';
 import { computeCanvasPalette } from '@/features/theme/host';
 import { useHostThemeEpoch } from '@/hooks/useTheme';
@@ -38,6 +39,9 @@ import { blobWorker } from '@/workers/inline-worker';
 
 const MIN_ZOOM = 0.02;
 const MAX_ZOOM = 3;
+// Duration of the eased camera tween for programmatic moves (fit / zoom-to / pan-to). User
+// gestures never tween — they cancel any in-flight tween and move the camera immediately.
+const CAMERA_TWEEN_MS = 300;
 const ZOOM_SPEED = 0.002;
 const GRID_SIZE = 20;
 const NODE_SYNC_CHUNK_SIZE = 120;
@@ -289,6 +293,16 @@ export function PixiERDCanvas() {
   const camRef = useRef<Camera>({ x: 0, y: 0, zoom: 1 });
   const sizeRef = useRef({ w: 800, h: 600 });
   const lodRef = useRef<LOD>(LOD.FULL);
+  // 프로그램 카메라 이동(fit/zoom-to/pan-to) 이징 트윈의 활성 rAF. 사용자 제스처는 즉시 반응해야
+  // 하므로 휠/드래그가 시작될 때 이 트윈을 취소한다(cancelCameraTween). 최상위 정의라 이벤트 핸들러
+  // 이펙트와 카메라-함수 이펙트가 같은 ref 를 공유한다.
+  const cameraTweenRef = useRef<number | null>(null);
+  const cancelCameraTween = useCallback(() => {
+    if (cameraTweenRef.current != null) {
+      cancelAnimationFrame(cameraTweenRef.current);
+      cameraTweenRef.current = null;
+    }
+  }, []);
 
   // Dirty flags
   const camDirty = useRef(true);
@@ -1274,6 +1288,8 @@ export function PixiERDCanvas() {
 
     // ── Wheel: zoom (ctrl/meta) or pan (plain scroll) ──
     const onWheel = (e: WheelEvent) => {
+      // 사용자 제스처는 즉시 반응 — 진행 중인 프로그램 카메라 트윈이 있으면 취소하고 넘겨받는다.
+      cancelCameraTween();
       // 카메라가 움직이면 오버레이가 드리프트하므로 rename input 을 커밋·닫는다(blur).
       renameInputRef.current?.blur();
       e.preventDefault();
@@ -1307,6 +1323,8 @@ export function PixiERDCanvas() {
     // ── Pointer down ──
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return; // left button only
+      // 사용자 제스처는 즉시 반응 — 진행 중인 프로그램 카메라 트윈이 있으면 취소하고 넘겨받는다.
+      cancelCameraTween();
       // 진행 중 인라인 rename 은 새 캔버스 클릭에서 확정한다(blur 비의존).
       commitRenameRef.current();
       el.setPointerCapture(e.pointerId);
@@ -1780,10 +1798,7 @@ export function PixiERDCanvas() {
         if (b.maxY > maxY) maxY = b.maxY;
       }
       const { w, h } = sizeRef.current;
-      camRef.current = fitToView({ minX, minY, maxX, maxY }, w, h);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(fitToView({ minX, minY, maxX, maxY }, w, h));
     };
 
     const syncViewportToStore = () => {
@@ -1794,38 +1809,57 @@ export function PixiERDCanvas() {
       });
     };
 
+    // Ease the camera from its current pose to `target` over CAMERA_TWEEN_MS. This is only for
+    // app-initiated moves; a user gesture calls cancelCameraTween and sets the camera directly.
+    // The store viewport is synced once, at the end — mid-tween frames only repaint (no persist
+    // churn). A tiny move skips the animation. Any in-flight tween is replaced.
+    const animateCamera = (target: Camera) => {
+      cancelCameraTween();
+      const from = { ...camRef.current };
+      if (camerasClose(from, target)) {
+        camRef.current = target;
+        camDirty.current = true;
+        wakeRenderLoop();
+        syncViewportToStore();
+        return;
+      }
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / CAMERA_TWEEN_MS);
+        camRef.current = lerpCamera(from, target, easeInOutCubic(t));
+        camDirty.current = true;
+        wakeRenderLoop();
+        if (t < 1) {
+          cameraTweenRef.current = requestAnimationFrame(step);
+        } else {
+          cameraTweenRef.current = null;
+          camRef.current = target;
+          syncViewportToStore();
+        }
+      };
+      cameraTweenRef.current = requestAnimationFrame(step);
+    };
+
     const doZoomIn = () => {
       const { w, h } = sizeRef.current;
       const newZoom = Math.min(MAX_ZOOM, camRef.current.zoom * 1.3);
-      camRef.current = zoomAtPoint(camRef.current, w / 2, h / 2, newZoom, w, h);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w / 2, h / 2, newZoom, w, h));
     };
 
     const doZoomOut = () => {
       const { w, h } = sizeRef.current;
       const newZoom = Math.max(MIN_ZOOM, camRef.current.zoom / 1.3);
-      camRef.current = zoomAtPoint(camRef.current, w / 2, h / 2, newZoom, w, h);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w / 2, h / 2, newZoom, w, h));
     };
 
     const doZoomTo = (zoom: number) => {
       const { w, h } = sizeRef.current;
       const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
-      camRef.current = zoomAtPoint(camRef.current, w / 2, h / 2, next, w, h);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w / 2, h / 2, next, w, h));
     };
 
     const doPanTo = (x: number, y: number) => {
-      camRef.current = { ...camRef.current, x, y };
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera({ ...camRef.current, x, y });
     };
 
     const store = useStore.getState();
@@ -1842,16 +1876,21 @@ export function PixiERDCanvas() {
       const el = containerRef.current;
       const root = el?.getRootNode();
       const host = root instanceof ShadowRoot ? (root.host as HTMLElement) : null;
+      const c = camRef.current;
       return {
         rendererCount: nodeRenderers.current.size,
         canvasConnected: canvas?.isConnected ?? false,
         canvasRect: canvas ? round(canvas.getBoundingClientRect()) : null,
         elRect: el ? round(el.getBoundingClientRect()) : null,
         hostRect: host ? round(host.getBoundingClientRect()) : null,
+        // 라이브 카메라(store 수치가 아닌 캔버스 진실) + 프로그램 이동 트윈 진행 여부.
+        camera: { x: Math.round(c.x * 100) / 100, y: Math.round(c.y * 100) / 100, zoom: Math.round(c.zoom * 1000) / 1000 },
+        cameraAnimating: cameraTweenRef.current != null,
       };
     });
 
     return () => {
+      cancelCameraTween();
       const s = useStore.getState();
       s.setFitViewFn(null);
       s.setZoomInFn(null);
@@ -1860,7 +1899,7 @@ export function PixiERDCanvas() {
       s.setPanToFn(null);
       s.setRenderStatsFn(null);
     };
-  }, []);
+  }, [cancelCameraTween]);
 
   // ═══════════════════════════════════════════════════════════════════
   // Auto-layout via Web Worker

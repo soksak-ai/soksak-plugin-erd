@@ -81724,6 +81724,22 @@ function buildEdgeData(relationships, selectedEdgeIds, selectedNodeIds = [], col
   }));
 }
 
+// src/components/canvas/pixi/camera-tween.ts
+function easeInOutCubic(t4) {
+  const c3 = t4 < 0 ? 0 : t4 > 1 ? 1 : t4;
+  return c3 < 0.5 ? 4 * c3 * c3 * c3 : 1 - Math.pow(-2 * c3 + 2, 3) / 2;
+}
+function lerpCamera(from, to, t4) {
+  return {
+    x: from.x + (to.x - from.x) * t4,
+    y: from.y + (to.y - from.y) * t4,
+    zoom: from.zoom + (to.zoom - from.zoom) * t4
+  };
+}
+function camerasClose(a3, b3) {
+  return Math.abs(a3.x - b3.x) < 0.01 && Math.abs(a3.y - b3.y) < 0.01 && Math.abs(a3.zoom - b3.zoom) < 1e-4;
+}
+
 // src/components/canvas/CanvasContextMenu.tsx
 var import_react23 = __toESM(require_react(), 1);
 
@@ -81901,6 +81917,7 @@ function blobWorker(code) {
 var import_jsx_runtime55 = __toESM(require_jsx_runtime(), 1);
 var MIN_ZOOM = 0.02;
 var MAX_ZOOM = 3;
+var CAMERA_TWEEN_MS = 300;
 var ZOOM_SPEED = 2e-3;
 var GRID_SIZE = 20;
 var NODE_SYNC_CHUNK_SIZE = 120;
@@ -82103,6 +82120,13 @@ function PixiERDCanvas() {
   const camRef = (0, import_react24.useRef)({ x: 0, y: 0, zoom: 1 });
   const sizeRef = (0, import_react24.useRef)({ w: 800, h: 600 });
   const lodRef = (0, import_react24.useRef)(LOD.FULL);
+  const cameraTweenRef = (0, import_react24.useRef)(null);
+  const cancelCameraTween = (0, import_react24.useCallback)(() => {
+    if (cameraTweenRef.current != null) {
+      cancelAnimationFrame(cameraTweenRef.current);
+      cameraTweenRef.current = null;
+    }
+  }, []);
   const camDirty = (0, import_react24.useRef)(true);
   const edgeDirty = (0, import_react24.useRef)(true);
   const ptrRef = (0, import_react24.useRef)({
@@ -82919,6 +82943,7 @@ function PixiERDCanvas() {
       });
     };
     const onWheel = (e4) => {
+      cancelCameraTween();
       renameInputRef.current?.blur();
       e4.preventDefault();
       const cam = camRef.current;
@@ -82945,6 +82970,7 @@ function PixiERDCanvas() {
     };
     const onPointerDown = (e4) => {
       if (e4.button !== 0) return;
+      cancelCameraTween();
       commitRenameRef.current();
       el.setPointerCapture(e4.pointerId);
       wakeRenderLoopRef.current?.();
@@ -83354,10 +83380,7 @@ function PixiERDCanvas() {
         if (b3.maxY > maxY) maxY = b3.maxY;
       }
       const { w: w3, h: h3 } = sizeRef.current;
-      camRef.current = fitToView({ minX, minY, maxX, maxY }, w3, h3);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(fitToView({ minX, minY, maxX, maxY }, w3, h3));
     };
     const syncViewportToStore = () => {
       useStore2.getState().setViewport({
@@ -83366,35 +83389,49 @@ function PixiERDCanvas() {
         zoom: camRef.current.zoom
       });
     };
+    const animateCamera = (target) => {
+      cancelCameraTween();
+      const from = { ...camRef.current };
+      if (camerasClose(from, target)) {
+        camRef.current = target;
+        camDirty.current = true;
+        wakeRenderLoop();
+        syncViewportToStore();
+        return;
+      }
+      const start = performance.now();
+      const step = (now) => {
+        const t4 = Math.min(1, (now - start) / CAMERA_TWEEN_MS);
+        camRef.current = lerpCamera(from, target, easeInOutCubic(t4));
+        camDirty.current = true;
+        wakeRenderLoop();
+        if (t4 < 1) {
+          cameraTweenRef.current = requestAnimationFrame(step);
+        } else {
+          cameraTweenRef.current = null;
+          camRef.current = target;
+          syncViewportToStore();
+        }
+      };
+      cameraTweenRef.current = requestAnimationFrame(step);
+    };
     const doZoomIn = () => {
       const { w: w3, h: h3 } = sizeRef.current;
       const newZoom = Math.min(MAX_ZOOM, camRef.current.zoom * 1.3);
-      camRef.current = zoomAtPoint(camRef.current, w3 / 2, h3 / 2, newZoom, w3, h3);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w3 / 2, h3 / 2, newZoom, w3, h3));
     };
     const doZoomOut = () => {
       const { w: w3, h: h3 } = sizeRef.current;
       const newZoom = Math.max(MIN_ZOOM, camRef.current.zoom / 1.3);
-      camRef.current = zoomAtPoint(camRef.current, w3 / 2, h3 / 2, newZoom, w3, h3);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w3 / 2, h3 / 2, newZoom, w3, h3));
     };
     const doZoomTo = (zoom) => {
       const { w: w3, h: h3 } = sizeRef.current;
       const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
-      camRef.current = zoomAtPoint(camRef.current, w3 / 2, h3 / 2, next, w3, h3);
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera(zoomAtPoint(camRef.current, w3 / 2, h3 / 2, next, w3, h3));
     };
     const doPanTo = (x3, y4) => {
-      camRef.current = { ...camRef.current, x: x3, y: y4 };
-      camDirty.current = true;
-      wakeRenderLoop();
-      syncViewportToStore();
+      animateCamera({ ...camRef.current, x: x3, y: y4 });
     };
     const store = useStore2.getState();
     store.setFitViewFn(doFitView);
@@ -83408,15 +83445,20 @@ function PixiERDCanvas() {
       const el = containerRef.current;
       const root = el?.getRootNode();
       const host = root instanceof ShadowRoot ? root.host : null;
+      const c3 = camRef.current;
       return {
         rendererCount: nodeRenderers.current.size,
         canvasConnected: canvas?.isConnected ?? false,
         canvasRect: canvas ? round3(canvas.getBoundingClientRect()) : null,
         elRect: el ? round3(el.getBoundingClientRect()) : null,
-        hostRect: host ? round3(host.getBoundingClientRect()) : null
+        hostRect: host ? round3(host.getBoundingClientRect()) : null,
+        // 라이브 카메라(store 수치가 아닌 캔버스 진실) + 프로그램 이동 트윈 진행 여부.
+        camera: { x: Math.round(c3.x * 100) / 100, y: Math.round(c3.y * 100) / 100, zoom: Math.round(c3.zoom * 1e3) / 1e3 },
+        cameraAnimating: cameraTweenRef.current != null
       };
     });
     return () => {
+      cancelCameraTween();
       const s3 = useStore2.getState();
       s3.setFitViewFn(null);
       s3.setZoomInFn(null);
@@ -83425,7 +83467,7 @@ function PixiERDCanvas() {
       s3.setPanToFn(null);
       s3.setRenderStatsFn(null);
     };
-  }, []);
+  }, [cancelCameraTween]);
   (0, import_react24.useEffect)(() => {
     if (autoLayoutTrigger === 0) return;
     const store = useStore2.getState();
