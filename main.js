@@ -57686,6 +57686,7 @@ var createUISlice = (set2) => ({
   edgeRoutingMode: "direct",
   relationshipCreateMode: null,
   relationshipCreateSourceTableId: null,
+  hoveredRow: null,
   autoLayoutTrigger: 0,
   autoLayoutRunning: false,
   zoomInFn: null,
@@ -57803,6 +57804,11 @@ var createUISlice = (set2) => ({
   clearRelationshipCreateState: () => set2((state) => {
     state.relationshipCreateMode = null;
     state.relationshipCreateSourceTableId = null;
+  }),
+  setHoveredRow: (row) => set2((state) => {
+    const cur = state.hoveredRow;
+    if (cur === row || cur && row && cur.tableId === row.tableId && cur.index === row.index) return;
+    state.hoveredRow = row;
   }),
   setFitViewFn: (fn) => set2((state) => {
     state.fitViewFn = fn;
@@ -80845,6 +80851,11 @@ var SpatialIndex = class {
 };
 
 // src/components/canvas/pixi/table-node.ts
+function rowIndexAtLocalY(localY, columnCount) {
+  if (localY < HEADER_HEIGHT) return null;
+  const idx = Math.floor((localY - HEADER_HEIGHT) / ROW_HEIGHT);
+  return idx >= 0 && idx < columnCount ? idx : null;
+}
 var STYLE_HEADER_NAME = new TextStyle({
   fontFamily: FONT_FAMILY,
   fontSize: 13,
@@ -80923,6 +80934,7 @@ var TableNodeRenderer = class {
   currentLOD = LOD.FULL;
   currentZoom = 1;
   renderQualityLevel = 1;
+  hoveredIndex = null;
   // Shared background graphics (redrawn per LOD/data change)
   bg;
   // FULL + SKELETON: header text
@@ -80983,6 +80995,12 @@ var TableNodeRenderer = class {
     this.data = { ...this.data, selected };
     this.render();
   }
+  // Highlight one column row (0-based), or null to clear. Only visible at FULL detail.
+  setHoveredRow(index2) {
+    if (this.hoveredIndex === index2) return;
+    this.hoveredIndex = index2;
+    this.render();
+  }
   setLOD(lod) {
     if (lod === this.currentLOD) return;
     this.currentLOD = lod;
@@ -81040,7 +81058,12 @@ var TableNodeRenderer = class {
     const selected = data.selected;
     const borderColor = selected ? COLORS.borderSelected : COLORS.border;
     const headerBg = tintHeader(selected ? COLORS.headerBgSelected : COLORS.headerBg, data.color);
-    this.bg.clear().roundRect(0, 0, NODE_WIDTH, height, CORNER_RADIUS).fill(COLORS.bg).rect(0, 0, NODE_WIDTH, HEADER_HEIGHT).fill(headerBg).moveTo(0, HEADER_HEIGHT).lineTo(NODE_WIDTH, HEADER_HEIGHT).stroke({ color: COLORS.separator, width: 1 }).roundRect(0, 0, NODE_WIDTH, height, CORNER_RADIUS).stroke({ color: borderColor, width: BORDER_WIDTH });
+    this.bg.clear().roundRect(0, 0, NODE_WIDTH, height, CORNER_RADIUS).fill(COLORS.bg).rect(0, 0, NODE_WIDTH, HEADER_HEIGHT).fill(headerBg);
+    if (this.hoveredIndex != null && this.hoveredIndex < this.data.columns.length) {
+      const rowY = HEADER_HEIGHT + this.hoveredIndex * ROW_HEIGHT + NAME_TEXT_TOP_PAD;
+      this.bg.rect(1, rowY, NODE_WIDTH - 2, ROW_HEIGHT).fill(mixColor(COLORS.bg, COLORS.borderSelected, 0.14));
+    }
+    this.bg.moveTo(0, HEADER_HEIGHT).lineTo(NODE_WIDTH, HEADER_HEIGHT).stroke({ color: COLORS.separator, width: 1 }).roundRect(0, 0, NODE_WIDTH, height, CORNER_RADIUS).stroke({ color: borderColor, width: BORDER_WIDTH });
     this.countText.text = `${data.columns.length}`;
     this.countText.position.set(NODE_WIDTH - PADDING_X, HEADER_HEIGHT / 2);
     this.countText.visible = true;
@@ -82172,6 +82195,7 @@ function PixiERDCanvas() {
   const edgeWorkerEnabled = useStore2((s3) => s3.edgeWorkerEnabled);
   const edgeRoutingMode = useStore2((s3) => s3.edgeRoutingMode);
   const autoLayoutTrigger = useStore2((s3) => s3.autoLayoutTrigger);
+  const hoveredRow = useStore2((s3) => s3.hoveredRow);
   (0, import_react24.useEffect)(() => {
     qualityRef.current = renderQualityLevel;
     for (const [, r4] of nodeRenderers.current) {
@@ -82878,6 +82902,12 @@ function PixiERDCanvas() {
     wakeRenderLoop();
   }, [showGrid]);
   (0, import_react24.useEffect)(() => {
+    for (const [id, r4] of nodeRenderers.current) {
+      r4.setHoveredRow(hoveredRow && hoveredRow.tableId === id ? hoveredRow.index : null);
+    }
+    wakeRenderLoop();
+  }, [hoveredRow]);
+  (0, import_react24.useEffect)(() => {
     const el = containerRef.current;
     if (!el) return;
     const setState = useStore2.setState;
@@ -83151,9 +83181,17 @@ function PixiERDCanvas() {
             hoverEdgeUiRef.current = null;
             setHoverEdgeUi(null);
           }
+          if (lodRef.current === LOD.FULL) {
+            const cols = useStore2.getState().tables[nodeHit.id]?.columns.length ?? 0;
+            const idx = rowIndexAtLocalY(wp.y - nodeHit.minY, cols);
+            useStore2.getState().setHoveredRow(idx == null ? null : { tableId: nodeHit.id, index: idx });
+          } else {
+            useStore2.getState().setHoveredRow(null);
+          }
           el.style.cursor = "grab";
           return;
         }
+        useStore2.getState().setHoveredRow(null);
         const hitThreshold = Math.max(4, Math.min(20, 8 / Math.max(0.15, camRef.current.zoom)));
         if (edgeWorkerReadyRef.current) {
           requestWorkerEdgePick(wp.x, wp.y, hitThreshold, sx, sy);
@@ -90464,6 +90502,41 @@ function registerCommands(ctx, store) {
   }, {
     tables: { type: "json", description: "Table names or ids to select" }
   });
+  add2(
+    "hover-row",
+    "Highlight one table column row on the canvas (agent emphasis / hover surface), or clear it",
+    { ko: "\uD589 \uAC15\uC870 hover \uCEEC\uB7FC \uD45C\uC2DC \uD574\uC81C" },
+    (d3) => d3.cleared ? "\uD589 \uAC15\uC870\uB97C \uD574\uC81C\uD588\uC2B5\uB2C8\uB2E4" : `${d3.table}.${d3.column} \uD589\uC744 \uAC15\uC870\uD588\uC2B5\uB2C8\uB2E4`,
+    (p4) => {
+      if (p4.table == null) {
+        store.getState().setHoveredRow(null);
+        return { ok: true, cleared: true };
+      }
+      const r4 = getTable(store, p4.table);
+      if (!r4.ok) return r4;
+      let index2;
+      if (p4.column != null) {
+        const cr = resolveColumn(r4.table, p4.column);
+        if (!cr.ok) return cr;
+        index2 = r4.table.columns.findIndex((c3) => c3.id === cr.id);
+      } else if (typeof p4.index === "number") {
+        index2 = p4.index;
+      } else {
+        store.getState().setHoveredRow(null);
+        return { ok: true, cleared: true };
+      }
+      if (index2 < 0 || index2 >= r4.table.columns.length) {
+        return { ok: false, code: "OUT_OF_RANGE", message: `row index ${index2} is out of range (0..${r4.table.columns.length - 1})` };
+      }
+      store.getState().setHoveredRow({ tableId: r4.id, index: index2 });
+      return { ok: true, table: r4.table.name, column: r4.table.columns[index2].name, index: index2 };
+    },
+    {
+      table: { type: "string", description: "Table name or id (omit to clear the highlight)" },
+      column: { type: "string", description: "Column name or id to highlight" },
+      index: { type: "number", description: "Column row index (0-based) \u2014 alternative to column" }
+    }
+  );
   add2("fit", "Fit the viewport to all content on the canvas (no-op in headless mode when the view is not mounted)", { ko: "\uBDF0\uD3EC\uD2B8 \uB9DE\uCDA4 \uC804\uCCB4 \uBCF4\uAE30 fit" }, (d3) => d3.applied ? "\uBDF0\uD3EC\uD2B8\uB97C \uB9DE\uCDC4\uC2B5\uB2C8\uB2E4" : "\uBDF0\uAC00 \uC5F4\uB824 \uC788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4", () => {
     const fit = store.getState().fitViewFn;
     if (!fit) return { ok: true, applied: false, reason: "view not mounted" };

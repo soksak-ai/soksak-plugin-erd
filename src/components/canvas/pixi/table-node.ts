@@ -1,7 +1,16 @@
 import { Container, Graphics, Text, TextStyle } from 'pixi.js';
 import { NODE_WIDTH, HEADER_HEIGHT, ROW_HEIGHT, PADDING_X, COLORS, LOD, FONT_FAMILY } from './constants';
-import { parseHexColor, tintHeader } from './color';
+import { parseHexColor, tintHeader, mixColor } from './color';
 import type { Column } from '@/types/schema';
+
+// Which column row (0-based) a table-local Y falls on, or null for the header band / outside the
+// rows. Pure so the hover hit-test is unit tested without Pixi. Rows start below the header, each
+// ROW_HEIGHT tall.
+export function rowIndexAtLocalY(localY: number, columnCount: number): number | null {
+  if (localY < HEADER_HEIGHT) return null;
+  const idx = Math.floor((localY - HEADER_HEIGHT) / ROW_HEIGHT);
+  return idx >= 0 && idx < columnCount ? idx : null;
+}
 
 // ── Public interface ────────────────────────────────────────────────
 export interface TableNodeData {
@@ -109,6 +118,7 @@ export class TableNodeRenderer {
   private currentLOD: LOD = LOD.FULL;
   private currentZoom = 1;
   private renderQualityLevel: 0 | 1 | 2 = 1;
+  private hoveredIndex: number | null = null;
 
   // Shared background graphics (redrawn per LOD/data change)
   private bg: Graphics;
@@ -194,6 +204,13 @@ export class TableNodeRenderer {
     this.render();
   }
 
+  // Highlight one column row (0-based), or null to clear. Only visible at FULL detail.
+  setHoveredRow(index: number | null): void {
+    if (this.hoveredIndex === index) return;
+    this.hoveredIndex = index;
+    this.render();
+  }
+
   setLOD(lod: LOD): void {
     if (lod === this.currentLOD) return;
     this.currentLOD = lod;
@@ -267,7 +284,19 @@ export class TableNodeRenderer {
       .roundRect(0, 0, NODE_WIDTH, height, CORNER_RADIUS)
       .fill(COLORS.bg)
       .rect(0, 0, NODE_WIDTH, HEADER_HEIGHT)
-      .fill(headerBg)
+      .fill(headerBg);
+
+    // Hovered row band — subtle accent tint behind the row, drawn before the separator/text.
+    // Row text is offset down by NAME_TEXT_TOP_PAD within its slot; match that so the band centers
+    // on the text instead of sitting a few px high (its bottom then meets the next row's text top).
+    if (this.hoveredIndex != null && this.hoveredIndex < this.data.columns.length) {
+      const rowY = HEADER_HEIGHT + this.hoveredIndex * ROW_HEIGHT + NAME_TEXT_TOP_PAD;
+      this.bg
+        .rect(1, rowY, NODE_WIDTH - 2, ROW_HEIGHT)
+        .fill(mixColor(COLORS.bg, COLORS.borderSelected, 0.14));
+    }
+
+    this.bg
       .moveTo(0, HEADER_HEIGHT)
       .lineTo(NODE_WIDTH, HEADER_HEIGHT)
       .stroke({ color: COLORS.separator, width: 1 })

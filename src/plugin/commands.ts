@@ -781,6 +781,37 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     tables: { type: 'json', description: 'Table names or ids to select' },
   });
 
+  add('hover-row', 'Highlight one table column row on the canvas (agent emphasis / hover surface), or clear it', { ko: '행 강조 hover 컬럼 표시 해제' },
+    (d) => (d.cleared ? '행 강조를 해제했습니다' : `${d.table}.${d.column} 행을 강조했습니다`),
+    (p) => {
+      if (p.table == null) {
+        store.getState().setHoveredRow(null);
+        return { ok: true, cleared: true };
+      }
+      const r = getTable(store, p.table);
+      if (!r.ok) return r;
+      let index: number;
+      if (p.column != null) {
+        const cr = resolveColumn(r.table, p.column);
+        if (!cr.ok) return cr;
+        index = r.table.columns.findIndex((c) => c.id === cr.id);
+      } else if (typeof p.index === 'number') {
+        index = p.index;
+      } else {
+        store.getState().setHoveredRow(null);
+        return { ok: true, cleared: true };
+      }
+      if (index < 0 || index >= r.table.columns.length) {
+        return { ok: false, code: 'OUT_OF_RANGE', message: `row index ${index} is out of range (0..${r.table.columns.length - 1})` };
+      }
+      store.getState().setHoveredRow({ tableId: r.id, index });
+      return { ok: true, table: r.table.name, column: r.table.columns[index].name, index };
+    }, {
+      table: { type: 'string', description: 'Table name or id (omit to clear the highlight)' },
+      column: { type: 'string', description: 'Column name or id to highlight' },
+      index: { type: 'number', description: 'Column row index (0-based) — alternative to column' },
+    });
+
   add('fit', 'Fit the viewport to all content on the canvas (no-op in headless mode when the view is not mounted)', { ko: '뷰포트 맞춤 전체 보기 fit' }, (d) => d.applied ? '뷰포트를 맞췄습니다' : '뷰가 열려 있지 않습니다', () => {
     // 뷰(PixiERDCanvas)가 마운트 시 store 에 등록하는 doFitView 를 호출한다. 미마운트면 null →
     // applied:false(정상 — 헤드리스 동작이라 좌표/뷰포트는 그대로). 뷰 열림 후 호출하면 테이블이 보인다.

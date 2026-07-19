@@ -18,7 +18,7 @@ import { overlayRectForHeader, isInHeaderBand, type OverlayRect } from './rename
 import { toast } from '@/store/toast-store';
 import { createRelationship } from '@/features/relationship/create';
 import { SpatialIndex } from './spatial-index';
-import { TableNodeRenderer, refreshTableTextStyles } from './table-node';
+import { TableNodeRenderer, refreshTableTextStyles, rowIndexAtLocalY } from './table-node';
 import type { TableNodeData } from './table-node';
 import { EdgeRenderer } from './edge-renderer';
 import type { NodeEndpoint, EdgeData } from './edge-renderer';
@@ -369,6 +369,7 @@ export function PixiERDCanvas() {
   const edgeWorkerEnabled = useStore(s => s.edgeWorkerEnabled);
   const edgeRoutingMode = useStore(s => s.edgeRoutingMode);
   const autoLayoutTrigger = useStore(s => s.autoLayoutTrigger);
+  const hoveredRow = useStore(s => s.hoveredRow);
 
   useEffect(() => {
     qualityRef.current = renderQualityLevel;
@@ -1213,6 +1214,14 @@ export function PixiERDCanvas() {
     wakeRenderLoop();
   }, [showGrid]);
 
+  // Hovered/emphasized row — apply to the owning renderer, clear it on all others.
+  useEffect(() => {
+    for (const [id, r] of nodeRenderers.current) {
+      r.setHoveredRow(hoveredRow && hoveredRow.tableId === id ? hoveredRow.index : null);
+    }
+    wakeRenderLoop();
+  }, [hoveredRow]);
+
   // ═══════════════════════════════════════════════════════════════════
   // Event handlers (wheel, pointer, keyboard)
   // ═══════════════════════════════════════════════════════════════════
@@ -1528,9 +1537,19 @@ export function PixiERDCanvas() {
             hoverEdgeUiRef.current = null;
             setHoverEdgeUi(null);
           }
+          // 행 hover — FULL 상세에서만 의미. 테이블 top(minY) 기준 로컬 Y 로 행 인덱스 산출.
+          if (lodRef.current === LOD.FULL) {
+            const cols = useStore.getState().tables[nodeHit.id]?.columns.length ?? 0;
+            const idx = rowIndexAtLocalY(wp.y - nodeHit.minY, cols);
+            useStore.getState().setHoveredRow(idx == null ? null : { tableId: nodeHit.id, index: idx });
+          } else {
+            useStore.getState().setHoveredRow(null);
+          }
           el.style.cursor = 'grab';
           return;
         }
+        // 테이블 밖 — 행 hover 해제.
+        useStore.getState().setHoveredRow(null);
 
         const hitThreshold = Math.max(4, Math.min(20, 8 / Math.max(0.15, camRef.current.zoom)));
         if (edgeWorkerReadyRef.current) {

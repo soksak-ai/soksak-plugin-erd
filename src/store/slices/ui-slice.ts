@@ -53,6 +53,8 @@ export interface UISlice {
   edgeRoutingMode: 'direct' | 'ortho_short';
   relationshipCreateMode: null | '1:N' | '1:1' | '1|N' | '1|1';
   relationshipCreateSourceTableId: string | null;
+  // 호버(또는 에이전트가 강조)한 컬럼 행 — 일시 UI 상태(영속 안 함, selection 과 동급).
+  hoveredRow: { tableId: string; index: number } | null;
 
   // Auto Layout
   autoLayoutTrigger: number;
@@ -97,6 +99,7 @@ export interface UISlice {
   setRelationshipCreateMode: (mode: null | '1:N' | '1:1' | '1|N' | '1|1') => void;
   setRelationshipCreateSourceTableId: (tableId: string | null) => void;
   clearRelationshipCreateState: () => void;
+  setHoveredRow: (row: { tableId: string; index: number } | null) => void;
   setFitViewFn: (fn: (() => void) | null) => void;
 }
 
@@ -123,6 +126,7 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   edgeRoutingMode: 'direct',
   relationshipCreateMode: null,
   relationshipCreateSourceTableId: null,
+  hoveredRow: null,
   autoLayoutTrigger: 0,
   autoLayoutRunning: false,
   zoomInFn: null,
@@ -204,6 +208,12 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   clearRelationshipCreateState: () => set((state) => {
     state.relationshipCreateMode = null;
     state.relationshipCreateSourceTableId = null;
+  }),
+  setHoveredRow: (row) => set((state) => {
+    // 같은 값이면 무시(불필요 리렌더 방지).
+    const cur = state.hoveredRow;
+    if (cur === row || (cur && row && cur.tableId === row.tableId && cur.index === row.index)) return;
+    state.hoveredRow = row;
   }),
   setFitViewFn: (fn) => set((state) => { state.fitViewFn = fn; }),
   setRenderStatsFn: (fn) => set((state) => { state.renderStatsFn = fn; }),

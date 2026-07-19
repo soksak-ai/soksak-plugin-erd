@@ -261,6 +261,13 @@
         }
       },
       {
+        "name": "hover-row",
+        "title": {
+          "en": "Highlight column row",
+          "ko": "\ud589 \uac15\uc870"
+        }
+      },
+      {
         "name": "set-color",
         "title": {
           "en": "Set color",
