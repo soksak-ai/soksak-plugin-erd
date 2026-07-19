@@ -15,6 +15,7 @@ import { applyOperation } from '@/features/migration/operations';
 import { getSQLGenerator } from '@/features/migration/sql-generator';
 import type { Operation } from '@/features/migration/types';
 import { diffSchemas } from '@/features/migration/diff';
+import { undo, redo, historyStatus } from '@/store/history';
 
 // soksak fs API 의 최소 표면(파일 기반 마이그레이션용). "fs:read"/"fs:write" 권한이 있을 때만 주입된다.
 // readText: offset 지정 시 증분 tail. list: meta=true 면 자식 modified(unix 초) 동봉.
@@ -712,17 +713,18 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     { cmd: cmd('validate'), why: '무결성을 검증할 수 있습니다' },
   ]);
 
-  add('undo', 'Revert the last uncommitted operation using the migration slice', { ko: '실행 취소 되돌리기 undo' }, () => '실행을 취소했습니다', () => {
-    const fn = store.getState().undoLastOperation;
-    if (typeof fn !== 'function') return { ok: false, code: 'UNAVAILABLE', message: 'undo not available' };
-    const inverse = fn();
-    return { ok: true, inverse };
+  add('undo', 'Revert the last document change (snapshot history)', { ko: '실행 취소 되돌리기 undo' }, (d) => d.undone ? '실행을 취소했습니다' : '되돌릴 변경이 없습니다', () => {
+    const undone = undo();
+    return { ok: true, undone, ...historyStatus() };
   });
 
-  // redo 는 마이그레이션 슬라이스에 아직 표면이 없다 → stub(P3/P4 통합).
-  // TODO(P3/P4): migration-slice 에 redo 표면 추가 후 배선. 현재는 noop.
-  add('redo', 'Re-apply the last undone operation (stub; wiring deferred to P3/P4)', { ko: '다시 실행 redo 복원' }, () => '다시 실행했습니다', () => {
-    return { ok: true, noop: true, todo: 'redo wiring deferred to P3/P4' };
+  add('redo', 'Re-apply the last undone document change (snapshot history)', { ko: '다시 실행 redo 복원' }, (d) => d.redone ? '다시 실행했습니다' : '다시 실행할 변경이 없습니다', () => {
+    const redone = redo();
+    return { ok: true, redone, ...historyStatus() };
+  });
+
+  add('history-status', 'Report undo/redo availability and stack depth (snapshot history)', { ko: '이력 상태 실행취소 다시실행 깊이 확인' }, (d) => `undo ${d.past ?? 0} · redo ${d.future ?? 0}`, () => {
+    return { ok: true, ...historyStatus() };
   });
 
   // ── Layout ────────────────────────────────────────────────────────────────

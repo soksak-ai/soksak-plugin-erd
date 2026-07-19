@@ -15,6 +15,7 @@ import { FileMenu } from '@/components/toolbar/FileMenu';
 import { EditMenu } from '@/components/toolbar/EditMenu';
 import { ViewMenu } from '@/components/toolbar/ViewMenu';
 import { ToolsMenu } from '@/components/toolbar/ToolsMenu';
+import { undo, redo, useHistoryStore } from '@/store/history';
 
 function QuickAction({ icon: Icon, label, onClick, disabled, node }: {
   icon: React.ComponentType<{ className?: string }>;
@@ -51,6 +52,8 @@ export function Toolbar() {
   const zoom = useStore((s) => s.viewport.zoom);
   const tables = useStore((s) => s.tables);
   const setCreateTableDialogOpen = useStore((s) => s.setCreateTableDialogOpen);
+  const canUndo = useHistoryStore((s) => s.canUndo);
+  const canRedo = useHistoryStore((s) => s.canRedo);
 
   const tableCount = Object.keys(tables).length;
   const zoomPct = Math.round(zoom * 100);
@@ -74,8 +77,8 @@ export function Toolbar() {
         {/* Center: Quick Actions */}
         <div className="flex items-center gap-0.5">
           <QuickAction icon={Plus} label="Add Table" node="add-table" onClick={() => setCreateTableDialogOpen(true)} />
-          <QuickAction icon={Undo2} label="Undo" node="undo" onClick={() => useStore.getState().undoLastOperation()} />
-          <QuickAction icon={Redo2} label="Redo" disabled />
+          <QuickAction icon={Undo2} label="Undo" node="undo" disabled={!canUndo} onClick={() => undo()} />
+          <QuickAction icon={Redo2} label="Redo" node="redo" disabled={!canRedo} onClick={() => redo()} />
           <QuickAction icon={LayoutDashboard} label="Auto Layout" node="auto-layout" onClick={() => useStore.getState().triggerAutoLayout()} />
           <QuickAction icon={Maximize2} label="Fit View" node="fit-view" onClick={() => useStore.getState().fitViewFn?.()} />
         </div>

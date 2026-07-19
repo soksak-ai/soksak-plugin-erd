@@ -66579,7 +66579,7 @@ var RovingFocusGroupItem = React35.forwardRef(
     const {
       __scopeRovingFocusGroup,
       focusable = true,
-      active = false,
+      active: active2 = false,
       tabStopId,
       children,
       ...itemProps
@@ -66602,7 +66602,7 @@ var RovingFocusGroupItem = React35.forwardRef(
         scope: __scopeRovingFocusGroup,
         id,
         focusable,
-        active,
+        active: active2,
         children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(
           Primitive.span,
           {
@@ -71637,18 +71637,121 @@ function FileMenu() {
   ] });
 }
 
+// src/store/history.ts
+var DEFAULT_CAP = 100;
+var DEFAULT_COALESCE_MS = 400;
+var useHistoryStore = create(() => ({
+  canUndo: false,
+  canRedo: false
+}));
+var active = null;
+function undo() {
+  return active ? active.undo() : false;
+}
+function redo() {
+  return active ? active.redo() : false;
+}
+function historyStatus() {
+  const s3 = active?.status() ?? { past: 0, future: 0 };
+  return { canUndo: s3.past > 0, canRedo: s3.future > 0, past: s3.past, future: s3.future };
+}
+function snap(s3) {
+  return {
+    tables: s3.tables,
+    relationships: s3.relationships,
+    nodePositions: s3.nodePositions,
+    collapsedNodes: s3.collapsedNodes,
+    dialect: s3.dialect
+  };
+}
+function durableChanged(a3, b3) {
+  return a3.tables !== b3.tables || a3.relationships !== b3.relationships || a3.nodePositions !== b3.nodePositions || a3.collapsedNodes !== b3.collapsedNodes || a3.dialect !== b3.dialect;
+}
+function createHistory(store, opts) {
+  const cap = opts?.cap ?? DEFAULT_CAP;
+  const coalesceMs = opts?.coalesceMs ?? DEFAULT_COALESCE_MS;
+  const now = opts?.now ?? (() => Date.now());
+  const past = [];
+  const future = [];
+  let baseline = snap(store.getState());
+  let applying = false;
+  let lastPushAt = -Infinity;
+  const sync = () => {
+    useHistoryStore.setState({ canUndo: past.length > 0, canRedo: future.length > 0 });
+  };
+  const apply = (doc) => {
+    applying = true;
+    try {
+      const st2 = store.getState();
+      st2.loadProject({ tables: doc.tables, relationships: doc.relationships });
+      const vp = st2.viewport;
+      st2.loadDiagramState({
+        nodePositions: doc.nodePositions,
+        collapsedNodes: doc.collapsedNodes,
+        viewport: vp
+      });
+      if (st2.dialect !== doc.dialect) st2.setDialect(doc.dialect);
+    } finally {
+      applying = false;
+    }
+    baseline = snap(store.getState());
+  };
+  const unsubscribe = store.subscribe((s3, p3) => {
+    if (applying) return;
+    if (!durableChanged(baseline, s3)) return;
+    const t3 = now();
+    if (t3 - lastPushAt > coalesceMs) {
+      past.push(baseline);
+      if (past.length > cap) past.shift();
+      future.length = 0;
+    }
+    lastPushAt = t3;
+    baseline = snap(s3);
+    sync();
+  });
+  const controller = {
+    undo() {
+      if (past.length === 0) return false;
+      future.push(snap(store.getState()));
+      const doc = past.pop();
+      apply(doc);
+      lastPushAt = -Infinity;
+      sync();
+      return true;
+    },
+    redo() {
+      if (future.length === 0) return false;
+      past.push(snap(store.getState()));
+      const doc = future.pop();
+      apply(doc);
+      lastPushAt = -Infinity;
+      sync();
+      return true;
+    },
+    canUndo: () => past.length > 0,
+    canRedo: () => future.length > 0,
+    status: () => ({ past: past.length, future: future.length }),
+    dispose() {
+      unsubscribe();
+      if (active === controller) active = null;
+    }
+  };
+  active = controller;
+  sync();
+  return controller;
+}
+
 // src/components/toolbar/EditMenu.tsx
 var import_jsx_runtime28 = __toESM(require_jsx_runtime(), 1);
 function EditMenu() {
   const selectedNodeIds = useStore2((s3) => s3.selectedNodeIds);
   const removeTable = useStore2((s3) => s3.removeTable);
+  const canUndo = useHistoryStore((s3) => s3.canUndo);
+  const canRedo = useHistoryStore((s3) => s3.canRedo);
   const handleDeleteSelected = () => {
     for (const id of selectedNodeIds) {
       removeTable(id);
     }
-  };
-  const handleUndo = () => {
-    useStore2.getState().undoLastOperation();
   };
   const handleSelectAll = () => {
     const tables = useStore2.getState().tables;
@@ -71657,11 +71760,11 @@ function EditMenu() {
   return /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenu2, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(DropdownMenuTrigger2, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(Button, { variant: "ghost", size: "xs", className: "text-gray-700 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200", children: "Edit" }) }),
     /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenuContent2, { align: "start", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenuItem2, { onClick: handleUndo, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenuItem2, { disabled: !canUndo, onClick: () => undo(), children: [
         "Undo",
         /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(DropdownMenuShortcut, { children: "Ctrl+Z" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenuItem2, { disabled: true, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(DropdownMenuItem2, { disabled: !canRedo, onClick: () => redo(), children: [
         "Redo",
         /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(DropdownMenuShortcut, { children: "Ctrl+Y" })
       ] }),
@@ -71819,6 +71922,8 @@ function Toolbar() {
   const zoom = useStore2((s3) => s3.viewport.zoom);
   const tables = useStore2((s3) => s3.tables);
   const setCreateTableDialogOpen = useStore2((s3) => s3.setCreateTableDialogOpen);
+  const canUndo = useHistoryStore((s3) => s3.canUndo);
+  const canRedo = useHistoryStore((s3) => s3.canRedo);
   const tableCount = Object.keys(tables).length;
   const zoomPct = Math.round(zoom * 100);
   return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(TooltipProvider2, { delayDuration: 300, children: /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "flex h-10 shrink-0 items-center justify-between border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2", children: [
@@ -71835,8 +71940,8 @@ function Toolbar() {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime31.jsxs)("div", { className: "flex items-center gap-0.5", children: [
       /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Plus, label: "Add Table", node: "add-table", onClick: () => setCreateTableDialogOpen(true) }),
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Undo2, label: "Undo", node: "undo", onClick: () => useStore2.getState().undoLastOperation() }),
-      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Redo2, label: "Redo", disabled: true }),
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Undo2, label: "Undo", node: "undo", disabled: !canUndo, onClick: () => undo() }),
+      /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Redo2, label: "Redo", node: "redo", disabled: !canRedo, onClick: () => redo() }),
       /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: LayoutDashboard, label: "Auto Layout", node: "auto-layout", onClick: () => useStore2.getState().triggerAutoLayout() }),
       /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(QuickAction, { icon: Maximize2, label: "Fit View", node: "fit-view", onClick: () => useStore2.getState().fitViewFn?.() })
     ] }),
@@ -72390,16 +72495,16 @@ function TableNavigator() {
     ),
     /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)("div", { className: "p-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime34.jsx)("div", { className: "mb-1.5 grid grid-cols-4 gap-1", children: ["1:N", "1:1", "1|N", "1|1"].map((mode) => {
-        const active = relationshipCreateMode === mode;
+        const active2 = relationshipCreateMode === mode;
         const slug = MODE_SLUG[mode];
         return /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(
           "button",
           {
             "data-node": `relmode/${slug}`,
-            onClick: () => setRelationshipCreateMode(active ? null : mode),
+            onClick: () => setRelationshipCreateMode(active2 ? null : mode),
             className: cn(
               "flex items-center justify-center gap-1 rounded px-1.5 py-1 text-[10px] font-semibold transition-colors",
-              active ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              active2 ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             ),
             title: `Create relationship mode: ${mode}`,
             children: [
@@ -73143,35 +73248,35 @@ var defaultScreenReaderInstructions = {
 var defaultAnnouncements = {
   onDragStart(_ref) {
     let {
-      active
+      active: active2
     } = _ref;
-    return "Picked up draggable item " + active.id + ".";
+    return "Picked up draggable item " + active2.id + ".";
   },
   onDragOver(_ref2) {
     let {
-      active,
+      active: active2,
       over
     } = _ref2;
     if (over) {
-      return "Draggable item " + active.id + " was moved over droppable area " + over.id + ".";
+      return "Draggable item " + active2.id + " was moved over droppable area " + over.id + ".";
     }
-    return "Draggable item " + active.id + " is no longer over a droppable area.";
+    return "Draggable item " + active2.id + " is no longer over a droppable area.";
   },
   onDragEnd(_ref3) {
     let {
-      active,
+      active: active2,
       over
     } = _ref3;
     if (over) {
-      return "Draggable item " + active.id + " was dropped over droppable area " + over.id;
+      return "Draggable item " + active2.id + " was dropped over droppable area " + over.id;
     }
-    return "Draggable item " + active.id + " was dropped.";
+    return "Draggable item " + active2.id + " was dropped.";
   },
   onDragCancel(_ref4) {
     let {
-      active
+      active: active2
     } = _ref4;
-    return "Dragging was cancelled. Draggable item " + active.id + " was dropped.";
+    return "Dragging was cancelled. Draggable item " + active2.id + " was dropped.";
   }
 };
 function Accessibility(_ref) {
@@ -73193,51 +73298,51 @@ function Accessibility(_ref) {
   useDndMonitor((0, import_react12.useMemo)(() => ({
     onDragStart(_ref2) {
       let {
-        active
+        active: active2
       } = _ref2;
       announce(announcements.onDragStart({
-        active
+        active: active2
       }));
     },
     onDragMove(_ref3) {
       let {
-        active,
+        active: active2,
         over
       } = _ref3;
       if (announcements.onDragMove) {
         announce(announcements.onDragMove({
-          active,
+          active: active2,
           over
         }));
       }
     },
     onDragOver(_ref4) {
       let {
-        active,
+        active: active2,
         over
       } = _ref4;
       announce(announcements.onDragOver({
-        active,
+        active: active2,
         over
       }));
     },
     onDragEnd(_ref5) {
       let {
-        active,
+        active: active2,
         over
       } = _ref5;
       announce(announcements.onDragEnd({
-        active,
+        active: active2,
         over
       }));
     },
     onDragCancel(_ref6) {
       let {
-        active,
+        active: active2,
         over
       } = _ref6;
       announce(announcements.onDragCancel({
-        active,
+        active: active2,
         over
       }));
     }
@@ -73963,7 +74068,7 @@ var KeyboardSensor = class {
   handleKeyDown(event) {
     if (isKeyboardEvent(event)) {
       const {
-        active,
+        active: active2,
         context: context2,
         options
       } = this.props;
@@ -73994,7 +74099,7 @@ var KeyboardSensor = class {
         this.referenceCoordinates = currentCoordinates;
       }
       const newCoordinates = coordinateGetter(event, {
-        active,
+        active: active2,
         context: context2.current,
         currentCoordinates
       });
@@ -74110,13 +74215,13 @@ KeyboardSensor.activators = [{
       onActivation
     } = _ref;
     let {
-      active
+      active: active2
     } = _ref2;
     const {
       code
     } = event.nativeEvent;
     if (keyboardCodes.start.includes(code)) {
-      const activator = active.activatorNode.current;
+      const activator = active2.activatorNode.current;
       if (activator && event.target !== activator) {
         return false;
       }
@@ -74227,10 +74332,10 @@ var AbstractPointerSensor = class {
   }
   handlePending(constraint, offset4) {
     const {
-      active,
+      active: active2,
       onPending
     } = this.props;
-    onPending(active, constraint, this.initialCoordinates, offset4);
+    onPending(active2, constraint, this.initialCoordinates, offset4);
   }
   handleStart() {
     const {
@@ -75292,12 +75397,12 @@ function RestoreFocus(_ref) {
     disabled
   } = _ref;
   const {
-    active,
+    active: active2,
     activatorEvent,
     draggableNodes
   } = (0, import_react12.useContext)(InternalContext);
   const previousActivatorEvent = usePrevious2(activatorEvent);
-  const previousActiveId = usePrevious2(active == null ? void 0 : active.id);
+  const previousActiveId = usePrevious2(active2 == null ? void 0 : active2.id);
   (0, import_react12.useEffect)(() => {
     if (disabled) {
       return;
@@ -75460,7 +75565,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
     initial: null,
     translated: null
   });
-  const active = (0, import_react12.useMemo)(() => {
+  const active2 = (0, import_react12.useMemo)(() => {
     var _node$data;
     return activeId != null ? {
       id: activeId,
@@ -75531,7 +75636,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
       scaleY: 1
     },
     activatorEvent,
-    active,
+    active: active2,
     activeNodeRect,
     containerNodeRect,
     draggingNodeRect,
@@ -75547,8 +75652,8 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
   const activeNodeScrollDelta = useScrollOffsetsDelta(scrollOffsets, [activeNodeRect]);
   const scrollAdjustedTranslate = add(modifiedTranslate, scrollAdjustment);
   const collisionRect = draggingNodeRect ? getAdjustedRect(draggingNodeRect, modifiedTranslate) : null;
-  const collisions = active && collisionRect ? collisionDetection({
-    active,
+  const collisions = active2 && collisionRect ? collisionDetection({
+    active: active2,
     collisionRect,
     droppableRects,
     droppableContainers: enabledDroppableContainers,
@@ -75667,19 +75772,19 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
       function createHandler(type) {
         return async function handler() {
           const {
-            active: active2,
+            active: active3,
             collisions: collisions2,
             over: over2,
             scrollAdjustedTranslate: scrollAdjustedTranslate2
           } = sensorContext.current;
           let event2 = null;
-          if (active2 && scrollAdjustedTranslate2) {
+          if (active3 && scrollAdjustedTranslate2) {
             const {
               cancelDrop
             } = latestProps.current;
             event2 = {
               activatorEvent: activatorEvent2,
-              active: active2,
+              active: active3,
               collisions: collisions2,
               delta: scrollAdjustedTranslate2,
               over: over2
@@ -75718,9 +75823,9 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
     [draggableNodes]
   );
   const bindActivatorToSensorInstantiator = (0, import_react12.useCallback)((handler, sensor) => {
-    return (event, active2) => {
+    return (event, active3) => {
       const nativeEvent = event.nativeEvent;
-      const activeDraggableNode = draggableNodes.get(active2);
+      const activeDraggableNode = draggableNodes.get(active3);
       if (
         // Another sensor is already instantiating
         activeRef.current !== null || // No active draggable
@@ -75737,7 +75842,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
         nativeEvent.dndKit = {
           capturedBy: sensor.sensor
         };
-        activeRef.current = active2;
+        activeRef.current = active3;
         instantiateSensor(event, sensor);
       }
     };
@@ -75755,16 +75860,16 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
         onDragMove
       } = latestProps.current;
       const {
-        active: active2,
+        active: active3,
         activatorEvent: activatorEvent2,
         collisions: collisions2,
         over: over2
       } = sensorContext.current;
-      if (!active2 || !activatorEvent2) {
+      if (!active3 || !activatorEvent2) {
         return;
       }
       const event = {
-        active: active2,
+        active: active3,
         activatorEvent: activatorEvent2,
         collisions: collisions2,
         delta: {
@@ -75787,13 +75892,13 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
   (0, import_react12.useEffect)(
     () => {
       const {
-        active: active2,
+        active: active3,
         activatorEvent: activatorEvent2,
         collisions: collisions2,
         droppableContainers: droppableContainers2,
         scrollAdjustedTranslate: scrollAdjustedTranslate2
       } = sensorContext.current;
-      if (!active2 || activeRef.current == null || !activatorEvent2 || !scrollAdjustedTranslate2) {
+      if (!active3 || activeRef.current == null || !activatorEvent2 || !scrollAdjustedTranslate2) {
         return;
       }
       const {
@@ -75807,7 +75912,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
         disabled: overContainer.disabled
       } : null;
       const event = {
-        active: active2,
+        active: active3,
         activatorEvent: activatorEvent2,
         collisions: collisions2,
         delta: {
@@ -75831,7 +75936,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
   useIsomorphicLayoutEffect2(() => {
     sensorContext.current = {
       activatorEvent,
-      active,
+      active: active2,
       activeNode,
       collisionRect,
       collisions,
@@ -75848,7 +75953,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
       initial: draggingNodeRect,
       translated: collisionRect
     };
-  }, [active, activeNode, collisions, collisionRect, draggableNodes, draggingNode, draggingNodeRect, droppableRects, droppableContainers, over, scrollableAncestors, scrollAdjustedTranslate]);
+  }, [active2, activeNode, collisions, collisionRect, draggableNodes, draggingNode, draggingNodeRect, droppableRects, droppableContainers, over, scrollableAncestors, scrollAdjustedTranslate]);
   useAutoScroller({
     ...autoScrollOptions,
     delta: translate,
@@ -75859,7 +75964,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
   });
   const publicContext = (0, import_react12.useMemo)(() => {
     const context2 = {
-      active,
+      active: active2,
       activeNode,
       activeNodeRect,
       activatorEvent,
@@ -75878,12 +75983,12 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
       windowRect
     };
     return context2;
-  }, [active, activeNode, activeNodeRect, activatorEvent, collisions, containerNodeRect, dragOverlay, draggableNodes, droppableContainers, droppableRects, over, measureDroppableContainers, scrollableAncestors, scrollableAncestorRects, measuringConfiguration, measuringScheduled, windowRect]);
+  }, [active2, activeNode, activeNodeRect, activatorEvent, collisions, containerNodeRect, dragOverlay, draggableNodes, droppableContainers, droppableRects, over, measureDroppableContainers, scrollableAncestors, scrollableAncestorRects, measuringConfiguration, measuringScheduled, windowRect]);
   const internalContext = (0, import_react12.useMemo)(() => {
     const context2 = {
       activatorEvent,
       activators,
-      active,
+      active: active2,
       activeNodeRect,
       ariaDescribedById: {
         draggable: draggableDescribedById
@@ -75894,7 +75999,7 @@ var DndContext = /* @__PURE__ */ (0, import_react12.memo)(function DndContext2(_
       measureDroppableContainers
     };
     return context2;
-  }, [activatorEvent, activators, active, activeNodeRect, dispatch, draggableDescribedById, draggableNodes, over, measureDroppableContainers]);
+  }, [activatorEvent, activators, active2, activeNodeRect, dispatch, draggableDescribedById, draggableNodes, over, measureDroppableContainers]);
   return import_react12.default.createElement(DndMonitorContext.Provider, {
     value: registerMonitorListener
   }, import_react12.default.createElement(InternalContext.Provider, {
@@ -75938,7 +76043,7 @@ function useDraggable(_ref) {
   const {
     activators,
     activatorEvent,
-    active,
+    active: active2,
     activeNodeRect,
     ariaDescribedById,
     draggableNodes,
@@ -75949,7 +76054,7 @@ function useDraggable(_ref) {
     roleDescription = "draggable",
     tabIndex = 0
   } = attributes != null ? attributes : {};
-  const isDragging = (active == null ? void 0 : active.id) === id;
+  const isDragging = (active2 == null ? void 0 : active2.id) === id;
   const transform = (0, import_react12.useContext)(isDragging ? ActiveDraggableContext : NullContext);
   const [node, setNodeRef] = useNodeRef();
   const [activatorNode, setActivatorNodeRef] = useNodeRef();
@@ -75983,7 +76088,7 @@ function useDraggable(_ref) {
     "aria-describedby": ariaDescribedById.draggable
   }), [disabled, role, tabIndex, isDragging, roleDescription, ariaDescribedById.draggable]);
   return {
-    active,
+    active: active2,
     activatorEvent,
     activeNodeRect,
     attributes: memoizedAttributes,
@@ -76012,7 +76117,7 @@ function useDroppable(_ref) {
   } = _ref;
   const key = useUniqueId(ID_PREFIX$1);
   const {
-    active,
+    active: active2,
     dispatch,
     over,
     measureDroppableContainers
@@ -76051,7 +76156,7 @@ function useDroppable(_ref) {
   );
   const resizeObserver = useResizeObserver2({
     callback: handleResize,
-    disabled: resizeObserverDisabled || !active
+    disabled: resizeObserverDisabled || !active2
   });
   const handleNodeChange = (0, import_react12.useCallback)((newElement, previousElement) => {
     if (!resizeObserver) {
@@ -76109,7 +76214,7 @@ function useDroppable(_ref) {
     }
   }, [id, key, disabled, dispatch]);
   return {
-    active,
+    active: active2,
     rect,
     isOver: (over == null ? void 0 : over.id) === id,
     node: nodeRef,
@@ -76265,7 +76370,7 @@ function SortableContext(_ref) {
     disabled: disabledProp = false
   } = _ref;
   const {
-    active,
+    active: active2,
     dragOverlay,
     droppableRects,
     over,
@@ -76274,8 +76379,8 @@ function SortableContext(_ref) {
   const containerId = useUniqueId(ID_PREFIX2, id);
   const useDragOverlay = Boolean(dragOverlay.rect !== null);
   const items = (0, import_react13.useMemo)(() => userDefinedItems.map((item) => typeof item === "object" && "id" in item ? item.id : item), [userDefinedItems]);
-  const isDragging = active != null;
-  const activeIndex = active ? items.indexOf(active.id) : -1;
+  const isDragging = active2 != null;
+  const activeIndex = active2 ? items.indexOf(active2.id) : -1;
   const overIndex = over ? items.indexOf(over.id) : -1;
   const previousItemsRef = (0, import_react13.useRef)(items);
   const itemsHaveChanged = !itemsEqual(items, previousItemsRef.current);
@@ -76440,7 +76545,7 @@ function useSortable(_ref) {
     }
   });
   const {
-    active,
+    active: active2,
     activatorEvent,
     activeNodeRect,
     attributes,
@@ -76460,7 +76565,7 @@ function useSortable(_ref) {
     disabled: disabled.draggable
   });
   const setNodeRef = useCombinedRefs(setDroppableNodeRef, setDraggableNodeRef);
-  const isSorting = Boolean(active);
+  const isSorting = Boolean(active2);
   const displaceItem = isSorting && !disableTransforms && isValidIndex(activeIndex) && isValidIndex(overIndex);
   const shouldDisplaceDragSource = !useDragOverlay && isDragging;
   const dragSourceDisplacement = shouldDisplaceDragSource && displaceItem ? transform : null;
@@ -76478,7 +76583,7 @@ function useSortable(_ref) {
     activeIndex,
     overIndex
   }) : index2;
-  const activeId = active == null ? void 0 : active.id;
+  const activeId = active2 == null ? void 0 : active2.id;
   const previous = (0, import_react13.useRef)({
     activeId,
     items,
@@ -76487,7 +76592,7 @@ function useSortable(_ref) {
   });
   const itemsHaveChanged = items !== previous.current.items;
   const shouldAnimateLayoutChanges = animateLayoutChanges({
-    active,
+    active: active2,
     containerId,
     isDragging,
     isSorting,
@@ -76531,7 +76636,7 @@ function useSortable(_ref) {
     return () => clearTimeout(timeoutId);
   }, [activeId]);
   return {
-    active,
+    active: active2,
     activeIndex,
     attributes,
     data,
@@ -76817,9 +76922,9 @@ function ColumnEditor({ tableId, columns }) {
   );
   const handleDragEnd = (0, import_react14.useCallback)(
     (event) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const oldIndex = columns.findIndex((c3) => c3.id === active.id);
+      const { active: active2, over } = event;
+      if (!over || active2.id === over.id) return;
+      const oldIndex = columns.findIndex((c3) => c3.id === active2.id);
       const newIndex = columns.findIndex((c3) => c3.id === over.id);
       if (oldIndex === -1 || newIndex === -1) return;
       const newOrder = arrayMove(columns.map((c3) => c3.id), oldIndex, newIndex);
@@ -83719,15 +83824,15 @@ var ACCENT = {
   error: "border-l-red-500 text-red-400"
 };
 function Toaster() {
-  const active = useToastStore((s3) => s3.active);
+  const active2 = useToastStore((s3) => s3.active);
   const dismiss = useToastStore((s3) => s3.dismiss);
-  if (active.length === 0) return null;
+  if (active2.length === 0) return null;
   return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
     "div",
     {
       className: "pointer-events-none absolute right-3 top-3 z-[100] flex w-72 flex-col gap-2",
       "data-node": "toaster",
-      children: active.map((t3) => {
+      children: active2.map((t3) => {
         const Icon2 = ICON[t3.severity];
         return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
           "div",
@@ -88472,10 +88577,10 @@ function deepSnapshot(store) {
     relationships: structuredClone(s3.relationships)
   };
 }
-function restoreSnapshot(store, snap) {
+function restoreSnapshot(store, snap2) {
   store.getState().loadProject({
-    tables: structuredClone(snap.tables),
-    relationships: structuredClone(snap.relationships)
+    tables: structuredClone(snap2.tables),
+    relationships: structuredClone(snap2.relationships)
   });
 }
 function loadParsedSchema(store, parsed, mode) {
@@ -89000,14 +89105,16 @@ function registerCommands(ctx, store) {
     { cmd: cmd("get-schema"), why: "\uC801\uC6A9\uB41C \uC2A4\uD0A4\uB9C8\uB97C \uD655\uC778\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4" },
     { cmd: cmd("validate"), why: "\uBB34\uACB0\uC131\uC744 \uAC80\uC99D\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4" }
   ]);
-  add2("undo", "Revert the last uncommitted operation using the migration slice", { ko: "\uC2E4\uD589 \uCDE8\uC18C \uB418\uB3CC\uB9AC\uAE30 undo" }, () => "\uC2E4\uD589\uC744 \uCDE8\uC18C\uD588\uC2B5\uB2C8\uB2E4", () => {
-    const fn = store.getState().undoLastOperation;
-    if (typeof fn !== "function") return { ok: false, code: "UNAVAILABLE", message: "undo not available" };
-    const inverse = fn();
-    return { ok: true, inverse };
+  add2("undo", "Revert the last document change (snapshot history)", { ko: "\uC2E4\uD589 \uCDE8\uC18C \uB418\uB3CC\uB9AC\uAE30 undo" }, (d3) => d3.undone ? "\uC2E4\uD589\uC744 \uCDE8\uC18C\uD588\uC2B5\uB2C8\uB2E4" : "\uB418\uB3CC\uB9B4 \uBCC0\uACBD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4", () => {
+    const undone = undo();
+    return { ok: true, undone, ...historyStatus() };
   });
-  add2("redo", "Re-apply the last undone operation (stub; wiring deferred to P3/P4)", { ko: "\uB2E4\uC2DC \uC2E4\uD589 redo \uBCF5\uC6D0" }, () => "\uB2E4\uC2DC \uC2E4\uD589\uD588\uC2B5\uB2C8\uB2E4", () => {
-    return { ok: true, noop: true, todo: "redo wiring deferred to P3/P4" };
+  add2("redo", "Re-apply the last undone document change (snapshot history)", { ko: "\uB2E4\uC2DC \uC2E4\uD589 redo \uBCF5\uC6D0" }, (d3) => d3.redone ? "\uB2E4\uC2DC \uC2E4\uD589\uD588\uC2B5\uB2C8\uB2E4" : "\uB2E4\uC2DC \uC2E4\uD589\uD560 \uBCC0\uACBD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4", () => {
+    const redone = redo();
+    return { ok: true, redone, ...historyStatus() };
+  });
+  add2("history-status", "Report undo/redo availability and stack depth (snapshot history)", { ko: "\uC774\uB825 \uC0C1\uD0DC \uC2E4\uD589\uCDE8\uC18C \uB2E4\uC2DC\uC2E4\uD589 \uAE4A\uC774 \uD655\uC778" }, (d3) => `undo ${d3.past ?? 0} \xB7 redo ${d3.future ?? 0}`, () => {
+    return { ok: true, ...historyStatus() };
   });
   add2("auto-layout", "Compute and apply automatic table positions using the dagre graph layout algorithm", { ko: "\uC790\uB3D9 \uBC30\uCE58 \uB808\uC774\uC544\uC6C3 dagre \uC704\uCE58 \uC815\uB82C" }, (d3) => `${d3.count ?? 0}\uAC1C \uD14C\uC774\uBE14\uC744 \uBC30\uCE58\uD588\uC2B5\uB2C8\uB2E4`, (p3) => {
     const schema = snapshotSchema(store);
@@ -89439,7 +89546,7 @@ function createPersistence(kv, store) {
       void flushNow();
     }, FLUSH_DEBOUNCE_MS);
   };
-  const durableChanged = (s3, p3) => s3.tables !== p3.tables || s3.relationships !== p3.relationships || s3.nodePositions !== p3.nodePositions || s3.collapsedNodes !== p3.collapsedNodes || s3.viewport !== p3.viewport || s3.dialect !== p3.dialect;
+  const durableChanged2 = (s3, p3) => s3.tables !== p3.tables || s3.relationships !== p3.relationships || s3.nodePositions !== p3.nodePositions || s3.collapsedNodes !== p3.collapsedNodes || s3.viewport !== p3.viewport || s3.dialect !== p3.dialect;
   const readDoc = async () => {
     const raw = await kv.get(PERSIST_KEY);
     if (raw == null) return null;
@@ -89495,7 +89602,7 @@ function createPersistence(kv, store) {
     if (kv && !disabled) {
       unsubscribe = store.subscribe((s3, p3) => {
         if (applying) return;
-        if (!durableChanged(s3, p3)) return;
+        if (!durableChanged2(s3, p3)) return;
         dirty = true;
         scheduleFlush();
       });
@@ -89868,6 +89975,8 @@ var plugin_entry_default = {
     const persistence = createPersistence(app.data?.kv ?? null, useStore2);
     await persistence.hydrate();
     ctx.subscriptions.push({ dispose: () => persistence.dispose() });
+    const history = createHistory(useStore2);
+    ctx.subscriptions.push({ dispose: () => history.dispose() });
     if (app.commands?.register) {
       ctx.subscriptions.push(
         app.commands.register("ping", {

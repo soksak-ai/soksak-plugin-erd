@@ -12,6 +12,7 @@ import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
 import { registerNotificationCommands } from "@/plugin/notifications";
+import { createHistory } from "@/store/history";
 
 // 렌더 크래시(예: Pixi WebGL 컨텍스트 한계, 컴포넌트 예외)를 잡아 빈 화면 대신 오류를 표시.
 // console.error 로 원인도 남긴다(소켓/dev 진단).
@@ -112,6 +113,10 @@ export default {
     const persistence = createPersistence(app.data?.kv ?? null, useStore);
     await persistence.hydrate();
     ctx.subscriptions.push({ dispose: () => persistence.dispose() });
+
+    // undo/redo 이력 — hydrate 이후 설치(복원된 상태가 첫 undo 대상이 되지 않도록 baseline 고정).
+    const history = createHistory(useStore);
+    ctx.subscriptions.push({ dispose: () => history.dispose() });
 
     // E2E/적재 확인용 헤드리스 커맨드 — sok plugin.soksak-plugin-erd.ping / MCP / 소켓.
     if (app.commands?.register) {

@@ -8,19 +8,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store';
+import { undo, redo, useHistoryStore } from '@/store/history';
 
 export function EditMenu() {
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
   const removeTable = useStore((s) => s.removeTable);
+  const canUndo = useHistoryStore((s) => s.canUndo);
+  const canRedo = useHistoryStore((s) => s.canRedo);
 
   const handleDeleteSelected = () => {
     for (const id of selectedNodeIds) {
       removeTable(id);
     }
-  };
-
-  const handleUndo = () => {
-    useStore.getState().undoLastOperation();
   };
 
   const handleSelectAll = () => {
@@ -36,11 +35,11 @@ export function EditMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={handleUndo}>
+        <DropdownMenuItem disabled={!canUndo} onClick={() => undo()}>
           Undo
           <DropdownMenuShortcut>Ctrl+Z</DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
+        <DropdownMenuItem disabled={!canRedo} onClick={() => redo()}>
           Redo
           <DropdownMenuShortcut>Ctrl+Y</DropdownMenuShortcut>
         </DropdownMenuItem>

@@ -406,6 +406,13 @@
           "en": "Recent action-feedback log",
           "ko": "\uc54c\ub9bc \ub85c\uadf8"
         }
+      },
+      {
+        "name": "history-status",
+        "title": {
+          "en": "Undo/redo history status",
+          "ko": "\uc774\ub825 \uc0c1\ud0dc"
+        }
       }
     ],
     "nodes": [
@@ -456,6 +463,10 @@
       {
         "id": "undo",
         "description": "Toolbar: undo the last operation"
+      },
+      {
+        "id": "redo",
+        "description": "Toolbar: redo the last undone operation"
       },
       {
         "id": "auto-layout",
