@@ -438,6 +438,18 @@
         "description": "Bottom panel: collapse toggle"
       },
       {
+        "id": "relmode",
+        "description": "Sidebar relationship-create mode button (data-node relmode/<1:N|1:1|1|N|1|1>)"
+      },
+      {
+        "id": "relmode-cancel",
+        "description": "Sidebar: cancel the active relationship-create mode"
+      },
+      {
+        "id": "relmode-banner",
+        "description": "On-canvas relationship-create mode indicator"
+      },
+      {
         "id": "add-table",
         "description": "Toolbar: open the create-table dialog"
       },

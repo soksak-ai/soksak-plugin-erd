@@ -14,6 +14,7 @@ import {
   fitToView,
 } from './camera';
 import { overlayRectForHeader, isInHeaderBand, type OverlayRect } from './rename-overlay';
+import { toast } from '@/store/toast-store';
 import { SpatialIndex } from './spatial-index';
 import { TableNodeRenderer } from './table-node';
 import type { TableNodeData } from './table-node';
@@ -385,6 +386,9 @@ export function PixiERDCanvas() {
   // ── Store selectors ────────────────────────────────────────────────
   const tables = useStore(s => s.tables);
   const relationships = useStore(s => s.relationships);
+  // 관계 생성 모드 — 캔버스 상단 배너로 시각화(모드/단계). 캔버스만 보는 사용자도 모드를 인지.
+  const relationshipCreateMode = useStore(s => s.relationshipCreateMode);
+  const relationshipCreateSourceTableId = useStore(s => s.relationshipCreateSourceTableId);
   const nodePositions = useStore(s => s.nodePositions);
   const selectedNodeIds = useStore(s => s.selectedNodeIds);
   const selectedEdgeIds = useStore(s => s.selectedEdgeIds);
@@ -1368,7 +1372,12 @@ export function PixiERDCanvas() {
         const pickedColumns = pickRelationshipColumns(sourceTable, targetTable);
         const sourceColumnIds = pickedColumns.sourceColumnIds;
         let targetColumnIds = pickedColumns.targetColumnIds;
-        if (sourceColumnIds.length === 0) return;
+        if (sourceColumnIds.length === 0) {
+          // 침묵 실패 금지 — 소스 테이블에 참조할 컬럼이 없음을 알린다.
+          toast(`${sourceTable.name} 에 참조할 컬럼이 없어 관계를 만들 수 없습니다`, 'error');
+          store.setRelationshipCreateMode(null);
+          return;
+        }
 
         // Enforce FK naming with table prefix. If missing, create target column automatically.
         if (targetColumnIds.length === 0) {
@@ -1412,6 +1421,7 @@ export function PixiERDCanvas() {
         // Complete one pair and exit create mode to avoid ambiguous next action.
         store.setRelationshipCreateMode(null);
         setState({ selectedNodeIds: [], selectedEdgeIds: [relId] });
+        toast(`${sourceTable.name} → ${targetTable.name} 관계를 만들었습니다`, 'success');
         return;
       }
 
@@ -1516,6 +1526,11 @@ export function PixiERDCanvas() {
     const onPointerMove = (e: PointerEvent) => {
       const ptr = ptrRef.current;
       if (!ptr.down) {
+        // 관계 생성 모드 armed 이면 캔버스 커서를 crosshair 로 — 사용자가 "모드 안"임을 캔버스에서 본다.
+        if (useStore.getState().relationshipCreateMode) {
+          el.style.cursor = 'crosshair';
+          return;
+        }
         const now = performance.now();
         const hoverInterval = getDynamicHoverHitTestIntervalMs(camRef.current.zoom, edgeDataRef.current.length);
         if (now - lastHoverHitTestAtRef.current < hoverInterval) return;
@@ -1722,6 +1737,16 @@ export function PixiERDCanvas() {
 
     // ── Keyboard ──
     const onKeyDown = (e: KeyboardEvent) => {
+      // Escape 는 범용 취소 — 진행 중 관계 생성 모드를 해제한다(캔버스에서 빠져나갈 유일한 키).
+      if (e.key === 'Escape') {
+        const store = useStore.getState();
+        if (store.relationshipCreateMode) {
+          store.setRelationshipCreateMode(null);
+          el.style.cursor = 'default'; // armed crosshair 즉시 해제
+          toast('관계 생성을 취소했습니다', 'info', 1500);
+        }
+        return;
+      }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         // Don't delete when focused on an input
         if ((e.target as HTMLElement).tagName === 'INPUT') return;
@@ -1968,6 +1993,20 @@ export function PixiERDCanvas() {
             tabIndex={0}
             style={{ outline: 'none' }}
           />
+          {relationshipCreateMode && (
+            <div
+              className="pointer-events-none absolute left-1/2 top-3 z-[85] flex -translate-x-1/2 items-center gap-2 rounded-full border border-blue-400/60 bg-blue-500/95 px-3 py-1 text-[11px] font-medium text-white shadow-lg"
+              data-node="relmode-banner"
+            >
+              <span className="font-semibold">관계 {relationshipCreateMode}</span>
+              <span className="opacity-90">
+                {relationshipCreateSourceTableId
+                  ? `대상 테이블 클릭 (소스: ${tables[relationshipCreateSourceTableId]?.name ?? '?'})`
+                  : '소스 테이블을 클릭하세요'}
+              </span>
+              <span className="opacity-70">· Esc 취소</span>
+            </div>
+          )}
           {renameUi && (
             <input
               ref={renameInputRef}

@@ -9,6 +9,14 @@ import { Minimap } from '@/components/canvas/pixi/Minimap';
 const ITEM_HEIGHT = 32; // px per table row
 const OVERSCAN = 10; // extra items rendered above/below viewport
 
+// 관계 모드 → 노드 주소 슬러그(주소 그램마 [a-z0-9.-] 준수). identifying('|')은 'id-' 접두.
+const MODE_SLUG: Record<'1:N' | '1:1' | '1|N' | '1|1', string> = {
+  '1:N': 'one-many',
+  '1:1': 'one-one',
+  '1|N': 'id-one-many',
+  '1|1': 'id-one-one',
+};
+
 export function TableNavigator() {
   const tables = useStore((s) => s.tables);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
@@ -142,9 +150,12 @@ export function TableNavigator() {
         <div className="mb-1.5 grid grid-cols-4 gap-1">
           {(['1:N', '1:1', '1|N', '1|1'] as const).map((mode) => {
             const active = relationshipCreateMode === mode;
+            // 노드 주소 그램마([a-z0-9.-])에 맞춘 슬러그 — 클릭은 버튼 자신의 onClick 이 실제 모드를 세팅.
+            const slug = MODE_SLUG[mode];
             return (
               <button
                 key={mode}
+                data-node={`relmode/${slug}`}
                 onClick={() => setRelationshipCreateMode(active ? null : mode)}
                 className={cn(
                   'flex items-center justify-center gap-1 rounded px-1.5 py-1 text-[10px] font-semibold transition-colors',
@@ -167,6 +178,7 @@ export function TableNavigator() {
               {relationshipSourceTable ? `1st: ${relationshipSourceTable.name}` : '1st: select source table'}
             </p>
             <button
+              data-node="relmode-cancel"
               onClick={clearRelationshipCreateState}
               className="mt-1 text-[10px] underline underline-offset-2 hover:text-blue-200"
             >
