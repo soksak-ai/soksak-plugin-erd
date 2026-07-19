@@ -23,6 +23,7 @@ import type { TableNodeData } from './table-node';
 import { EdgeRenderer } from './edge-renderer';
 import type { NodeEndpoint, EdgeData } from './edge-renderer';
 import { buildEdgeData } from './edge-data';
+import { columnsById } from '@/features/relationship/optionality';
 import { NODE_WIDTH, COLORS, applyCanvasColors, getLOD, LOD } from './constants';
 import { computeCanvasPalette } from '@/features/theme/host';
 import { useHostThemeEpoch } from '@/hooks/useTheme';
@@ -1169,6 +1170,7 @@ export function PixiERDCanvas() {
       useStore.getState().relationships,
       useStore.getState().selectedEdgeIds,
       useStore.getState().selectedNodeIds,
+      columnsById(useStore.getState().tables),
     );
     edgeDataRef.current = allEdges;
     const byNode = new Map<string, EdgeData[]>();
@@ -1188,7 +1190,8 @@ export function PixiERDCanvas() {
     cachedWorkerEndpointsRef.current = null;
     edgeDirty.current = true;
     wakeRenderLoop();
-  }, [relationships, selectedEdgeIds, selectedNodeIds]);
+    // tables 의존 — 컬럼 nullable 변경 시 optionality(○) 재유도.
+  }, [relationships, selectedEdgeIds, selectedNodeIds, tables]);
 
   // Grid visibility change
   useEffect(() => {

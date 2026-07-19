@@ -17,6 +17,8 @@ export interface EdgeData {
   targetId: string;  // target table ID
   type: RelationType;
   selected: boolean;
+  // "one" 측 참여가 선택적(FK nullable 데이터 유도) — one 측 마커에 ○(0..1)를 그린다.
+  optional?: boolean;
   // 선택된 테이블(노드)에 연결된 엣지 — 직접 선택은 아니나 강조 대상(선택 전파).
   related?: boolean;
   hovered?: boolean;
@@ -259,7 +261,7 @@ export class EdgeRenderer {
       if (isFull && !simplify) {
         // Marker angle follows the side direction for consistent readability.
         const srcAngle = portAngle(sourceSide);
-        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth);
+        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
 
         const tgtAngle = portAngle(targetSide);
         drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
