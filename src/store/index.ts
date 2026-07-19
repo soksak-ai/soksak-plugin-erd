@@ -4,9 +4,8 @@ import { setAutoFreeze } from 'immer';
 import { createSchemaSlice, type SchemaSlice } from './slices/schema-slice';
 import { createDiagramSlice, type DiagramSlice } from './slices/diagram-slice';
 import { createUISlice, type UISlice } from './slices/ui-slice';
-import { createMigrationSlice, type MigrationSlice } from './slices/migration-slice';
 
-export type StoreState = SchemaSlice & DiagramSlice & UISlice & MigrationSlice;
+export type StoreState = SchemaSlice & DiagramSlice & UISlice;
 
 // Large ERD states (hundreds of tables/relations) suffer severe interaction latency
 // when Immer deep-freezes every update in dev. Disable auto-freeze for responsiveness.
@@ -19,6 +18,5 @@ export const useStore = create<StoreState>()(
     ...createSchemaSlice(...a),
     ...createDiagramSlice(...a),
     ...createUISlice(...a),
-    ...createMigrationSlice(...a),
   }))
 );

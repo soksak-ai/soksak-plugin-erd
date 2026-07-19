@@ -699,10 +699,6 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     if (anyFailed) {
       return { ok: false, code: 'BATCH_FAILED', message: 'batch completed with failures', failedAt, results };
     }
-    // 성공 시 마이그레이션 버전으로 커밋(슬라이스 표면이 있을 때만).
-    if (p.title && typeof store.getState().commitVersion === 'function') {
-      try { store.getState().commitVersion(p.title); } catch { /* 헤드리스 안전 무시 */ }
-    }
     return { ok: true, results };
   }, {
     ops: { type: 'json', required: true, description: 'Array of operations to execute ([{ command, params }])' },

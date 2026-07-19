@@ -57777,409 +57777,13 @@ var createUISlice = (set2) => ({
   })
 });
 
-// src/features/migration/operations/inverse.ts
-function generateInverse(op) {
-  const p3 = op.params;
-  switch (op.type) {
-    case "createTable":
-      return {
-        ...op,
-        type: "dropTable",
-        params: { name: p3.name, _tableData: op.params }
-      };
-    case "dropTable":
-      return p3._tableData ? { ...op, type: "createTable", params: p3._tableData } : null;
-    case "renameTable":
-      return {
-        ...op,
-        type: "renameTable",
-        params: { oldName: p3.newName, newName: p3.oldName }
-      };
-    case "addColumn":
-      return {
-        ...op,
-        type: "dropColumn",
-        params: { table: p3.table, name: p3.name, _columnData: op.params }
-      };
-    case "dropColumn":
-      return p3._columnData ? { ...op, type: "addColumn", params: p3._columnData } : null;
-    case "renameColumn":
-      return {
-        ...op,
-        type: "renameColumn",
-        params: { table: p3.table, oldName: p3.newName, newName: p3.oldName }
-      };
-    case "modifyColumnType":
-      return {
-        ...op,
-        type: "modifyColumnType",
-        params: { table: p3.table, column: p3.column, oldType: p3.newType, newType: p3.oldType }
-      };
-    case "modifyColumnDefault":
-      return {
-        ...op,
-        type: "modifyColumnDefault",
-        params: { table: p3.table, column: p3.column, oldDefault: p3.newDefault, newDefault: p3.oldDefault }
-      };
-    case "setColumnNullable":
-      return {
-        ...op,
-        type: "setColumnNullable",
-        params: { table: p3.table, column: p3.column, nullable: p3.oldNullable, oldNullable: p3.nullable }
-      };
-    case "setColumnAutoIncrement":
-      return {
-        ...op,
-        type: "setColumnAutoIncrement",
-        params: { table: p3.table, column: p3.column, autoIncrement: !p3.autoIncrement }
-      };
-    case "setColumnUnique":
-      return {
-        ...op,
-        type: "setColumnUnique",
-        params: { table: p3.table, column: p3.column, unique: !p3.unique }
-      };
-    case "addPrimaryKey":
-      return {
-        ...op,
-        type: "dropPrimaryKey",
-        params: { table: p3.table, columns: p3.columns }
-      };
-    case "dropPrimaryKey":
-      return {
-        ...op,
-        type: "addPrimaryKey",
-        params: { table: p3.table, columns: p3.columns }
-      };
-    case "addForeignKey": {
-      const fkName = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
-      return {
-        ...op,
-        type: "dropForeignKey",
-        params: { table: p3.table, name: fkName, _fkData: op.params }
-      };
-    }
-    case "dropForeignKey":
-      return p3._fkData ? { ...op, type: "addForeignKey", params: p3._fkData } : null;
-    case "addUniqueConstraint": {
-      const uqName = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
-      return {
-        ...op,
-        type: "dropUniqueConstraint",
-        params: { table: p3.table, name: uqName, columns: p3.columns }
-      };
-    }
-    case "dropUniqueConstraint":
-      return p3.columns ? { ...op, type: "addUniqueConstraint", params: { table: p3.table, name: p3.name, columns: p3.columns } } : null;
-    case "createIndex":
-      return {
-        ...op,
-        type: "dropIndex",
-        params: { table: p3.table, name: p3.name, _indexData: op.params }
-      };
-    case "dropIndex":
-      return p3._indexData ? { ...op, type: "createIndex", params: p3._indexData } : null;
-    default:
-      return null;
-  }
-}
-
-// src/features/migration/sql-generator/mysql-generator.ts
-var MySQLGenerator = class {
-  dialect = "mysql";
-  generate(op) {
-    const p3 = op.params;
-    switch (op.type) {
-      case "createTable": {
-        const columns = p3.columns ?? [];
-        const colDefs = columns.map((c3) => {
-          let def = `  \`${c3.name}\` ${c3.dataType}`;
-          if (c3.length) def += `(${c3.length})`;
-          if (c3.autoIncrement) def += " AUTO_INCREMENT";
-          if (!c3.nullable) def += " NOT NULL";
-          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
-          if (c3.isUnique) def += " UNIQUE";
-          if (c3.comment) def += ` COMMENT '${c3.comment}'`;
-          return def;
-        });
-        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `\`${c3.name}\``);
-        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
-        let sql = `CREATE TABLE \`${p3.name}\` (
-${colDefs.join(",\n")}
-)`;
-        if (p3.engine) sql += ` ENGINE=${p3.engine}`;
-        if (p3.charset) sql += ` DEFAULT CHARSET=${p3.charset}`;
-        if (p3.comment) sql += ` COMMENT='${p3.comment}'`;
-        return sql + ";";
-      }
-      case "dropTable":
-        return `DROP TABLE IF EXISTS \`${p3.name}\`;`;
-      case "renameTable":
-        return `ALTER TABLE \`${p3.oldName}\` RENAME TO \`${p3.newName}\`;`;
-      case "addColumn": {
-        let sql = `ALTER TABLE \`${p3.table}\` ADD COLUMN \`${p3.name}\` ${p3.dataType ?? "VARCHAR(255)"}`;
-        if (!(p3.nullable ?? true)) sql += " NOT NULL";
-        if (p3.defaultValue != null) sql += ` DEFAULT ${p3.defaultValue}`;
-        if (p3.autoIncrement) sql += " AUTO_INCREMENT";
-        if (p3.isUnique) sql += " UNIQUE";
-        if (p3.after) sql += ` AFTER \`${p3.after}\``;
-        return sql + ";";
-      }
-      case "dropColumn":
-        return `ALTER TABLE \`${p3.table}\` DROP COLUMN \`${p3.name}\`;`;
-      case "renameColumn":
-        return `ALTER TABLE \`${p3.table}\` RENAME COLUMN \`${p3.oldName}\` TO \`${p3.newName}\`;`;
-      case "modifyColumnType":
-        return `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` ${p3.newType};`;
-      case "modifyColumnDefault":
-        return p3.newDefault != null ? `ALTER TABLE \`${p3.table}\` ALTER COLUMN \`${p3.column}\` SET DEFAULT ${p3.newDefault};` : `ALTER TABLE \`${p3.table}\` ALTER COLUMN \`${p3.column}\` DROP DEFAULT;`;
-      case "setColumnNullable":
-        return p3.nullable ? `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` NULL;` : `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` NOT NULL;`;
-      case "setColumnAutoIncrement":
-        return p3.autoIncrement ? `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` AUTO_INCREMENT;` : `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\`;`;
-      case "setColumnUnique":
-        return p3.unique ? `ALTER TABLE \`${p3.table}\` ADD UNIQUE (\`${p3.column}\`);` : `ALTER TABLE \`${p3.table}\` DROP INDEX \`${p3.column}\`;`;
-      case "addPrimaryKey": {
-        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p3.table}\` ADD PRIMARY KEY (${cols});`;
-      }
-      case "dropPrimaryKey":
-        return `ALTER TABLE \`${p3.table}\` DROP PRIMARY KEY;`;
-      case "addForeignKey": {
-        const name = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
-        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
-        const refCols = p3.refColumns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p3.table}\` ADD CONSTRAINT \`${name}\` FOREIGN KEY (${cols}) REFERENCES \`${p3.refTable}\`(${refCols}) ON DELETE ${p3.onDelete} ON UPDATE ${p3.onUpdate};`;
-      }
-      case "dropForeignKey":
-        return `ALTER TABLE \`${p3.table}\` DROP FOREIGN KEY \`${p3.name}\`;`;
-      case "addUniqueConstraint": {
-        const name = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
-        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p3.table}\` ADD CONSTRAINT \`${name}\` UNIQUE (${cols});`;
-      }
-      case "dropUniqueConstraint":
-        return `ALTER TABLE \`${p3.table}\` DROP INDEX \`${p3.name}\`;`;
-      case "createIndex": {
-        const unique = p3.unique ? "UNIQUE " : "";
-        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `CREATE ${unique}INDEX \`${p3.name}\` ON \`${p3.table}\`(${cols});`;
-      }
-      case "dropIndex":
-        return `DROP INDEX \`${p3.name}\` ON \`${p3.table}\`;`;
-      default:
-        return `-- Unknown operation: ${op.type}`;
-    }
-  }
-  generateBatch(ops) {
-    return ops.map((op) => this.generate(op)).join("\n\n");
-  }
-};
-
-// src/features/migration/sql-generator/postgresql-generator.ts
-var PostgreSQLGenerator = class {
-  dialect = "postgresql";
-  generate(op) {
-    const p3 = op.params;
-    switch (op.type) {
-      case "createTable": {
-        const columns = p3.columns ?? [];
-        const colDefs = columns.map((c3) => {
-          const isSerial = c3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(c3.dataType);
-          let def;
-          if (isSerial) {
-            const serialType = /^BIGINT/i.test(c3.dataType) ? "BIGSERIAL" : "SERIAL";
-            def = `  "${c3.name}" ${serialType}`;
-          } else {
-            def = `  "${c3.name}" ${c3.dataType}`;
-            if (c3.length) def += `(${c3.length})`;
-          }
-          if (!c3.nullable) def += " NOT NULL";
-          if (c3.defaultValue != null && !isSerial) def += ` DEFAULT ${c3.defaultValue}`;
-          if (c3.isUnique) def += " UNIQUE";
-          return def;
-        });
-        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `"${c3.name}"`);
-        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
-        const schemaPrefix = p3.schema ? `"${p3.schema}".` : "";
-        let sql = `CREATE TABLE ${schemaPrefix}"${p3.name}" (
-${colDefs.join(",\n")}
-)`;
-        if (p3.comment) sql += `;
-COMMENT ON TABLE ${schemaPrefix}"${p3.name}" IS '${p3.comment}'`;
-        return sql + ";";
-      }
-      case "dropTable": {
-        const schemaPrefix = p3.schema ? `"${p3.schema}".` : "";
-        return `DROP TABLE IF EXISTS ${schemaPrefix}"${p3.name}" CASCADE;`;
-      }
-      case "renameTable":
-        return `ALTER TABLE "${p3.oldName}" RENAME TO "${p3.newName}";`;
-      case "addColumn": {
-        const isSerial = p3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(p3.dataType ?? "");
-        let colType;
-        if (isSerial) {
-          colType = /^BIGINT/i.test(p3.dataType ?? "") ? "BIGSERIAL" : "SERIAL";
-        } else {
-          colType = p3.dataType ?? "VARCHAR(255)";
-        }
-        let sql = `ALTER TABLE "${p3.table}" ADD COLUMN "${p3.name}" ${colType}`;
-        if (!(p3.nullable ?? true)) sql += " NOT NULL";
-        if (p3.defaultValue != null && !isSerial) sql += ` DEFAULT ${p3.defaultValue}`;
-        if (p3.isUnique) sql += " UNIQUE";
-        return sql + ";";
-      }
-      case "dropColumn":
-        return `ALTER TABLE "${p3.table}" DROP COLUMN "${p3.name}";`;
-      case "renameColumn":
-        return `ALTER TABLE "${p3.table}" RENAME COLUMN "${p3.oldName}" TO "${p3.newName}";`;
-      case "modifyColumnType":
-        return `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" TYPE ${p3.newType};`;
-      case "modifyColumnDefault":
-        return p3.newDefault != null ? `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET DEFAULT ${p3.newDefault};` : `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP DEFAULT;`;
-      case "setColumnNullable":
-        return p3.nullable ? `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP NOT NULL;` : `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET NOT NULL;`;
-      case "setColumnAutoIncrement": {
-        const seqName = `${p3.table}_${p3.column}_seq`;
-        if (p3.autoIncrement) {
-          return [
-            `CREATE SEQUENCE "${seqName}";`,
-            `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET DEFAULT nextval('"${seqName}"');`,
-            `ALTER SEQUENCE "${seqName}" OWNED BY "${p3.table}"."${p3.column}";`
-          ].join("\n");
-        }
-        return `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP DEFAULT;`;
-      }
-      case "setColumnUnique":
-        if (p3.unique) {
-          const constraintName = `uq_${p3.table}_${p3.column}`;
-          return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${constraintName}" UNIQUE ("${p3.column}");`;
-        }
-        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "uq_${p3.table}_${p3.column}";`;
-      case "addPrimaryKey": {
-        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p3.table}" ADD PRIMARY KEY (${cols});`;
-      }
-      case "dropPrimaryKey":
-        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT "${p3.table}_pkey";`;
-      case "addForeignKey": {
-        const name = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
-        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
-        const refCols = p3.refColumns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${name}" FOREIGN KEY (${cols}) REFERENCES "${p3.refTable}"(${refCols}) ON DELETE ${p3.onDelete} ON UPDATE ${p3.onUpdate};`;
-      }
-      case "dropForeignKey":
-        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "${p3.name}";`;
-      case "addUniqueConstraint": {
-        const name = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
-        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${name}" UNIQUE (${cols});`;
-      }
-      case "dropUniqueConstraint":
-        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "${p3.name}";`;
-      case "createIndex": {
-        const unique = p3.unique ? "UNIQUE " : "";
-        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
-        return `CREATE ${unique}INDEX "${p3.name}" ON "${p3.table}"(${cols});`;
-      }
-      case "dropIndex":
-        return `DROP INDEX IF EXISTS "${p3.name}";`;
-      default:
-        return `-- Unknown operation: ${op.type}`;
-    }
-  }
-  generateBatch(ops) {
-    return ops.map((op) => this.generate(op)).join("\n\n");
-  }
-};
-
-// src/features/migration/sql-generator/index.ts
-var generators = {
-  mysql: new MySQLGenerator(),
-  postgresql: new PostgreSQLGenerator()
-};
-function getSQLGenerator(dialect) {
-  return generators[dialect];
-}
-
-// src/store/slices/migration-slice.ts
-var createMigrationSlice = (set2, get2) => ({
-  migrationHistory: [],
-  uncommittedOps: [],
-  recordOperation: (type, params) => {
-    set2((state) => {
-      state.uncommittedOps.push({
-        id: generateId(),
-        type,
-        timestamp: Date.now(),
-        params
-      });
-    });
-  },
-  commitVersion: (title) => {
-    set2((state) => {
-      if (state.uncommittedOps.length === 0) return;
-      const version = {
-        id: generateId(),
-        version: String(state.migrationHistory.length + 1).padStart(3, "0"),
-        title,
-        date: (/* @__PURE__ */ new Date()).toISOString(),
-        operations: [...state.uncommittedOps]
-      };
-      state.migrationHistory.push(version);
-      state.uncommittedOps = [];
-    });
-  },
-  getVersionSQL: (versionId, dialect) => {
-    const state = get2();
-    const version = state.migrationHistory.find((v4) => v4.id === versionId);
-    if (!version) return "";
-    const generator = getSQLGenerator(dialect);
-    return `-- Migration: ${version.version} - ${version.title}
--- Date: ${version.date}
-
-${generator.generateBatch(version.operations)}`;
-  },
-  getUncommittedSQL: (dialect) => {
-    const state = get2();
-    if (state.uncommittedOps.length === 0) return "-- No uncommitted changes";
-    const generator = getSQLGenerator(dialect);
-    return `-- Uncommitted changes
-
-${generator.generateBatch(state.uncommittedOps)}`;
-  },
-  getAllMigrationsSQL: (dialect) => {
-    const state = get2();
-    const generator = getSQLGenerator(dialect);
-    const sections = state.migrationHistory.map(
-      (v4) => `-- Migration: ${v4.version} - ${v4.title}
--- Date: ${v4.date}
-
-${generator.generateBatch(v4.operations)}`
-    );
-    return sections.join("\n\n-- ========================================\n\n");
-  },
-  undoLastOperation: () => {
-    const state = get2();
-    const ops = state.uncommittedOps;
-    if (ops.length === 0) return null;
-    const lastOp = ops[ops.length - 1];
-    const inverse = generateInverse(lastOp);
-    set2((s3) => {
-      s3.uncommittedOps.pop();
-    });
-    return inverse;
-  }
-});
-
 // src/store/index.ts
 setAutoFreeze(false);
 var useStore2 = create()(
   immer2((...a3) => ({
     ...createSchemaSlice(...a3),
     ...createDiagramSlice(...a3),
-    ...createUISlice(...a3),
-    ...createMigrationSlice(...a3)
+    ...createUISlice(...a3)
   }))
 );
 
@@ -71547,10 +71151,6 @@ function FileMenu() {
         nodePositions: state.nodePositions,
         collapsedNodes: state.collapsedNodes,
         viewport: state.viewport
-      },
-      migrations: {
-        versions: state.migrationHistory,
-        uncommittedOps: state.uncommittedOps
       }
     };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
@@ -71580,12 +71180,6 @@ function FileMenu() {
               nodePositions: project.diagramState.nodePositions ?? {},
               collapsedNodes: project.diagramState.collapsedNodes ?? {},
               viewport: project.diagramState.viewport ?? { x: 0, y: 0, zoom: 1 }
-            });
-          }
-          if (project.migrations) {
-            useStore2.setState({
-              migrationHistory: project.migrations.versions ?? [],
-              uncommittedOps: project.migrations.uncommittedOps ?? []
             });
           }
           const n3 = Object.keys(project.schema?.tables ?? {}).length;
@@ -87988,6 +87582,113 @@ function parse3(input) {
   return new Parser(input).parse();
 }
 
+// src/features/migration/operations/inverse.ts
+function generateInverse(op) {
+  const p3 = op.params;
+  switch (op.type) {
+    case "createTable":
+      return {
+        ...op,
+        type: "dropTable",
+        params: { name: p3.name, _tableData: op.params }
+      };
+    case "dropTable":
+      return p3._tableData ? { ...op, type: "createTable", params: p3._tableData } : null;
+    case "renameTable":
+      return {
+        ...op,
+        type: "renameTable",
+        params: { oldName: p3.newName, newName: p3.oldName }
+      };
+    case "addColumn":
+      return {
+        ...op,
+        type: "dropColumn",
+        params: { table: p3.table, name: p3.name, _columnData: op.params }
+      };
+    case "dropColumn":
+      return p3._columnData ? { ...op, type: "addColumn", params: p3._columnData } : null;
+    case "renameColumn":
+      return {
+        ...op,
+        type: "renameColumn",
+        params: { table: p3.table, oldName: p3.newName, newName: p3.oldName }
+      };
+    case "modifyColumnType":
+      return {
+        ...op,
+        type: "modifyColumnType",
+        params: { table: p3.table, column: p3.column, oldType: p3.newType, newType: p3.oldType }
+      };
+    case "modifyColumnDefault":
+      return {
+        ...op,
+        type: "modifyColumnDefault",
+        params: { table: p3.table, column: p3.column, oldDefault: p3.newDefault, newDefault: p3.oldDefault }
+      };
+    case "setColumnNullable":
+      return {
+        ...op,
+        type: "setColumnNullable",
+        params: { table: p3.table, column: p3.column, nullable: p3.oldNullable, oldNullable: p3.nullable }
+      };
+    case "setColumnAutoIncrement":
+      return {
+        ...op,
+        type: "setColumnAutoIncrement",
+        params: { table: p3.table, column: p3.column, autoIncrement: !p3.autoIncrement }
+      };
+    case "setColumnUnique":
+      return {
+        ...op,
+        type: "setColumnUnique",
+        params: { table: p3.table, column: p3.column, unique: !p3.unique }
+      };
+    case "addPrimaryKey":
+      return {
+        ...op,
+        type: "dropPrimaryKey",
+        params: { table: p3.table, columns: p3.columns }
+      };
+    case "dropPrimaryKey":
+      return {
+        ...op,
+        type: "addPrimaryKey",
+        params: { table: p3.table, columns: p3.columns }
+      };
+    case "addForeignKey": {
+      const fkName = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
+      return {
+        ...op,
+        type: "dropForeignKey",
+        params: { table: p3.table, name: fkName, _fkData: op.params }
+      };
+    }
+    case "dropForeignKey":
+      return p3._fkData ? { ...op, type: "addForeignKey", params: p3._fkData } : null;
+    case "addUniqueConstraint": {
+      const uqName = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
+      return {
+        ...op,
+        type: "dropUniqueConstraint",
+        params: { table: p3.table, name: uqName, columns: p3.columns }
+      };
+    }
+    case "dropUniqueConstraint":
+      return p3.columns ? { ...op, type: "addUniqueConstraint", params: { table: p3.table, name: p3.name, columns: p3.columns } } : null;
+    case "createIndex":
+      return {
+        ...op,
+        type: "dropIndex",
+        params: { table: p3.table, name: p3.name, _indexData: op.params }
+      };
+    case "dropIndex":
+      return p3._indexData ? { ...op, type: "createIndex", params: p3._indexData } : null;
+    default:
+      return null;
+  }
+}
+
 // src/features/migration/mig-dsl/serializer.ts
 var INDENT = "  ";
 function serializeColumnDef(c3) {
@@ -88375,6 +88076,224 @@ function applyOperation(schema, op) {
     }
   }
   return next;
+}
+
+// src/features/migration/sql-generator/mysql-generator.ts
+var MySQLGenerator = class {
+  dialect = "mysql";
+  generate(op) {
+    const p3 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p3.columns ?? [];
+        const colDefs = columns.map((c3) => {
+          let def = `  \`${c3.name}\` ${c3.dataType}`;
+          if (c3.length) def += `(${c3.length})`;
+          if (c3.autoIncrement) def += " AUTO_INCREMENT";
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          if (c3.comment) def += ` COMMENT '${c3.comment}'`;
+          return def;
+        });
+        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `\`${c3.name}\``);
+        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        let sql = `CREATE TABLE \`${p3.name}\` (
+${colDefs.join(",\n")}
+)`;
+        if (p3.engine) sql += ` ENGINE=${p3.engine}`;
+        if (p3.charset) sql += ` DEFAULT CHARSET=${p3.charset}`;
+        if (p3.comment) sql += ` COMMENT='${p3.comment}'`;
+        return sql + ";";
+      }
+      case "dropTable":
+        return `DROP TABLE IF EXISTS \`${p3.name}\`;`;
+      case "renameTable":
+        return `ALTER TABLE \`${p3.oldName}\` RENAME TO \`${p3.newName}\`;`;
+      case "addColumn": {
+        let sql = `ALTER TABLE \`${p3.table}\` ADD COLUMN \`${p3.name}\` ${p3.dataType ?? "VARCHAR(255)"}`;
+        if (!(p3.nullable ?? true)) sql += " NOT NULL";
+        if (p3.defaultValue != null) sql += ` DEFAULT ${p3.defaultValue}`;
+        if (p3.autoIncrement) sql += " AUTO_INCREMENT";
+        if (p3.isUnique) sql += " UNIQUE";
+        if (p3.after) sql += ` AFTER \`${p3.after}\``;
+        return sql + ";";
+      }
+      case "dropColumn":
+        return `ALTER TABLE \`${p3.table}\` DROP COLUMN \`${p3.name}\`;`;
+      case "renameColumn":
+        return `ALTER TABLE \`${p3.table}\` RENAME COLUMN \`${p3.oldName}\` TO \`${p3.newName}\`;`;
+      case "modifyColumnType":
+        return `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` ${p3.newType};`;
+      case "modifyColumnDefault":
+        return p3.newDefault != null ? `ALTER TABLE \`${p3.table}\` ALTER COLUMN \`${p3.column}\` SET DEFAULT ${p3.newDefault};` : `ALTER TABLE \`${p3.table}\` ALTER COLUMN \`${p3.column}\` DROP DEFAULT;`;
+      case "setColumnNullable":
+        return p3.nullable ? `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` NULL;` : `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` NOT NULL;`;
+      case "setColumnAutoIncrement":
+        return p3.autoIncrement ? `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\` AUTO_INCREMENT;` : `ALTER TABLE \`${p3.table}\` MODIFY COLUMN \`${p3.column}\`;`;
+      case "setColumnUnique":
+        return p3.unique ? `ALTER TABLE \`${p3.table}\` ADD UNIQUE (\`${p3.column}\`);` : `ALTER TABLE \`${p3.table}\` DROP INDEX \`${p3.column}\`;`;
+      case "addPrimaryKey": {
+        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p3.table}\` ADD PRIMARY KEY (${cols});`;
+      }
+      case "dropPrimaryKey":
+        return `ALTER TABLE \`${p3.table}\` DROP PRIMARY KEY;`;
+      case "addForeignKey": {
+        const name = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
+        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
+        const refCols = p3.refColumns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p3.table}\` ADD CONSTRAINT \`${name}\` FOREIGN KEY (${cols}) REFERENCES \`${p3.refTable}\`(${refCols}) ON DELETE ${p3.onDelete} ON UPDATE ${p3.onUpdate};`;
+      }
+      case "dropForeignKey":
+        return `ALTER TABLE \`${p3.table}\` DROP FOREIGN KEY \`${p3.name}\`;`;
+      case "addUniqueConstraint": {
+        const name = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
+        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p3.table}\` ADD CONSTRAINT \`${name}\` UNIQUE (${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `ALTER TABLE \`${p3.table}\` DROP INDEX \`${p3.name}\`;`;
+      case "createIndex": {
+        const unique = p3.unique ? "UNIQUE " : "";
+        const cols = p3.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `CREATE ${unique}INDEX \`${p3.name}\` ON \`${p3.table}\`(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX \`${p3.name}\` ON \`${p3.table}\`;`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
+// src/features/migration/sql-generator/postgresql-generator.ts
+var PostgreSQLGenerator = class {
+  dialect = "postgresql";
+  generate(op) {
+    const p3 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p3.columns ?? [];
+        const colDefs = columns.map((c3) => {
+          const isSerial = c3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(c3.dataType);
+          let def;
+          if (isSerial) {
+            const serialType = /^BIGINT/i.test(c3.dataType) ? "BIGSERIAL" : "SERIAL";
+            def = `  "${c3.name}" ${serialType}`;
+          } else {
+            def = `  "${c3.name}" ${c3.dataType}`;
+            if (c3.length) def += `(${c3.length})`;
+          }
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null && !isSerial) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          return def;
+        });
+        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `"${c3.name}"`);
+        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        const schemaPrefix = p3.schema ? `"${p3.schema}".` : "";
+        let sql = `CREATE TABLE ${schemaPrefix}"${p3.name}" (
+${colDefs.join(",\n")}
+)`;
+        if (p3.comment) sql += `;
+COMMENT ON TABLE ${schemaPrefix}"${p3.name}" IS '${p3.comment}'`;
+        return sql + ";";
+      }
+      case "dropTable": {
+        const schemaPrefix = p3.schema ? `"${p3.schema}".` : "";
+        return `DROP TABLE IF EXISTS ${schemaPrefix}"${p3.name}" CASCADE;`;
+      }
+      case "renameTable":
+        return `ALTER TABLE "${p3.oldName}" RENAME TO "${p3.newName}";`;
+      case "addColumn": {
+        const isSerial = p3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(p3.dataType ?? "");
+        let colType;
+        if (isSerial) {
+          colType = /^BIGINT/i.test(p3.dataType ?? "") ? "BIGSERIAL" : "SERIAL";
+        } else {
+          colType = p3.dataType ?? "VARCHAR(255)";
+        }
+        let sql = `ALTER TABLE "${p3.table}" ADD COLUMN "${p3.name}" ${colType}`;
+        if (!(p3.nullable ?? true)) sql += " NOT NULL";
+        if (p3.defaultValue != null && !isSerial) sql += ` DEFAULT ${p3.defaultValue}`;
+        if (p3.isUnique) sql += " UNIQUE";
+        return sql + ";";
+      }
+      case "dropColumn":
+        return `ALTER TABLE "${p3.table}" DROP COLUMN "${p3.name}";`;
+      case "renameColumn":
+        return `ALTER TABLE "${p3.table}" RENAME COLUMN "${p3.oldName}" TO "${p3.newName}";`;
+      case "modifyColumnType":
+        return `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" TYPE ${p3.newType};`;
+      case "modifyColumnDefault":
+        return p3.newDefault != null ? `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET DEFAULT ${p3.newDefault};` : `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP DEFAULT;`;
+      case "setColumnNullable":
+        return p3.nullable ? `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP NOT NULL;` : `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET NOT NULL;`;
+      case "setColumnAutoIncrement": {
+        const seqName = `${p3.table}_${p3.column}_seq`;
+        if (p3.autoIncrement) {
+          return [
+            `CREATE SEQUENCE "${seqName}";`,
+            `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" SET DEFAULT nextval('"${seqName}"');`,
+            `ALTER SEQUENCE "${seqName}" OWNED BY "${p3.table}"."${p3.column}";`
+          ].join("\n");
+        }
+        return `ALTER TABLE "${p3.table}" ALTER COLUMN "${p3.column}" DROP DEFAULT;`;
+      }
+      case "setColumnUnique":
+        if (p3.unique) {
+          const constraintName = `uq_${p3.table}_${p3.column}`;
+          return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${constraintName}" UNIQUE ("${p3.column}");`;
+        }
+        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "uq_${p3.table}_${p3.column}";`;
+      case "addPrimaryKey": {
+        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p3.table}" ADD PRIMARY KEY (${cols});`;
+      }
+      case "dropPrimaryKey":
+        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT "${p3.table}_pkey";`;
+      case "addForeignKey": {
+        const name = p3.name ?? `fk_${p3.table}_${p3.columns[0]}`;
+        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
+        const refCols = p3.refColumns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${name}" FOREIGN KEY (${cols}) REFERENCES "${p3.refTable}"(${refCols}) ON DELETE ${p3.onDelete} ON UPDATE ${p3.onUpdate};`;
+      }
+      case "dropForeignKey":
+        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "${p3.name}";`;
+      case "addUniqueConstraint": {
+        const name = p3.name ?? `uq_${p3.table}_${p3.columns[0]}`;
+        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p3.table}" ADD CONSTRAINT "${name}" UNIQUE (${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `ALTER TABLE "${p3.table}" DROP CONSTRAINT IF EXISTS "${p3.name}";`;
+      case "createIndex": {
+        const unique = p3.unique ? "UNIQUE " : "";
+        const cols = p3.columns.map((c3) => `"${c3}"`).join(", ");
+        return `CREATE ${unique}INDEX "${p3.name}" ON "${p3.table}"(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX IF EXISTS "${p3.name}";`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
+// src/features/migration/sql-generator/index.ts
+var generators = {
+  mysql: new MySQLGenerator(),
+  postgresql: new PostgreSQLGenerator()
+};
+function getSQLGenerator(dialect) {
+  return generators[dialect];
 }
 
 // src/features/migration/diff.ts
@@ -89089,12 +89008,6 @@ function registerCommands(ctx, store) {
     }
     if (anyFailed) {
       return { ok: false, code: "BATCH_FAILED", message: "batch completed with failures", failedAt, results };
-    }
-    if (p3.title && typeof store.getState().commitVersion === "function") {
-      try {
-        store.getState().commitVersion(p3.title);
-      } catch {
-      }
     }
     return { ok: true, results };
   }, {

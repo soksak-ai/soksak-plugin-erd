@@ -7,7 +7,6 @@ import { setAutoFreeze } from 'immer';
 import { createSchemaSlice } from '@/store/slices/schema-slice';
 import { createDiagramSlice } from '@/store/slices/diagram-slice';
 import { createUISlice } from '@/store/slices/ui-slice';
-import { createMigrationSlice } from '@/store/slices/migration-slice';
 import type { StoreState } from '@/store/index';
 import { registerCommands } from './commands';
 import {
@@ -27,7 +26,6 @@ function makeStore() {
       ...createSchemaSlice(...a),
       ...createDiagramSlice(...a),
       ...createUISlice(...a),
-      ...createMigrationSlice(...a),
     })),
   );
 }

@@ -45,10 +45,6 @@ export function FileMenu() {
         collapsedNodes: state.collapsedNodes,
         viewport: state.viewport,
       },
-      migrations: {
-        versions: state.migrationHistory,
-        uncommittedOps: state.uncommittedOps,
-      },
     };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
     downloadBlob(blob, 'project.erd.json');
@@ -83,13 +79,8 @@ export function FileMenu() {
             });
           }
 
-          // Save 가 쓰는 migrations 블록을 대칭 복원한다(무단 폐기 금지).
-          if (project.migrations) {
-            useStore.setState({
-              migrationHistory: project.migrations.versions ?? [],
-              uncommittedOps: project.migrations.uncommittedOps ?? [],
-            });
-          }
+          // 구버전 .erd.json 의 migrations 블록은 무시한다 — 항상 비어 있던 데드 op-log 였고,
+          // 실제 마이그레이션 채널은 파일 기반 .mig DSL 이다.
           const n = Object.keys(project.schema?.tables ?? {}).length;
           toast(`${file.name} 을 열었습니다 (테이블 ${n}개)`, 'success');
         } catch (err) {
