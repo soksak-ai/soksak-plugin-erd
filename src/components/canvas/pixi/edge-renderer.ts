@@ -17,6 +17,8 @@ export interface EdgeData {
   targetId: string;  // target table ID
   type: RelationType;
   selected: boolean;
+  // 선택된 테이블(노드)에 연결된 엣지 — 직접 선택은 아니나 강조 대상(선택 전파).
+  related?: boolean;
   hovered?: boolean;
   lineStyle?: 'dashed' | 'solid';
   sourceAnchor?: { side: PortSide; offset: number };
@@ -171,7 +173,7 @@ export class EdgeRenderer {
 
       if (isDot) {
         // DOT LOD: straight line, thin, semi-transparent
-        const color = edge.selected ? COLORS.edgeSelected : 0x3f3f46;
+        const color = edge.selected ? COLORS.edgeSelected : (edge.related ? 0x60a5fa : 0x3f3f46);
         const bucket = this.getBucket(color, 0.5, 0.5);
         bucket
           .moveTo(src.x, src.y)
@@ -180,11 +182,13 @@ export class EdgeRenderer {
       }
 
       const isSelected = edge.selected;
+      const isRelated = edge.related === true && !isSelected;
       const isHovered = edge.hovered === true;
       const isDashed = (edge.lineStyle ?? 'dashed') === 'dashed';
       const color = isSelected ? COLORS.edgeSelected : COLORS.edge;
-      const lineWidth = isSelected ? 1.5 : (isHovered ? 1.35 : 1);
-      const lineColor = isSelected ? color : (isHovered ? 0x93c5fd : 0x4b5563);
+      // 선택 전파 강조 위계: selected(1.5, 파랑) > related(1.35, 밝은 파랑) > hover(1.35, 연파랑) > 기본(1, 회색).
+      const lineWidth = isSelected ? 1.5 : (isRelated || isHovered ? 1.35 : 1);
+      const lineColor = isSelected ? color : (isRelated ? 0x60a5fa : (isHovered ? 0x93c5fd : 0x4b5563));
 
       const srcDir = portDirection(sourceSide);
       const tgtDir = portDirection(targetSide);

@@ -20,6 +20,7 @@ import { TableNodeRenderer } from './table-node';
 import type { TableNodeData } from './table-node';
 import { EdgeRenderer } from './edge-renderer';
 import type { NodeEndpoint, EdgeData } from './edge-renderer';
+import { buildEdgeData } from './edge-data';
 import { NODE_WIDTH, COLORS, getLOD, LOD } from './constants';
 import { CanvasContextMenu } from '../CanvasContextMenu';
 import { PixiCanvasProvider } from './PixiCanvasContext';
@@ -80,40 +81,6 @@ function computeFKColumnIds(
     }
   }
   return byTable;
-}
-
-function buildEdgeData(
-  relationships: Record<string, {
-    id: string;
-    sourceTableId: string;
-    targetTableId: string;
-    type: string;
-    lineStyle?: 'dashed' | 'solid';
-    sourceAnchor?: { side: AnchorSide; offset: number };
-    targetAnchor?: { side: AnchorSide; offset: number };
-    bendPoints?: Array<{ x: number; y: number }>;
-  }>,
-  selectedEdgeIds: string[],
-): EdgeData[] {
-  const selected = new Set(selectedEdgeIds);
-  return Object.values(relationships).map(r => ({
-    // Legacy/accidental single-bend routes produce harsh V-shapes.
-    // Keep bends only when there are 2+ points or custom anchors exist.
-    // (single bend without anchors is treated as noise)
-    bendPoints: (
-      (r.bendPoints?.length ?? 0) >= 2 || r.sourceAnchor || r.targetAnchor
-        ? r.bendPoints
-        : undefined
-    ),
-    id: r.id,
-    sourceId: r.sourceTableId,
-    targetId: r.targetTableId,
-    type: r.type as EdgeData['type'],
-    selected: selected.has(r.id),
-    lineStyle: r.lineStyle,
-    sourceAnchor: r.sourceAnchor,
-    targetAnchor: r.targetAnchor,
-  }));
 }
 
 function pickRelationshipColumns(
@@ -1194,11 +1161,12 @@ export function PixiERDCanvas() {
     prevSelectedNodeIdsRef.current = next;
   }, [selectedNodeIds]);
 
-  // Edge selection change
+  // Edge selection change — 엣지 직접 선택 + 노드 선택 전파(related) 둘 다에 반응한다.
   useEffect(() => {
     const allEdges = buildEdgeData(
       useStore.getState().relationships,
       useStore.getState().selectedEdgeIds,
+      useStore.getState().selectedNodeIds,
     );
     edgeDataRef.current = allEdges;
     const byNode = new Map<string, EdgeData[]>();
@@ -1218,7 +1186,7 @@ export function PixiERDCanvas() {
     cachedWorkerEndpointsRef.current = null;
     edgeDirty.current = true;
     wakeRenderLoop();
-  }, [relationships, selectedEdgeIds]);
+  }, [relationships, selectedEdgeIds, selectedNodeIds]);
 
   // Grid visibility change
   useEffect(() => {

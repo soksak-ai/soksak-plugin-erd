@@ -80024,17 +80024,18 @@ var EdgeRenderer = class {
       if (!edge.targetAnchor) this.applyLaneShift(tgt, targetNode, targetSide, laneShifts.get(`${edge.id}|target`) ?? 0);
       const bends = edge.bendPoints ?? [];
       if (isDot) {
-        const color2 = edge.selected ? COLORS.edgeSelected : 4144966;
+        const color2 = edge.selected ? COLORS.edgeSelected : edge.related ? 6333946 : 4144966;
         const bucket = this.getBucket(color2, 0.5, 0.5);
         bucket.moveTo(src.x, src.y).lineTo(tgt.x, tgt.y);
         continue;
       }
       const isSelected = edge.selected;
+      const isRelated = edge.related === true && !isSelected;
       const isHovered = edge.hovered === true;
       const isDashed = (edge.lineStyle ?? "dashed") === "dashed";
       const color = isSelected ? COLORS.edgeSelected : COLORS.edge;
-      const lineWidth = isSelected ? 1.5 : isHovered ? 1.35 : 1;
-      const lineColor = isSelected ? color : isHovered ? 9684477 : 4937059;
+      const lineWidth = isSelected ? 1.5 : isRelated || isHovered ? 1.35 : 1;
+      const lineColor = isSelected ? color : isRelated ? 6333946 : isHovered ? 9684477 : 4937059;
       const srcDir = portDirection(sourceSide);
       const tgtDir = portDirection(targetSide);
       let autoPolyline = this.routingMode === "ortho_short" ? this.buildOrthoPolyline(src, tgt, sourceSide, targetSide) : [src, tgt];
@@ -80344,6 +80345,27 @@ function distancePointToSegment(px, py, a3, b3) {
   return Math.hypot(px - cx2, py - cy);
 }
 
+// src/components/canvas/pixi/edge-data.ts
+function buildEdgeData(relationships, selectedEdgeIds, selectedNodeIds = []) {
+  const selectedEdges = new Set(selectedEdgeIds);
+  const selectedNodes = new Set(selectedNodeIds);
+  return Object.values(relationships).map((r4) => ({
+    // Legacy/accidental single-bend routes produce harsh V-shapes.
+    // Keep bends only when there are 2+ points or custom anchors exist.
+    bendPoints: (r4.bendPoints?.length ?? 0) >= 2 || r4.sourceAnchor || r4.targetAnchor ? r4.bendPoints : void 0,
+    id: r4.id,
+    sourceId: r4.sourceTableId,
+    targetId: r4.targetTableId,
+    type: r4.type,
+    selected: selectedEdges.has(r4.id),
+    // 직접 선택되지 않았어도 선택된 테이블에 연결된 엣지는 related 로 강조한다.
+    related: selectedNodes.has(r4.sourceTableId) || selectedNodes.has(r4.targetTableId),
+    lineStyle: r4.lineStyle,
+    sourceAnchor: r4.sourceAnchor,
+    targetAnchor: r4.targetAnchor
+  }));
+}
+
 // src/components/canvas/CanvasContextMenu.tsx
 var import_react21 = __toESM(require_react(), 1);
 
@@ -80568,23 +80590,6 @@ function computeFKColumnIds(relationships) {
     }
   }
   return byTable;
-}
-function buildEdgeData(relationships, selectedEdgeIds) {
-  const selected = new Set(selectedEdgeIds);
-  return Object.values(relationships).map((r4) => ({
-    // Legacy/accidental single-bend routes produce harsh V-shapes.
-    // Keep bends only when there are 2+ points or custom anchors exist.
-    // (single bend without anchors is treated as noise)
-    bendPoints: (r4.bendPoints?.length ?? 0) >= 2 || r4.sourceAnchor || r4.targetAnchor ? r4.bendPoints : void 0,
-    id: r4.id,
-    sourceId: r4.sourceTableId,
-    targetId: r4.targetTableId,
-    type: r4.type,
-    selected: selected.has(r4.id),
-    lineStyle: r4.lineStyle,
-    sourceAnchor: r4.sourceAnchor,
-    targetAnchor: r4.targetAnchor
-  }));
 }
 function pickRelationshipColumns(sourceTable, targetTable) {
   const sourcePks = sourceTable.columns.filter((c3) => c3.isPrimaryKey);
@@ -81466,7 +81471,8 @@ function PixiERDCanvas() {
   (0, import_react22.useEffect)(() => {
     const allEdges = buildEdgeData(
       useStore2.getState().relationships,
-      useStore2.getState().selectedEdgeIds
+      useStore2.getState().selectedEdgeIds,
+      useStore2.getState().selectedNodeIds
     );
     edgeDataRef.current = allEdges;
     const byNode = /* @__PURE__ */ new Map();
@@ -81486,7 +81492,7 @@ function PixiERDCanvas() {
     cachedWorkerEndpointsRef.current = null;
     edgeDirty.current = true;
     wakeRenderLoop();
-  }, [relationships, selectedEdgeIds]);
+  }, [relationships, selectedEdgeIds, selectedNodeIds]);
   (0, import_react22.useEffect)(() => {
     camDirty.current = true;
     wakeRenderLoop();
