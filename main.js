@@ -57684,6 +57684,7 @@ var createUISlice = (set2) => ({
   showOnlySelectedRelatedEdges: false,
   edgeWorkerEnabled: false,
   edgeRoutingMode: "direct",
+  notationStyle: "crowsfoot",
   relationshipCreateMode: null,
   relationshipCreateSourceTableId: null,
   hoveredRow: null,
@@ -57750,6 +57751,9 @@ var createUISlice = (set2) => ({
     if (prefs.edgeRoutingMode === "direct" || prefs.edgeRoutingMode === "ortho_short") {
       state.edgeRoutingMode = prefs.edgeRoutingMode;
     }
+    if (prefs.notationStyle === "crowsfoot" || prefs.notationStyle === "numeric") {
+      state.notationStyle = prefs.notationStyle;
+    }
     if (bool(prefs.edgeWorkerEnabled)) state.edgeWorkerEnabled = prefs.edgeWorkerEnabled;
     if (size4(prefs.leftWidth)) state.leftWidth = prefs.leftWidth;
     if (size4(prefs.rightWidth)) state.rightWidth = prefs.rightWidth;
@@ -57790,6 +57794,9 @@ var createUISlice = (set2) => ({
   }),
   toggleEdgeWorkerEnabled: () => set2((state) => {
     state.edgeWorkerEnabled = !state.edgeWorkerEnabled;
+  }),
+  setNotationStyle: (style) => set2((state) => {
+    state.notationStyle = style;
   }),
   setEdgeRoutingMode: (mode) => set2((state) => {
     state.edgeRoutingMode = mode;
@@ -71755,6 +71762,8 @@ function ViewMenu() {
   const showOnlySelectedRelatedEdges = useStore2((s3) => s3.showOnlySelectedRelatedEdges);
   const edgeWorkerEnabled = useStore2((s3) => s3.edgeWorkerEnabled);
   const edgeRoutingMode = useStore2((s3) => s3.edgeRoutingMode);
+  const notationStyle = useStore2((s3) => s3.notationStyle);
+  const setNotationStyle = useStore2((s3) => s3.setNotationStyle);
   const toggleLeftSidebar = useStore2((s3) => s3.toggleLeftSidebar);
   const toggleRightSidebar = useStore2((s3) => s3.toggleRightSidebar);
   const toggleBottomPanel = useStore2((s3) => s3.toggleBottomPanel);
@@ -71808,6 +71817,19 @@ function ViewMenu() {
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuRadioItem2, { value: "direct", children: "Direct" }),
             /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuRadioItem2, { value: "ortho_short", children: "Ortho (0/1 bend + lane gap)" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuSeparator2, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuLabel2, { children: "Notation" }),
+      /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(
+        DropdownMenuRadioGroup2,
+        {
+          value: notationStyle,
+          onValueChange: (v4) => setNotationStyle(v4),
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuRadioItem2, { value: "crowsfoot", "data-node": "notation/crowsfoot", children: "Crow's Foot" }),
+            /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(DropdownMenuRadioItem2, { value: "numeric", "data-node": "notation/numeric", children: "Numeric (1 / N / 0..1)" })
           ]
         }
       ),
@@ -81281,7 +81303,24 @@ function drawTargetMarker(g3, x3, y4, angle, type, color = 5395035, lineWidth = 
   }
 }
 
+// src/features/relationship/cardinality.ts
+function cardinalityLabels(type, optional) {
+  const one = optional ? "0..1" : "1";
+  switch (type) {
+    case "1:1":
+      return { source: one, target: "1" };
+    case "N:M":
+      return { source: "N", target: "M" };
+    case "1:N":
+    default:
+      return { source: one, target: "N" };
+  }
+}
+
 // src/components/canvas/pixi/edge-renderer.ts
+var CARDINALITY_STYLE = new TextStyle({ fontFamily: FONT_FAMILY, fontSize: 12, fontWeight: "bold", fill: 16777215 });
+var LABEL_ALONG = 15;
+var LABEL_PERP = 9;
 function getPort(node, side, offset4 = 0.5) {
   const o3 = Math.max(0, Math.min(1, offset4));
   switch (side) {
@@ -81339,16 +81378,48 @@ var EdgeRenderer = class {
   gfxBuckets = /* @__PURE__ */ new Map();
   activeBucketKeys = /* @__PURE__ */ new Set();
   markerGfx;
+  /** Numeric-notation endpoint labels (pooled Text, reused across redraws). */
+  labelLayer;
+  labelPool = [];
+  labelUsed = 0;
   /** Current LOD level. */
   lod = LOD.FULL;
   interactionSimplified = false;
   routingMode = "direct";
+  notation = "crowsfoot";
   handles = [];
   edgePolylines = /* @__PURE__ */ new Map();
   constructor() {
     this.container = new Container();
     this.markerGfx = new Graphics();
     this.container.addChild(this.markerGfx);
+    this.labelLayer = new Container();
+    this.container.addChild(this.labelLayer);
+  }
+  // Acquire a pooled label Text (creating lazily), positioned/tinted by the caller.
+  acquireLabel() {
+    let t4 = this.labelPool[this.labelUsed];
+    if (!t4) {
+      t4 = new Text({ text: "", style: CARDINALITY_STYLE });
+      t4.anchor.set(0.5, 0.5);
+      this.labelLayer.addChild(t4);
+      this.labelPool[this.labelUsed] = t4;
+    }
+    this.labelUsed++;
+    return t4;
+  }
+  // Place a cardinality label near an endpoint: offset along the edge (away from the table) and
+  // perpendicular so it clears the line. `label` empty → nothing drawn.
+  placeLabel(x3, y4, angle, label, color) {
+    if (!label) return;
+    const t4 = this.acquireLabel();
+    t4.text = label;
+    t4.tint = color;
+    t4.position.set(
+      x3 + Math.cos(angle) * LABEL_ALONG - Math.sin(angle) * LABEL_PERP,
+      y4 + Math.sin(angle) * LABEL_ALONG + Math.cos(angle) * LABEL_PERP
+    );
+    t4.visible = true;
   }
   // -------------------------------------------------------------------------
   // Public API
@@ -81367,6 +81438,7 @@ var EdgeRenderer = class {
     for (const [, gfx] of this.gfxBuckets) gfx.clear();
     this.handles = [];
     this.edgePolylines.clear();
+    this.labelUsed = 0;
     const forceSimple = edges.length >= HEAVY_EDGE_THRESHOLD;
     const isFull = this.lod === LOD.FULL && !forceSimple;
     const isDot = this.lod === LOD.DOT;
@@ -81455,9 +81527,15 @@ var EdgeRenderer = class {
       }
       if (isFull && !simplify) {
         const srcAngle = portAngle(sourceSide);
-        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
         const tgtAngle = portAngle(targetSide);
-        drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
+        if (this.notation === "numeric") {
+          const c3 = cardinalityLabels(edge.type, edge.optional ?? false);
+          this.placeLabel(src.x, src.y, srcAngle, c3.source, lineColor);
+          this.placeLabel(tgt.x, tgt.y, tgtAngle, c3.target, lineColor);
+        } else {
+          drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
+          drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
+        }
       }
       if (edge.selected && !isDot) {
         this.drawHandle(src.x, src.y, "#22d3ee");
@@ -81466,6 +81544,7 @@ var EdgeRenderer = class {
         this.handles.push({ edgeId: edge.id, kind: "targetAnchor", x: tgt.x, y: tgt.y });
       }
     }
+    for (let i3 = this.labelUsed; i3 < this.labelPool.length; i3++) this.labelPool[i3].visible = false;
     for (const key of this.activeBucketKeys) {
       const gfx = this.gfxBuckets.get(key);
       if (!gfx) continue;
@@ -81492,6 +81571,9 @@ var EdgeRenderer = class {
   }
   setRoutingMode(mode) {
     this.routingMode = mode;
+  }
+  setNotation(notation) {
+    this.notation = notation;
   }
   hitTestHandle(worldX, worldY, radius = 10) {
     const r22 = radius * radius;
@@ -82128,6 +82210,7 @@ function PixiERDCanvas() {
   const positionsSyncGenRef = (0, import_react24.useRef)(0);
   const qualityRef = (0, import_react24.useRef)(1);
   const routingModeRef = (0, import_react24.useRef)("direct");
+  const notationStyleRef = (0, import_react24.useRef)("crowsfoot");
   const edgeDataRef = (0, import_react24.useRef)([]);
   const edgeIndexByNodeRef = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
   const edgeByIdRef = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
@@ -82194,6 +82277,7 @@ function PixiERDCanvas() {
   const showOnlySelectedRelatedEdges = useStore2((s3) => s3.showOnlySelectedRelatedEdges);
   const edgeWorkerEnabled = useStore2((s3) => s3.edgeWorkerEnabled);
   const edgeRoutingMode = useStore2((s3) => s3.edgeRoutingMode);
+  const notationStyle = useStore2((s3) => s3.notationStyle);
   const autoLayoutTrigger = useStore2((s3) => s3.autoLayoutTrigger);
   const hoveredRow = useStore2((s3) => s3.hoveredRow);
   (0, import_react24.useEffect)(() => {
@@ -82221,6 +82305,12 @@ function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [edgeRoutingMode]);
+  (0, import_react24.useEffect)(() => {
+    notationStyleRef.current = notationStyle;
+    edgeRendererRef.current?.setNotation(notationStyle);
+    edgeDirty.current = true;
+    wakeRenderLoop();
+  }, [notationStyle]);
   useHostThemeEpoch(() => {
     applyCanvasColors(computeCanvasPalette(document.documentElement));
     refreshTableTextStyles();
@@ -82283,6 +82373,7 @@ function PixiERDCanvas() {
       worldRef.current = world;
       const edgeRenderer = new EdgeRenderer();
       edgeRenderer.setRoutingMode(routingModeRef.current);
+      edgeRenderer.setNotation(notationStyleRef.current);
       world.addChild(edgeRenderer.container);
       edgeRendererRef.current = edgeRenderer;
       edgeRenderer.container.visible = true;
@@ -90503,6 +90594,23 @@ function registerCommands(ctx, store) {
     tables: { type: "json", description: "Table names or ids to select" }
   });
   add2(
+    "set-notation",
+    "Set the relationship notation style (crowsfoot | numeric). Persisted as a chrome preference.",
+    { ko: "\uD45C\uAE30\uBC95 \uC124\uC815 \uD06C\uB85C\uC6B0\uD48B \uC22B\uC790 \uAD00\uACC4 \uD45C\uC2DC" },
+    (d3) => `\uD45C\uAE30\uBC95\uC744 ${d3.style === "numeric" ? "\uC22B\uC790" : "\uD06C\uB85C\uC6B0\uD48B"}\uC73C\uB85C \uC124\uC815\uD588\uC2B5\uB2C8\uB2E4`,
+    (p4) => {
+      const style = p4.style;
+      if (style !== "crowsfoot" && style !== "numeric") {
+        return { ok: false, code: "INVALID_PARAMS", message: "style must be 'crowsfoot' or 'numeric'" };
+      }
+      store.getState().setNotationStyle(style);
+      return { ok: true, style };
+    },
+    {
+      style: { type: "string", enum: ["crowsfoot", "numeric"], description: "Notation style: 'crowsfoot' or 'numeric'" }
+    }
+  );
+  add2(
     "hover-row",
     "Highlight one table column row on the canvas (agent emphasis / hover surface), or clear it",
     { ko: "\uD589 \uAC15\uC870 hover \uCEEC\uB7FC \uD45C\uC2DC \uD574\uC81C" },
@@ -91083,6 +91191,7 @@ function serializePrefs(s3) {
       showOnlyVisibleRelatedEdges: s3.showOnlyVisibleRelatedEdges,
       showOnlySelectedRelatedEdges: s3.showOnlySelectedRelatedEdges,
       edgeRoutingMode: s3.edgeRoutingMode,
+      notationStyle: s3.notationStyle,
       edgeWorkerEnabled: s3.edgeWorkerEnabled,
       leftWidth: s3.leftWidth,
       rightWidth: s3.rightWidth,
@@ -91095,7 +91204,7 @@ function applyPrefs(store, doc) {
   store.getState().applyChromePrefs(prefs);
 }
 function prefsChanged(s3, p4) {
-  return s3.leftSidebarOpen !== p4.leftSidebarOpen || s3.rightSidebarOpen !== p4.rightSidebarOpen || s3.bottomPanelOpen !== p4.bottomPanelOpen || s3.bottomPanelTab !== p4.bottomPanelTab || s3.showMinimap !== p4.showMinimap || s3.showGrid !== p4.showGrid || s3.renderQualityLevel !== p4.renderQualityLevel || s3.showOnlyVisibleRelatedEdges !== p4.showOnlyVisibleRelatedEdges || s3.showOnlySelectedRelatedEdges !== p4.showOnlySelectedRelatedEdges || s3.edgeRoutingMode !== p4.edgeRoutingMode || s3.edgeWorkerEnabled !== p4.edgeWorkerEnabled || s3.leftWidth !== p4.leftWidth || s3.rightWidth !== p4.rightWidth || s3.bottomHeight !== p4.bottomHeight;
+  return s3.leftSidebarOpen !== p4.leftSidebarOpen || s3.rightSidebarOpen !== p4.rightSidebarOpen || s3.bottomPanelOpen !== p4.bottomPanelOpen || s3.bottomPanelTab !== p4.bottomPanelTab || s3.showMinimap !== p4.showMinimap || s3.showGrid !== p4.showGrid || s3.renderQualityLevel !== p4.renderQualityLevel || s3.showOnlyVisibleRelatedEdges !== p4.showOnlyVisibleRelatedEdges || s3.showOnlySelectedRelatedEdges !== p4.showOnlySelectedRelatedEdges || s3.edgeRoutingMode !== p4.edgeRoutingMode || s3.notationStyle !== p4.notationStyle || s3.edgeWorkerEnabled !== p4.edgeWorkerEnabled || s3.leftWidth !== p4.leftWidth || s3.rightWidth !== p4.rightWidth || s3.bottomHeight !== p4.bottomHeight;
 }
 function createPrefsPersistence(kv, store) {
   return createDurableDoc(kv, store, {

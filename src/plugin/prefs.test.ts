@@ -98,6 +98,7 @@ describe('chrome-prefs 영속 계약', () => {
     s.setRenderQualityLevel(2);     // 1 → 2
     s.toggleMinimap();              // true → false
     s.setEdgeRoutingMode('ortho_short');
+    s.setNotationStyle('numeric'); // crowsfoot → numeric
     s.setPanelSizes({ leftWidth: 300, rightWidth: 360, bottomHeight: 200 });
 
     const flushed = await a.call('prefs-flush');
@@ -113,6 +114,7 @@ describe('chrome-prefs 영속 계약', () => {
     expect(sb.renderQualityLevel).toBe(2);
     expect(sb.showMinimap).toBe(false);
     expect(sb.edgeRoutingMode).toBe('ortho_short');
+    expect(sb.notationStyle).toBe('numeric');
     expect(sb.leftWidth).toBe(300);
     expect(sb.rightWidth).toBe(360);
     expect(sb.bottomHeight).toBe(200);
@@ -125,6 +127,7 @@ describe('chrome-prefs 영속 계약', () => {
     expect(st.values.renderQualityLevel).toBe(2);
     expect(st.values.leftSidebarOpen).toBe(false);
     expect(st.values.leftWidth).toBe(300);
+    expect(st.values.notationStyle).toBe('numeric');
   });
 
   it('prefs-status 는 현재 크롬 값을 읽을 수 있는 상태면으로 노출한다(R7)', async () => {

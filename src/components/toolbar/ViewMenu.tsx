@@ -23,6 +23,8 @@ export function ViewMenu() {
   const showOnlySelectedRelatedEdges = useStore((s) => s.showOnlySelectedRelatedEdges);
   const edgeWorkerEnabled = useStore((s) => s.edgeWorkerEnabled);
   const edgeRoutingMode = useStore((s) => s.edgeRoutingMode);
+  const notationStyle = useStore((s) => s.notationStyle);
+  const setNotationStyle = useStore((s) => s.setNotationStyle);
   const toggleLeftSidebar = useStore((s) => s.toggleLeftSidebar);
   const toggleRightSidebar = useStore((s) => s.toggleRightSidebar);
   const toggleBottomPanel = useStore((s) => s.toggleBottomPanel);
@@ -84,6 +86,15 @@ export function ViewMenu() {
         >
           <DropdownMenuRadioItem value="direct">Direct</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="ortho_short">Ortho (0/1 bend + lane gap)</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Notation</DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={notationStyle}
+          onValueChange={(v) => setNotationStyle(v as 'crowsfoot' | 'numeric')}
+        >
+          <DropdownMenuRadioItem value="crowsfoot" data-node="notation/crowsfoot">Crow's Foot</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="numeric" data-node="notation/numeric">Numeric (1 / N / 0..1)</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Render Quality</DropdownMenuLabel>

@@ -17,6 +17,7 @@ export interface ChromePrefsInput {
   showOnlyVisibleRelatedEdges?: boolean;
   showOnlySelectedRelatedEdges?: boolean;
   edgeRoutingMode?: 'direct' | 'ortho_short';
+  notationStyle?: 'crowsfoot' | 'numeric';
   edgeWorkerEnabled?: boolean;
   leftWidth?: number;
   rightWidth?: number;
@@ -51,6 +52,7 @@ export interface UISlice {
   showOnlySelectedRelatedEdges: boolean;
   edgeWorkerEnabled: boolean;
   edgeRoutingMode: 'direct' | 'ortho_short';
+  notationStyle: 'crowsfoot' | 'numeric';
   relationshipCreateMode: null | '1:N' | '1:1' | '1|N' | '1|1';
   relationshipCreateSourceTableId: string | null;
   // 호버(또는 에이전트가 강조)한 컬럼 행 — 일시 UI 상태(영속 안 함, selection 과 동급).
@@ -94,6 +96,7 @@ export interface UISlice {
   toggleOnlySelectedRelatedEdges: () => void;
   toggleEdgeWorkerEnabled: () => void;
   setEdgeRoutingMode: (mode: 'direct' | 'ortho_short') => void;
+  setNotationStyle: (style: 'crowsfoot' | 'numeric') => void;
   setPanelSizes: (sizes: { leftWidth?: number; rightWidth?: number; bottomHeight?: number }) => void;
   applyChromePrefs: (prefs: ChromePrefsInput) => void;
   setRelationshipCreateMode: (mode: null | '1:N' | '1:1' | '1|N' | '1|1') => void;
@@ -124,6 +127,7 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   showOnlySelectedRelatedEdges: false,
   edgeWorkerEnabled: false,
   edgeRoutingMode: 'direct',
+  notationStyle: 'crowsfoot',
   relationshipCreateMode: null,
   relationshipCreateSourceTableId: null,
   hoveredRow: null,
@@ -172,6 +176,9 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
     if (prefs.edgeRoutingMode === 'direct' || prefs.edgeRoutingMode === 'ortho_short') {
       state.edgeRoutingMode = prefs.edgeRoutingMode;
     }
+    if (prefs.notationStyle === 'crowsfoot' || prefs.notationStyle === 'numeric') {
+      state.notationStyle = prefs.notationStyle;
+    }
     if (bool(prefs.edgeWorkerEnabled)) state.edgeWorkerEnabled = prefs.edgeWorkerEnabled;
     if (size(prefs.leftWidth)) state.leftWidth = prefs.leftWidth;
     if (size(prefs.rightWidth)) state.rightWidth = prefs.rightWidth;
@@ -194,6 +201,9 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
   }),
   toggleEdgeWorkerEnabled: () => set((state) => {
     state.edgeWorkerEnabled = !state.edgeWorkerEnabled;
+  }),
+  setNotationStyle: (style) => set((state) => {
+    state.notationStyle = style;
   }),
   setEdgeRoutingMode: (mode) => set((state) => {
     state.edgeRoutingMode = mode;

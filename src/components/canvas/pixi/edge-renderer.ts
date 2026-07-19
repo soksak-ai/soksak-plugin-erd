@@ -2,10 +2,18 @@
 // Draws all edges as bezier curves with crow's foot notation markers
 // using a single PixiJS Graphics object for performance.
 
-import { Container, Graphics } from 'pixi.js';
+import { Container, Graphics, Text, TextStyle } from 'pixi.js';
 import type { RelationType } from '@/types/schema';
-import { COLORS, LOD } from './constants';
+import { COLORS, LOD, FONT_FAMILY } from './constants';
 import { drawSourceMarker, drawTargetMarker } from './erd-markers-pixi';
+import { cardinalityLabels } from '@/features/relationship/cardinality';
+
+export type NotationStyle = 'crowsfoot' | 'numeric';
+
+// Shared style for numeric-notation endpoint labels; per-label color comes from `.tint`.
+const CARDINALITY_STYLE = new TextStyle({ fontFamily: FONT_FAMILY, fontSize: 12, fontWeight: 'bold', fill: 0xffffff });
+const LABEL_ALONG = 15; // offset from the endpoint along the edge (world px)
+const LABEL_PERP = 9; // perpendicular offset so the label clears the line
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -114,11 +122,16 @@ export class EdgeRenderer {
   private readonly gfxBuckets = new Map<string, Graphics>();
   private readonly activeBucketKeys = new Set<string>();
   private readonly markerGfx: Graphics;
+  /** Numeric-notation endpoint labels (pooled Text, reused across redraws). */
+  private readonly labelLayer: Container;
+  private readonly labelPool: Text[] = [];
+  private labelUsed = 0;
 
   /** Current LOD level. */
   private lod: LOD = LOD.FULL;
   private interactionSimplified = false;
   private routingMode: RoutingMode = 'direct';
+  private notation: NotationStyle = 'crowsfoot';
   private handles: EdgeHandleHit[] = [];
   private edgePolylines = new Map<string, Array<{ x: number; y: number }>>();
 
@@ -126,6 +139,35 @@ export class EdgeRenderer {
     this.container = new Container();
     this.markerGfx = new Graphics();
     this.container.addChild(this.markerGfx);
+    this.labelLayer = new Container();
+    this.container.addChild(this.labelLayer);
+  }
+
+  // Acquire a pooled label Text (creating lazily), positioned/tinted by the caller.
+  private acquireLabel(): Text {
+    let t = this.labelPool[this.labelUsed];
+    if (!t) {
+      t = new Text({ text: '', style: CARDINALITY_STYLE });
+      t.anchor.set(0.5, 0.5);
+      this.labelLayer.addChild(t);
+      this.labelPool[this.labelUsed] = t;
+    }
+    this.labelUsed++;
+    return t;
+  }
+
+  // Place a cardinality label near an endpoint: offset along the edge (away from the table) and
+  // perpendicular so it clears the line. `label` empty → nothing drawn.
+  private placeLabel(x: number, y: number, angle: number, label: string, color: number): void {
+    if (!label) return;
+    const t = this.acquireLabel();
+    t.text = label;
+    t.tint = color;
+    t.position.set(
+      x + Math.cos(angle) * LABEL_ALONG - Math.sin(angle) * LABEL_PERP,
+      y + Math.sin(angle) * LABEL_ALONG + Math.cos(angle) * LABEL_PERP,
+    );
+    t.visible = true;
   }
 
   // -------------------------------------------------------------------------
@@ -149,6 +191,7 @@ export class EdgeRenderer {
     for (const [, gfx] of this.gfxBuckets) gfx.clear();
     this.handles = [];
     this.edgePolylines.clear();
+    this.labelUsed = 0;
 
     const forceSimple = edges.length >= HEAVY_EDGE_THRESHOLD;
     const isFull = this.lod === LOD.FULL && !forceSimple;
@@ -257,14 +300,18 @@ export class EdgeRenderer {
         this.drawEndpointCap(tgt.x, tgt.y, tgtDir.x, tgtDir.y, lineColor, lineWidth);
       }
 
-      // Crow's foot markers (always visible in FULL LOD)
+      // Endpoint notation (FULL LOD): crow's foot glyphs or numeric cardinality labels.
       if (isFull && !simplify) {
-        // Marker angle follows the side direction for consistent readability.
         const srcAngle = portAngle(sourceSide);
-        drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
-
         const tgtAngle = portAngle(targetSide);
-        drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
+        if (this.notation === 'numeric') {
+          const c = cardinalityLabels(edge.type, edge.optional ?? false);
+          this.placeLabel(src.x, src.y, srcAngle, c.source, lineColor);
+          this.placeLabel(tgt.x, tgt.y, tgtAngle, c.target, lineColor);
+        } else {
+          drawSourceMarker(this.markerGfx, src.x, src.y, srcAngle, edge.type, lineColor, lineWidth, edge.optional);
+          drawTargetMarker(this.markerGfx, tgt.x, tgt.y, tgtAngle, edge.type, lineColor, lineWidth);
+        }
       }
 
       if (edge.selected && !isDot) {
@@ -274,6 +321,9 @@ export class EdgeRenderer {
         this.handles.push({ edgeId: edge.id, kind: 'targetAnchor', x: tgt.x, y: tgt.y });
       }
     }
+
+    // Hide pooled labels left over from a denser frame / crow's foot mode.
+    for (let i = this.labelUsed; i < this.labelPool.length; i++) this.labelPool[i].visible = false;
 
     // One stroke per style bucket drastically reduces CPU/GPU command overhead.
     for (const key of this.activeBucketKeys) {
@@ -306,6 +356,10 @@ export class EdgeRenderer {
 
   setRoutingMode(mode: RoutingMode): void {
     this.routingMode = mode;
+  }
+
+  setNotation(notation: NotationStyle): void {
+    this.notation = notation;
   }
 
   hitTestHandle(worldX: number, worldY: number, radius = 10): EdgeHandleHit | null {

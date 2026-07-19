@@ -34,6 +34,7 @@ export interface ChromePrefs {
   showOnlyVisibleRelatedEdges: boolean;
   showOnlySelectedRelatedEdges: boolean;
   edgeRoutingMode: 'direct' | 'ortho_short';
+  notationStyle: 'crowsfoot' | 'numeric';
   edgeWorkerEnabled: boolean;
   leftWidth: number;
   rightWidth: number;
@@ -63,6 +64,7 @@ export function serializePrefs(s: StoreState): PrefsDoc {
       showOnlyVisibleRelatedEdges: s.showOnlyVisibleRelatedEdges,
       showOnlySelectedRelatedEdges: s.showOnlySelectedRelatedEdges,
       edgeRoutingMode: s.edgeRoutingMode,
+      notationStyle: s.notationStyle,
       edgeWorkerEnabled: s.edgeWorkerEnabled,
       leftWidth: s.leftWidth,
       rightWidth: s.rightWidth,
@@ -90,6 +92,7 @@ function prefsChanged(s: StoreState, p: StoreState): boolean {
     s.showOnlyVisibleRelatedEdges !== p.showOnlyVisibleRelatedEdges ||
     s.showOnlySelectedRelatedEdges !== p.showOnlySelectedRelatedEdges ||
     s.edgeRoutingMode !== p.edgeRoutingMode ||
+    s.notationStyle !== p.notationStyle ||
     s.edgeWorkerEnabled !== p.edgeWorkerEnabled ||
     s.leftWidth !== p.leftWidth ||
     s.rightWidth !== p.rightWidth ||

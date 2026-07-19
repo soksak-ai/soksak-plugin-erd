@@ -781,6 +781,19 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     tables: { type: 'json', description: 'Table names or ids to select' },
   });
 
+  add('set-notation', 'Set the relationship notation style (crowsfoot | numeric). Persisted as a chrome preference.', { ko: '표기법 설정 크로우풋 숫자 관계 표시' },
+    (d) => `표기법을 ${d.style === 'numeric' ? '숫자' : '크로우풋'}으로 설정했습니다`,
+    (p) => {
+      const style = p.style;
+      if (style !== 'crowsfoot' && style !== 'numeric') {
+        return { ok: false, code: 'INVALID_PARAMS', message: "style must be 'crowsfoot' or 'numeric'" };
+      }
+      store.getState().setNotationStyle(style);
+      return { ok: true, style };
+    }, {
+      style: { type: 'string', enum: ['crowsfoot', 'numeric'], description: "Notation style: 'crowsfoot' or 'numeric'" },
+    });
+
   add('hover-row', 'Highlight one table column row on the canvas (agent emphasis / hover surface), or clear it', { ko: '행 강조 hover 컬럼 표시 해제' },
     (d) => (d.cleared ? '행 강조를 해제했습니다' : `${d.table}.${d.column} 행을 강조했습니다`),
     (p) => {

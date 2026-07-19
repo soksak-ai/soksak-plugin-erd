@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "doctor": "soksak-plugin-doctor",
     "prepublishOnly": "npm run build && npx --yes soksak-plugin-doctor .",
-    "test-unit": "npm run typecheck && vitest run"
+    "test-unit": "npm run typecheck && vitest run",
+    "e2e": "node scripts/e2e/erd.mjs",
+    "e2e-restore": "node scripts/e2e/erd-restore.mjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^2.0.4",

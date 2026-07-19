@@ -276,6 +276,7 @@ export function PixiERDCanvas() {
   const positionsSyncGenRef = useRef(0);
   const qualityRef = useRef<0 | 1 | 2>(1);
   const routingModeRef = useRef<'direct' | 'ortho_short'>('direct');
+  const notationStyleRef = useRef<'crowsfoot' | 'numeric'>('crowsfoot');
   const edgeDataRef = useRef<EdgeData[]>([]);
   const edgeIndexByNodeRef = useRef<Map<string, EdgeData[]>>(new Map());
   const edgeByIdRef = useRef<Map<string, EdgeData>>(new Map());
@@ -368,6 +369,7 @@ export function PixiERDCanvas() {
   const showOnlySelectedRelatedEdges = useStore(s => s.showOnlySelectedRelatedEdges);
   const edgeWorkerEnabled = useStore(s => s.edgeWorkerEnabled);
   const edgeRoutingMode = useStore(s => s.edgeRoutingMode);
+  const notationStyle = useStore(s => s.notationStyle);
   const autoLayoutTrigger = useStore(s => s.autoLayoutTrigger);
   const hoveredRow = useStore(s => s.hoveredRow);
 
@@ -399,6 +401,13 @@ export function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [edgeRoutingMode]);
+
+  useEffect(() => {
+    notationStyleRef.current = notationStyle;
+    edgeRendererRef.current?.setNotation(notationStyle);
+    edgeDirty.current = true;
+    wakeRenderLoop();
+  }, [notationStyle]);
 
   // Host theme adoption — derive the canvas palette from host tokens and repaint on the host's
   // single change signal. applyCanvasColors runs synchronously on the first fire so tables first
@@ -485,6 +494,7 @@ export function PixiERDCanvas() {
       // Edge layer (inside world, below nodes)
       const edgeRenderer = new EdgeRenderer();
       edgeRenderer.setRoutingMode(routingModeRef.current);
+      edgeRenderer.setNotation(notationStyleRef.current);
       world.addChild(edgeRenderer.container);
       edgeRendererRef.current = edgeRenderer;
 

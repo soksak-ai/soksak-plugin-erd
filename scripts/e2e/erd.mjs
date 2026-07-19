@@ -51,7 +51,9 @@ function rpc(method, params = {}) {
     }, 8000);
   });
 }
-const val = (m) => m.result ?? m;
+// 소켓 응답 봉투 = { id, ok, code, message, data, window }. 명령 결과 payload 는 data 아래에 있고
+// ok/code 는 최상위다. 둘을 평탄 병합해 val(m).ok·val(m).tables·val(m).values 모두 접근되게 한다.
+const val = (m) => ({ ...m, ...(m.result || {}), ...(m.data || {}) });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let pass = 0,
   fail = 0;
@@ -61,8 +63,11 @@ const ok = (cond, msg, detail) => {
 };
 
 async function reset() {
-  // 멱등: 이전 잔여를 새 빈 문서로(현재는 undo 반복 — new 커맨드 추가 시 교체).
-  for (let i = 0; i < 8; i++) await rpc(P + "undo").catch(() => {});
+  // 멱등: 이전(영속 복원 포함) 스키마를 실제로 비운다 — 존재 테이블 전부 드롭.
+  const lt = val(await rpc(P + "list-tables"));
+  for (const t of lt.tables || []) {
+    await rpc(P + "drop-table", { table: t.id ?? t.name }).catch(() => {});
+  }
 }
 
 async function main() {
@@ -109,9 +114,74 @@ async function main() {
   const u = val(await rpc(P + "undo"));
   ok(u.ok !== false, "undo", u);
 
+  // 6) 표기법(notation) — 명령 설정 + prefs 상태면 반영.
+  ok(val(await rpc(P + "set-notation", { style: "numeric" })).ok, "set-notation numeric");
+  let ps = val(await rpc(P + "prefs-status"));
+  ok(ps.values?.notationStyle === "numeric", `prefs-status.values.notationStyle=numeric`, ps.values);
+  ok(val(await rpc(P + "set-notation", { bad: 1 })).ok === false, "set-notation 잘못된 값 거부");
+
+  // 7) 표기법 prefs 영속 왕복 — flush → plugin.reload(빈 store) → 복원.
+  ok(val(await rpc(P + "prefs-flush")).ok, "prefs-flush");
+  await rpc("plugin.reload");
+  await sleep(800);
+  ps = val(await rpc(P + "prefs-status"));
+  ok(ps.values?.notationStyle === "numeric", "재적재 후 notationStyle 복원=numeric", ps.values);
+
+  // 8) 행 강조(hover-row) — 설정/범위가드/해제.
+  // 스키마는 reload 로 kv 에서 복원됨(users/orders). 없으면 재구축.
+  if (!(val(await rpc(P + "list-tables")).tables || []).some((t) => t.name === "orders")) {
+    await rpc(P + "apply", { title: "shop", ops: [
+      { command: "create-table", params: { name: "orders", columns: [{ name: "id", dataType: "INT", isPrimaryKey: true }] } },
+    ] });
+  }
+  ok(val(await rpc(P + "hover-row", { table: "orders", index: 0 })).ok, "hover-row orders[0]");
+  ok(val(await rpc(P + "hover-row", { table: "orders", index: 99 })).ok === false, "hover-row 범위밖 거부");
+  ok(val(await rpc(P + "hover-row", {})).cleared === true, "hover-row 해제");
+
+  // 9) 테이블 색 — 설정/조회/해제.
+  ok(val(await rpc(P + "set-color", { table: "orders", color: "#3b82f6" })).ok, "set-color orders");
+  ok(val(await rpc(P + "get-table", { table: "orders" })).table?.color === "#3b82f6", "get-table color=#3b82f6");
+  await rpc(P + "set-color", { table: "orders" }); // 해제
+
+  // 10) 스냅샷 — 두 표기법 모두 고정 경로로 캡처(시각 리뷰 아티팩트). 창 없으면 스킵.
+  const dir = process.env.SNAP_DIR || `${process.env.HOME}/.soksak-e2e`;
+  await rpc(P + "set-notation", { style: "numeric" });
+  await captureSnapshot(`${dir}/erd-notation-numeric.png`);
+  await rpc(P + "set-notation", { style: "crowsfoot" });
+  await captureSnapshot(`${dir}/erd-notation-crowsfoot.png`);
+
+  // 멱등 복원 — 표기법 기본값(crowsfoot) 영속.
+  await rpc(P + "prefs-flush").catch(() => {});
+
   console.log(`\n=== erd E2E: ${pass} pass / ${fail} fail ===`);
   sock.end();
   process.exit(fail ? 1 : 0);
+}
+
+// erd 뷰가 마운트된 창을 찾아 활성화 후 window.snapshot 을 고정 경로로 저장한다. 헤드리스/무창
+// 환경에서는 조용히 스킵(단언 아님 — 시각 리뷰용 아티팩트). 경로는 SNAP 환경변수 또는 기본 고정 경로.
+async function captureSnapshot(out) {
+  try {
+    const labels = val(await rpc("window.list")).labels || [];
+    for (const label of labels) {
+      await rpc("window.focus", { label }).catch(() => {});
+      const views = val(await rpc("view.list")).views || [];
+      const erd = views.find((v) => v.plugin === "soksak-plugin-erd");
+      if (!erd) continue;
+      await rpc("view.activate", { view: erd.id }).catch(() => {});
+      await rpc("window.focus", { label }).catch(() => {});
+      await rpc(P + "auto-layout").catch(() => {});
+      await sleep(250);
+      await rpc(P + "fit").catch(() => {});
+      await sleep(400);
+      const snap = val(await rpc("window.snapshot", { path: out }));
+      console.log(`  ▶ snapshot: ${snap.saved || out} (window ${label})`);
+      return;
+    }
+    console.log(`  ▶ snapshot(${out}): erd 뷰가 열린 창 없음 — 스킵`);
+  } catch (e) {
+    console.log(`  ▶ snapshot(${out}): 스킵(${e.message})`);
+  }
 }
 
 main().catch((e) => {
