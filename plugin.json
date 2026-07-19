@@ -413,6 +413,13 @@
           "en": "Undo/redo history status",
           "ko": "\uc774\ub825 \uc0c1\ud0dc"
         }
+      },
+      {
+        "name": "palette",
+        "title": {
+          "en": "Command palette",
+          "ko": "\uba85\ub839 \ud314\ub808\ud2b8"
+        }
       }
     ],
     "nodes": [
@@ -467,6 +474,14 @@
       {
         "id": "redo",
         "description": "Toolbar: redo the last undone operation"
+      },
+      {
+        "id": "command-palette",
+        "description": "Command palette dialog body (present only while open)"
+      },
+      {
+        "id": "palette-item",
+        "description": "A command-palette action row (data-node palette-item/<action-id>)"
       },
       {
         "id": "auto-layout",

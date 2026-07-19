@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store';
 import { undo, redo, useHistoryStore } from '@/store/history';
+import { usePaletteStore } from '@/features/palette/store';
 
 export function EditMenu() {
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
@@ -53,6 +54,11 @@ export function EditMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSelectAll}>
           Select All
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => usePaletteStore.getState().setOpen(true)}>
+          Command Palette
+          <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
