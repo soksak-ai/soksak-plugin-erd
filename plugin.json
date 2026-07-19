@@ -502,6 +502,14 @@
         "description": "Column data-type combobox (data-node coltype/<column-id>, input at coltype/<column-id>-input)"
       },
       {
+        "id": "table-color-swatch",
+        "description": "Table color preset swatch in Table Properties (data-node table-color-swatch/<hex-without-hash>)"
+      },
+      {
+        "id": "table-color-clear",
+        "description": "Table Properties: clear the table's highlight color"
+      },
+      {
         "id": "connect-preview",
         "description": "Drag-to-connect preview line (present only during an Alt-drag connect gesture)"
       },

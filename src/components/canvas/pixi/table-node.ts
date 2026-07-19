@@ -1,5 +1,6 @@
 import { Container, Graphics, Text, TextStyle } from 'pixi.js';
 import { NODE_WIDTH, HEADER_HEIGHT, ROW_HEIGHT, PADDING_X, COLORS, LOD, FONT_FAMILY } from './constants';
+import { parseHexColor, tintHeader } from './color';
 import type { Column } from '@/types/schema';
 
 // ── Public interface ────────────────────────────────────────────────
@@ -9,6 +10,9 @@ export interface TableNodeData {
   columns: Column[];
   fkColumnIds: string[];
   selected: boolean;
+  // Optional per-table highlight color (#RRGGBB). Tints the header (~12%) and, at DOT LOD,
+  // colors the dot. Undefined = no highlight (theme header background only).
+  color?: string;
 }
 
 // ── Shared text styles (created once, reused across all instances) ──
@@ -238,7 +242,7 @@ export class TableNodeRenderer {
     const height = this.getHeight();
     const selected = data.selected;
     const borderColor = selected ? COLORS.borderSelected : COLORS.border;
-    const headerBg = selected ? COLORS.headerBgSelected : COLORS.headerBg;
+    const headerBg = tintHeader(selected ? COLORS.headerBgSelected : COLORS.headerBg, data.color);
 
     // Background
     this.bg.clear()
@@ -329,7 +333,7 @@ export class TableNodeRenderer {
     const height = this.getHeight();
     const selected = data.selected;
     const borderColor = selected ? COLORS.borderSelected : COLORS.border;
-    const headerBg = selected ? COLORS.headerBgSelected : COLORS.headerBg;
+    const headerBg = tintHeader(selected ? COLORS.headerBgSelected : COLORS.headerBg, data.color);
 
     // Background (same structure as FULL)
     this.bg.clear()
@@ -366,7 +370,9 @@ export class TableNodeRenderer {
 
   private renderDot(): void {
     const { data } = this;
-    const fillColor = data.selected ? COLORS.headerBgSelected : COLORS.headerBg;
+    // At DOT LOD the table's highlight color IS the dot — that is the only signal left at this
+    // zoom. No color → fall back to the selected/plain header background.
+    const fillColor = parseHexColor(data.color) ?? (data.selected ? COLORS.headerBgSelected : COLORS.headerBg);
     const height = this.getHeight();
 
     this.bg.clear()

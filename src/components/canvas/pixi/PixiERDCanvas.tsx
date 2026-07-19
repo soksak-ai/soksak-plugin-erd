@@ -1016,6 +1016,7 @@ export function PixiERDCanvas() {
         columns: table.columns,
         fkColumnIds,
         selected: selectedSet.has(table.id),
+        color: table.color,
       };
 
       if (existing) {

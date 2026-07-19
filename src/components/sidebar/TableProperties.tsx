@@ -73,6 +73,14 @@ export function TableProperties({ table }: TablePropertiesProps) {
             className="text-sm min-h-0"
           />
         </div>
+
+        <div className="space-y-2">
+          <label className="text-[11px] text-gray-500 dark:text-zinc-500">Color</label>
+          <ColorRow
+            value={table.color}
+            onPick={(color) => updateTable(table.id, { color })}
+          />
+        </div>
       </div>
 
       <Separator />
@@ -83,6 +91,56 @@ export function TableProperties({ table }: TablePropertiesProps) {
       {/* Update Schema Button */}
       <button className="w-full rounded border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 py-2.5 text-xs font-bold text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
         UPDATE SCHEMA
+      </button>
+    </div>
+  );
+}
+
+// 테이블 하이라이트 색 프리셋. 노드 주소 문법이 '#' 를 불허하므로 data-node 세그먼트는 '#' 없는
+// 소문자 hex(table-color-swatch/<hex>), 저장 값은 '#'+hex. 클리어는 table-color-clear.
+const COLOR_PRESETS = [
+  '#ef4444', '#f59e0b', '#22c55e', '#14b8a6',
+  '#3b82f6', '#6366f1', '#a855f7', '#ec4899',
+] as const;
+
+function ColorRow({ value, onPick }: { value?: string; onPick: (color: string | undefined) => void }) {
+  const active = value?.toLowerCase();
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {COLOR_PRESETS.map((hex) => {
+        const isActive = active === hex;
+        return (
+          <button
+            key={hex}
+            type="button"
+            data-node={`table-color-swatch/${hex.slice(1)}`}
+            aria-label={`Set table color ${hex}`}
+            aria-pressed={isActive}
+            onClick={() => onPick(hex)}
+            style={{ backgroundColor: hex }}
+            className={
+              'h-5 w-5 rounded-full border transition-transform hover:scale-110 ' +
+              (isActive
+                ? 'border-gray-900 dark:border-white ring-2 ring-offset-1 ring-gray-400 dark:ring-zinc-400 ring-offset-white dark:ring-offset-zinc-900'
+                : 'border-black/20 dark:border-white/20')
+            }
+          />
+        );
+      })}
+      <button
+        type="button"
+        data-node="table-color-clear"
+        aria-label="Clear table color"
+        aria-pressed={!active}
+        onClick={() => onPick(undefined)}
+        className={
+          'flex h-5 w-5 items-center justify-center rounded-full border text-[10px] leading-none transition-transform hover:scale-110 ' +
+          (!active
+            ? 'border-gray-900 dark:border-white text-gray-700 dark:text-zinc-200'
+            : 'border-black/20 dark:border-white/20 text-gray-400 dark:text-zinc-500')
+        }
+      >
+        ✕
       </button>
     </div>
   );
