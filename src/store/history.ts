@@ -14,7 +14,8 @@
 // history — undo must not move the camera.
 import { create } from 'zustand';
 import type { StoreState } from '@/store/index';
-import type { Table, Relationship, SQLDialect } from '@/types/schema';
+import type { Table, Relationship } from '@/types/schema';
+import type { DialectId } from '@/features/db/dialect/types';
 import type { NodePosition, Viewport } from '@/types/diagram';
 
 export interface HistoryDoc {
@@ -22,7 +23,7 @@ export interface HistoryDoc {
   relationships: Record<string, Relationship>;
   nodePositions: Record<string, NodePosition>;
   collapsedNodes: Record<string, boolean>;
-  dialect: SQLDialect;
+  dialect: DialectId;
 }
 
 export interface HistoryStore {

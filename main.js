@@ -71183,6 +71183,612 @@ function DropdownMenuSubContent2({
   );
 }
 
+// src/features/sql/sql-parser.ts
+function parseCreateTables(sql) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const cleaned = sql.replace(/--[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const statements = extractCreateTableStatements(cleaned);
+  for (const stmt of statements) {
+    const id = generateId();
+    const table = {
+      id,
+      name: stmt.tableName,
+      schema: stmt.schema || void 0,
+      columns: [],
+      indexes: []
+    };
+    const fks = [];
+    const pkColumns = [];
+    const parts = splitByComma(stmt.body);
+    for (const part of parts) {
+      const trimmed = part.trim();
+      if (!trimmed) continue;
+      const pkMatch = trimmed.match(/^\s*PRIMARY\s+KEY\s*\(([^)]+)\)/i);
+      if (pkMatch) {
+        const cols = pkMatch[1].split(",").map((c3) => c3.trim().replace(/`/g, ""));
+        pkColumns.push(...cols);
+        continue;
+      }
+      const uniqueMatch = trimmed.match(/^\s*(?:CONSTRAINT\s+`?\w+`?\s+)?UNIQUE\s+(?:KEY\s+)?(?:`?\w+`?\s+)?\(([^)]+)\)/i);
+      if (uniqueMatch) {
+        continue;
+      }
+      if (/^\s*(?:INDEX|KEY)\s/i.test(trimmed)) continue;
+      const fkMatch = trimmed.match(
+        /^\s*(?:CONSTRAINT\s+`?(\w+)`?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+`?(\w+)`?\s*\(([^)]+)\)(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?/i
+      );
+      if (fkMatch) {
+        fks.push({
+          constraintName: fkMatch[1],
+          columns: fkMatch[2].split(",").map((c3) => c3.trim().replace(/`/g, "")),
+          refTable: fkMatch[3],
+          refColumns: fkMatch[4].split(",").map((c3) => c3.trim().replace(/`/g, "")),
+          onDelete: parseRefAction(fkMatch[5]),
+          onUpdate: parseRefAction(fkMatch[6])
+        });
+        continue;
+      }
+      const colMatch = trimmed.match(
+        /^\s*`?(\w+)`?\s+(\w+(?:\s*\([^)]*\))?(?:\s+(?:UNSIGNED|SIGNED|ZEROFILL))*)/i
+      );
+      if (colMatch) {
+        const colName = colMatch[1];
+        const dataType = colMatch[2].toUpperCase();
+        const rest = trimmed.slice(colMatch[0].length).toUpperCase();
+        const col = {
+          id: generateId(),
+          name: colName,
+          dataType: normalizeDataType(dataType),
+          nullable: !rest.includes("NOT NULL"),
+          autoIncrement: rest.includes("AUTO_INCREMENT") || rest.includes("SERIAL"),
+          isPrimaryKey: rest.includes("PRIMARY KEY"),
+          isUnique: rest.includes("UNIQUE")
+        };
+        const defaultMatch = rest.match(/DEFAULT\s+('(?:[^'\\]|\\.)*'|\S+)/i);
+        if (defaultMatch) {
+          col.defaultValue = defaultMatch[1].replace(/^'|'$/g, "");
+        }
+        table.columns.push(col);
+      }
+    }
+    for (const pkCol of pkColumns) {
+      const col = table.columns.find((c3) => c3.name.toLowerCase() === pkCol.toLowerCase());
+      if (col) col.isPrimaryKey = true;
+    }
+    schema.tables[id] = table;
+    for (const fk of fks) {
+      const relId = generateId();
+      schema._pendingFKs ??= [];
+      schema._pendingFKs.push({
+        ...fk,
+        sourceTableId: id,
+        relId
+      });
+    }
+  }
+  const pending = schema._pendingFKs;
+  if (pending) {
+    for (const fk of pending) {
+      const referencedTable = Object.values(schema.tables).find(
+        (t4) => t4.name.toLowerCase() === fk.refTable.toLowerCase()
+      );
+      if (!referencedTable) continue;
+      const fkTable = schema.tables[fk.sourceTableId];
+      if (!fkTable) continue;
+      const sourceColumnIds = fk.refColumns.map(
+        (colName) => referencedTable.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase())?.id
+      ).filter((id) => !!id);
+      const targetColumnIds = fk.columns.map(
+        (colName) => fkTable.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase())?.id
+      ).filter((id) => !!id);
+      schema.relationships[fk.relId] = {
+        id: fk.relId,
+        name: fk.constraintName,
+        sourceTableId: referencedTable.id,
+        targetTableId: fkTable.id,
+        type: "1:N",
+        sourceColumnIds,
+        targetColumnIds,
+        onDelete: fk.onDelete ?? "NO ACTION",
+        onUpdate: fk.onUpdate ?? "NO ACTION"
+      };
+    }
+    delete schema._pendingFKs;
+  }
+  return schema;
+}
+function extractCreateTableStatements(sql) {
+  const results = [];
+  const headerRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:`?(\w+)`?\.)?`?(\w+)`?\s*\(/gi;
+  let headerMatch;
+  while ((headerMatch = headerRegex.exec(sql)) !== null) {
+    const schemaName = headerMatch[1] || null;
+    const tableName = headerMatch[2];
+    const bodyStart = headerMatch.index + headerMatch[0].length;
+    let depth = 1;
+    let i3 = bodyStart;
+    while (i3 < sql.length && depth > 0) {
+      const ch = sql[i3];
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      i3++;
+    }
+    if (depth !== 0) continue;
+    const body = sql.slice(bodyStart, i3 - 1);
+    results.push({ schema: schemaName, tableName, body });
+  }
+  return results;
+}
+function splitByComma(text) {
+  const parts = [];
+  let depth = 0;
+  let current2 = "";
+  for (const char of text) {
+    if (char === "(") depth++;
+    else if (char === ")") depth--;
+    else if (char === "," && depth === 0) {
+      parts.push(current2);
+      current2 = "";
+      continue;
+    }
+    current2 += char;
+  }
+  if (current2.trim()) parts.push(current2);
+  return parts;
+}
+function parseRefAction(action) {
+  if (!action) return "NO ACTION";
+  const normalized = action.toUpperCase().replace(/\s+/g, " ").trim();
+  switch (normalized) {
+    case "CASCADE":
+      return "CASCADE";
+    case "SET NULL":
+      return "SET NULL";
+    case "SET DEFAULT":
+      return "SET DEFAULT";
+    case "RESTRICT":
+      return "RESTRICT";
+    case "NO ACTION":
+      return "NO ACTION";
+    default:
+      return "NO ACTION";
+  }
+}
+function normalizeDataType(dt2) {
+  return dt2.replace(/\s+/g, " ").trim();
+}
+
+// src/features/db/dialect/alter-fk.ts
+var ALTER_FK_RE = new RegExp(
+  // ALTER TABLE <t> ADD [CONSTRAINT <name>] FOREIGN KEY (<cols>) REFERENCES <ref> (<refcols>) [ON DELETE ..] [ON UPDATE ..]
+  String.raw`ALTER\s+TABLE\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+ADD\s+(?:CONSTRAINT\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\(([^)]+)\)` + String.raw`(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?` + String.raw`(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?`,
+  "gi"
+);
+function splitCols(s3) {
+  return s3.split(",").map((c3) => c3.trim().replace(/["`]/g, "")).filter((c3) => c3.length > 0);
+}
+function refAction(a3) {
+  if (!a3) return "NO ACTION";
+  const n3 = a3.toUpperCase().replace(/\s+/g, " ").trim();
+  switch (n3) {
+    case "CASCADE":
+      return "CASCADE";
+    case "SET NULL":
+      return "SET NULL";
+    case "SET DEFAULT":
+      return "SET DEFAULT";
+    case "RESTRICT":
+      return "RESTRICT";
+    default:
+      return "NO ACTION";
+  }
+}
+var UNIQUE_RE = new RegExp(
+  String.raw`(?:CONSTRAINT\s+["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?UNIQUE\s*(?:KEY\s+)?(?:["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?\(\s*["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\)`,
+  "gi"
+);
+function attachUniqueConstraints(schema, ddl) {
+  const headerRe = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?\w+["`]?\.)?["`]?(\w+)["`]?\s*\(/gi;
+  let hm;
+  while ((hm = headerRe.exec(ddl)) !== null) {
+    const tableName = hm[1];
+    const start = hm.index + hm[0].length;
+    let depth = 1;
+    let i3 = start;
+    while (i3 < ddl.length && depth > 0) {
+      const ch = ddl[i3];
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      i3++;
+    }
+    if (depth !== 0) continue;
+    const body = ddl.slice(start, i3 - 1);
+    const table = Object.values(schema.tables).find(
+      (t4) => t4.name.toLowerCase() === tableName.toLowerCase()
+    );
+    if (!table) continue;
+    UNIQUE_RE.lastIndex = 0;
+    let um;
+    while ((um = UNIQUE_RE.exec(body)) !== null) {
+      const colName = um[1];
+      const col = table.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase());
+      if (col) col.isUnique = true;
+    }
+  }
+}
+function attachAlterForeignKeys(schema, ddl) {
+  ALTER_FK_RE.lastIndex = 0;
+  let m4;
+  while ((m4 = ALTER_FK_RE.exec(ddl)) !== null) {
+    const [, fkTableName, constraintName, colStr, refTableName, refColStr, onDel, onUpd] = m4;
+    const fkTable = Object.values(schema.tables).find(
+      (t4) => t4.name.toLowerCase() === fkTableName.toLowerCase()
+    );
+    const refTable = Object.values(schema.tables).find(
+      (t4) => t4.name.toLowerCase() === refTableName.toLowerCase()
+    );
+    if (!fkTable || !refTable) continue;
+    const cols = splitCols(colStr);
+    const refCols = splitCols(refColStr);
+    const already = Object.values(schema.relationships).some(
+      (r4) => r4.targetTableId === fkTable.id && r4.targetColumnIds.map((id) => fkTable.columns.find((c3) => c3.id === id)?.name?.toLowerCase()).join() === cols.map((c3) => c3.toLowerCase()).join()
+    );
+    if (already) continue;
+    const sourceColumnIds = refCols.map((n3) => refTable.columns.find((c3) => c3.name.toLowerCase() === n3.toLowerCase())?.id).filter((id) => !!id);
+    const targetColumnIds = cols.map((n3) => fkTable.columns.find((c3) => c3.name.toLowerCase() === n3.toLowerCase())?.id).filter((id) => !!id);
+    const relId = generateId();
+    schema.relationships[relId] = {
+      id: relId,
+      name: constraintName,
+      sourceTableId: refTable.id,
+      // 참조 PK 측
+      targetTableId: fkTable.id,
+      // FK 보유 측
+      type: "1:N",
+      sourceColumnIds,
+      targetColumnIds,
+      onDelete: refAction(onDel),
+      onUpdate: refAction(onUpd)
+    };
+  }
+}
+
+// src/features/db/dialect/canonical.ts
+var BASE_ALIAS = {
+  INT: "INTEGER",
+  INT4: "INTEGER",
+  INTEGER: "INTEGER",
+  INT2: "SMALLINT",
+  SMALLINT: "SMALLINT",
+  INT8: "BIGINT",
+  BIGINT: "BIGINT",
+  BOOL: "BOOLEAN",
+  BOOLEAN: "BOOLEAN",
+  TINYINT: "BOOLEAN",
+  // 관용: TINYINT(1) ↔ BOOLEAN
+  NUMERIC: "DECIMAL",
+  DECIMAL: "DECIMAL",
+  REAL: "FLOAT",
+  FLOAT: "FLOAT",
+  FLOAT4: "FLOAT",
+  DOUBLE: "DOUBLE",
+  "DOUBLE PRECISION": "DOUBLE",
+  FLOAT8: "DOUBLE",
+  CHARACTER: "CHAR",
+  CHAR: "CHAR",
+  "CHARACTER VARYING": "VARCHAR",
+  VARCHAR: "VARCHAR",
+  VARCHAR2: "VARCHAR",
+  TEXT: "TEXT",
+  CLOB: "TEXT",
+  DATE: "DATE",
+  TIME: "TIME",
+  TIMESTAMP: "TIMESTAMP",
+  TIMESTAMPTZ: "TIMESTAMP",
+  DATETIME: "DATETIME",
+  BLOB: "BLOB",
+  BYTEA: "BLOB",
+  JSON: "JSON",
+  JSONB: "JSON",
+  UUID: "UUID",
+  ENUM: "ENUM",
+  SET: "ENUM"
+};
+function sqliteAffinity(base) {
+  const b3 = base.toUpperCase();
+  if (b3.includes("INT")) return "INTEGER";
+  if (b3.includes("CHAR") || b3.includes("CLOB") || b3.includes("TEXT")) return "TEXT";
+  if (b3 === "BLOB") return "BLOB";
+  if (b3.includes("REAL") || b3.includes("FLOA") || b3.includes("DOUB")) return "REAL";
+  return "NUMERIC";
+}
+function parseNativeType(native) {
+  const raw = native.trim();
+  const upper = raw.toUpperCase();
+  const enumMatch = upper.match(/^(ENUM|SET)\s*\(([^)]*)\)/);
+  if (enumMatch) {
+    const values = enumMatch[2].split(",").map((v4) => v4.trim().replace(/^'|'$/g, "")).filter((v4) => v4.length > 0);
+    return { base: "ENUM", enumValues: values, raw };
+  }
+  const unsigned = /\bUNSIGNED\b/.test(upper);
+  const stripped = upper.replace(/\b(UNSIGNED|SIGNED|ZEROFILL)\b/g, "").trim();
+  const m4 = stripped.match(/^([A-Z0-9_ ]+?)\s*(?:\(([^)]*)\))?$/);
+  const rawBase = (m4?.[1] ?? stripped).trim();
+  const argStr = m4?.[2];
+  const base = BASE_ALIAS[rawBase] ?? rawBase;
+  const args = argStr ? argStr.split(",").map((a3) => parseInt(a3.trim(), 10)).filter((n3) => !Number.isNaN(n3)) : void 0;
+  const canon = { base, raw };
+  if (args && args.length > 0) canon.args = args;
+  if (unsigned) canon.unsigned = true;
+  return canon;
+}
+function deriveCanonical(col) {
+  const canon = parseNativeType(col.dataType);
+  if (col.enumValues && col.enumValues.length > 0) {
+    canon.base = "ENUM";
+    canon.enumValues = col.enumValues;
+  }
+  return canon;
+}
+function renderTypeWithArgs(base, args) {
+  if (args && args.length > 0) return `${base}(${args.join(", ")})`;
+  return base;
+}
+
+// src/features/db/dialect/shared.ts
+function quote(name, q2) {
+  return q2 + name.split(q2).join(q2 + q2) + q2;
+}
+function isReservedIn(word, reserved) {
+  return reserved.has(word.toUpperCase());
+}
+function normalizeQuotesForParser(ddl) {
+  return ddl.split('"').join("`");
+}
+function generateAlterFor(diff, caps, q2) {
+  const out2 = [];
+  for (const t4 of diff.droppedTables) {
+    out2.push(`DROP TABLE IF EXISTS ${q2(t4)};`);
+  }
+  for (const t4 of diff.addedTables) {
+    out2.push(`-- ADD TABLE ${q2(t4)} (use generate() for full CREATE)`);
+  }
+  for (const { table, column } of diff.addedColumns) {
+    const nn = column.nullable ? "" : " NOT NULL";
+    const def = column.defaultValue !== void 0 && column.defaultValue !== "" ? ` DEFAULT ${column.defaultValue}` : "";
+    out2.push(`ALTER TABLE ${q2(table)} ADD COLUMN ${q2(column.name)} ${column.dataType}${nn}${def};`);
+  }
+  for (const { table, column } of diff.droppedColumns) {
+    out2.push(`ALTER TABLE ${q2(table)} DROP COLUMN ${q2(column)};`);
+  }
+  for (const fk of diff.addedRelationships) {
+    const name = fk.name ?? `fk_${fk.table}_${fk.columns[0] ?? "x"}`;
+    const cols = fk.columns.map(q2).join(", ");
+    const refCols = fk.refColumns.map(q2).join(", ");
+    if (caps.alterAddConstraint) {
+      out2.push(
+        `ALTER TABLE ${q2(fk.table)} ADD CONSTRAINT ${q2(name)} FOREIGN KEY (${cols}) REFERENCES ${q2(fk.refTable)} (${refCols}) ON DELETE ${fk.onDelete} ON UPDATE ${fk.onUpdate};`
+      );
+    } else {
+      out2.push(
+        `-- SQLite: cannot ADD FOREIGN KEY via ALTER (${name}); recreate table ${fk.table} with inline FK to ${fk.refTable}.`
+      );
+    }
+  }
+  for (const fk of diff.droppedRelationships) {
+    if (caps.alterAddConstraint) {
+      out2.push(`ALTER TABLE ${q2(fk.table)} DROP CONSTRAINT ${q2(fk.name)};`);
+    } else {
+      out2.push(
+        `-- SQLite: cannot DROP CONSTRAINT ${fk.name} via ALTER; recreate table ${fk.table}.`
+      );
+    }
+  }
+  return out2.join("\n");
+}
+
+// src/features/db/dialect/sqlite.ts
+var CAPS = {
+  identifierQuote: '"',
+  schemas: false,
+  autoIncrement: "autoincrement",
+  // INTEGER PRIMARY KEY AUTOINCREMENT
+  enumStyle: "check",
+  // native ENUM 없음 → CHECK(또는 폴백 TEXT)
+  inlineForeignKeys: true,
+  // ALTER ADD FK 불가 → 본문 인라인만
+  alterAddConstraint: false,
+  partialIndexes: true,
+  expressionIndexes: true,
+  checkConstraints: true,
+  engineCharset: false,
+  sequences: false,
+  identifierMaxLen: 0
+  // 사실상 제한 없음
+};
+function mapCanonical(canon, _col) {
+  const base = canon.base;
+  switch (base) {
+    case "BOOLEAN":
+      return "INTEGER";
+    // SQLite 는 0/1
+    case "SMALLINT":
+    case "INTEGER":
+    case "BIGINT":
+      return "INTEGER";
+    case "FLOAT":
+    case "DOUBLE":
+      return "REAL";
+    case "DECIMAL":
+      return "NUMERIC";
+    case "CHAR":
+    case "VARCHAR":
+    case "TEXT":
+    case "UUID":
+    case "ENUM":
+    // 폴백: TEXT affinity
+    case "JSON":
+      return "TEXT";
+    case "BLOB":
+      return "BLOB";
+    case "DATE":
+    case "TIME":
+    case "TIMESTAMP":
+    case "DATETIME":
+      return "TEXT";
+    // SQLite 권장: ISO8601 텍스트
+    default:
+      return sqliteAffinity(base);
+  }
+}
+var RESERVED = /* @__PURE__ */ new Set([
+  "ABORT",
+  "ADD",
+  "ALTER",
+  "AND",
+  "AS",
+  "AUTOINCREMENT",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DELETE",
+  "DROP",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "UPDATE",
+  "WHERE"
+]);
+function parseSqlite(ddl) {
+  const schema = parseCreateTables(normalizeQuotesForParser(ddl));
+  attachUniqueConstraints(schema, ddl);
+  for (const table of Object.values(schema.tables)) {
+    for (const col of table.columns) {
+      const re2 = new RegExp(
+        `["\`]?${escapeRe(col.name)}["\`]?[^,(]*?\\bAUTOINCREMENT\\b`,
+        "i"
+      );
+      if (re2.test(ddl)) {
+        col.autoIncrement = true;
+        col.isPrimaryKey = true;
+      }
+    }
+  }
+  return { schema, warnings: [] };
+}
+function escapeRe(s3) {
+  return s3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function generateSqlite(schema) {
+  const tables = Object.values(schema.tables);
+  if (tables.length === 0) return "-- No tables defined yet";
+  const rels = Object.values(schema.relationships);
+  const sorted = topoSort(tables, rels);
+  const q2 = (n3) => quote(n3, '"');
+  const blocks = [];
+  for (const table of sorted) {
+    blocks.push(generateCreate(table, schema, q2));
+  }
+  return blocks.join("\n\n");
+}
+function generateCreate(table, schema, q2) {
+  const lines = [];
+  const pkCols = table.columns.filter((c3) => c3.isPrimaryKey);
+  const singleIntPk = pkCols.length === 1 && pkCols[0].autoIncrement;
+  for (const col of table.columns) {
+    const canon = deriveCanonical(col);
+    const type = mapCanonical(canon, col);
+    let def = `  ${q2(col.name)} ${type}`;
+    if (singleIntPk && col.isPrimaryKey && col.autoIncrement) {
+      def = `  ${q2(col.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
+    } else {
+      if (!col.nullable) def += " NOT NULL";
+      if (col.isUnique && !col.isPrimaryKey) def += " UNIQUE";
+      if (col.defaultValue !== void 0 && col.defaultValue !== "") {
+        def += ` DEFAULT ${col.defaultValue}`;
+      }
+    }
+    lines.push(def);
+  }
+  if (!singleIntPk && pkCols.length > 0) {
+    lines.push(`  PRIMARY KEY (${pkCols.map((c3) => q2(c3.name)).join(", ")})`);
+  }
+  for (const rel of Object.values(schema.relationships)) {
+    if (rel.targetTableId !== table.id) continue;
+    const refTable = schema.tables[rel.sourceTableId];
+    if (!refTable) continue;
+    const cols = rel.targetColumnIds.map((id) => table.columns.find((c3) => c3.id === id)?.name).filter((n3) => !!n3);
+    const refCols = rel.sourceColumnIds.map((id) => refTable.columns.find((c3) => c3.id === id)?.name).filter((n3) => !!n3);
+    if (cols.length === 0 || refCols.length === 0) continue;
+    let fk = `  CONSTRAINT ${q2(rel.name ?? `fk_${table.name}_${refTable.name}`)} FOREIGN KEY (${cols.map(q2).join(", ")}) REFERENCES ${q2(refTable.name)} (${refCols.map(q2).join(", ")})`;
+    if (rel.onDelete && rel.onDelete !== "NO ACTION") fk += ` ON DELETE ${rel.onDelete}`;
+    if (rel.onUpdate && rel.onUpdate !== "NO ACTION") fk += ` ON UPDATE ${rel.onUpdate}`;
+    lines.push(fk);
+  }
+  return `CREATE TABLE ${q2(table.name)} (
+${lines.join(",\n")}
+);`;
+}
+function topoSort(tables, rels) {
+  const map = new Map(tables.map((t4) => [t4.id, t4]));
+  const indeg = /* @__PURE__ */ new Map();
+  const adj = /* @__PURE__ */ new Map();
+  for (const t4 of tables) {
+    indeg.set(t4.id, 0);
+    adj.set(t4.id, []);
+  }
+  for (const r4 of rels) {
+    if (map.has(r4.sourceTableId) && map.has(r4.targetTableId)) {
+      adj.get(r4.sourceTableId).push(r4.targetTableId);
+      indeg.set(r4.targetTableId, (indeg.get(r4.targetTableId) ?? 0) + 1);
+    }
+  }
+  const queue = [...indeg].filter(([, d3]) => d3 === 0).map(([id]) => id);
+  const result = [];
+  while (queue.length > 0) {
+    const cur = queue.shift();
+    const t4 = map.get(cur);
+    if (t4) result.push(t4);
+    for (const nb of adj.get(cur) ?? []) {
+      const d3 = (indeg.get(nb) ?? 1) - 1;
+      indeg.set(nb, d3);
+      if (d3 === 0) queue.push(nb);
+    }
+  }
+  for (const t4 of tables) if (!result.find((r4) => r4.id === t4.id)) result.push(t4);
+  return result;
+}
+var sqliteDialect = {
+  id: "sqlite",
+  displayName: "SQLite",
+  caps: CAPS,
+  parse: parseSqlite,
+  generate: generateSqlite,
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS, (n3) => quote(n3, CAPS.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED);
+  },
+  mapType(canonical, col) {
+    return mapCanonical(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
 // src/features/sql/ddl-generator.ts
 function generateDDL(schema, dialect) {
   const tables = Object.values(schema.tables);
@@ -71330,6 +71936,275 @@ function generateForeignKey(rel, tables, dialect) {
   REFERENCES ${q2}${sourceTable.name}${q2} (${sourceColNames.map((n3) => `${q2}${n3}${q2}`).join(", ")})
   ON DELETE ${rel.onDelete}
   ON UPDATE ${rel.onUpdate};`;
+}
+
+// src/features/db/dialect/mysql.ts
+var CAPS2 = {
+  identifierQuote: "`",
+  schemas: false,
+  // MySQL 의 "schema" 는 database 와 동의어 — ERD 모델에선 비사용 취급
+  autoIncrement: "autoincrement",
+  // AUTO_INCREMENT 키워드
+  enumStyle: "native",
+  // ENUM('a','b')
+  inlineForeignKeys: false,
+  // ddl-generator 는 ALTER 로 분리
+  alterAddConstraint: true,
+  partialIndexes: false,
+  expressionIndexes: true,
+  // 8.0.13+
+  checkConstraints: true,
+  // 8.0.16+
+  engineCharset: true,
+  sequences: false,
+  identifierMaxLen: 64
+};
+function mapCanonical2(canon, col) {
+  const base = canon.base;
+  const unsigned = canon.unsigned ? " UNSIGNED" : "";
+  switch (base) {
+    case "BOOLEAN":
+      return "TINYINT(1)";
+    case "INTEGER":
+      return `INT${unsigned}`;
+    case "SMALLINT":
+      return `SMALLINT${unsigned}`;
+    case "BIGINT":
+      return `BIGINT${unsigned}`;
+    case "FLOAT":
+      return "FLOAT";
+    case "DOUBLE":
+      return "DOUBLE";
+    case "DECIMAL":
+      return renderTypeWithArgs("DECIMAL", canon.args);
+    case "VARCHAR":
+      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
+    case "CHAR":
+      return renderTypeWithArgs("CHAR", canon.args);
+    case "TEXT":
+      return "TEXT";
+    case "BLOB":
+      return "BLOB";
+    case "JSON":
+      return "JSON";
+    case "UUID":
+      return "CHAR(36)";
+    case "DATETIME":
+      return "DATETIME";
+    case "TIMESTAMP":
+      return "TIMESTAMP";
+    case "DATE":
+      return "DATE";
+    case "TIME":
+      return "TIME";
+    case "ENUM": {
+      const vals = canon.enumValues ?? col.enumValues ?? [];
+      if (vals.length > 0) return `ENUM(${vals.map((v4) => `'${v4}'`).join(", ")})`;
+      return "VARCHAR(255)";
+    }
+    default:
+      return canon.raw ?? renderTypeWithArgs(base, canon.args);
+  }
+}
+var RESERVED2 = /* @__PURE__ */ new Set([
+  "ADD",
+  "ALTER",
+  "AUTO_INCREMENT",
+  "BETWEEN",
+  "BY",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DELETE",
+  "DROP",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "INSERT",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "UPDATE",
+  "WHERE"
+]);
+var mysqlDialect = {
+  id: "mysql",
+  displayName: "MySQL",
+  caps: CAPS2,
+  parse(ddl) {
+    const schema = parseCreateTables(ddl);
+    attachUniqueConstraints(schema, ddl);
+    attachAlterForeignKeys(schema, ddl);
+    return { schema, warnings: [] };
+  },
+  generate(schema) {
+    return generateDDL(schema, "mysql");
+  },
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS2, (n3) => quote(n3, CAPS2.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS2.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED2);
+  },
+  mapType(canonical, col) {
+    return mapCanonical2(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
+// src/features/db/dialect/postgresql.ts
+var CAPS3 = {
+  identifierQuote: '"',
+  schemas: true,
+  autoIncrement: "serial",
+  // SERIAL/BIGSERIAL (ddl-generator 가 실현)
+  enumStyle: "check",
+  // 인라인 native ENUM 미지원 → CHECK/별도 타입; 본 엔진은 VARCHAR 폴백
+  inlineForeignKeys: false,
+  alterAddConstraint: true,
+  partialIndexes: true,
+  expressionIndexes: true,
+  checkConstraints: true,
+  engineCharset: false,
+  sequences: true,
+  identifierMaxLen: 63
+};
+function mapCanonical3(canon, _col) {
+  const base = canon.base;
+  switch (base) {
+    case "BOOLEAN":
+      return "BOOLEAN";
+    case "INTEGER":
+      return "INTEGER";
+    case "SMALLINT":
+      return "SMALLINT";
+    case "BIGINT":
+      return "BIGINT";
+    case "FLOAT":
+      return "REAL";
+    case "DOUBLE":
+      return "DOUBLE PRECISION";
+    case "DECIMAL":
+      return renderTypeWithArgs("NUMERIC", canon.args);
+    case "VARCHAR":
+      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
+    case "CHAR":
+      return renderTypeWithArgs("CHAR", canon.args);
+    case "TEXT":
+      return "TEXT";
+    case "BLOB":
+      return "BYTEA";
+    case "JSON":
+      return "JSONB";
+    case "UUID":
+      return "UUID";
+    case "DATETIME":
+      return "TIMESTAMP";
+    case "TIMESTAMP":
+      return "TIMESTAMP";
+    case "DATE":
+      return "DATE";
+    case "TIME":
+      return "TIME";
+    case "ENUM":
+      return "VARCHAR(255)";
+    default:
+      return canon.raw ?? renderTypeWithArgs(base, canon.args);
+  }
+}
+var RESERVED3 = /* @__PURE__ */ new Set([
+  "ALL",
+  "ANALYSE",
+  "ANALYZE",
+  "AND",
+  "ANY",
+  "AS",
+  "ASC",
+  "CONSTRAINT",
+  "CREATE",
+  "DEFAULT",
+  "DESC",
+  "DISTINCT",
+  "DO",
+  "FOREIGN",
+  "FROM",
+  "GROUP",
+  "INDEX",
+  "KEY",
+  "ORDER",
+  "PRIMARY",
+  "REFERENCES",
+  "SELECT",
+  "TABLE",
+  "UNIQUE",
+  "USER",
+  "WHERE"
+]);
+var postgresqlDialect = {
+  id: "postgresql",
+  displayName: "PostgreSQL",
+  caps: CAPS3,
+  parse(ddl) {
+    const schema = parseCreateTables(normalizeQuotesForParser(ddl));
+    attachUniqueConstraints(schema, ddl);
+    attachAlterForeignKeys(schema, ddl);
+    for (const table of Object.values(schema.tables)) {
+      for (const col of table.columns) {
+        const dt2 = col.dataType.toUpperCase();
+        if (dt2 === "SERIAL") {
+          col.dataType = "INTEGER";
+          col.autoIncrement = true;
+        } else if (dt2 === "BIGSERIAL") {
+          col.dataType = "BIGINT";
+          col.autoIncrement = true;
+        } else if (dt2 === "SMALLSERIAL") {
+          col.dataType = "SMALLINT";
+          col.autoIncrement = true;
+        }
+      }
+    }
+    return { schema, warnings: [] };
+  },
+  generate(schema) {
+    return generateDDL(schema, "postgresql");
+  },
+  generateAlter(diff) {
+    return generateAlterFor(diff, CAPS3, (n3) => quote(n3, CAPS3.identifierQuote));
+  },
+  quoteIdent(name) {
+    return quote(name, CAPS3.identifierQuote);
+  },
+  isReserved(word) {
+    return isReservedIn(word, RESERVED3);
+  },
+  mapType(canonical, col) {
+    return mapCanonical3(canonical, col);
+  },
+  parseType(native) {
+    return deriveCanonical({ dataType: native });
+  }
+};
+
+// src/features/db/dialect/registry.ts
+var dialectRegistry = {
+  sqlite: sqliteDialect,
+  mysql: mysqlDialect,
+  postgresql: postgresqlDialect
+};
+function getDialect(id) {
+  const d3 = dialectRegistry[id];
+  if (!d3) throw new Error(`Unknown dialect: ${id}`);
+  return d3;
 }
 
 // src/features/mermaid/mermaid-generator.ts
@@ -71554,9 +72429,9 @@ function FileMenu() {
   const handleExportSQL = () => {
     const state = useStore2.getState();
     const schema = { tables: state.tables, relationships: state.relationships, layers: {} };
-    const sql = generateDDL(schema, state.dialect);
+    const sql = getDialect(state.dialect).generate(schema);
     const blob = new Blob([sql], { type: "text/sql" });
-    const ext = state.dialect === "mysql" ? "mysql" : "pg";
+    const ext = state.dialect === "mysql" ? "mysql" : state.dialect === "sqlite" ? "sqlite" : "pg";
     downloadBlob(blob, `schema.${ext}.sql`);
     toast(`schema.${ext}.sql \uC744 \uB0B4\uBCF4\uB0C8\uC2B5\uB2C8\uB2E4`, "success");
   };
@@ -71948,6 +72823,18 @@ function Toolbar() {
               dialect === "postgresql" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
             ),
             children: "PostgreSQL"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(
+          "button",
+          {
+            "data-node": "dialect-sqlite",
+            onClick: () => setDialect("sqlite"),
+            className: cn(
+              "px-2 py-1 text-[11px] font-medium transition-colors",
+              dialect === "sqlite" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+            ),
+            children: "SQLite"
           }
         )
       ] }),
@@ -78226,7 +79113,7 @@ function BottomPanel() {
     () => ({ tables, relationships, layers: {} }),
     [tables, relationships]
   );
-  const ddl = (0, import_react20.useMemo)(() => generateDDL(schema, dialect), [schema, dialect]);
+  const ddl = (0, import_react20.useMemo)(() => getDialect(dialect).generate(schema), [schema, dialect]);
   const mermaidText = (0, import_react20.useMemo)(() => generateMermaid(schema), [schema]);
   const issues = (0, import_react20.useMemo)(() => validateSchema(schema), [schema]);
   const handleCopy = () => {
@@ -78300,7 +79187,7 @@ function StatusBar() {
   const tableCount = Object.keys(tables).length;
   const relCount = Object.keys(relationships).length;
   const zoomPct = Math.round(zoom * 100);
-  const dialectLabel = dialect === "mysql" ? "MYSQL v8.0" : "POSTGRESQL v15.4";
+  const dialectLabel = dialect === "mysql" ? "MYSQL v8.0" : dialect === "sqlite" ? "SQLITE 3" : "POSTGRESQL v15.4";
   let selectionInfo = "No selection";
   if (selectedNodeIds.length === 1) {
     const table = tables[selectedNodeIds[0]];
@@ -87164,881 +88051,6 @@ function flatLayout(schema, options) {
   return positions;
 }
 
-// src/features/sql/sql-parser.ts
-function parseCreateTables(sql) {
-  const schema = { tables: {}, relationships: {}, layers: {} };
-  const cleaned = sql.replace(/--[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
-  const statements = extractCreateTableStatements(cleaned);
-  for (const stmt of statements) {
-    const id = generateId();
-    const table = {
-      id,
-      name: stmt.tableName,
-      schema: stmt.schema || void 0,
-      columns: [],
-      indexes: []
-    };
-    const fks = [];
-    const pkColumns = [];
-    const parts = splitByComma(stmt.body);
-    for (const part of parts) {
-      const trimmed = part.trim();
-      if (!trimmed) continue;
-      const pkMatch = trimmed.match(/^\s*PRIMARY\s+KEY\s*\(([^)]+)\)/i);
-      if (pkMatch) {
-        const cols = pkMatch[1].split(",").map((c3) => c3.trim().replace(/`/g, ""));
-        pkColumns.push(...cols);
-        continue;
-      }
-      const uniqueMatch = trimmed.match(/^\s*(?:CONSTRAINT\s+`?\w+`?\s+)?UNIQUE\s+(?:KEY\s+)?(?:`?\w+`?\s+)?\(([^)]+)\)/i);
-      if (uniqueMatch) {
-        continue;
-      }
-      if (/^\s*(?:INDEX|KEY)\s/i.test(trimmed)) continue;
-      const fkMatch = trimmed.match(
-        /^\s*(?:CONSTRAINT\s+`?(\w+)`?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+`?(\w+)`?\s*\(([^)]+)\)(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?/i
-      );
-      if (fkMatch) {
-        fks.push({
-          constraintName: fkMatch[1],
-          columns: fkMatch[2].split(",").map((c3) => c3.trim().replace(/`/g, "")),
-          refTable: fkMatch[3],
-          refColumns: fkMatch[4].split(",").map((c3) => c3.trim().replace(/`/g, "")),
-          onDelete: parseRefAction(fkMatch[5]),
-          onUpdate: parseRefAction(fkMatch[6])
-        });
-        continue;
-      }
-      const colMatch = trimmed.match(
-        /^\s*`?(\w+)`?\s+(\w+(?:\s*\([^)]*\))?(?:\s+(?:UNSIGNED|SIGNED|ZEROFILL))*)/i
-      );
-      if (colMatch) {
-        const colName = colMatch[1];
-        const dataType = colMatch[2].toUpperCase();
-        const rest = trimmed.slice(colMatch[0].length).toUpperCase();
-        const col = {
-          id: generateId(),
-          name: colName,
-          dataType: normalizeDataType(dataType),
-          nullable: !rest.includes("NOT NULL"),
-          autoIncrement: rest.includes("AUTO_INCREMENT") || rest.includes("SERIAL"),
-          isPrimaryKey: rest.includes("PRIMARY KEY"),
-          isUnique: rest.includes("UNIQUE")
-        };
-        const defaultMatch = rest.match(/DEFAULT\s+('(?:[^'\\]|\\.)*'|\S+)/i);
-        if (defaultMatch) {
-          col.defaultValue = defaultMatch[1].replace(/^'|'$/g, "");
-        }
-        table.columns.push(col);
-      }
-    }
-    for (const pkCol of pkColumns) {
-      const col = table.columns.find((c3) => c3.name.toLowerCase() === pkCol.toLowerCase());
-      if (col) col.isPrimaryKey = true;
-    }
-    schema.tables[id] = table;
-    for (const fk of fks) {
-      const relId = generateId();
-      schema._pendingFKs ??= [];
-      schema._pendingFKs.push({
-        ...fk,
-        sourceTableId: id,
-        relId
-      });
-    }
-  }
-  const pending = schema._pendingFKs;
-  if (pending) {
-    for (const fk of pending) {
-      const referencedTable = Object.values(schema.tables).find(
-        (t4) => t4.name.toLowerCase() === fk.refTable.toLowerCase()
-      );
-      if (!referencedTable) continue;
-      const fkTable = schema.tables[fk.sourceTableId];
-      if (!fkTable) continue;
-      const sourceColumnIds = fk.refColumns.map(
-        (colName) => referencedTable.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase())?.id
-      ).filter((id) => !!id);
-      const targetColumnIds = fk.columns.map(
-        (colName) => fkTable.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase())?.id
-      ).filter((id) => !!id);
-      schema.relationships[fk.relId] = {
-        id: fk.relId,
-        name: fk.constraintName,
-        sourceTableId: referencedTable.id,
-        targetTableId: fkTable.id,
-        type: "1:N",
-        sourceColumnIds,
-        targetColumnIds,
-        onDelete: fk.onDelete ?? "NO ACTION",
-        onUpdate: fk.onUpdate ?? "NO ACTION"
-      };
-    }
-    delete schema._pendingFKs;
-  }
-  return schema;
-}
-function extractCreateTableStatements(sql) {
-  const results = [];
-  const headerRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:`?(\w+)`?\.)?`?(\w+)`?\s*\(/gi;
-  let headerMatch;
-  while ((headerMatch = headerRegex.exec(sql)) !== null) {
-    const schemaName = headerMatch[1] || null;
-    const tableName = headerMatch[2];
-    const bodyStart = headerMatch.index + headerMatch[0].length;
-    let depth = 1;
-    let i3 = bodyStart;
-    while (i3 < sql.length && depth > 0) {
-      const ch = sql[i3];
-      if (ch === "(") depth++;
-      else if (ch === ")") depth--;
-      i3++;
-    }
-    if (depth !== 0) continue;
-    const body = sql.slice(bodyStart, i3 - 1);
-    results.push({ schema: schemaName, tableName, body });
-  }
-  return results;
-}
-function splitByComma(text) {
-  const parts = [];
-  let depth = 0;
-  let current2 = "";
-  for (const char of text) {
-    if (char === "(") depth++;
-    else if (char === ")") depth--;
-    else if (char === "," && depth === 0) {
-      parts.push(current2);
-      current2 = "";
-      continue;
-    }
-    current2 += char;
-  }
-  if (current2.trim()) parts.push(current2);
-  return parts;
-}
-function parseRefAction(action) {
-  if (!action) return "NO ACTION";
-  const normalized = action.toUpperCase().replace(/\s+/g, " ").trim();
-  switch (normalized) {
-    case "CASCADE":
-      return "CASCADE";
-    case "SET NULL":
-      return "SET NULL";
-    case "SET DEFAULT":
-      return "SET DEFAULT";
-    case "RESTRICT":
-      return "RESTRICT";
-    case "NO ACTION":
-      return "NO ACTION";
-    default:
-      return "NO ACTION";
-  }
-}
-function normalizeDataType(dt2) {
-  return dt2.replace(/\s+/g, " ").trim();
-}
-
-// src/features/db/dialect/alter-fk.ts
-var ALTER_FK_RE = new RegExp(
-  // ALTER TABLE <t> ADD [CONSTRAINT <name>] FOREIGN KEY (<cols>) REFERENCES <ref> (<refcols>) [ON DELETE ..] [ON UPDATE ..]
-  String.raw`ALTER\s+TABLE\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+ADD\s+(?:CONSTRAINT\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s*REFERENCES\s+["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\(([^)]+)\)` + String.raw`(?:\s+ON\s+DELETE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?` + String.raw`(?:\s+ON\s+UPDATE\s+(CASCADE|SET\s+NULL|SET\s+DEFAULT|RESTRICT|NO\s+ACTION))?`,
-  "gi"
-);
-function splitCols(s3) {
-  return s3.split(",").map((c3) => c3.trim().replace(/["`]/g, "")).filter((c3) => c3.length > 0);
-}
-function refAction(a3) {
-  if (!a3) return "NO ACTION";
-  const n3 = a3.toUpperCase().replace(/\s+/g, " ").trim();
-  switch (n3) {
-    case "CASCADE":
-      return "CASCADE";
-    case "SET NULL":
-      return "SET NULL";
-    case "SET DEFAULT":
-      return "SET DEFAULT";
-    case "RESTRICT":
-      return "RESTRICT";
-    default:
-      return "NO ACTION";
-  }
-}
-var UNIQUE_RE = new RegExp(
-  String.raw`(?:CONSTRAINT\s+["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?UNIQUE\s*(?:KEY\s+)?(?:["` + "`" + String.raw`]?\w+["` + "`" + String.raw`]?\s+)?\(\s*["` + "`" + String.raw`]?(\w+)["` + "`" + String.raw`]?\s*\)`,
-  "gi"
-);
-function attachUniqueConstraints(schema, ddl) {
-  const headerRe = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:["`]?\w+["`]?\.)?["`]?(\w+)["`]?\s*\(/gi;
-  let hm;
-  while ((hm = headerRe.exec(ddl)) !== null) {
-    const tableName = hm[1];
-    const start = hm.index + hm[0].length;
-    let depth = 1;
-    let i3 = start;
-    while (i3 < ddl.length && depth > 0) {
-      const ch = ddl[i3];
-      if (ch === "(") depth++;
-      else if (ch === ")") depth--;
-      i3++;
-    }
-    if (depth !== 0) continue;
-    const body = ddl.slice(start, i3 - 1);
-    const table = Object.values(schema.tables).find(
-      (t4) => t4.name.toLowerCase() === tableName.toLowerCase()
-    );
-    if (!table) continue;
-    UNIQUE_RE.lastIndex = 0;
-    let um;
-    while ((um = UNIQUE_RE.exec(body)) !== null) {
-      const colName = um[1];
-      const col = table.columns.find((c3) => c3.name.toLowerCase() === colName.toLowerCase());
-      if (col) col.isUnique = true;
-    }
-  }
-}
-function attachAlterForeignKeys(schema, ddl) {
-  ALTER_FK_RE.lastIndex = 0;
-  let m4;
-  while ((m4 = ALTER_FK_RE.exec(ddl)) !== null) {
-    const [, fkTableName, constraintName, colStr, refTableName, refColStr, onDel, onUpd] = m4;
-    const fkTable = Object.values(schema.tables).find(
-      (t4) => t4.name.toLowerCase() === fkTableName.toLowerCase()
-    );
-    const refTable = Object.values(schema.tables).find(
-      (t4) => t4.name.toLowerCase() === refTableName.toLowerCase()
-    );
-    if (!fkTable || !refTable) continue;
-    const cols = splitCols(colStr);
-    const refCols = splitCols(refColStr);
-    const already = Object.values(schema.relationships).some(
-      (r4) => r4.targetTableId === fkTable.id && r4.targetColumnIds.map((id) => fkTable.columns.find((c3) => c3.id === id)?.name?.toLowerCase()).join() === cols.map((c3) => c3.toLowerCase()).join()
-    );
-    if (already) continue;
-    const sourceColumnIds = refCols.map((n3) => refTable.columns.find((c3) => c3.name.toLowerCase() === n3.toLowerCase())?.id).filter((id) => !!id);
-    const targetColumnIds = cols.map((n3) => fkTable.columns.find((c3) => c3.name.toLowerCase() === n3.toLowerCase())?.id).filter((id) => !!id);
-    const relId = generateId();
-    schema.relationships[relId] = {
-      id: relId,
-      name: constraintName,
-      sourceTableId: refTable.id,
-      // 참조 PK 측
-      targetTableId: fkTable.id,
-      // FK 보유 측
-      type: "1:N",
-      sourceColumnIds,
-      targetColumnIds,
-      onDelete: refAction(onDel),
-      onUpdate: refAction(onUpd)
-    };
-  }
-}
-
-// src/features/db/dialect/canonical.ts
-var BASE_ALIAS = {
-  INT: "INTEGER",
-  INT4: "INTEGER",
-  INTEGER: "INTEGER",
-  INT2: "SMALLINT",
-  SMALLINT: "SMALLINT",
-  INT8: "BIGINT",
-  BIGINT: "BIGINT",
-  BOOL: "BOOLEAN",
-  BOOLEAN: "BOOLEAN",
-  TINYINT: "BOOLEAN",
-  // 관용: TINYINT(1) ↔ BOOLEAN
-  NUMERIC: "DECIMAL",
-  DECIMAL: "DECIMAL",
-  REAL: "FLOAT",
-  FLOAT: "FLOAT",
-  FLOAT4: "FLOAT",
-  DOUBLE: "DOUBLE",
-  "DOUBLE PRECISION": "DOUBLE",
-  FLOAT8: "DOUBLE",
-  CHARACTER: "CHAR",
-  CHAR: "CHAR",
-  "CHARACTER VARYING": "VARCHAR",
-  VARCHAR: "VARCHAR",
-  VARCHAR2: "VARCHAR",
-  TEXT: "TEXT",
-  CLOB: "TEXT",
-  DATE: "DATE",
-  TIME: "TIME",
-  TIMESTAMP: "TIMESTAMP",
-  TIMESTAMPTZ: "TIMESTAMP",
-  DATETIME: "DATETIME",
-  BLOB: "BLOB",
-  BYTEA: "BLOB",
-  JSON: "JSON",
-  JSONB: "JSON",
-  UUID: "UUID",
-  ENUM: "ENUM",
-  SET: "ENUM"
-};
-function sqliteAffinity(base) {
-  const b3 = base.toUpperCase();
-  if (b3.includes("INT")) return "INTEGER";
-  if (b3.includes("CHAR") || b3.includes("CLOB") || b3.includes("TEXT")) return "TEXT";
-  if (b3 === "BLOB") return "BLOB";
-  if (b3.includes("REAL") || b3.includes("FLOA") || b3.includes("DOUB")) return "REAL";
-  return "NUMERIC";
-}
-function parseNativeType(native) {
-  const raw = native.trim();
-  const upper = raw.toUpperCase();
-  const enumMatch = upper.match(/^(ENUM|SET)\s*\(([^)]*)\)/);
-  if (enumMatch) {
-    const values = enumMatch[2].split(",").map((v4) => v4.trim().replace(/^'|'$/g, "")).filter((v4) => v4.length > 0);
-    return { base: "ENUM", enumValues: values, raw };
-  }
-  const unsigned = /\bUNSIGNED\b/.test(upper);
-  const stripped = upper.replace(/\b(UNSIGNED|SIGNED|ZEROFILL)\b/g, "").trim();
-  const m4 = stripped.match(/^([A-Z0-9_ ]+?)\s*(?:\(([^)]*)\))?$/);
-  const rawBase = (m4?.[1] ?? stripped).trim();
-  const argStr = m4?.[2];
-  const base = BASE_ALIAS[rawBase] ?? rawBase;
-  const args = argStr ? argStr.split(",").map((a3) => parseInt(a3.trim(), 10)).filter((n3) => !Number.isNaN(n3)) : void 0;
-  const canon = { base, raw };
-  if (args && args.length > 0) canon.args = args;
-  if (unsigned) canon.unsigned = true;
-  return canon;
-}
-function deriveCanonical(col) {
-  const canon = parseNativeType(col.dataType);
-  if (col.enumValues && col.enumValues.length > 0) {
-    canon.base = "ENUM";
-    canon.enumValues = col.enumValues;
-  }
-  return canon;
-}
-function renderTypeWithArgs(base, args) {
-  if (args && args.length > 0) return `${base}(${args.join(", ")})`;
-  return base;
-}
-
-// src/features/db/dialect/shared.ts
-function quote(name, q2) {
-  return q2 + name.split(q2).join(q2 + q2) + q2;
-}
-function isReservedIn(word, reserved) {
-  return reserved.has(word.toUpperCase());
-}
-function normalizeQuotesForParser(ddl) {
-  return ddl.split('"').join("`");
-}
-function generateAlterFor(diff, caps, q2) {
-  const out2 = [];
-  for (const t4 of diff.droppedTables) {
-    out2.push(`DROP TABLE IF EXISTS ${q2(t4)};`);
-  }
-  for (const t4 of diff.addedTables) {
-    out2.push(`-- ADD TABLE ${q2(t4)} (use generate() for full CREATE)`);
-  }
-  for (const { table, column } of diff.addedColumns) {
-    const nn = column.nullable ? "" : " NOT NULL";
-    const def = column.defaultValue !== void 0 && column.defaultValue !== "" ? ` DEFAULT ${column.defaultValue}` : "";
-    out2.push(`ALTER TABLE ${q2(table)} ADD COLUMN ${q2(column.name)} ${column.dataType}${nn}${def};`);
-  }
-  for (const { table, column } of diff.droppedColumns) {
-    out2.push(`ALTER TABLE ${q2(table)} DROP COLUMN ${q2(column)};`);
-  }
-  for (const fk of diff.addedRelationships) {
-    const name = fk.name ?? `fk_${fk.table}_${fk.columns[0] ?? "x"}`;
-    const cols = fk.columns.map(q2).join(", ");
-    const refCols = fk.refColumns.map(q2).join(", ");
-    if (caps.alterAddConstraint) {
-      out2.push(
-        `ALTER TABLE ${q2(fk.table)} ADD CONSTRAINT ${q2(name)} FOREIGN KEY (${cols}) REFERENCES ${q2(fk.refTable)} (${refCols}) ON DELETE ${fk.onDelete} ON UPDATE ${fk.onUpdate};`
-      );
-    } else {
-      out2.push(
-        `-- SQLite: cannot ADD FOREIGN KEY via ALTER (${name}); recreate table ${fk.table} with inline FK to ${fk.refTable}.`
-      );
-    }
-  }
-  for (const fk of diff.droppedRelationships) {
-    if (caps.alterAddConstraint) {
-      out2.push(`ALTER TABLE ${q2(fk.table)} DROP CONSTRAINT ${q2(fk.name)};`);
-    } else {
-      out2.push(
-        `-- SQLite: cannot DROP CONSTRAINT ${fk.name} via ALTER; recreate table ${fk.table}.`
-      );
-    }
-  }
-  return out2.join("\n");
-}
-
-// src/features/db/dialect/sqlite.ts
-var CAPS = {
-  identifierQuote: '"',
-  schemas: false,
-  autoIncrement: "autoincrement",
-  // INTEGER PRIMARY KEY AUTOINCREMENT
-  enumStyle: "check",
-  // native ENUM 없음 → CHECK(또는 폴백 TEXT)
-  inlineForeignKeys: true,
-  // ALTER ADD FK 불가 → 본문 인라인만
-  alterAddConstraint: false,
-  partialIndexes: true,
-  expressionIndexes: true,
-  checkConstraints: true,
-  engineCharset: false,
-  sequences: false,
-  identifierMaxLen: 0
-  // 사실상 제한 없음
-};
-function mapCanonical(canon, _col) {
-  const base = canon.base;
-  switch (base) {
-    case "BOOLEAN":
-      return "INTEGER";
-    // SQLite 는 0/1
-    case "SMALLINT":
-    case "INTEGER":
-    case "BIGINT":
-      return "INTEGER";
-    case "FLOAT":
-    case "DOUBLE":
-      return "REAL";
-    case "DECIMAL":
-      return "NUMERIC";
-    case "CHAR":
-    case "VARCHAR":
-    case "TEXT":
-    case "UUID":
-    case "ENUM":
-    // 폴백: TEXT affinity
-    case "JSON":
-      return "TEXT";
-    case "BLOB":
-      return "BLOB";
-    case "DATE":
-    case "TIME":
-    case "TIMESTAMP":
-    case "DATETIME":
-      return "TEXT";
-    // SQLite 권장: ISO8601 텍스트
-    default:
-      return sqliteAffinity(base);
-  }
-}
-var RESERVED = /* @__PURE__ */ new Set([
-  "ABORT",
-  "ADD",
-  "ALTER",
-  "AND",
-  "AS",
-  "AUTOINCREMENT",
-  "CONSTRAINT",
-  "CREATE",
-  "DEFAULT",
-  "DELETE",
-  "DROP",
-  "FOREIGN",
-  "FROM",
-  "GROUP",
-  "INDEX",
-  "KEY",
-  "ORDER",
-  "PRIMARY",
-  "REFERENCES",
-  "SELECT",
-  "TABLE",
-  "UNIQUE",
-  "UPDATE",
-  "WHERE"
-]);
-function parseSqlite(ddl) {
-  const schema = parseCreateTables(normalizeQuotesForParser(ddl));
-  attachUniqueConstraints(schema, ddl);
-  for (const table of Object.values(schema.tables)) {
-    for (const col of table.columns) {
-      const re2 = new RegExp(
-        `["\`]?${escapeRe(col.name)}["\`]?[^,(]*?\\bAUTOINCREMENT\\b`,
-        "i"
-      );
-      if (re2.test(ddl)) {
-        col.autoIncrement = true;
-        col.isPrimaryKey = true;
-      }
-    }
-  }
-  return { schema, warnings: [] };
-}
-function escapeRe(s3) {
-  return s3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function generateSqlite(schema) {
-  const tables = Object.values(schema.tables);
-  if (tables.length === 0) return "-- No tables defined yet";
-  const rels = Object.values(schema.relationships);
-  const sorted = topoSort(tables, rels);
-  const q2 = (n3) => quote(n3, '"');
-  const blocks = [];
-  for (const table of sorted) {
-    blocks.push(generateCreate(table, schema, q2));
-  }
-  return blocks.join("\n\n");
-}
-function generateCreate(table, schema, q2) {
-  const lines = [];
-  const pkCols = table.columns.filter((c3) => c3.isPrimaryKey);
-  const singleIntPk = pkCols.length === 1 && pkCols[0].autoIncrement;
-  for (const col of table.columns) {
-    const canon = deriveCanonical(col);
-    const type = mapCanonical(canon, col);
-    let def = `  ${q2(col.name)} ${type}`;
-    if (singleIntPk && col.isPrimaryKey && col.autoIncrement) {
-      def = `  ${q2(col.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
-    } else {
-      if (!col.nullable) def += " NOT NULL";
-      if (col.isUnique && !col.isPrimaryKey) def += " UNIQUE";
-      if (col.defaultValue !== void 0 && col.defaultValue !== "") {
-        def += ` DEFAULT ${col.defaultValue}`;
-      }
-    }
-    lines.push(def);
-  }
-  if (!singleIntPk && pkCols.length > 0) {
-    lines.push(`  PRIMARY KEY (${pkCols.map((c3) => q2(c3.name)).join(", ")})`);
-  }
-  for (const rel of Object.values(schema.relationships)) {
-    if (rel.targetTableId !== table.id) continue;
-    const refTable = schema.tables[rel.sourceTableId];
-    if (!refTable) continue;
-    const cols = rel.targetColumnIds.map((id) => table.columns.find((c3) => c3.id === id)?.name).filter((n3) => !!n3);
-    const refCols = rel.sourceColumnIds.map((id) => refTable.columns.find((c3) => c3.id === id)?.name).filter((n3) => !!n3);
-    if (cols.length === 0 || refCols.length === 0) continue;
-    let fk = `  CONSTRAINT ${q2(rel.name ?? `fk_${table.name}_${refTable.name}`)} FOREIGN KEY (${cols.map(q2).join(", ")}) REFERENCES ${q2(refTable.name)} (${refCols.map(q2).join(", ")})`;
-    if (rel.onDelete && rel.onDelete !== "NO ACTION") fk += ` ON DELETE ${rel.onDelete}`;
-    if (rel.onUpdate && rel.onUpdate !== "NO ACTION") fk += ` ON UPDATE ${rel.onUpdate}`;
-    lines.push(fk);
-  }
-  return `CREATE TABLE ${q2(table.name)} (
-${lines.join(",\n")}
-);`;
-}
-function topoSort(tables, rels) {
-  const map = new Map(tables.map((t4) => [t4.id, t4]));
-  const indeg = /* @__PURE__ */ new Map();
-  const adj = /* @__PURE__ */ new Map();
-  for (const t4 of tables) {
-    indeg.set(t4.id, 0);
-    adj.set(t4.id, []);
-  }
-  for (const r4 of rels) {
-    if (map.has(r4.sourceTableId) && map.has(r4.targetTableId)) {
-      adj.get(r4.sourceTableId).push(r4.targetTableId);
-      indeg.set(r4.targetTableId, (indeg.get(r4.targetTableId) ?? 0) + 1);
-    }
-  }
-  const queue = [...indeg].filter(([, d3]) => d3 === 0).map(([id]) => id);
-  const result = [];
-  while (queue.length > 0) {
-    const cur = queue.shift();
-    const t4 = map.get(cur);
-    if (t4) result.push(t4);
-    for (const nb of adj.get(cur) ?? []) {
-      const d3 = (indeg.get(nb) ?? 1) - 1;
-      indeg.set(nb, d3);
-      if (d3 === 0) queue.push(nb);
-    }
-  }
-  for (const t4 of tables) if (!result.find((r4) => r4.id === t4.id)) result.push(t4);
-  return result;
-}
-var sqliteDialect = {
-  id: "sqlite",
-  displayName: "SQLite",
-  caps: CAPS,
-  parse: parseSqlite,
-  generate: generateSqlite,
-  generateAlter(diff) {
-    return generateAlterFor(diff, CAPS, (n3) => quote(n3, CAPS.identifierQuote));
-  },
-  quoteIdent(name) {
-    return quote(name, CAPS.identifierQuote);
-  },
-  isReserved(word) {
-    return isReservedIn(word, RESERVED);
-  },
-  mapType(canonical, col) {
-    return mapCanonical(canonical, col);
-  },
-  parseType(native) {
-    return deriveCanonical({ dataType: native });
-  }
-};
-
-// src/features/db/dialect/mysql.ts
-var CAPS2 = {
-  identifierQuote: "`",
-  schemas: false,
-  // MySQL 의 "schema" 는 database 와 동의어 — ERD 모델에선 비사용 취급
-  autoIncrement: "autoincrement",
-  // AUTO_INCREMENT 키워드
-  enumStyle: "native",
-  // ENUM('a','b')
-  inlineForeignKeys: false,
-  // ddl-generator 는 ALTER 로 분리
-  alterAddConstraint: true,
-  partialIndexes: false,
-  expressionIndexes: true,
-  // 8.0.13+
-  checkConstraints: true,
-  // 8.0.16+
-  engineCharset: true,
-  sequences: false,
-  identifierMaxLen: 64
-};
-function mapCanonical2(canon, col) {
-  const base = canon.base;
-  const unsigned = canon.unsigned ? " UNSIGNED" : "";
-  switch (base) {
-    case "BOOLEAN":
-      return "TINYINT(1)";
-    case "INTEGER":
-      return `INT${unsigned}`;
-    case "SMALLINT":
-      return `SMALLINT${unsigned}`;
-    case "BIGINT":
-      return `BIGINT${unsigned}`;
-    case "FLOAT":
-      return "FLOAT";
-    case "DOUBLE":
-      return "DOUBLE";
-    case "DECIMAL":
-      return renderTypeWithArgs("DECIMAL", canon.args);
-    case "VARCHAR":
-      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
-    case "CHAR":
-      return renderTypeWithArgs("CHAR", canon.args);
-    case "TEXT":
-      return "TEXT";
-    case "BLOB":
-      return "BLOB";
-    case "JSON":
-      return "JSON";
-    case "UUID":
-      return "CHAR(36)";
-    case "DATETIME":
-      return "DATETIME";
-    case "TIMESTAMP":
-      return "TIMESTAMP";
-    case "DATE":
-      return "DATE";
-    case "TIME":
-      return "TIME";
-    case "ENUM": {
-      const vals = canon.enumValues ?? col.enumValues ?? [];
-      if (vals.length > 0) return `ENUM(${vals.map((v4) => `'${v4}'`).join(", ")})`;
-      return "VARCHAR(255)";
-    }
-    default:
-      return canon.raw ?? renderTypeWithArgs(base, canon.args);
-  }
-}
-var RESERVED2 = /* @__PURE__ */ new Set([
-  "ADD",
-  "ALTER",
-  "AUTO_INCREMENT",
-  "BETWEEN",
-  "BY",
-  "CONSTRAINT",
-  "CREATE",
-  "DEFAULT",
-  "DELETE",
-  "DROP",
-  "FOREIGN",
-  "FROM",
-  "GROUP",
-  "INDEX",
-  "INSERT",
-  "KEY",
-  "ORDER",
-  "PRIMARY",
-  "REFERENCES",
-  "SELECT",
-  "TABLE",
-  "UNIQUE",
-  "UPDATE",
-  "WHERE"
-]);
-var mysqlDialect = {
-  id: "mysql",
-  displayName: "MySQL",
-  caps: CAPS2,
-  parse(ddl) {
-    const schema = parseCreateTables(ddl);
-    attachUniqueConstraints(schema, ddl);
-    attachAlterForeignKeys(schema, ddl);
-    return { schema, warnings: [] };
-  },
-  generate(schema) {
-    return generateDDL(schema, "mysql");
-  },
-  generateAlter(diff) {
-    return generateAlterFor(diff, CAPS2, (n3) => quote(n3, CAPS2.identifierQuote));
-  },
-  quoteIdent(name) {
-    return quote(name, CAPS2.identifierQuote);
-  },
-  isReserved(word) {
-    return isReservedIn(word, RESERVED2);
-  },
-  mapType(canonical, col) {
-    return mapCanonical2(canonical, col);
-  },
-  parseType(native) {
-    return deriveCanonical({ dataType: native });
-  }
-};
-
-// src/features/db/dialect/postgresql.ts
-var CAPS3 = {
-  identifierQuote: '"',
-  schemas: true,
-  autoIncrement: "serial",
-  // SERIAL/BIGSERIAL (ddl-generator 가 실현)
-  enumStyle: "check",
-  // 인라인 native ENUM 미지원 → CHECK/별도 타입; 본 엔진은 VARCHAR 폴백
-  inlineForeignKeys: false,
-  alterAddConstraint: true,
-  partialIndexes: true,
-  expressionIndexes: true,
-  checkConstraints: true,
-  engineCharset: false,
-  sequences: true,
-  identifierMaxLen: 63
-};
-function mapCanonical3(canon, _col) {
-  const base = canon.base;
-  switch (base) {
-    case "BOOLEAN":
-      return "BOOLEAN";
-    case "INTEGER":
-      return "INTEGER";
-    case "SMALLINT":
-      return "SMALLINT";
-    case "BIGINT":
-      return "BIGINT";
-    case "FLOAT":
-      return "REAL";
-    case "DOUBLE":
-      return "DOUBLE PRECISION";
-    case "DECIMAL":
-      return renderTypeWithArgs("NUMERIC", canon.args);
-    case "VARCHAR":
-      return renderTypeWithArgs("VARCHAR", canon.args ?? [255]);
-    case "CHAR":
-      return renderTypeWithArgs("CHAR", canon.args);
-    case "TEXT":
-      return "TEXT";
-    case "BLOB":
-      return "BYTEA";
-    case "JSON":
-      return "JSONB";
-    case "UUID":
-      return "UUID";
-    case "DATETIME":
-      return "TIMESTAMP";
-    case "TIMESTAMP":
-      return "TIMESTAMP";
-    case "DATE":
-      return "DATE";
-    case "TIME":
-      return "TIME";
-    case "ENUM":
-      return "VARCHAR(255)";
-    default:
-      return canon.raw ?? renderTypeWithArgs(base, canon.args);
-  }
-}
-var RESERVED3 = /* @__PURE__ */ new Set([
-  "ALL",
-  "ANALYSE",
-  "ANALYZE",
-  "AND",
-  "ANY",
-  "AS",
-  "ASC",
-  "CONSTRAINT",
-  "CREATE",
-  "DEFAULT",
-  "DESC",
-  "DISTINCT",
-  "DO",
-  "FOREIGN",
-  "FROM",
-  "GROUP",
-  "INDEX",
-  "KEY",
-  "ORDER",
-  "PRIMARY",
-  "REFERENCES",
-  "SELECT",
-  "TABLE",
-  "UNIQUE",
-  "USER",
-  "WHERE"
-]);
-var postgresqlDialect = {
-  id: "postgresql",
-  displayName: "PostgreSQL",
-  caps: CAPS3,
-  parse(ddl) {
-    const schema = parseCreateTables(normalizeQuotesForParser(ddl));
-    attachUniqueConstraints(schema, ddl);
-    attachAlterForeignKeys(schema, ddl);
-    for (const table of Object.values(schema.tables)) {
-      for (const col of table.columns) {
-        const dt2 = col.dataType.toUpperCase();
-        if (dt2 === "SERIAL") {
-          col.dataType = "INTEGER";
-          col.autoIncrement = true;
-        } else if (dt2 === "BIGSERIAL") {
-          col.dataType = "BIGINT";
-          col.autoIncrement = true;
-        } else if (dt2 === "SMALLSERIAL") {
-          col.dataType = "SMALLINT";
-          col.autoIncrement = true;
-        }
-      }
-    }
-    return { schema, warnings: [] };
-  },
-  generate(schema) {
-    return generateDDL(schema, "postgresql");
-  },
-  generateAlter(diff) {
-    return generateAlterFor(diff, CAPS3, (n3) => quote(n3, CAPS3.identifierQuote));
-  },
-  quoteIdent(name) {
-    return quote(name, CAPS3.identifierQuote);
-  },
-  isReserved(word) {
-    return isReservedIn(word, RESERVED3);
-  },
-  mapType(canonical, col) {
-    return mapCanonical3(canonical, col);
-  },
-  parseType(native) {
-    return deriveCanonical({ dataType: native });
-  }
-};
-
-// src/features/db/dialect/registry.ts
-var dialectRegistry = {
-  sqlite: sqliteDialect,
-  mysql: mysqlDialect,
-  postgresql: postgresqlDialect
-};
-function getDialect(id) {
-  const d3 = dialectRegistry[id];
-  if (!d3) throw new Error(`Unknown dialect: ${id}`);
-  return d3;
-}
-
 // src/features/convert/registry.ts
 var registry = /* @__PURE__ */ new Map();
 function registerConverter(converter) {
@@ -89799,8 +89811,95 @@ COMMENT ON TABLE ${schemaPrefix}"${p4.name}" IS '${p4.comment}'`;
   }
 };
 
+// src/features/migration/sql-generator/sqlite-generator.ts
+var SQLiteGenerator = class {
+  dialect = "sqlite";
+  q(name) {
+    return `"${name}"`;
+  }
+  unsupported(op) {
+    return `-- SQLite: '${op}' \uB294 ALTER \uB85C \uBD88\uAC00 \u2014 \uD14C\uC774\uBE14 \uC7AC\uC791\uC131 \uD544\uC694(\uC218\uB3D9)`;
+  }
+  generate(op) {
+    const p4 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p4.columns ?? [];
+        const inlinePk = columns.find((c3) => c3.autoIncrement && c3.isPrimaryKey);
+        const colDefs = columns.map((c3) => {
+          if (c3 === inlinePk) return `  ${this.q(c3.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
+          let def = `  ${this.q(c3.name)} ${c3.dataType}`;
+          if (c3.length) def += `(${c3.length})`;
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          return def;
+        });
+        if (!inlinePk) {
+          const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => this.q(c3.name));
+          if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        }
+        return `CREATE TABLE ${this.q(p4.name)} (
+${colDefs.join(",\n")}
+);`;
+      }
+      case "dropTable":
+        return `DROP TABLE IF EXISTS ${this.q(p4.name)};`;
+      case "renameTable":
+        return `ALTER TABLE ${this.q(p4.oldName)} RENAME TO ${this.q(p4.newName)};`;
+      case "addColumn": {
+        let sql = `ALTER TABLE ${this.q(p4.table)} ADD COLUMN ${this.q(p4.name)} ${p4.dataType ?? "TEXT"}`;
+        if (!(p4.nullable ?? true)) sql += " NOT NULL";
+        if (p4.defaultValue != null) sql += ` DEFAULT ${p4.defaultValue}`;
+        const stmt = sql + ";";
+        if (p4.isUnique) {
+          return `${stmt}
+CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.name}`)} ON ${this.q(p4.table)}(${this.q(p4.name)});`;
+        }
+        return stmt;
+      }
+      case "dropColumn":
+        return `ALTER TABLE ${this.q(p4.table)} DROP COLUMN ${this.q(p4.name)};`;
+      case "renameColumn":
+        return `ALTER TABLE ${this.q(p4.table)} RENAME COLUMN ${this.q(p4.oldName)} TO ${this.q(p4.newName)};`;
+      case "modifyColumnType":
+      case "modifyColumnDefault":
+      case "setColumnNullable":
+      case "setColumnAutoIncrement":
+      case "addPrimaryKey":
+      case "dropPrimaryKey":
+      case "addForeignKey":
+      // FK 는 CREATE TABLE 인라인으로만, ALTER 추가 불가
+      case "dropForeignKey":
+        return this.unsupported(op.type);
+      case "setColumnUnique":
+        return p4.unique ? `CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.column}`)} ON ${this.q(p4.table)}(${this.q(p4.column)});` : `DROP INDEX ${this.q(`uq_${p4.table}_${p4.column}`)};`;
+      case "addUniqueConstraint": {
+        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
+        return `CREATE UNIQUE INDEX ${this.q(name)} ON ${this.q(p4.table)}(${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `DROP INDEX ${this.q(p4.name)};`;
+      case "createIndex": {
+        const unique = p4.unique ? "UNIQUE " : "";
+        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
+        return `CREATE ${unique}INDEX ${this.q(p4.name)} ON ${this.q(p4.table)}(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX ${this.q(p4.name)};`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
 // src/features/migration/sql-generator/index.ts
 var generators = {
+  sqlite: new SQLiteGenerator(),
   mysql: new MySQLGenerator(),
   postgresql: new PostgreSQLGenerator()
 };
@@ -90861,8 +90960,8 @@ function registerCommands(ctx, store) {
     if (!p4.id || typeof p4.id !== "string") return { ok: false, code: "INVALID_INPUT", message: "id(\uD30C\uC77C\uBA85) required" };
     if (!fs.readText) return { ok: false, code: "GATE_REQUIRED", message: "fs \uAD8C\uD55C \uD544\uC694" };
     const dialect = p4.dialect ?? "mysql";
-    if (dialect !== "mysql" && dialect !== "postgresql") {
-      return { ok: false, code: "INVALID_INPUT", message: `migration-sql dialect \uBBF8\uC9C0\uC6D0: '${dialect}'(mysql|postgresql)` };
+    if (dialect !== "sqlite" && dialect !== "mysql" && dialect !== "postgresql") {
+      return { ok: false, code: "INVALID_INPUT", message: `migration-sql dialect \uBBF8\uC9C0\uC6D0: '${dialect}'(sqlite|mysql|postgresql)` };
     }
     try {
       const file = await resolveMigId(fs, p4.dir, p4.id);
@@ -90877,7 +90976,7 @@ function registerCommands(ctx, store) {
   }, {
     dir: { type: "string", required: true, description: "Absolute path to the migration directory" },
     id: { type: "string", required: true, description: ".mig filename (extension is optional)" },
-    dialect: { type: "string", enum: ["mysql", "postgresql"], description: "Target database dialect", default: "mysql" }
+    dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], description: "Target database dialect", default: "mysql" }
   });
   add2("migration-apply", "Apply the up operations of a .mig file (or all files when id is omitted) to the working schema", { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC801\uC6A9 up \uC2A4\uD0A4\uB9C8 \uBC18\uC601" }, (d3) => `${d3.applied ?? 0}\uAC1C \uC5F0\uC0B0\uC744 \uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4`, async (p4) => {
     const g3 = needFs();

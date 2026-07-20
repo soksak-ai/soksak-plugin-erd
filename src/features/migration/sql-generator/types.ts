@@ -1,8 +1,8 @@
 import type { Operation } from '../types';
-import type { SQLDialect } from '@/types/schema';
+import type { DialectId } from '@/features/db/dialect/types';
 
 export interface SQLGenerator {
-  dialect: SQLDialect;
+  dialect: DialectId;
   generate(op: Operation): string;
   generateBatch(ops: Operation[]): string;
 }

@@ -33,5 +33,5 @@ export type {
   DropIndexParams,
 } from './operations';
 
-export { getSQLGenerator, MySQLGenerator, PostgreSQLGenerator } from './sql-generator';
+export { getSQLGenerator, MySQLGenerator, PostgreSQLGenerator, SQLiteGenerator } from './sql-generator';
 export type { SQLGenerator } from './sql-generator';

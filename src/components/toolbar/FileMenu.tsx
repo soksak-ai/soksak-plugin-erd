@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store';
-import { generateDDL } from '@/features/sql';
+import { getDialect } from '@/features/db/dialect/registry';
 import { generateMermaid } from '@/features/mermaid';
 import { toast } from '@/store/toast-store';
 import type { ERDSchema } from '@/types/schema';
@@ -97,9 +97,9 @@ export function FileMenu() {
   const handleExportSQL = () => {
     const state = useStore.getState();
     const schema: ERDSchema = { tables: state.tables, relationships: state.relationships, layers: {} };
-    const sql = generateDDL(schema, state.dialect);
+    const sql = getDialect(state.dialect).generate(schema);
     const blob = new Blob([sql], { type: 'text/sql' });
-    const ext = state.dialect === 'mysql' ? 'mysql' : 'pg';
+    const ext = state.dialect === 'mysql' ? 'mysql' : state.dialect === 'sqlite' ? 'sqlite' : 'pg';
     downloadBlob(blob, `schema.${ext}.sql`);
     toast(`schema.${ext}.sql 을 내보냈습니다`, 'success');
   };

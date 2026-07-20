@@ -1,6 +1,6 @@
 import type { StateCreator } from 'zustand';
 import type { StoreState } from '../index';
-import type { SQLDialect } from '@/types/schema';
+import type { DialectId } from '@/features/db/dialect/types';
 import type { Theme } from '@/constants/theme';
 
 // 세션 간 영속되는 크롬 환경설정의 복원 입력. store 가 자기 필드의 유효범위를 소유하므로
@@ -43,7 +43,7 @@ export interface UISlice {
   importMWBDialogOpen: boolean;
 
   // Settings
-  dialect: SQLDialect;
+  dialect: DialectId;
   theme: Theme;
   showMinimap: boolean;
   showGrid: boolean;
@@ -87,7 +87,7 @@ export interface UISlice {
   setImportSQLDialogOpen: (open: boolean) => void;
   setImportMermaidDialogOpen: (open: boolean) => void;
   setImportMWBDialogOpen: (open: boolean) => void;
-  setDialect: (dialect: SQLDialect) => void;
+  setDialect: (dialect: DialectId) => void;
   setTheme: (theme: Theme) => void;
   toggleMinimap: () => void;
   toggleGrid: () => void;

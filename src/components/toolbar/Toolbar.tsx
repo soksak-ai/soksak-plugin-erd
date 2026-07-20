@@ -110,6 +110,18 @@ export function Toolbar() {
             >
               PostgreSQL
             </button>
+            <button
+              data-node="dialect-sqlite"
+              onClick={() => setDialect('sqlite')}
+              className={cn(
+                'px-2 py-1 text-[11px] font-medium transition-colors',
+                dialect === 'sqlite'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
+              )}
+            >
+              SQLite
+            </button>
           </div>
           <span className="text-xs text-gray-500 dark:text-zinc-500">{zoomPct}%</span>
           <span className="text-xs text-gray-500 dark:text-zinc-500">{tableCount} tables</span>

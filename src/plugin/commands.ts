@@ -1061,9 +1061,9 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
     const d = requireDir(p); if (d) return d;
     if (!p.id || typeof p.id !== 'string') return { ok: false, code: 'INVALID_INPUT', message: 'id(파일명) required' };
     if (!fs!.readText) return { ok: false, code: 'GATE_REQUIRED', message: 'fs 권한 필요' };
-    const dialect = (p.dialect as 'mysql' | 'postgresql') ?? 'mysql';
-    if (dialect !== 'mysql' && dialect !== 'postgresql') {
-      return { ok: false, code: 'INVALID_INPUT', message: `migration-sql dialect 미지원: '${dialect}'(mysql|postgresql)` };
+    const dialect = (p.dialect as 'sqlite' | 'mysql' | 'postgresql') ?? 'mysql';
+    if (dialect !== 'sqlite' && dialect !== 'mysql' && dialect !== 'postgresql') {
+      return { ok: false, code: 'INVALID_INPUT', message: `migration-sql dialect 미지원: '${dialect}'(sqlite|mysql|postgresql)` };
     }
     try {
       const file = await resolveMigId(fs!, p.dir, p.id);
@@ -1080,7 +1080,7 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
   }, {
     dir: { type: 'string', required: true, description: 'Absolute path to the migration directory' },
     id: { type: 'string', required: true, description: '.mig filename (extension is optional)' },
-    dialect: { type: 'string', enum: ['mysql', 'postgresql'], description: 'Target database dialect', default: 'mysql' },
+    dialect: { type: 'string', enum: ['sqlite', 'mysql', 'postgresql'], description: 'Target database dialect', default: 'mysql' },
   });
 
   add('migration-apply', 'Apply the up operations of a .mig file (or all files when id is omitted) to the working schema', { ko: '마이그레이션 적용 up 스키마 반영' }, (d) => `${d.applied ?? 0}개 연산을 적용했습니다`, async (p) => {
