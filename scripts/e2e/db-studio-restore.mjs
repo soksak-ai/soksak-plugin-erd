@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// soksak-plugin-erd E2E — 영속 복원 시나리오(런타임 재적재 후 스키마 생존).
+// soksak-plugin-db-studio E2E — 영속 복원 시나리오(런타임 재적재 후 스키마 생존).
 // persist.ts 계약의 라이브 검증: apply → persist-flush → plugin.reload(id) → get-schema.
-//   사용: SOKSAK_SOCKET=<home>/<identifier>.sock node scripts/e2e/erd-restore.mjs
+//   사용: SOKSAK_SOCKET=<home>/<identifier>.sock node scripts/e2e/db-studio-restore.mjs
 // 멱등: 시작·종료 시 data.ns.remove 로 플러그인 ns 를 회수하고 빈 런타임을 재적재한다.
 import net from "node:net";
 
 const SOCKET = process.env.SOKSAK_SOCKET;
 if (!SOCKET) {
   // 기본 소켓 추측 금지 — identity home 별 경로가 다르다(감춰진 오배선 방지).
-  console.error("usage: SOKSAK_SOCKET=<home>/<identifier>.sock node scripts/e2e/erd-restore.mjs");
+  console.error("usage: SOKSAK_SOCKET=<home>/<identifier>.sock node scripts/e2e/db-studio-restore.mjs");
   process.exit(2);
 }
-const ID = "soksak-plugin-erd";
+const ID = "soksak-plugin-db-studio";
 const P = `plugin.${ID}.`;
 
 let sock, seq = 0;

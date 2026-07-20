@@ -1,4 +1,4 @@
-# soksak-plugin-erd
+# soksak-plugin-db-studio
 
 LLM-native database schema design (ERD) for the soksak terminal app.
 
@@ -20,27 +20,27 @@ Every capability is exposed as a command, so you design and evolve a database sc
 Discover the live command surface (names/params evolve — never guess):
 
 ```
-sok commands | grep plugin.soksak-plugin-erd
-sok help plugin.soksak-plugin-erd.<command>
+sok commands | grep plugin.soksak-plugin-db-studio
+sok help plugin.soksak-plugin-db-studio.<command>
 ```
 
 Build a schema in one atomic apply, then validate, lay out, and emit SQL:
 
 ```
-sok plugin.soksak-plugin-erd.apply title='shop' ops='[
+sok plugin.soksak-plugin-db-studio.apply title='shop' ops='[
   {"command":"create-table","params":{"name":"users","columns":[
      {"name":"id","dataType":"INT","isPrimaryKey":true,"autoIncrement":true},
      {"name":"email","dataType":"VARCHAR(255)","isUnique":true}]}},
   {"command":"add-relationship","params":{"source":"users","target":"orders","type":"1:N","autoFk":true}}
 ]'
-sok plugin.soksak-plugin-erd.validate
-sok plugin.soksak-plugin-erd.auto-layout direction=TB
-sok plugin.soksak-plugin-erd.export-sql dialect=postgresql
+sok plugin.soksak-plugin-db-studio.validate
+sok plugin.soksak-plugin-db-studio.auto-layout direction=TB
+sok plugin.soksak-plugin-db-studio.export-sql dialect=postgresql
 ```
 
 Conventions: every command returns `{ok:true,…}` or `{ok:false,code,message}` — branch on `ok`, never throws. Address tables/columns by name (id optional). Prefer `apply` (batch) for multi-step builds.
 
-The bundled `soksak-erd` skill (`contributes.skill`) carries the full mental model and workflow for AI agents.
+The bundled `soksak-db-studio` skill (`contributes.skill`) carries the full mental model and workflow for AI agents.
 
 ## Transparency (UI nodes)
 

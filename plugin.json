@@ -1,9 +1,9 @@
 {
   "spec": "soksak-spec-plugin@0.0.1",
-  "id": "soksak-plugin-erd",
+  "id": "soksak-plugin-db-studio",
   "name": {
-    "en": "ERD",
-    "ko": "ERD"
+    "en": "DB Studio",
+    "ko": "DB Studio"
   },
   "version": "0.0.1",
   "description": {
@@ -24,8 +24,8 @@
       {
         "id": "canvas",
         "title": {
-          "en": "ERD",
-          "ko": "ERD"
+          "en": "DB Studio",
+          "ko": "DB Studio"
         },
         "icon": "\u25a4",
         "placements": [
@@ -550,8 +550,8 @@
     ],
     "programs": [
       {
-        "id": "erd",
-        "title": "ERD",
+        "id": "db-studio",
+        "title": "DB Studio",
         "path": {
           "ko": "\uc720\ud2f8\ub9ac\ud2f0",
           "en": "Utility"

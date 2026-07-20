@@ -1,5 +1,5 @@
 {
-  "name": "soksak-plugin-erd",
+  "name": "soksak-plugin-db-studio",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -13,8 +13,8 @@
     "doctor": "soksak-plugin-doctor",
     "prepublishOnly": "npm run build && npx --yes soksak-plugin-doctor .",
     "test-unit": "npm run typecheck && vitest run",
-    "e2e": "node scripts/e2e/erd.mjs",
-    "e2e-restore": "node scripts/e2e/erd-restore.mjs"
+    "e2e": "node scripts/e2e/db-studio.mjs",
+    "e2e-restore": "node scripts/e2e/db-studio-restore.mjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^2.0.4",
@@ -58,8 +58,8 @@
   },
   "soksakRelease": {
     "kind": "plugin",
-    "id": "soksak-plugin-erd",
-    "repository": "https://github.com/soksak-ai/soksak-plugin-erd",
+    "id": "soksak-plugin-db-studio",
+    "repository": "https://github.com/soksak-ai/soksak-plugin-db-studio",
     "manifest": "release.json"
   }
 }

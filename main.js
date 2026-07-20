@@ -90097,7 +90097,7 @@ function registerCommands(ctx, store) {
   if (!reg) return;
   const register = reg.bind(ctx.app.commands);
   const internal = /* @__PURE__ */ new Map();
-  const cmd = (name) => `plugin.soksak-plugin-erd.${name}`;
+  const cmd = (name) => `plugin.soksak-plugin-db-studio.${name}`;
   const add2 = (name, description, triggers, message, handler, params, hint) => {
     const wrapped = async (p4) => handler(p4 ?? {});
     internal.set(name, wrapped);
@@ -91582,7 +91582,7 @@ var plugin_entry_default = {
           message: (d3) => `${d3.plugin} v${d3.version} \uC801\uC7AC\uB428`,
           handler: async () => ({
             ok: true,
-            plugin: "soksak-plugin-erd",
+            plugin: "soksak-plugin-db-studio",
             version: "0.0.1",
             phase: "P2"
           })

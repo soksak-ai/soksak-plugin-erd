@@ -1,4 +1,4 @@
-# soksak-plugin-erd
+# soksak-plugin-db-studio
 
 soksak 터미널 앱을 위한 LLM-native 데이터베이스 스키마 설계(ERD) 플러그인.
 
@@ -20,27 +20,27 @@ soksak 터미널 앱을 위한 LLM-native 데이터베이스 스키마 설계(ER
 라이브 명령 표면 발견(이름·파라미터는 바뀌니 추측 금지):
 
 ```
-sok commands | grep plugin.soksak-plugin-erd
-sok help plugin.soksak-plugin-erd.<command>
+sok commands | grep plugin.soksak-plugin-db-studio
+sok help plugin.soksak-plugin-db-studio.<command>
 ```
 
 원자적 apply 하나로 스키마 구성 후 검증·배치·SQL 출력:
 
 ```
-sok plugin.soksak-plugin-erd.apply title='shop' ops='[
+sok plugin.soksak-plugin-db-studio.apply title='shop' ops='[
   {"command":"create-table","params":{"name":"users","columns":[
      {"name":"id","dataType":"INT","isPrimaryKey":true,"autoIncrement":true},
      {"name":"email","dataType":"VARCHAR(255)","isUnique":true}]}},
   {"command":"add-relationship","params":{"source":"users","target":"orders","type":"1:N","autoFk":true}}
 ]'
-sok plugin.soksak-plugin-erd.validate
-sok plugin.soksak-plugin-erd.auto-layout direction=TB
-sok plugin.soksak-plugin-erd.export-sql dialect=postgresql
+sok plugin.soksak-plugin-db-studio.validate
+sok plugin.soksak-plugin-db-studio.auto-layout direction=TB
+sok plugin.soksak-plugin-db-studio.export-sql dialect=postgresql
 ```
 
 규약: 모든 명령은 `{ok:true,…}` 또는 `{ok:false,code,message}` 를 돌려준다 — `ok` 로 분기, throw 없음. 테이블/컬럼은 이름으로 지칭(id 선택). 다단계 구성은 `apply`(배치) 권장.
 
-동봉된 `soksak-erd` 스킬(`contributes.skill`)이 AI 에이전트용 멘탈모델과 워크플로 전체를 담는다.
+동봉된 `soksak-db-studio` 스킬(`contributes.skill`)이 AI 에이전트용 멘탈모델과 워크플로 전체를 담는다.
 
 ## 투명성 (UI 노드)
 

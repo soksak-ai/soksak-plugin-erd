@@ -1,4 +1,4 @@
-// soksak-plugin-erd 번들 빌드 — esbuild 단일 ESM main.js(blob-URL 로 import 됨).
+// soksak-plugin-db-studio 번들 빌드 — esbuild 단일 ESM main.js(blob-URL 로 import 됨).
 // 단일 파일·상대/bare import 0 이 제약. P1 부터 3단계:
 //   Stage A: 워커 4개를 각각 IIFE standalone 번들 → 문자열(__ERD_WORKER_*)
 //   Stage B: Tailwind(index.css) 컴파일 + allotment 스타일 → 문자열(__ERD_CSS__)
