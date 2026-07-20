@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "soksak ERD \ud50c\ub7ec\uadf8\uc778 \u2014 abyss-erd \ud3ec\ud305(\uccab \ubc88\ub4e4 \ud50c\ub7ec\uadf8\uc778, esbuild)",
+  "description": "soksak ERD 플러그인 — abyss-erd 포팅(첫 번들 플러그인, esbuild)",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --watch",
@@ -15,6 +15,8 @@
     "test-unit": "npm run typecheck && vitest run",
     "e2e": "node scripts/e2e/db-studio.mjs",
     "e2e-restore": "node scripts/e2e/db-studio-restore.mjs",
+    "e2e:ui": "node scripts/e2e/db-studio-ui.mjs",
+    "e2e:live": "node scripts/e2e/live-service.mjs",
     "e2e:roundtrip": "DB_STUDIO_E2E=1 vitest run src/features/db/roundtrip.e2e.test.ts"
   },
   "dependencies": {
