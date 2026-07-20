@@ -12,7 +12,7 @@ export function StatusBar() {
   const tableCount = Object.keys(tables).length;
   const relCount = Object.keys(relationships).length;
   const zoomPct = Math.round(zoom * 100);
-  const dialectLabel = dialect === 'mysql' ? 'MYSQL v8.0' : 'POSTGRESQL v15.4';
+  const dialectLabel = dialect === 'mysql' ? 'MYSQL v8.0' : dialect === 'sqlite' ? 'SQLITE 3' : 'POSTGRESQL v15.4';
 
   let selectionInfo = 'No selection';
   if (selectedNodeIds.length === 1) {

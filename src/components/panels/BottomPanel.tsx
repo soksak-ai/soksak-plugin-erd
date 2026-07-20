@@ -3,7 +3,7 @@ import { useStore } from '@/store';
 import { cn } from '@/lib/utils';
 import { Copy, ChevronDown, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { generateDDL } from '@/features/sql';
+import { getDialect } from '@/features/db/dialect/registry';
 import { generateMermaid } from '@/features/mermaid';
 import { validateSchema } from '@/features/validation';
 import { toast } from '@/store/toast-store';
@@ -35,7 +35,7 @@ export function BottomPanel() {
     [tables, relationships],
   );
 
-  const ddl = useMemo(() => generateDDL(schema, dialect), [schema, dialect]);
+  const ddl = useMemo(() => getDialect(dialect).generate(schema), [schema, dialect]);
   const mermaidText = useMemo(() => generateMermaid(schema), [schema]);
   const issues = useMemo(() => validateSchema(schema), [schema]);
 

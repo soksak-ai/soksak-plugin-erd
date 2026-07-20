@@ -546,6 +546,10 @@
       {
         "id": "dialect-postgresql",
         "description": "Toolbar: set the SQL dialect to PostgreSQL"
+      },
+      {
+        "id": "dialect-sqlite",
+        "description": "Toolbar: set the SQL dialect to SQLite"
       }
     ],
     "programs": [
