@@ -91351,6 +91351,166 @@ function registerPrefsCommands(ctx, prefs, store) {
   );
 }
 
+// src/plugin/connections.ts
+var CONNECTIONS_KEY = "connections:default";
+var CONNECTIONS_DOC_VERSION = 1;
+var FLUSH_DEBOUNCE_MS3 = 500;
+function secretRefFor(profileId) {
+  return `connections/${profileId}/password`;
+}
+function createConnectionsStore() {
+  return createStore()(
+    immer2((set2) => ({
+      connectionProfiles: {},
+      setConnectionProfiles: (profiles) => set2((s3) => {
+        s3.connectionProfiles = profiles;
+      })
+    }))
+  );
+}
+function addProfile(profiles, profile) {
+  return { ...profiles, [profile.id]: profile };
+}
+function removeProfile(profiles, id) {
+  if (!(id in profiles)) return profiles;
+  const next = { ...profiles };
+  delete next[id];
+  return next;
+}
+function listProfiles(profiles) {
+  return Object.values(profiles);
+}
+function serializeConnections(s3) {
+  return {
+    v: CONNECTIONS_DOC_VERSION,
+    savedAt: Date.now(),
+    profiles: s3.connectionProfiles
+  };
+}
+function applyConnections(store, doc) {
+  store.getState().setConnectionProfiles(doc.profiles ?? {});
+}
+function connectionsChanged(s3, p4) {
+  return s3.connectionProfiles !== p4.connectionProfiles;
+}
+function createConnectionsPersistence(kv, store) {
+  return createDurableDoc(kv, store, {
+    key: CONNECTIONS_KEY,
+    version: CONNECTIONS_DOC_VERSION,
+    debounceMs: FLUSH_DEBOUNCE_MS3,
+    serialize: serializeConnections,
+    apply: (doc) => applyConnections(store, doc),
+    changed: connectionsChanged
+  });
+}
+var DIALECTS = ["sqlite", "mysql", "postgresql"];
+var ENVIRONMENTS = ["dev", "staging", "prod"];
+function slugify(name) {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function buildProfile(p4) {
+  const name = typeof p4.name === "string" ? p4.name.trim() : "";
+  if (!name) return { ok: false, code: "INVALID_INPUT", message: "name is required" };
+  const dialect = p4.dialect;
+  if (!DIALECTS.includes(dialect)) {
+    return { ok: false, code: "INVALID_INPUT", message: `dialect must be one of ${DIALECTS.join(", ")}` };
+  }
+  const environment = ENVIRONMENTS.includes(p4.environment) ? p4.environment : "dev";
+  const id = typeof p4.id === "string" && p4.id.trim() || slugify(name) || generateId();
+  const profile = {
+    id,
+    name,
+    dialect,
+    environment,
+    readOnly: p4.readOnly === true
+  };
+  if (typeof p4.host === "string") profile.host = p4.host;
+  if (typeof p4.port === "number") profile.port = p4.port;
+  if (typeof p4.database === "string") profile.database = p4.database;
+  if (typeof p4.user === "string") profile.user = p4.user;
+  if (typeof p4.ssl === "boolean") profile.ssl = p4.ssl;
+  if (typeof p4.file === "string") profile.file = p4.file;
+  return { ok: true, profile };
+}
+function registerConnectionCommands(ctx, conns, store) {
+  const reg = ctx.app.commands?.register;
+  if (!reg) return;
+  const register = reg.bind(ctx.app.commands);
+  ctx.subscriptions.push(
+    register("db-profile-add", {
+      description: "Add or update a non-secret connection profile (dialect, host, port, database, user, environment, readOnly, ssl, file). Passwords are NOT accepted here \u2014 store them in the vault.",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uCD94\uAC00 \uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uC5F0\uACB0 \uB4F1\uB85D" },
+      message: (d3) => {
+        const r4 = d3;
+        if (!r4.ok) return r4.message ?? "\uD504\uB85C\uD544 \uCD94\uAC00 \uC2E4\uD328";
+        return `\uD504\uB85C\uD544 '${r4.profile?.name}' \uC744 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4(\uBE44\uBC00\uBC88\uD638\uB294 vault \uD0A4 '${r4.secretRef}' \uC5D0 \uBCC4\uB3C4 \uC800\uC7A5)`;
+      },
+      params: {
+        name: { type: "string", required: true, description: "Human-readable profile name" },
+        dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], required: true, description: "Database dialect" },
+        id: { type: "string", description: "Stable profile id (defaults to a slug of name)" },
+        environment: { type: "string", enum: ["dev", "staging", "prod"], default: "dev", description: "Deployment environment" },
+        readOnly: { type: "boolean", default: false, description: "Open the connection read-only" },
+        host: { type: "string", description: "Server host (network dialects)" },
+        port: { type: "number", description: "Server port (network dialects)" },
+        database: { type: "string", description: "Database name" },
+        user: { type: "string", description: "Connection user (secret password goes to the vault, not here)" },
+        ssl: { type: "boolean", description: "Require SSL/TLS" },
+        file: { type: "string", description: "File path (sqlite)" }
+      },
+      handler: async (params) => {
+        const built = buildProfile(params ?? {});
+        if (!built.ok) return { ok: false, code: built.code, message: built.message };
+        const st2 = store.getState();
+        st2.setConnectionProfiles(addProfile(st2.connectionProfiles, built.profile));
+        const flushed = await conns.flush();
+        const s3 = conns.status();
+        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
+        return {
+          ok: true,
+          profile: built.profile,
+          secretRef: secretRefFor(built.profile.id),
+          flushed,
+          savedAt: s3.lastSavedAt
+        };
+      }
+    })
+  );
+  ctx.subscriptions.push(
+    register("db-profile-list", {
+      description: "List all non-secret connection profiles",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uBAA9\uB85D \uC870\uD68C \uC5F0\uACB0 \uBAA9\uB85D" },
+      message: (d3) => `\uD504\uB85C\uD544 ${(d3.profiles ?? []).length}\uAC1C`,
+      params: {},
+      handler: async () => ({ ok: true, profiles: listProfiles(store.getState().connectionProfiles) })
+    })
+  );
+  ctx.subscriptions.push(
+    register("db-profile-remove", {
+      description: "Remove a connection profile by id (idempotent \u2014 removing an absent profile succeeds)",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uC0AD\uC81C \uC81C\uAC70 \uC5F0\uACB0" },
+      message: (d3) => {
+        const r4 = d3;
+        return r4.removed ? `\uD504\uB85C\uD544 '${r4.id}' \uC744 \uC0AD\uC81C\uD588\uC2B5\uB2C8\uB2E4` : `\uD504\uB85C\uD544 '${r4.id}' \uC774 \uC5C6\uC2B5\uB2C8\uB2E4(\uBB34\uBCC0\uACBD)`;
+      },
+      params: {
+        id: { type: "string", required: true, description: "Profile id to remove" }
+      },
+      handler: async (params) => {
+        const id = typeof params?.id === "string" ? params.id : "";
+        if (!id) return { ok: false, code: "INVALID_INPUT", message: "id is required" };
+        const st2 = store.getState();
+        const removed = id in st2.connectionProfiles;
+        if (removed) st2.setConnectionProfiles(removeProfile(st2.connectionProfiles, id));
+        const flushed = await conns.flush();
+        const s3 = conns.status();
+        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
+        return { ok: true, id, removed, flushed, savedAt: s3.lastSavedAt };
+      }
+    })
+  );
+}
+
 // src/plugin/notifications.ts
 function registerNotificationCommands(ctx) {
   const reg = ctx.app.commands?.register;
@@ -91672,6 +91832,10 @@ var plugin_entry_default = {
     const prefs = createPrefsPersistence(app.data?.kv ?? null, useStore2);
     await prefs.hydrate();
     ctx.subscriptions.push({ dispose: () => prefs.dispose() });
+    const connStore = createConnectionsStore();
+    const conns = createConnectionsPersistence(app.data?.kv ?? null, connStore);
+    await conns.hydrate();
+    ctx.subscriptions.push({ dispose: () => conns.dispose() });
     const history = createHistory(useStore2);
     ctx.subscriptions.push({ dispose: () => history.dispose() });
     if (app.commands?.register) {
@@ -91691,6 +91855,7 @@ var plugin_entry_default = {
     registerCommands(ctx, useStore2);
     registerPersistCommands(ctx, persistence);
     registerPrefsCommands(ctx, prefs, useStore2);
+    registerConnectionCommands(ctx, conns, connStore);
     registerNotificationCommands(ctx);
     registerPaletteCommands(ctx);
   },

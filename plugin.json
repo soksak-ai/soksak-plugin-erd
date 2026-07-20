@@ -17,7 +17,27 @@
     "fs:read",
     "fs:write",
     "programs",
-    "data"
+    "data",
+    "service",
+    "process",
+    "secrets",
+    "commands:destructive"
+  ],
+  "service": {
+    "sidecar": "db-studio",
+    "interface": { "id": "soksak-spec-service", "range": "0.0.1" }
+  },
+  "sidecars": [
+    {
+      "name": "db-studio",
+      "interface": { "id": "soksak-spec-sidecar-db-studio", "range": "0.0.1" },
+      "reach": {
+        "fetch": {
+          "url": { "darwin": "TODO-publish://soksak-sidecar-db-studio" },
+          "sha256": { "darwin": "TODO-publish" }
+        }
+      }
+    }
   ],
   "contributes": {
     "views": [
@@ -42,6 +62,134 @@
           "en": "Plugin load / version check (E2E)",
           "ko": "\ud50c\ub7ec\uadf8\uc778 \uc801\uc7ac/\ubc84\uc804 \ud655\uc778(E2E)"
         }
+      },
+      {
+        "name": "db-ping",
+        "title": { "en": "Probe the DB driver", "ko": "\ub4dc\ub77c\uc774\ubc84 \uc810\uac80" },
+        "bind": "service",
+        "description": "Sidecar liveness + driver identity (SQLite version)."
+      },
+      {
+        "name": "db-test",
+        "title": { "en": "Test a connection", "ko": "\uc811\uc18d \ud14c\uc2a4\ud2b8" },
+        "bind": "service",
+        "description": "One-shot connection probe: open, apply key, read version, close.",
+        "params": {
+          "file": { "type": "string", "description": "SQLite file path" },
+          "key": { "type": "string", "description": "SQLCipher key for an encrypted database" }
+        }
+      },
+      {
+        "name": "db-connect",
+        "title": { "en": "Connect", "ko": "\uc811\uc18d" },
+        "bind": "service",
+        "danger": "destructive",
+        "description": "Open a connection and hold it under the profile id (encrypted databases need their key).",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "file": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      },
+      {
+        "name": "db-disconnect",
+        "title": { "en": "Disconnect", "ko": "\uc811\uc18d \ud574\uc81c" },
+        "bind": "service",
+        "description": "Drop the held connection.",
+        "params": { "profile": { "type": "string", "required": true } }
+      },
+      {
+        "name": "db-status",
+        "title": { "en": "Connection status", "ko": "\uc811\uc18d \uc0c1\ud0dc" },
+        "bind": "service",
+        "description": "List the open profiles."
+      },
+      {
+        "name": "db-create",
+        "title": { "en": "Create database", "ko": "DB \uc0dd\uc131" },
+        "bind": "service",
+        "danger": "destructive",
+        "description": "Create a SQLite database; with a key it is encrypted (SQLCipher).",
+        "params": {
+          "file": { "type": "string", "required": true },
+          "key": { "type": "string" }
+        }
+      },
+      {
+        "name": "db-rekey",
+        "title": { "en": "Rotate encryption key", "ko": "\uc554\ud638\ud654 \ud0a4 \ud68c\uc804" },
+        "bind": "service",
+        "danger": "destructive",
+        "description": "Rotate the SQLCipher key of a held connection (re-encrypts the whole database).",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "newKey": { "type": "string", "required": true }
+        }
+      },
+      {
+        "name": "query-run",
+        "title": { "en": "Run a query", "ko": "\ucffc\ub9ac \uc2e4\ud589" },
+        "bind": "service",
+        "description": "Single SELECT with a row cap; sensitive columns are masked before results leave the sidecar.",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "sql": { "type": "string", "required": true },
+          "params": { "type": "array" },
+          "rowLimit": { "type": "number" }
+        }
+      },
+      {
+        "name": "db-introspect",
+        "title": { "en": "Introspect schema", "ko": "\uc2a4\ud0a4\ub9c8 \uc870\ud68c" },
+        "bind": "service",
+        "description": "Schema-only catalog (tables/columns/foreign keys/indexes); no row data.",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "tables": { "type": "array" }
+        }
+      },
+      {
+        "name": "db-audit",
+        "title": { "en": "Read the audit log", "ko": "\uac10\uc0ac \ub85c\uadf8" },
+        "bind": "service",
+        "description": "The sidecar's append-only audit (op/profile/ok/row-count, never SQL literals).",
+        "params": {
+          "profile": { "type": "string" },
+          "limit": { "type": "number" }
+        }
+      },
+      {
+        "name": "db-exec",
+        "title": { "en": "Execute a write", "ko": "\uc4f0\uae30 \uc2e4\ud589" },
+        "bind": "service",
+        "danger": "destructive",
+        "description": "Single write/DDL statement; a WHERE-less DELETE/UPDATE needs force:true.",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "sql": { "type": "string", "required": true },
+          "params": { "type": "array" },
+          "force": { "type": "boolean" }
+        }
+      },
+      {
+        "name": "db-migrate",
+        "title": { "en": "Apply a migration", "ko": "\ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc801\uc6a9" },
+        "bind": "service",
+        "danger": "destructive",
+        "description": "Apply one migration in a single transaction and record it in the ledger (checksum-verified).",
+        "params": {
+          "profile": { "type": "string", "required": true },
+          "id": { "type": "string", "required": true },
+          "checksum": { "type": "string", "required": true },
+          "statements": { "type": "array", "required": true }
+        }
+      },
+      {
+        "name": "migration-applied",
+        "title": { "en": "Applied migrations", "ko": "\uc801\uc6a9\ub41c \ub9c8\uc774\uadf8\ub808\uc774\uc158" },
+        "bind": "service",
+        "description": "List the migration ledger for a profile.",
+        "params": { "profile": { "type": "string", "required": true } }
       },
       {
         "name": "add-column",

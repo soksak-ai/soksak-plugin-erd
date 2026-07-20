@@ -12,6 +12,11 @@ import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
 import { createPrefsPersistence, registerPrefsCommands } from "@/plugin/prefs";
+import {
+  createConnectionsStore,
+  createConnectionsPersistence,
+  registerConnectionCommands,
+} from "@/plugin/connections";
 import { registerNotificationCommands } from "@/plugin/notifications";
 import { registerPaletteCommands } from "@/plugin/palette";
 import { createHistory } from "@/store/history";
@@ -123,6 +128,13 @@ export default {
     await prefs.hydrate();
     ctx.subscriptions.push({ dispose: () => prefs.dispose() });
 
+    // 접속 프로필 영속 — 세 번째 connections:default 문서(비밀 제외 메타만, 자체 스토어).
+    // 비밀번호는 절대 이 문서에 들어가지 않는다(vault 소관).
+    const connStore = createConnectionsStore();
+    const conns = createConnectionsPersistence(app.data?.kv ?? null, connStore);
+    await conns.hydrate();
+    ctx.subscriptions.push({ dispose: () => conns.dispose() });
+
     // undo/redo 이력 — hydrate 이후 설치(복원된 상태가 첫 undo 대상이 되지 않도록 baseline 고정).
     const history = createHistory(useStore);
     ctx.subscriptions.push({ dispose: () => history.dispose() });
@@ -148,6 +160,7 @@ export default {
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
     registerPersistCommands(ctx, persistence);
     registerPrefsCommands(ctx, prefs, useStore);
+    registerConnectionCommands(ctx, conns, connStore);
     registerNotificationCommands(ctx);
     registerPaletteCommands(ctx);
   },
