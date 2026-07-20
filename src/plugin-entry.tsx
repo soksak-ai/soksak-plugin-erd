@@ -17,6 +17,7 @@ import {
   createConnectionsPersistence,
   registerConnectionCommands,
 } from "@/plugin/connections";
+import { registerDbCommands } from "@/plugin/db-commands";
 import { registerNotificationCommands } from "@/plugin/notifications";
 import { registerPaletteCommands } from "@/plugin/palette";
 import { createHistory } from "@/store/history";
@@ -161,6 +162,7 @@ export default {
     registerPersistCommands(ctx, persistence);
     registerPrefsCommands(ctx, prefs, useStore);
     registerConnectionCommands(ctx, conns, connStore);
+    registerDbCommands(ctx, useStore);
     registerNotificationCommands(ctx);
     registerPaletteCommands(ctx);
   },
