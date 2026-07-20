@@ -4,7 +4,7 @@
 //   Stage B: Tailwind(index.css) 컴파일 + allotment 스타일 → 문자열(__ERD_CSS__)
 //   Stage C: 메인 엔트리(plugin-entry.tsx) 번들 — A/B 문자열을 esbuild define 으로 주입
 import { build, context } from "esbuild";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdir, copyFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
@@ -103,10 +103,25 @@ async function buildMain(extraDefines) {
   }
 }
 
+// ── Gate 동기화: 정본=플러그인 src/features/db/gate, 사본=사이드카 gate/ ─────
+// masking/write 게이트 규칙(rules.json)과 그 오라클(cases.json)의 단일진실은 플러그인이다.
+// 사이드카는 빌드 시점의 사본만 싣는다 — 수기 복제(드리프트) 금지. 사이드카는 형제 규약으로
+// 발견한다: plugins/<id> ↔ sidecars/soksak-sidecar-db-studio (심링크 없음, 선언적 해석).
+async function syncGateToSidecar() {
+  const srcDir = path.resolve(SRC, "features/db/gate");
+  const destDir = path.resolve(root, "../../sidecars/soksak-sidecar-db-studio/gate");
+  await mkdir(destDir, { recursive: true }); // 멱등
+  for (const file of ["rules.json", "cases.json"]) {
+    await copyFile(path.join(srcDir, file), path.join(destDir, file)); // 덮어쓰기 = 멱등
+  }
+  console.log(`[erd] gate synced → ${destDir}`);
+}
+
 // ── 파이프라인 실행 ──────────────────────────────────────────────────
 const [workerDefines, cssDefine] = await Promise.all([
   buildWorkerDefines(),
   buildCssDefine(),
+  syncGateToSidecar(),
 ]);
 // 버전 리터럴의 단일진실은 plugin.json — 엔트리에는 __ERD_VERSION__ 으로 주입.
 const manifest = JSON.parse(await readFile(path.resolve(root, "plugin.json"), "utf8"));
