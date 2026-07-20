@@ -1,5 +1,6 @@
 import { catalogToSchema, type Catalog } from '@/features/db/introspect-map';
-import { buildPushPlan } from '@/features/db/push-plan';
+import { buildPushPlan, type RenameHint } from '@/features/db/push-plan';
+import { serializeMig } from '@/features/migration/mig-dsl';
 import type { ERDSchema, Table, Relationship } from '@/types/schema';
 import type { DialectId } from '@/features/db/dialect/types';
 
@@ -84,14 +85,19 @@ export function registerDbCommands(ctx: DbCommandsCtx, store: ErdStore): void {
   ctx.subscriptions.push(
     register('db-push-plan', {
       description:
-        'Forward sync (plan): the DDL to push the working model onto a live database (pass the live db-introspect catalog). Applying is done by db-exec, which is gated.',
+        'Forward sync (plan): diff the working model against the live DB and emit a reviewable .mig plus the DDL. Apply it through migration-run/db-migrate (transactional + ledger), not raw exec — DDL only travels as a reviewed .mig artifact (plan §5).',
       triggers: { ko: '포워드 푸시 플랜 diff DDL 생성' },
       params: {
         liveCatalog: { type: 'object', required: true, description: 'db-introspect result of the live DB' },
         dialect: { type: 'string', description: 'sqlite|mysql|postgresql (defaults to the model dialect)' },
+        renameHints: {
+          type: 'array',
+          description:
+            'Confirmed renames [{level:"table"|"column", table?, from, to}] — reconcile a reverse drop+create into a non-destructive renameTable/renameColumn (data preserved).',
+        },
       },
       handler: async (params): Promise<Ok | Err> => {
-        const p = (params ?? {}) as { liveCatalog?: unknown; dialect?: string };
+        const p = (params ?? {}) as { liveCatalog?: unknown; dialect?: string; renameHints?: unknown };
         const liveCatalog = p.liveCatalog as Catalog | undefined;
         if (!liveCatalog || !Array.isArray(liveCatalog.tables)) {
           return { ok: false, code: 'INVALID_INPUT', message: 'liveCatalog { tables: [...] } required' };
@@ -100,10 +106,15 @@ export function registerDbCommands(ctx: DbCommandsCtx, store: ErdStore): void {
         const current: ERDSchema = { tables: s.tables, relationships: s.relationships, layers: {} };
         const { schema: live } = catalogToSchema(liveCatalog);
         const dialect = (p.dialect as DialectId | undefined) ?? s.dialect;
-        const plan = buildPushPlan(current, live, dialect);
+        const renameHints = Array.isArray(p.renameHints) ? (p.renameHints as RenameHint[]) : [];
+        const plan = buildPushPlan(current, live, dialect, renameHints);
         return {
           ok: true,
           dialect,
+          // The reviewable artifact: the diff serialized as a .mig. Applying it
+          // goes through db-migrate (ledger + checksum), so what runs is exactly
+          // what was reviewed. `sql` is the rendered preview of that .mig.
+          mig: serializeMig(plan.ops),
           sql: plan.sql,
           destructive: plan.destructive.map((d) => ({ op: d.op.type, reason: d.reason })),
           renamesNeedingConfirm: plan.renamesNeedingConfirm.map((r) => ({

@@ -8,8 +8,19 @@ import { catalogToSchema, type Catalog } from '@/features/db/introspect-map';
 import { buildPushPlan } from '@/features/db/push-plan';
 import { diffSchemas } from '@/features/migration/diff';
 import { getSQLGenerator } from '@/features/migration/sql-generator';
+import { serializeMig, parseMig } from '@/features/migration/mig-dsl';
 import { generateId } from '@/lib/id';
 import type { ERDSchema, Table } from '@/types/schema';
+
+// A diff's ops → the SQL statements of the .mig it serializes to.
+function migStatements(ops: Parameters<typeof serializeMig>[0]): string[] {
+  const parsed = parseMig(serializeMig(ops)).ops;
+  return getSQLGenerator('sqlite')
+    .generateBatch(parsed)
+    .split('\n\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 // Live round-trip against a REAL SQLite database via the REAL sidecar binary,
 // bridging the TS diff/map/plan modules with the Rust service over its NDJSON
@@ -171,21 +182,22 @@ describe.skipIf(!RUN)('live SQLite round-trip via the sidecar wire', () => {
 
     const plan = buildPushPlan(target, live, 'sqlite');
     expect(plan.ops.some((o) => o.type === 'createTable')).toBe(true);
-    // apply each op as a single DDL statement over the wire
-    const gen = getSQLGenerator('sqlite');
-    let id = 21;
-    for (const op of plan.ops) {
-      await wire.call(id++, 'db-exec', { profile: 't', sql: gen.generate(op) });
-    }
+    // the diff travels as a reviewable .mig, applied through the ledger (plan §5:
+    // DDL only runs as a reviewed .mig artifact, never raw exec).
+    await wire.call(21, 'db-migrate', {
+      profile: 't',
+      id: 'push-products',
+      checksum: 'sha-prod',
+      statements: migStatements(plan.ops),
+    });
 
     // re-introspect: the DB now has products, and a fresh push proposes nothing new
     const after = await introspect(40);
     expect(Object.values(after.tables).some((t) => t.name === 'products')).toBe(true);
+    // full convergence: after applying the diff and re-introspecting, a fresh
+    // diff against the target proposes NOTHING (reverse→forward is stable).
     const residual = diffSchemas(after, target);
-    expect(
-      residual.filter((o) => o.type === 'createTable' || o.type === 'dropTable'),
-      `converged (residual ops: ${residual.map((o) => o.type).join(',')})`,
-    ).toEqual([]);
+    expect(residual, `converged (residual: ${residual.map((o) => o.type).join(',')})`).toEqual([]);
   });
 
   it('forward via MIG: generateBatch → db-migrate applies + records the ledger', async () => {
@@ -224,5 +236,55 @@ describe.skipIf(!RUN)('live SQLite round-trip via the sidecar wire', () => {
       statements,
     })) as { applied: boolean };
     expect(again.applied).toBe(false);
+  });
+
+  it('reverse RENAME reconciliation: a confirmed rename becomes a non-destructive renameTable (data preserved)', async () => {
+    // a standalone table with a row of data
+    await wire.call(60, 'db-exec', {
+      profile: 't',
+      sql: 'CREATE TABLE widgets(id INTEGER PRIMARY KEY, label TEXT)',
+    });
+    await wire.call(61, 'db-exec', { profile: 't', sql: "INSERT INTO widgets(label) VALUES ('w1')" });
+
+    // reverse just this table (no stable id — as if the model can't track the rename)
+    const liveCatalog = (await wire.call(62, 'db-introspect', {
+      profile: 't',
+      tables: ['widgets'],
+    })) as Catalog;
+    const live = catalogToSchema(liveCatalog).schema;
+    const liveWidgets = Object.values(live.tables).find((t) => t.name === 'widgets')!;
+
+    // target model = the same table renamed to `gadgets`
+    const gadgets: Table = { ...liveWidgets, id: generateId(), name: 'gadgets' };
+    const target: ERDSchema = { tables: { [gadgets.id]: gadgets }, relationships: {}, layers: {} };
+
+    // without a hint the diff is a destructive drop+create; the pair is surfaced for confirmation
+    const naive = buildPushPlan(target, live, 'sqlite');
+    expect(naive.ops.some((o) => o.type === 'dropTable')).toBe(true);
+    expect(
+      naive.renamesNeedingConfirm.some(
+        (r) => r.level === 'table' && r.from === 'widgets' && r.to === 'gadgets',
+      ),
+    ).toBe(true);
+
+    // with the confirmed hint it reconciles to a non-destructive renameTable
+    const plan = buildPushPlan(target, live, 'sqlite', [
+      { level: 'table', from: 'widgets', to: 'gadgets' },
+    ]);
+    expect(plan.ops.some((o) => o.type === 'renameTable')).toBe(true);
+    expect(plan.ops.some((o) => o.type === 'dropTable')).toBe(false);
+
+    // apply via .mig; the row survives the rename (data preserved)
+    await wire.call(63, 'db-migrate', {
+      profile: 't',
+      id: 'rename-widgets',
+      checksum: 'sha-r',
+      statements: migStatements(plan.ops),
+    });
+    const res = (await wire.call(64, 'query-run', {
+      profile: 't',
+      sql: 'SELECT label FROM gadgets',
+    })) as { rows: unknown[][] };
+    expect(res.rows[0][0]).toBe('w1');
   });
 });
