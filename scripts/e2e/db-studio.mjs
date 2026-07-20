@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// soksak-plugin-erd E2E — 헤드리스 커맨드 시나리오 드라이버(UI 없이 전수).
-// soksak 소켓(SOKSAK_SOCKET JSON-RPC)에 붙어 plugin.soksak-plugin-erd.* 로 구동 +
+// soksak-plugin-db-studio E2E — 헤드리스 커맨드 시나리오 드라이버(UI 없이 전수).
+// soksak 소켓(SOKSAK_SOCKET JSON-RPC)에 붙어 plugin.soksak-plugin-db-studio.* 로 구동 +
 // introspection(get-schema/validate)으로 결정적 단언. claude 의존 0. 종료코드 0=PASS.
-//   사용: SOKSAK_SOCKET=~/.soksak/com.soksak.dev.sock node scripts/e2e/erd.mjs
+//   사용: SOKSAK_SOCKET=~/.soksak/com.soksak.dev.sock node scripts/e2e/db-studio.mjs
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -10,7 +10,7 @@ import path from "node:path";
 const SOCKET =
   process.env.SOKSAK_SOCKET ||
   path.join(os.homedir(), ".soksak", "com.soksak.dev.sock");
-const P = "plugin.soksak-plugin-erd.";
+const P = "plugin.soksak-plugin-db-studio.";
 
 let sock, seq = 0;
 const pend = new Map();
@@ -166,7 +166,7 @@ async function captureSnapshot(out) {
     for (const label of labels) {
       await rpc("window.focus", { label }).catch(() => {});
       const views = val(await rpc("view.list")).views || [];
-      const erd = views.find((v) => v.plugin === "soksak-plugin-erd");
+      const erd = views.find((v) => v.plugin === "soksak-plugin-db-studio");
       if (!erd) continue;
       await rpc("view.activate", { view: erd.id }).catch(() => {});
       await rpc("window.focus", { label }).catch(() => {});

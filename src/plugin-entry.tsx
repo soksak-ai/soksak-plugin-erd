@@ -127,7 +127,7 @@ export default {
     const history = createHistory(useStore);
     ctx.subscriptions.push({ dispose: () => history.dispose() });
 
-    // E2E/적재 확인용 헤드리스 커맨드 — sok plugin.soksak-plugin-erd.ping / MCP / 소켓.
+    // E2E/적재 확인용 헤드리스 커맨드 — sok plugin.soksak-plugin-db-studio.ping / MCP / 소켓.
     if (app.commands?.register) {
       ctx.subscriptions.push(
         app.commands.register("ping", {
@@ -135,7 +135,7 @@ export default {
           message: (d: any) => `${d.plugin} v${d.version} 적재됨`,
           handler: async () => ({
             ok: true,
-            plugin: "soksak-plugin-erd",
+            plugin: "soksak-plugin-db-studio",
             version: __ERD_VERSION__,
             phase: "P2",
           }),
@@ -144,7 +144,7 @@ export default {
     }
 
     // 헤드리스 커맨드 카탈로그(introspection/mutation/batch/layout) 등록 — store(useStore)를 주입.
-    // 뷰 미오픈에도 sok plugin.soksak-plugin-erd.* / MCP / 소켓 E2E 로 전부 동작.
+    // 뷰 미오픈에도 sok plugin.soksak-plugin-db-studio.* / MCP / 소켓 E2E 로 전부 동작.
     registerCommands(ctx, useStore as unknown as Parameters<typeof registerCommands>[1]);
     registerPersistCommands(ctx, persistence);
     registerPrefsCommands(ctx, prefs, useStore);

@@ -1,18 +1,18 @@
 ---
-name: soksak-erd
-description: Use when designing, editing, or migrating a database schema (ERD) inside soksak — drive the ERD plugin entirely by CLI/MCP commands (`sok plugin.soksak-plugin-erd.*`) to create tables/columns/relationships, validate, auto-layout, generate per-dialect SQL (SQLite/MySQL/PostgreSQL), and produce file-based `.mig` migrations. Headless: works without opening the GUI. 데이터베이스 스키마 설계, ERD, 테이블/컬럼/관계 추가, 마이그레이션, SQL 생성도 여기.
+name: soksak-db-studio
+description: Use when designing, editing, or migrating a database schema (ERD) inside soksak — drive the ERD plugin entirely by CLI/MCP commands (`sok plugin.soksak-plugin-db-studio.*`) to create tables/columns/relationships, validate, auto-layout, generate per-dialect SQL (SQLite/MySQL/PostgreSQL), and produce file-based `.mig` migrations. Headless: works without opening the GUI. 데이터베이스 스키마 설계, ERD, 테이블/컬럼/관계 추가, 마이그레이션, SQL 생성도 여기.
 ---
 
 # soksak ERD — LLM-native database design
 
-The soksak ERD plugin exposes **every** capability as a command, so you design and evolve a database schema with no GUI. The same commands run via `sok plugin.soksak-plugin-erd.<name>` (CLI), as MCP tools, and over the e2e socket. The plugin holds one working schema (the single source of truth); a view, if open, just reflects it.
+The soksak ERD plugin exposes **every** capability as a command, so you design and evolve a database schema with no GUI. The same commands run via `sok plugin.soksak-plugin-db-studio.<name>` (CLI), as MCP tools, and over the e2e socket. The plugin holds one working schema (the single source of truth); a view, if open, just reflects it.
 
 ## Discover first
 
 List the exact command surface — names/params evolve, so never guess:
 
 ```
-sok commands | grep plugin.soksak-plugin-erd
+sok commands | grep plugin.soksak-plugin-db-studio
 ```
 
 Every command and its JSON params come from one registry (the source of truth for CLI + MCP + docs). `get-schema` returns the current model (`mode=compact` saves tokens; `mode=full` is the raw model).
@@ -22,7 +22,7 @@ Every command and its JSON params come from one registry (the source of truth fo
 Build a whole schema in one atomic `apply`, then validate, lay out, and emit SQL. **`apply` takes `ops`, an array of `{command, params}`** — each entry is one command call:
 
 ```
-sok plugin.soksak-plugin-erd.apply title='shop' ops='[
+sok plugin.soksak-plugin-db-studio.apply title='shop' ops='[
   {"command":"create-table","params":{"name":"users","columns":[
      {"name":"id","dataType":"INT","isPrimaryKey":true,"autoIncrement":true},
      {"name":"email","dataType":"VARCHAR(255)","isUnique":true}]}},

@@ -225,7 +225,7 @@ export function registerCommands(ctx: PluginContext, store: ErdStore): void {
   const internal = new Map<string, (params: any) => Promise<CmdResult>>();
 
   // 완전정규화 커맨드 주소(외부 sok/MCP/소켓 호출 규약) — hint.cmd 조립용.
-  const cmd = (name: string) => `plugin.soksak-plugin-erd.${name}`;
+  const cmd = (name: string) => `plugin.soksak-plugin-db-studio.${name}`;
 
   // 등록 + 구독 수집 + internal 적재를 한 번에.
   // message 는 성공 결과(data)를 한 문장으로 요약 — 코어 메시지 프로토콜(command.message) 표면.
