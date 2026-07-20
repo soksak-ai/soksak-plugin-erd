@@ -8,6 +8,8 @@ import "pixi.js/unsafe-eval";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import App from "@/App";
+import type { RawExec } from "@/components/host/db-host";
+import type { ConnectionsStore } from "@/plugin/connections";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
@@ -54,7 +56,7 @@ interface MountState {
 }
 const mounts = new WeakMap<HTMLElement, MountState>();
 
-function mountApp(container: HTMLElement) {
+function mountApp(container: HTMLElement, exec: RawExec | undefined, connStore: ConnectionsStore) {
   // 이미 마운트됐다면(중복 mount 호출 방어) 먼저 회수.
   unmountApp(container);
 
@@ -85,7 +87,7 @@ function mountApp(container: HTMLElement) {
   const root = createRoot(host);
   root.render(
     <ErrBoundary>
-      <App portalRoot={host} />
+      <App portalRoot={host} exec={exec} connStore={connStore} />
     </ErrBoundary>,
   );
   mounts.set(container, { root, shadow });
@@ -105,11 +107,17 @@ export default {
   async activate(ctx: any) {
     const app = ctx.app;
 
+    // 코어 명령 브리지 + 접속 프로필 스토어 — 뷰(React)로 주입해 DB 패널이 자기 플러그인
+    // 커맨드(query-run 등)를 plugin.<id>.<cmd> 로 호출하고 프로필 목록을 구독하게 한다.
+    // connStore 는 아래 connections 영속이 hydrate 하는 바로 그 인스턴스다(단일 소유).
+    const exec: RawExec | undefined = app.commands?.execute?.bind(app.commands);
+    const connStore = createConnectionsStore();
+
     // 뷰 등록 — content 탭에 <App/> 전체 마운트(placement 무관 동일 트리).
     ctx.subscriptions.push(
       app.ui.registerView("canvas", {
         mount(container: HTMLElement) {
-          mountApp(container);
+          mountApp(container, exec, connStore);
         },
         unmount(container: HTMLElement) {
           unmountApp(container);
@@ -129,9 +137,8 @@ export default {
     await prefs.hydrate();
     ctx.subscriptions.push({ dispose: () => prefs.dispose() });
 
-    // 접속 프로필 영속 — 세 번째 connections:default 문서(비밀 제외 메타만, 자체 스토어).
+    // 접속 프로필 영속 — 세 번째 connections:default 문서(비밀 제외 메타만, 위에서 만든 스토어).
     // 비밀번호는 절대 이 문서에 들어가지 않는다(vault 소관).
-    const connStore = createConnectionsStore();
     const conns = createConnectionsPersistence(app.data?.kv ?? null, connStore);
     await conns.hydrate();
     ctx.subscriptions.push({ dispose: () => conns.dispose() });

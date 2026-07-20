@@ -8,7 +8,7 @@
 //
 // The cross-window lifecycle machinery is shared — see durable-doc.ts.
 import type { StoreState } from '@/store/index';
-import type { ChromePrefsInput } from '@/store/slices/ui-slice';
+import type { BottomPanelTab, ChromePrefsInput } from '@/store/slices/ui-slice';
 import {
   createDurableDoc,
   type DataKv,
@@ -27,7 +27,7 @@ export interface ChromePrefs {
   leftSidebarOpen: boolean;
   rightSidebarOpen: boolean;
   bottomPanelOpen: boolean;
-  bottomPanelTab: 'sql' | 'mermaid' | 'console';
+  bottomPanelTab: BottomPanelTab;
   showMinimap: boolean;
   showGrid: boolean;
   renderQualityLevel: 0 | 1 | 2;

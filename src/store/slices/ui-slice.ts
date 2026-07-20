@@ -3,6 +3,11 @@ import type { StoreState } from '../index';
 import type { DialectId } from '@/features/db/dialect/types';
 import type { Theme } from '@/constants/theme';
 
+// Bottom-panel tabs — the ERD output views (sql/mermaid/console) plus the live-DB surfaces
+// (query/sync/migration) that the plugin's service commands drive. Single source: prefs.ts
+// serializes this and BottomPanel renders it.
+export type BottomPanelTab = 'sql' | 'mermaid' | 'console' | 'query' | 'sync' | 'migration';
+
 // 세션 간 영속되는 크롬 환경설정의 복원 입력. store 가 자기 필드의 유효범위를 소유하므로
 // applyChromePrefs 가 값별로 검증한다(손상/외부 문서가 store 를 망가뜨리지 못하게). 이 목록이
 // 곧 "무엇이 크롬 환경설정인가"의 단일 진실이다 — prefs 문서(plugin/prefs.ts)는 이걸 직렬화한다.
@@ -10,7 +15,7 @@ export interface ChromePrefsInput {
   leftSidebarOpen?: boolean;
   rightSidebarOpen?: boolean;
   bottomPanelOpen?: boolean;
-  bottomPanelTab?: 'sql' | 'mermaid' | 'console';
+  bottomPanelTab?: BottomPanelTab;
   showMinimap?: boolean;
   showGrid?: boolean;
   renderQualityLevel?: 0 | 1 | 2;
@@ -29,7 +34,7 @@ export interface UISlice {
   leftSidebarOpen: boolean;
   rightSidebarOpen: boolean;
   bottomPanelOpen: boolean;
-  bottomPanelTab: 'sql' | 'mermaid' | 'console';
+  bottomPanelTab: BottomPanelTab;
 
   // Panel sizes (px) — store-owned so they persist across sessions (prefs 문서).
   leftWidth: number;
@@ -82,7 +87,7 @@ export interface UISlice {
   toggleLeftSidebar: () => void;
   toggleRightSidebar: () => void;
   toggleBottomPanel: () => void;
-  setBottomPanelTab: (tab: 'sql' | 'mermaid' | 'console') => void;
+  setBottomPanelTab: (tab: BottomPanelTab) => void;
   setCreateTableDialogOpen: (open: boolean) => void;
   setImportSQLDialogOpen: (open: boolean) => void;
   setImportMermaidDialogOpen: (open: boolean) => void;
@@ -163,7 +168,10 @@ export const createUISlice: StateCreator<StoreState, [['zustand/immer', never]],
     if (bool(prefs.leftSidebarOpen)) state.leftSidebarOpen = prefs.leftSidebarOpen;
     if (bool(prefs.rightSidebarOpen)) state.rightSidebarOpen = prefs.rightSidebarOpen;
     if (bool(prefs.bottomPanelOpen)) state.bottomPanelOpen = prefs.bottomPanelOpen;
-    if (prefs.bottomPanelTab === 'sql' || prefs.bottomPanelTab === 'mermaid' || prefs.bottomPanelTab === 'console') {
+    if (
+      prefs.bottomPanelTab !== undefined &&
+      (['sql', 'mermaid', 'console', 'query', 'sync', 'migration'] as const).includes(prefs.bottomPanelTab)
+    ) {
       state.bottomPanelTab = prefs.bottomPanelTab;
     }
     if (bool(prefs.showMinimap)) state.showMinimap = prefs.showMinimap;

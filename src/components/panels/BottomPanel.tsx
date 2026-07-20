@@ -7,6 +7,7 @@ import { getDialect } from '@/features/db/dialect/registry';
 import { generateMermaid } from '@/features/mermaid';
 import { validateSchema } from '@/features/validation';
 import { toast } from '@/store/toast-store';
+import { QueryContainer, SyncContainer, MigrationContainer } from '@/components/panels/db-containers';
 import type { ERDSchema } from '@/types/schema';
 import type { ValidationIssue } from '@/features/validation';
 
@@ -14,6 +15,9 @@ const TABS = [
   { id: 'sql', label: 'SQL' },
   { id: 'mermaid', label: 'Mermaid' },
   { id: 'console', label: 'Console' },
+  { id: 'query', label: 'Query' },
+  { id: 'sync', label: 'Sync' },
+  { id: 'migration', label: 'Migration' },
 ] as const;
 
 function IssueIcon({ level }: { level: ValidationIssue['level'] }) {
@@ -85,37 +89,47 @@ export function BottomPanel() {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-3">
-        {activeTab === 'sql' && (
-          <pre className="font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">
-            <code>{ddl}</code>
-          </pre>
-        )}
-        {activeTab === 'mermaid' && (
-          <pre className="font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">
-            <code>{mermaidText}</code>
-          </pre>
-        )}
-        {activeTab === 'console' && (
-          <div className="space-y-1">
-            {issues.map((issue, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm">
-                <IssueIcon level={issue.level} />
-                <span
-                  className={cn(
-                    'text-sm',
-                    issue.level === 'error' && 'text-red-400',
-                    issue.level === 'warning' && 'text-yellow-400',
-                    issue.level === 'info' && 'text-gray-500 dark:text-zinc-500',
-                  )}
-                >
-                  {issue.message}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Live-DB tabs own their full-height layout (their own scroll regions); the ERD output
+          tabs keep the padded scroll pane. */}
+      {activeTab === 'query' || activeTab === 'sync' || activeTab === 'migration' ? (
+        <div className="min-h-0 flex-1">
+          {activeTab === 'query' && <QueryContainer />}
+          {activeTab === 'sync' && <SyncContainer />}
+          {activeTab === 'migration' && <MigrationContainer />}
+        </div>
+      ) : (
+        <div className="flex-1 overflow-auto p-3">
+          {activeTab === 'sql' && (
+            <pre className="font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">
+              <code>{ddl}</code>
+            </pre>
+          )}
+          {activeTab === 'mermaid' && (
+            <pre className="font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap">
+              <code>{mermaidText}</code>
+            </pre>
+          )}
+          {activeTab === 'console' && (
+            <div className="space-y-1">
+              {issues.map((issue, i) => (
+                <div key={i} className="flex items-start gap-2 text-sm">
+                  <IssueIcon level={issue.level} />
+                  <span
+                    className={cn(
+                      'text-sm',
+                      issue.level === 'error' && 'text-red-400',
+                      issue.level === 'warning' && 'text-yellow-400',
+                      issue.level === 'info' && 'text-gray-500 dark:text-zinc-500',
+                    )}
+                  >
+                    {issue.message}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

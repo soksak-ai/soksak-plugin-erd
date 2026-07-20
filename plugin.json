@@ -30,13 +30,7 @@
   "sidecars": [
     {
       "name": "db-studio",
-      "interface": { "id": "soksak-spec-sidecar-db-studio", "range": "0.0.1" },
-      "reach": {
-        "fetch": {
-          "url": { "darwin": "TODO-publish://soksak-sidecar-db-studio" },
-          "sha256": { "darwin": "TODO-publish" }
-        }
-      }
+      "interface": { "id": "soksak-spec-sidecar-db-studio", "range": "0.0.1" }
     }
   ],
   "contributes": {
@@ -64,6 +58,31 @@
         }
       },
       {
+        "name": "db-profile-add",
+        "title": { "en": "Add connection profile", "ko": "\uc811\uc18d \ud504\ub85c\ud544 \ucd94\uac00" }
+      },
+      {
+        "name": "db-profile-list",
+        "title": { "en": "List connection profiles", "ko": "\uc811\uc18d \ud504\ub85c\ud544 \ubaa9\ub85d" }
+      },
+      {
+        "name": "db-profile-remove",
+        "title": { "en": "Remove connection profile", "ko": "\uc811\uc18d \ud504\ub85c\ud544 \uc0ad\uc81c" }
+      },
+      {
+        "name": "db-pull-apply",
+        "title": { "en": "Reverse sync into model", "ko": "\ub9ac\ubc84\uc2a4 \ub3d9\uae30\ud654" }
+      },
+      {
+        "name": "db-push-plan",
+        "title": { "en": "Forward sync plan", "ko": "\ud3ec\uc6cc\ub4dc \ub3d9\uae30\ud654 \ud50c\ub79c" }
+      },
+      {
+        "name": "migration-run",
+        "title": { "en": "Run file migrations", "ko": "\ud30c\uc77c \ub9c8\uc774\uadf8\ub808\uc774\uc158 \uc2e4\ud589" },
+        "danger": "destructive"
+      },
+      {
         "name": "db-test",
         "title": { "en": "Test a connection", "ko": "\uc811\uc18d \ud14c\uc2a4\ud2b8" },
         "bind": "service",
@@ -71,7 +90,8 @@
         "params": {
           "file": { "type": "string", "description": "SQLite file path" },
           "key": { "type": "string", "description": "SQLCipher key for an encrypted database" }
-        }
+        },
+        "returns": "version string"
       },
       {
         "name": "db-connect",
@@ -80,9 +100,9 @@
         "danger": "destructive",
         "description": "Open a connection and hold it under the profile id (encrypted databases need their key).",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "file": { "type": "string" },
-          "key": { "type": "string" }
+          "profile": { "type": "string", "required": true, "description": "Profile id the open connection is held under" },
+          "file": { "type": "string", "description": "SQLite file path" },
+          "key": { "type": "string", "description": "SQLCipher key for an encrypted database" }
         }
       },
       {
@@ -90,7 +110,7 @@
         "title": { "en": "Disconnect", "ko": "\uc811\uc18d \ud574\uc81c" },
         "bind": "service",
         "description": "Drop the held connection.",
-        "params": { "profile": { "type": "string", "required": true } }
+        "params": { "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" } }
       },
       {
         "name": "db-status",
@@ -105,8 +125,8 @@
         "danger": "destructive",
         "description": "Create a SQLite database; with a key it is encrypted (SQLCipher).",
         "params": {
-          "file": { "type": "string", "required": true },
-          "key": { "type": "string" }
+          "file": { "type": "string", "required": true, "description": "Path the new SQLite file is created at" },
+          "key": { "type": "string", "description": "SQLCipher key; when set the database is encrypted" }
         }
       },
       {
@@ -116,8 +136,8 @@
         "danger": "destructive",
         "description": "Rotate the SQLCipher key of a held connection (re-encrypts the whole database).",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "newKey": { "type": "string", "required": true }
+          "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" },
+          "newKey": { "type": "string", "required": true, "description": "New SQLCipher key the database is re-encrypted with" }
         }
       },
       {
@@ -126,10 +146,10 @@
         "bind": "service",
         "description": "Single SELECT with a row cap; sensitive columns are masked before results leave the sidecar.",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "sql": { "type": "string", "required": true },
-          "params": { "type": "array" },
-          "rowLimit": { "type": "number" }
+          "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" },
+          "sql": { "type": "string", "required": true, "description": "One SELECT statement" },
+          "params": { "type": "json", "description": "Positional bind values for the statement" },
+          "rowLimit": { "type": "number", "description": "Maximum rows returned" }
         }
       },
       {
@@ -138,8 +158,8 @@
         "bind": "service",
         "description": "Schema-only catalog (tables/columns/foreign keys/indexes); no row data.",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "tables": { "type": "array" }
+          "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" },
+          "tables": { "type": "string[]", "description": "Restrict to these table names; omit for all" }
         }
       },
       {
@@ -148,8 +168,8 @@
         "bind": "service",
         "description": "The sidecar's append-only audit (op/profile/ok/row-count, never SQL literals).",
         "params": {
-          "profile": { "type": "string" },
-          "limit": { "type": "number" }
+          "profile": { "type": "string", "description": "Restrict to this profile; omit for all" },
+          "limit": { "type": "number", "description": "Maximum audit rows returned" }
         }
       },
       {
@@ -159,10 +179,10 @@
         "danger": "destructive",
         "description": "Single write/DDL statement; a WHERE-less DELETE/UPDATE needs force:true.",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "sql": { "type": "string", "required": true },
-          "params": { "type": "array" },
-          "force": { "type": "boolean" }
+          "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" },
+          "sql": { "type": "string", "required": true, "description": "One write or DDL statement" },
+          "params": { "type": "json", "description": "Positional bind values for the statement" },
+          "force": { "type": "boolean", "description": "Allow a WHERE-less DELETE/UPDATE" }
         }
       },
       {
@@ -172,10 +192,10 @@
         "danger": "destructive",
         "description": "Apply one migration in a single transaction and record it in the ledger (checksum-verified).",
         "params": {
-          "profile": { "type": "string", "required": true },
-          "id": { "type": "string", "required": true },
-          "checksum": { "type": "string", "required": true },
-          "statements": { "type": "array", "required": true }
+          "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" },
+          "id": { "type": "string", "required": true, "description": "Migration id recorded in the ledger" },
+          "checksum": { "type": "string", "required": true, "description": "Checksum verified against the statements" },
+          "statements": { "type": "json", "required": true, "description": "Ordered SQL statements applied in one transaction" }
         }
       },
       {
@@ -183,7 +203,7 @@
         "title": { "en": "Applied migrations", "ko": "\uc801\uc6a9\ub41c \ub9c8\uc774\uadf8\ub808\uc774\uc158" },
         "bind": "service",
         "description": "List the migration ledger for a profile.",
-        "params": { "profile": { "type": "string", "required": true } }
+        "params": { "profile": { "type": "string", "required": true, "description": "Profile id of the held connection" } }
       },
       {
         "name": "add-column",
@@ -692,6 +712,98 @@
       {
         "id": "dialect-sqlite",
         "description": "Toolbar: set the SQL dialect to SQLite"
+      },
+      {
+        "id": "connection-add",
+        "description": "LeftSidebar Connections: open the add-connection dialog"
+      },
+      {
+        "id": "connection-item",
+        "description": "A saved connection-profile row (data-node connection-item/<profile-id>)"
+      },
+      {
+        "id": "conn-name",
+        "description": "Connection dialog: profile name input"
+      },
+      {
+        "id": "conn-dialect",
+        "description": "Connection dialog: dialect select (sqlite|mysql|postgresql)"
+      },
+      {
+        "id": "conn-env",
+        "description": "Connection dialog: environment select (dev|staging|prod)"
+      },
+      {
+        "id": "conn-file",
+        "description": "Connection dialog: SQLite file-path input"
+      },
+      {
+        "id": "conn-host",
+        "description": "Connection dialog: server host input (network dialects)"
+      },
+      {
+        "id": "conn-port",
+        "description": "Connection dialog: server port input (network dialects)"
+      },
+      {
+        "id": "conn-database",
+        "description": "Connection dialog: database-name input"
+      },
+      {
+        "id": "conn-user",
+        "description": "Connection dialog: user input (password goes to the vault, not here)"
+      },
+      {
+        "id": "conn-ssl",
+        "description": "Connection dialog: require-SSL toggle"
+      },
+      {
+        "id": "conn-readonly",
+        "description": "Connection dialog: open read-only toggle"
+      },
+      {
+        "id": "conn-save",
+        "description": "Connection dialog: save the profile"
+      },
+      {
+        "id": "conn-cancel",
+        "description": "Connection dialog: dismiss without saving"
+      },
+      {
+        "id": "query-editor",
+        "description": "Query panel: SQL editor textarea (⌘↵ runs)"
+      },
+      {
+        "id": "query-run",
+        "description": "Query panel: run the SQL statement"
+      },
+      {
+        "id": "query-result-grid",
+        "description": "Query panel: result-table scroll container"
+      },
+      {
+        "id": "query-load-more",
+        "description": "Query panel: fetch the next page of a truncated result"
+      },
+      {
+        "id": "query-mask-icon",
+        "description": "Query panel: masked-column header marker (data-node query-mask-icon/<column>)"
+      },
+      {
+        "id": "sync-apply",
+        "description": "Sync panel: apply the reverse/forward schema sync"
+      },
+      {
+        "id": "sync-object",
+        "description": "Sync panel: a schema-object row in the sync diff (data-node sync-object/<name>)"
+      },
+      {
+        "id": "migration-run-btn",
+        "description": "Migration panel: run the pending file migrations"
+      },
+      {
+        "id": "migration-item",
+        "description": "Migration panel: a migration row (data-node migration-item/<id>)"
       }
     ],
     "programs": [

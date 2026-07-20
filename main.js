@@ -12813,7 +12813,7 @@ var require_react_dom_client_production = __commonJS({
         }
       );
     }
-    function updateInput(element, value, defaultValue3, lastDefaultValue, checked, defaultChecked, type, name) {
+    function updateInput(element, value, defaultValue3, lastDefaultValue, checked, defaultChecked2, type, name) {
       element.name = "";
       null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type ? element.type = type : element.removeAttribute("type");
       if (null != value)
@@ -12825,11 +12825,11 @@ var require_react_dom_client_production = __commonJS({
       else
         "submit" !== type && "reset" !== type || element.removeAttribute("value");
       null != value ? setDefaultValue(element, type, getToStringValue(value)) : null != defaultValue3 ? setDefaultValue(element, type, getToStringValue(defaultValue3)) : null != lastDefaultValue && element.removeAttribute("value");
-      null == checked && null != defaultChecked && (element.defaultChecked = !!defaultChecked);
+      null == checked && null != defaultChecked2 && (element.defaultChecked = !!defaultChecked2);
       null != checked && (element.checked = checked && "function" !== typeof checked && "symbol" !== typeof checked);
       null != name && "function" !== typeof name && "symbol" !== typeof name && "boolean" !== typeof name ? element.name = "" + getToStringValue(name) : element.removeAttribute("name");
     }
-    function initInput(element, value, defaultValue3, checked, defaultChecked, type, name, isHydrating2) {
+    function initInput(element, value, defaultValue3, checked, defaultChecked2, type, name, isHydrating2) {
       null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type && (element.type = type);
       if (null != value || null != defaultValue3) {
         if (!("submit" !== type && "reset" !== type || void 0 !== value && null !== value)) {
@@ -12841,7 +12841,7 @@ var require_react_dom_client_production = __commonJS({
         isHydrating2 || value === element.value || (element.value = value);
         element.defaultValue = value;
       }
-      checked = null != checked ? checked : defaultChecked;
+      checked = null != checked ? checked : defaultChecked2;
       checked = "function" !== typeof checked && "symbol" !== typeof checked && !!checked;
       element.checked = isHydrating2 ? element.checked : !!checked;
       element.defaultChecked = !!checked;
@@ -21721,7 +21721,7 @@ var require_react_dom_client_production = __commonJS({
           return;
         case "input":
           listenToNonDelegatedEvent("invalid", domElement);
-          var defaultValue3 = propKey = propValue = hasSrcSet = null, checked = null, defaultChecked = null;
+          var defaultValue3 = propKey = propValue = hasSrcSet = null, checked = null, defaultChecked2 = null;
           for (hasSrc in props)
             if (props.hasOwnProperty(hasSrc)) {
               var propValue$184 = props[hasSrc];
@@ -21737,7 +21737,7 @@ var require_react_dom_client_production = __commonJS({
                     checked = propValue$184;
                     break;
                   case "defaultChecked":
-                    defaultChecked = propValue$184;
+                    defaultChecked2 = propValue$184;
                     break;
                   case "value":
                     propKey = propValue$184;
@@ -21759,7 +21759,7 @@ var require_react_dom_client_production = __commonJS({
             propKey,
             defaultValue3,
             checked,
-            defaultChecked,
+            defaultChecked2,
             propValue,
             hasSrcSet,
             false
@@ -21858,14 +21858,14 @@ var require_react_dom_client_production = __commonJS({
         case "track":
         case "wbr":
         case "menuitem":
-          for (defaultChecked in props)
-            if (props.hasOwnProperty(defaultChecked) && (hasSrc = props[defaultChecked], null != hasSrc))
-              switch (defaultChecked) {
+          for (defaultChecked2 in props)
+            if (props.hasOwnProperty(defaultChecked2) && (hasSrc = props[defaultChecked2], null != hasSrc))
+              switch (defaultChecked2) {
                 case "children":
                 case "dangerouslySetInnerHTML":
                   throw Error(formatProdErrorMessage(137, tag));
                 default:
-                  setProp(domElement, tag, defaultChecked, hasSrc, props, null);
+                  setProp(domElement, tag, defaultChecked2, hasSrc, props, null);
               }
           return;
         default:
@@ -21897,7 +21897,7 @@ var require_react_dom_client_production = __commonJS({
         case "li":
           break;
         case "input":
-          var name = null, type = null, value = null, defaultValue3 = null, lastDefaultValue = null, checked = null, defaultChecked = null;
+          var name = null, type = null, value = null, defaultValue3 = null, lastDefaultValue = null, checked = null, defaultChecked2 = null;
           for (propKey in lastProps) {
             var lastProp = lastProps[propKey];
             if (lastProps.hasOwnProperty(propKey) && null != lastProp)
@@ -21927,7 +21927,7 @@ var require_react_dom_client_production = __commonJS({
                   checked = propKey;
                   break;
                 case "defaultChecked":
-                  defaultChecked = propKey;
+                  defaultChecked2 = propKey;
                   break;
                 case "value":
                   value = propKey;
@@ -21957,7 +21957,7 @@ var require_react_dom_client_production = __commonJS({
             defaultValue3,
             lastDefaultValue,
             checked,
-            defaultChecked,
+            defaultChecked2,
             type,
             name
           );
@@ -22119,11 +22119,11 @@ var require_react_dom_client_production = __commonJS({
                 nextProps,
                 propKey$201
               );
-            for (defaultChecked in nextProps)
-              propKey$201 = nextProps[defaultChecked], propKey = lastProps[defaultChecked], !nextProps.hasOwnProperty(defaultChecked) || propKey$201 === propKey || void 0 === propKey$201 && void 0 === propKey || setPropOnCustomElement(
+            for (defaultChecked2 in nextProps)
+              propKey$201 = nextProps[defaultChecked2], propKey = lastProps[defaultChecked2], !nextProps.hasOwnProperty(defaultChecked2) || propKey$201 === propKey || void 0 === propKey$201 && void 0 === propKey || setPropOnCustomElement(
                 domElement,
                 tag,
-                defaultChecked,
+                defaultChecked2,
                 propKey$201,
                 nextProps,
                 propKey
@@ -23709,12 +23709,12 @@ var require_use_sync_external_store_shim_production = __commonJS({
       return x3 === y4 && (0 !== x3 || 1 / x3 === 1 / y4) || x3 !== x3 && y4 !== y4;
     }
     var objectIs = "function" === typeof Object.is ? Object.is : is2;
-    var useState36 = React47.useState;
-    var useEffect38 = React47.useEffect;
+    var useState41 = React47.useState;
+    var useEffect40 = React47.useEffect;
     var useLayoutEffect7 = React47.useLayoutEffect;
     var useDebugValue2 = React47.useDebugValue;
     function useSyncExternalStore$2(subscribe, getSnapshot) {
-      var value = getSnapshot(), _useState = useState36({ inst: { value, getSnapshot } }), inst = _useState[0].inst, forceUpdate = _useState[1];
+      var value = getSnapshot(), _useState = useState41({ inst: { value, getSnapshot } }), inst = _useState[0].inst, forceUpdate = _useState[1];
       useLayoutEffect7(
         function() {
           inst.value = value;
@@ -23723,7 +23723,7 @@ var require_use_sync_external_store_shim_production = __commonJS({
         },
         [subscribe, value, getSnapshot]
       );
-      useEffect38(
+      useEffect40(
         function() {
           checkIfSnapshotChanged(inst) && forceUpdate({ inst });
           return subscribe(function() {
@@ -23777,8 +23777,8 @@ var require_with_selector_production = __commonJS({
     var objectIs = "function" === typeof Object.is ? Object.is : is2;
     var useSyncExternalStore2 = shim.useSyncExternalStore;
     var useRef37 = React47.useRef;
-    var useEffect38 = React47.useEffect;
-    var useMemo20 = React47.useMemo;
+    var useEffect40 = React47.useEffect;
+    var useMemo23 = React47.useMemo;
     var useDebugValue2 = React47.useDebugValue;
     exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
       var instRef = useRef37(null);
@@ -23786,7 +23786,7 @@ var require_with_selector_production = __commonJS({
         var inst = { hasValue: false, value: null };
         instRef.current = inst;
       } else inst = instRef.current;
-      instRef = useMemo20(
+      instRef = useMemo23(
         function() {
           function memoizedSelector(nextSnapshot) {
             if (!hasMemo) {
@@ -23821,7 +23821,7 @@ var require_with_selector_production = __commonJS({
         [getSnapshot, getServerSnapshot, selector, isEqual]
       );
       var value = useSyncExternalStore2(subscribe, instRef[0], instRef[1]);
-      useEffect38(
+      useEffect40(
         function() {
           inst.hasValue = true;
           inst.value = value;
@@ -46955,7 +46955,7 @@ var init_CanvasColorMaskPipe = __esm({
 });
 
 // node_modules/parse-svg-path/dist/index.mjs
-function parse2(path2) {
+function parse3(path2) {
   const data = [];
   path2.replace(segment, (_3, cmd, args) => {
     let type = cmd.toLowerCase();
@@ -47003,7 +47003,7 @@ var init_dist = __esm({
 
 // node_modules/pixi.js/lib/scene/graphics/shared/svg/parseSVGPath.mjs
 function parseSVGPath(svgPath, path2) {
-  const commands = parse2(svgPath);
+  const commands = parse3(svgPath);
   const subpaths = [];
   let currentSubPath = null;
   let lastX = 0;
@@ -52856,7 +52856,7 @@ function trimRight(text) {
   }
   return i3 < text.length - 1 ? text.slice(0, i3 + 1) : text;
 }
-function tokenize(text) {
+function tokenize2(text) {
   const tokens = [];
   const tokenChars = [];
   if (typeof text !== "string") {
@@ -53252,7 +53252,7 @@ function tokenizeTaggedRuns(runs) {
   const styledTokens = [];
   let lastTokenWasWord = false;
   for (const run of runs) {
-    const tokens = tokenize(run.text);
+    const tokens = tokenize2(run.text);
     let isFirstTokenInRun = true;
     for (const token of tokens) {
       const isSpace = isBreakingSpace(token) || isNewline(token);
@@ -53294,7 +53294,7 @@ function wordWrap(text, style, canvas, measureTextFn, canBreakWordsFn, canBreakC
   const shouldCollapseNewlines = collapseNewlines(whiteSpace);
   let canPrependSpaces = !shouldCollapseSpaces;
   const wordWrapWidth = style.wordWrapWidth + letterSpacing;
-  const tokens = tokenize(text);
+  const tokens = tokenize2(text);
   for (let i3 = 0; i3 < tokens.length; i3++) {
     let token = tokens[i3];
     if (isNewline(token)) {
@@ -55422,14 +55422,14 @@ function selfInstall() {
 selfInstall();
 
 // src/plugin-entry.tsx
-var import_react31 = __toESM(require_react(), 1);
+var import_react37 = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
 
 // src/App.tsx
-var import_react30 = __toESM(require_react(), 1);
+var import_react36 = __toESM(require_react(), 1);
 
 // src/components/layout/AppLayout.tsx
-var import_react21 = __toESM(require_react(), 1);
+var import_react27 = __toESM(require_react(), 1);
 
 // node_modules/allotment/dist/modern.mjs
 var import_react = __toESM(require_react(), 1);
@@ -57738,7 +57738,7 @@ var createUISlice = (set2) => ({
     if (bool(prefs.leftSidebarOpen)) state.leftSidebarOpen = prefs.leftSidebarOpen;
     if (bool(prefs.rightSidebarOpen)) state.rightSidebarOpen = prefs.rightSidebarOpen;
     if (bool(prefs.bottomPanelOpen)) state.bottomPanelOpen = prefs.bottomPanelOpen;
-    if (prefs.bottomPanelTab === "sql" || prefs.bottomPanelTab === "mermaid" || prefs.bottomPanelTab === "console") {
+    if (prefs.bottomPanelTab !== void 0 && ["sql", "mermaid", "console", "query", "sync", "migration"].includes(prefs.bottomPanelTab)) {
       state.bottomPanelTab = prefs.bottomPanelTab;
     }
     if (bool(prefs.showMinimap)) state.showMinimap = prefs.showMinimap;
@@ -63557,7 +63557,7 @@ function CheckboxProvider(props) {
     __scopeCheckbox,
     checked: checkedProp,
     children,
-    defaultChecked,
+    defaultChecked: defaultChecked2,
     disabled,
     form,
     name,
@@ -63569,7 +63569,7 @@ function CheckboxProvider(props) {
   } = props;
   const [checked, setChecked] = useControllableState({
     prop: checkedProp,
-    defaultProp: defaultChecked ?? false,
+    defaultProp: defaultChecked2 ?? false,
     onChange: onCheckedChange,
     caller: CHECKBOX_NAME
   });
@@ -63591,7 +63591,7 @@ function CheckboxProvider(props) {
     value,
     hasConsumerStoppedPropagationRef,
     required,
-    defaultChecked: isIndeterminate(defaultChecked) ? false : defaultChecked,
+    defaultChecked: isIndeterminate(defaultChecked2) ? false : defaultChecked2,
     isFormControl,
     bubbleInput,
     setBubbleInput
@@ -63664,7 +63664,7 @@ var Checkbox = React31.forwardRef(
       __scopeCheckbox,
       name,
       checked,
-      defaultChecked,
+      defaultChecked: defaultChecked2,
       required,
       disabled,
       value,
@@ -63677,7 +63677,7 @@ var Checkbox = React31.forwardRef(
       {
         __scopeCheckbox,
         checked,
-        defaultChecked,
+        defaultChecked: defaultChecked2,
         disabled,
         required,
         onCheckedChange,
@@ -63736,7 +63736,7 @@ var CheckboxBubbleInput = React31.forwardRef(
       control,
       hasConsumerStoppedPropagationRef,
       checked,
-      defaultChecked,
+      defaultChecked: defaultChecked2,
       required,
       disabled,
       name,
@@ -63771,7 +63771,7 @@ var CheckboxBubbleInput = React31.forwardRef(
       {
         type: "checkbox",
         "aria-hidden": true,
-        defaultChecked: defaultChecked ?? defaultCheckedRef.current,
+        defaultChecked: defaultChecked2 ?? defaultCheckedRef.current,
         required,
         disabled,
         name,
@@ -70719,73 +70719,94 @@ var createLucideIcon = (iconName, iconNode) => {
   return Component2;
 };
 
+// node_modules/lucide-react/dist/esm/icons/arrow-right-left.js
+var __iconNode = [
+  ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
+  ["path", { d: "M20 7H4", key: "zbl0bi" }],
+  ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
+  ["path", { d: "M4 17h16", key: "g4d7ey" }]
+];
+var ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode);
+
 // node_modules/lucide-react/dist/esm/icons/check.js
-var __iconNode = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-var Check = createLucideIcon("check", __iconNode);
+var __iconNode2 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+var Check = createLucideIcon("check", __iconNode2);
 
 // node_modules/lucide-react/dist/esm/icons/chevron-down.js
-var __iconNode2 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-var ChevronDown = createLucideIcon("chevron-down", __iconNode2);
+var __iconNode3 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+var ChevronDown = createLucideIcon("chevron-down", __iconNode3);
 
 // node_modules/lucide-react/dist/esm/icons/chevron-right.js
-var __iconNode3 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-var ChevronRight = createLucideIcon("chevron-right", __iconNode3);
+var __iconNode4 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+var ChevronRight = createLucideIcon("chevron-right", __iconNode4);
 
 // node_modules/lucide-react/dist/esm/icons/chevron-up.js
-var __iconNode4 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-var ChevronUp = createLucideIcon("chevron-up", __iconNode4);
+var __iconNode5 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+var ChevronUp = createLucideIcon("chevron-up", __iconNode5);
 
 // node_modules/lucide-react/dist/esm/icons/chevrons-up-down.js
-var __iconNode5 = [
+var __iconNode6 = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-var ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode5);
+var ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode6);
 
 // node_modules/lucide-react/dist/esm/icons/circle-alert.js
-var __iconNode6 = [
+var __iconNode7 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-var CircleAlert = createLucideIcon("circle-alert", __iconNode6);
+var CircleAlert = createLucideIcon("circle-alert", __iconNode7);
 
 // node_modules/lucide-react/dist/esm/icons/circle-check.js
-var __iconNode7 = [
+var __iconNode8 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-var CircleCheck = createLucideIcon("circle-check", __iconNode7);
+var CircleCheck = createLucideIcon("circle-check", __iconNode8);
 
 // node_modules/lucide-react/dist/esm/icons/circle-plus.js
-var __iconNode8 = [
+var __iconNode9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M8 12h8", key: "1wcyev" }],
   ["path", { d: "M12 8v8", key: "napkw2" }]
 ];
-var CirclePlus = createLucideIcon("circle-plus", __iconNode8);
+var CirclePlus = createLucideIcon("circle-plus", __iconNode9);
+
+// node_modules/lucide-react/dist/esm/icons/circle-x.js
+var __iconNode10 = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
+  ["path", { d: "m9 9 6 6", key: "z0biqf" }]
+];
+var CircleX = createLucideIcon("circle-x", __iconNode10);
 
 // node_modules/lucide-react/dist/esm/icons/circle.js
-var __iconNode9 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-var Circle = createLucideIcon("circle", __iconNode9);
+var __iconNode11 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+var Circle = createLucideIcon("circle", __iconNode11);
 
 // node_modules/lucide-react/dist/esm/icons/copy.js
-var __iconNode10 = [
+var __iconNode12 = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-var Copy = createLucideIcon("copy", __iconNode10);
+var Copy = createLucideIcon("copy", __iconNode12);
 
 // node_modules/lucide-react/dist/esm/icons/database.js
-var __iconNode11 = [
+var __iconNode13 = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-var Database = createLucideIcon("database", __iconNode11);
+var Database = createLucideIcon("database", __iconNode13);
+
+// node_modules/lucide-react/dist/esm/icons/dot.js
+var __iconNode14 = [["circle", { cx: "12.1", cy: "12.1", r: "1", key: "18d7e5" }]];
+var Dot = createLucideIcon("dot", __iconNode14);
 
 // node_modules/lucide-react/dist/esm/icons/eye.js
-var __iconNode12 = [
+var __iconNode15 = [
   [
     "path",
     {
@@ -70795,10 +70816,31 @@ var __iconNode12 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-var Eye = createLucideIcon("eye", __iconNode12);
+var Eye = createLucideIcon("eye", __iconNode15);
+
+// node_modules/lucide-react/dist/esm/icons/eye-off.js
+var __iconNode16 = [
+  [
+    "path",
+    {
+      d: "M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49",
+      key: "ct8e1f"
+    }
+  ],
+  ["path", { d: "M14.084 14.158a3 3 0 0 1-4.242-4.242", key: "151rxh" }],
+  [
+    "path",
+    {
+      d: "M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143",
+      key: "13bj9a"
+    }
+  ],
+  ["path", { d: "m2 2 20 20", key: "1ooewy" }]
+];
+var EyeOff = createLucideIcon("eye-off", __iconNode16);
 
 // node_modules/lucide-react/dist/esm/icons/file-archive.js
-var __iconNode13 = [
+var __iconNode17 = [
   [
     "path",
     {
@@ -70812,10 +70854,10 @@ var __iconNode13 = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-var FileArchive = createLucideIcon("file-archive", __iconNode13);
+var FileArchive = createLucideIcon("file-archive", __iconNode17);
 
 // node_modules/lucide-react/dist/esm/icons/grip-vertical.js
-var __iconNode14 = [
+var __iconNode18 = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -70823,18 +70865,18 @@ var __iconNode14 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-var GripVertical = createLucideIcon("grip-vertical", __iconNode14);
+var GripVertical = createLucideIcon("grip-vertical", __iconNode18);
 
 // node_modules/lucide-react/dist/esm/icons/info.js
-var __iconNode15 = [
+var __iconNode19 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-var Info = createLucideIcon("info", __iconNode15);
+var Info = createLucideIcon("info", __iconNode19);
 
 // node_modules/lucide-react/dist/esm/icons/key-round.js
-var __iconNode16 = [
+var __iconNode20 = [
   [
     "path",
     {
@@ -70844,85 +70886,144 @@ var __iconNode16 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-var KeyRound = createLucideIcon("key-round", __iconNode16);
+var KeyRound = createLucideIcon("key-round", __iconNode20);
 
 // node_modules/lucide-react/dist/esm/icons/layout-dashboard.js
-var __iconNode17 = [
+var __iconNode21 = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-var LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode17);
+var LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode21);
 
 // node_modules/lucide-react/dist/esm/icons/link-2-off.js
-var __iconNode18 = [
+var __iconNode22 = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7", key: "10o201" }],
   ["path", { d: "M15 7h2a5 5 0 0 1 4 8", key: "1d3206" }],
   ["line", { x1: "8", x2: "12", y1: "12", y2: "12", key: "rvw6j4" }],
   ["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "a6p6uj" }]
 ];
-var Link2Off = createLucideIcon("link-2-off", __iconNode18);
+var Link2Off = createLucideIcon("link-2-off", __iconNode22);
 
 // node_modules/lucide-react/dist/esm/icons/link-2.js
-var __iconNode19 = [
+var __iconNode23 = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-var Link2 = createLucideIcon("link-2", __iconNode19);
+var Link2 = createLucideIcon("link-2", __iconNode23);
 
 // node_modules/lucide-react/dist/esm/icons/loader-circle.js
-var __iconNode20 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-var LoaderCircle = createLucideIcon("loader-circle", __iconNode20);
+var __iconNode24 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+var LoaderCircle = createLucideIcon("loader-circle", __iconNode24);
+
+// node_modules/lucide-react/dist/esm/icons/lock.js
+var __iconNode25 = [
+  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+];
+var Lock = createLucideIcon("lock", __iconNode25);
 
 // node_modules/lucide-react/dist/esm/icons/maximize-2.js
-var __iconNode21 = [
+var __iconNode26 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-var Maximize2 = createLucideIcon("maximize-2", __iconNode21);
+var Maximize2 = createLucideIcon("maximize-2", __iconNode26);
 
 // node_modules/lucide-react/dist/esm/icons/maximize.js
-var __iconNode22 = [
+var __iconNode27 = [
   ["path", { d: "M8 3H5a2 2 0 0 0-2 2v3", key: "1dcmit" }],
   ["path", { d: "M21 8V5a2 2 0 0 0-2-2h-3", key: "1e4gt3" }],
   ["path", { d: "M3 16v3a2 2 0 0 0 2 2h3", key: "wsl5sc" }],
   ["path", { d: "M16 21h3a2 2 0 0 0 2-2v-3", key: "18trek" }]
 ];
-var Maximize = createLucideIcon("maximize", __iconNode22);
+var Maximize = createLucideIcon("maximize", __iconNode27);
+
+// node_modules/lucide-react/dist/esm/icons/minus.js
+var __iconNode28 = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+var Minus = createLucideIcon("minus", __iconNode28);
+
+// node_modules/lucide-react/dist/esm/icons/pencil.js
+var __iconNode29 = [
+  [
+    "path",
+    {
+      d: "M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z",
+      key: "1a8usu"
+    }
+  ],
+  ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
+];
+var Pencil = createLucideIcon("pencil", __iconNode29);
+
+// node_modules/lucide-react/dist/esm/icons/play.js
+var __iconNode30 = [
+  [
+    "path",
+    {
+      d: "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z",
+      key: "10ikf1"
+    }
+  ]
+];
+var Play = createLucideIcon("play", __iconNode30);
 
 // node_modules/lucide-react/dist/esm/icons/plus.js
-var __iconNode23 = [
+var __iconNode31 = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-var Plus = createLucideIcon("plus", __iconNode23);
+var Plus = createLucideIcon("plus", __iconNode31);
 
 // node_modules/lucide-react/dist/esm/icons/redo-2.js
-var __iconNode24 = [
+var __iconNode32 = [
   ["path", { d: "m15 14 5-5-5-5", key: "12vg1m" }],
   ["path", { d: "M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13", key: "6uklza" }]
 ];
-var Redo2 = createLucideIcon("redo-2", __iconNode24);
+var Redo2 = createLucideIcon("redo-2", __iconNode32);
+
+// node_modules/lucide-react/dist/esm/icons/scissors.js
+var __iconNode33 = [
+  ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
+  ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
+  ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
+  ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
+  ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
+];
+var Scissors = createLucideIcon("scissors", __iconNode33);
 
 // node_modules/lucide-react/dist/esm/icons/search.js
-var __iconNode25 = [
+var __iconNode34 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-var Search = createLucideIcon("search", __iconNode25);
+var Search = createLucideIcon("search", __iconNode34);
+
+// node_modules/lucide-react/dist/esm/icons/shield-check.js
+var __iconNode35 = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+];
+var ShieldCheck = createLucideIcon("shield-check", __iconNode35);
 
 // node_modules/lucide-react/dist/esm/icons/square.js
-var __iconNode26 = [
+var __iconNode36 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
 ];
-var Square = createLucideIcon("square", __iconNode26);
+var Square = createLucideIcon("square", __iconNode36);
 
 // node_modules/lucide-react/dist/esm/icons/table-2.js
-var __iconNode27 = [
+var __iconNode37 = [
   [
     "path",
     {
@@ -70931,20 +71032,20 @@ var __iconNode27 = [
     }
   ]
 ];
-var Table2 = createLucideIcon("table-2", __iconNode27);
+var Table2 = createLucideIcon("table-2", __iconNode37);
 
 // node_modules/lucide-react/dist/esm/icons/trash-2.js
-var __iconNode28 = [
+var __iconNode38 = [
   ["path", { d: "M10 11v6", key: "nco0om" }],
   ["path", { d: "M14 11v6", key: "outv1u" }],
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-var Trash2 = createLucideIcon("trash-2", __iconNode28);
+var Trash2 = createLucideIcon("trash-2", __iconNode38);
 
 // node_modules/lucide-react/dist/esm/icons/triangle-alert.js
-var __iconNode29 = [
+var __iconNode39 = [
   [
     "path",
     {
@@ -70955,29 +71056,29 @@ var __iconNode29 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-var TriangleAlert = createLucideIcon("triangle-alert", __iconNode29);
+var TriangleAlert = createLucideIcon("triangle-alert", __iconNode39);
 
 // node_modules/lucide-react/dist/esm/icons/undo-2.js
-var __iconNode30 = [
+var __iconNode40 = [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11", key: "f3b9sd" }]
 ];
-var Undo2 = createLucideIcon("undo-2", __iconNode30);
+var Undo2 = createLucideIcon("undo-2", __iconNode40);
 
 // node_modules/lucide-react/dist/esm/icons/upload.js
-var __iconNode31 = [
+var __iconNode41 = [
   ["path", { d: "M12 3v12", key: "1x0j5s" }],
   ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
 ];
-var Upload = createLucideIcon("upload", __iconNode31);
+var Upload = createLucideIcon("upload", __iconNode41);
 
 // node_modules/lucide-react/dist/esm/icons/x.js
-var __iconNode32 = [
+var __iconNode42 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ];
-var X2 = createLucideIcon("x", __iconNode32);
+var X2 = createLucideIcon("x", __iconNode42);
 
 // src/components/ui/dropdown-menu.tsx
 var import_jsx_runtime27 = __toESM(require_jsx_runtime(), 1);
@@ -73569,101 +73670,352 @@ function TableNavigator() {
   ] });
 }
 
-// src/components/sidebar/LeftSidebar.tsx
+// src/components/connections/ConnectionsContainer.tsx
+var import_react13 = __toESM(require_react(), 1);
+
+// src/components/connections/dialect.tsx
 var import_jsx_runtime36 = __toESM(require_jsx_runtime(), 1);
-function LeftSidebar() {
-  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(TableNavigator, {}) });
-}
-
-// src/components/sidebar/PropertyEditor.tsx
-var import_react19 = __toESM(require_react(), 1);
-
-// src/components/ui/scroll-area.tsx
-var import_jsx_runtime37 = __toESM(require_jsx_runtime(), 1);
-function ScrollArea2({
-  className,
-  children,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)(
-    dist_exports11.Root,
+var DIALECT_MONOGRAM = {
+  sqlite: "S",
+  mysql: "M",
+  postgresql: "P"
+};
+var DIALECT_TONE = {
+  sqlite: "bg-sky-500/15 text-sky-600 dark:text-sky-400",
+  mysql: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  postgresql: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400"
+};
+function DialectIcon({ dialect, className }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
+    "span",
     {
-      "data-slot": "scroll-area",
-      className: cn("relative", className),
-      ...props,
+      className: cn(
+        "relative inline-flex size-6 shrink-0 items-center justify-center rounded-md",
+        DIALECT_TONE[dialect],
+        className
+      ),
+      title: dialect,
+      "aria-label": dialect,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
-          dist_exports11.Viewport,
-          {
-            "data-slot": "scroll-area-viewport",
-            className: "focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
-            children
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(ScrollBar, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(dist_exports11.Corner, {})
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Database, { className: "size-3 opacity-40" }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "absolute text-[9px] font-bold leading-none", children: DIALECT_MONOGRAM[dialect] })
       ]
     }
   );
 }
-function ScrollBar({
+var ENV_TONE = {
+  dev: "bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-400",
+  staging: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
+  prod: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400"
+};
+var ENV_LABEL = {
+  dev: "DEV",
+  staging: "STAGING",
+  prod: "PROD"
+};
+function EnvironmentBadge({
+  environment,
   className,
-  orientation = "vertical",
-  ...props
+  ...rest
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
-    dist_exports11.ScrollAreaScrollbar,
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+    "span",
     {
-      "data-slot": "scroll-area-scrollbar",
-      orientation,
       className: cn(
-        "flex touch-none p-px transition-colors select-none",
-        orientation === "vertical" && "h-full w-2.5 border-l border-l-transparent",
-        orientation === "horizontal" && "h-2.5 flex-col border-t border-t-transparent",
+        "inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide",
+        ENV_TONE[environment],
         className
       ),
-      ...props,
-      children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
-        dist_exports11.ScrollAreaThumb,
-        {
-          "data-slot": "scroll-area-thumb",
-          className: "bg-border relative flex-1 rounded-full"
-        }
-      )
+      ...rest,
+      children: ENV_LABEL[environment]
+    }
+  );
+}
+function ReadOnlyShield({ className }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+    "span",
+    {
+      className: cn("inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-400", className),
+      title: "read-only",
+      children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Lock, { className: "size-3" })
+    }
+  );
+}
+var STATUS_TONE = {
+  connected: "bg-emerald-500",
+  connecting: "bg-amber-500 animate-pulse",
+  disconnected: "bg-gray-300 dark:bg-zinc-600",
+  error: "bg-red-500"
+};
+var STATUS_TITLE = {
+  connected: "connected",
+  connecting: "connecting\u2026",
+  disconnected: "disconnected",
+  error: "error"
+};
+function StatusDot({
+  status,
+  className
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+    "span",
+    {
+      className: cn("inline-block size-2 shrink-0 rounded-full", STATUS_TONE[status], className),
+      title: STATUS_TITLE[status],
+      "aria-label": STATUS_TITLE[status]
     }
   );
 }
 
-// src/components/sidebar/TableProperties.tsx
-var import_react17 = __toESM(require_react(), 1);
+// src/components/connections/ConnectionsPanel.tsx
+var import_jsx_runtime37 = __toESM(require_jsx_runtime(), 1);
+function subtitleFor(p4) {
+  if (p4.dialect === "sqlite") return p4.file ?? "no file";
+  const host = p4.host ?? "localhost";
+  const port = p4.port != null ? `:${p4.port}` : "";
+  const db = p4.database ? `/${p4.database}` : "";
+  return `${host}${port}${db}`;
+}
+function ConnectionsPanel({
+  profiles,
+  statuses,
+  selectedId,
+  onAdd,
+  onSelect
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "flex flex-col border-t border-gray-200 dark:border-zinc-800", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "flex items-center justify-between px-3 py-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Connections" }),
+      /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "rounded bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 text-[11px] text-gray-500 dark:text-zinc-400", children: profiles.length }),
+        /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+          "button",
+          {
+            "data-node": "connection-add",
+            onClick: onAdd,
+            title: "Add connection",
+            className: "inline-flex size-5 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white transition-colors",
+            children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Plus, { className: "size-3.5" })
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", { className: "px-2 pb-2", children: profiles.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("p", { className: "px-2 py-3 text-center text-[11px] text-gray-400 dark:text-zinc-600", children: [
+      "\uC811\uC18D \uD504\uB85C\uD544\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. ",
+      /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "font-semibold", children: "+" }),
+      " \uB85C \uCD94\uAC00\uD558\uC138\uC694."
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("ul", { className: "space-y-0.5", children: profiles.map((p4) => {
+      const status = statuses?.[p4.id] ?? "disconnected";
+      const isSelected = selectedId === p4.id;
+      return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)(
+        "button",
+        {
+          "data-node": `connection-item/${p4.id}`,
+          onClick: onSelect ? () => onSelect(p4.id) : void 0,
+          className: cn(
+            "group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors",
+            onSelect && "cursor-pointer",
+            isSelected ? "bg-blue-500/10" : "hover:bg-gray-100 dark:hover:bg-zinc-800"
+          ),
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(DialectIcon, { dialect: p4.dialect }),
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "min-w-0 flex-1", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(
+                  "span",
+                  {
+                    className: cn(
+                      "truncate text-xs font-medium",
+                      isSelected ? "text-blue-600 dark:text-blue-400" : "text-gray-800 dark:text-zinc-200"
+                    ),
+                    children: p4.name
+                  }
+                ),
+                p4.readOnly && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(ReadOnlyShield, {})
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("span", { className: "block truncate text-[10px] text-gray-400 dark:text-zinc-500 font-mono", children: subtitleFor(p4) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(EnvironmentBadge, { environment: p4.environment }),
+            /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(StatusDot, { status })
+          ]
+        }
+      ) }, p4.id);
+    }) }) })
+  ] });
+}
 
-// src/components/ui/textarea.tsx
+// src/components/connections/ConnectionDialog.tsx
+var import_react11 = __toESM(require_react(), 1);
+
+// src/components/ui/dialog.tsx
 var import_jsx_runtime38 = __toESM(require_jsx_runtime(), 1);
-function Textarea({ className, ...props }) {
+function Dialog2({
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(dist_exports2.Root, { "data-slot": "dialog", ...props });
+}
+function DialogPortal2({
+  container,
+  ...props
+}) {
+  const portalRoot = usePortalRoot();
   return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
-    "textarea",
+    dist_exports2.Portal,
     {
-      "data-slot": "textarea",
+      "data-slot": "dialog-portal",
+      container: container ?? portalRoot,
+      ...props
+    }
+  );
+}
+function DialogOverlay2({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
+    dist_exports2.Overlay,
+    {
+      "data-slot": "dialog-overlay",
       className: cn(
-        "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className
       ),
       ...props
     }
   );
 }
+function DialogContent2({
+  className,
+  children,
+  showCloseButton = true,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)(DialogPortal2, { "data-slot": "dialog-portal", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(DialogOverlay2, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)(
+      dist_exports2.Content,
+      {
+        "data-slot": "dialog-content",
+        className: cn(
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
+          className
+        ),
+        ...props,
+        children: [
+          children,
+          showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)(
+            dist_exports2.Close,
+            {
+              "data-slot": "dialog-close",
+              className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(X2, {}),
+                /* @__PURE__ */ (0, import_jsx_runtime38.jsx)("span", { className: "sr-only", children: "Close" })
+              ]
+            }
+          )
+        ]
+      }
+    )
+  ] });
+}
+function DialogHeader({ className, ...props }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
+    "div",
+    {
+      "data-slot": "dialog-header",
+      className: cn("flex flex-col gap-2 text-center sm:text-left", className),
+      ...props
+    }
+  );
+}
+function DialogFooter({
+  className,
+  showCloseButton = false,
+  children,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsxs)(
+    "div",
+    {
+      "data-slot": "dialog-footer",
+      className: cn(
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        className
+      ),
+      ...props,
+      children: [
+        children,
+        showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(dist_exports2.Close, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(Button, { variant: "outline", children: "Close" }) })
+      ]
+    }
+  );
+}
+function DialogTitle2({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
+    dist_exports2.Title,
+    {
+      "data-slot": "dialog-title",
+      className: cn("text-lg leading-none font-semibold", className),
+      ...props
+    }
+  );
+}
+function DialogDescription2({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime38.jsx)(
+    dist_exports2.Description,
+    {
+      "data-slot": "dialog-description",
+      className: cn("text-muted-foreground text-sm", className),
+      ...props
+    }
+  );
+}
+
+// src/components/ui/checkbox.tsx
+var import_jsx_runtime39 = __toESM(require_jsx_runtime(), 1);
+function Checkbox2({
+  className,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+    dist_exports3.Root,
+    {
+      "data-slot": "checkbox",
+      className: cn(
+        "peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      ),
+      ...props,
+      children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+        dist_exports3.Indicator,
+        {
+          "data-slot": "checkbox-indicator",
+          className: "grid place-content-center text-current transition-none",
+          children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Check, { className: "size-3.5" })
+        }
+      )
+    }
+  );
+}
 
 // src/components/ui/select.tsx
-var import_jsx_runtime39 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime40 = __toESM(require_jsx_runtime(), 1);
 function Select2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.Root, { "data-slot": "select", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.Root, { "data-slot": "select", ...props });
 }
 function SelectValue2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.Value, { "data-slot": "select-value", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.Value, { "data-slot": "select-value", ...props });
 }
 function SelectTrigger2({
   className,
@@ -73671,7 +74023,7 @@ function SelectTrigger2({
   children,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
     dist_exports12.Trigger,
     {
       "data-slot": "select-trigger",
@@ -73683,7 +74035,7 @@ function SelectTrigger2({
       ...props,
       children: [
         children,
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.Icon, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(ChevronDown, { className: "size-4 opacity-50" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.Icon, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ChevronDown, { className: "size-4 opacity-50" }) })
       ]
     }
   );
@@ -73696,7 +74048,7 @@ function SelectContent2({
   ...props
 }) {
   const portalRoot = usePortalRoot();
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
     dist_exports12.Content,
     {
       "data-slot": "select-content",
@@ -73709,8 +74061,8 @@ function SelectContent2({
       align,
       ...props,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(SelectScrollUpButton2, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(SelectScrollUpButton2, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
           dist_exports12.Viewport,
           {
             className: cn(
@@ -73720,7 +74072,7 @@ function SelectContent2({
             children
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(SelectScrollDownButton2, {})
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(SelectScrollDownButton2, {})
       ]
     }
   ) });
@@ -73730,7 +74082,7 @@ function SelectItem2({
   children,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
     dist_exports12.Item,
     {
       "data-slot": "select-item",
@@ -73740,15 +74092,15 @@ function SelectItem2({
       ),
       ...props,
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
           "span",
           {
             "data-slot": "select-item-indicator",
             className: "absolute right-2 flex size-3.5 items-center justify-center",
-            children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.ItemIndicator, { children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Check, { className: "size-4" }) })
+            children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.ItemIndicator, { children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "size-4" }) })
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(dist_exports12.ItemText, { children })
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(dist_exports12.ItemText, { children })
       ]
     }
   );
@@ -73757,7 +74109,7 @@ function SelectScrollUpButton2({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
     dist_exports12.ScrollUpButton,
     {
       "data-slot": "select-scroll-up-button",
@@ -73766,7 +74118,7 @@ function SelectScrollUpButton2({
         className
       ),
       ...props,
-      children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(ChevronUp, { className: "size-4" })
+      children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ChevronUp, { className: "size-4" })
     }
   );
 }
@@ -73774,7 +74126,7 @@ function SelectScrollDownButton2({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
     dist_exports12.ScrollDownButton,
     {
       "data-slot": "select-scroll-down-button",
@@ -73783,13 +74135,753 @@ function SelectScrollDownButton2({
         className
       ),
       ...props,
-      children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(ChevronDown, { className: "size-4" })
+      children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ChevronDown, { className: "size-4" })
+    }
+  );
+}
+
+// src/components/connections/ConnectionDialog.tsx
+var import_jsx_runtime41 = __toESM(require_jsx_runtime(), 1);
+var DIALECTS = ["sqlite", "mysql", "postgresql"];
+var ENVIRONMENTS = ["dev", "staging", "prod"];
+var DEFAULT_PORT = {
+  mysql: 3306,
+  postgresql: 5432
+};
+function initialForm(profile) {
+  return {
+    name: profile?.name ?? "",
+    dialect: profile?.dialect ?? "postgresql",
+    environment: profile?.environment ?? "dev",
+    readOnly: profile?.readOnly ?? false,
+    host: profile?.host ?? "",
+    port: profile?.port != null ? String(profile.port) : "",
+    database: profile?.database ?? "",
+    user: profile?.user ?? "",
+    ssl: profile?.ssl ?? false,
+    file: profile?.file ?? "",
+    password: ""
+  };
+}
+function ConnectionDialog({
+  open,
+  onOpenChange,
+  profile,
+  hasStoredSecret = false,
+  onSave
+}) {
+  const [form, setForm] = (0, import_react11.useState)(() => initialForm(profile));
+  (0, import_react11.useEffect)(() => {
+    if (open) setForm(initialForm(profile));
+  }, [open, profile]);
+  const isSqlite = form.dialect === "sqlite";
+  const canSave = form.name.trim().length > 0 && (isSqlite ? form.file.trim().length > 0 : true);
+  function patch(updates) {
+    setForm((prev) => ({ ...prev, ...updates }));
+  }
+  function handleSave() {
+    if (!canSave) return;
+    const draft = {
+      id: profile?.id,
+      name: form.name.trim(),
+      dialect: form.dialect,
+      environment: form.environment,
+      readOnly: form.readOnly
+    };
+    if (isSqlite) {
+      if (form.file.trim()) draft.file = form.file.trim();
+    } else {
+      if (form.host.trim()) draft.host = form.host.trim();
+      const portNum = Number.parseInt(form.port, 10);
+      if (Number.isFinite(portNum)) draft.port = portNum;
+      if (form.database.trim()) draft.database = form.database.trim();
+      if (form.user.trim()) draft.user = form.user.trim();
+      draft.ssl = form.ssl;
+    }
+    if (form.password.length > 0) draft.password = form.password;
+    onSave(draft);
+  }
+  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Dialog2, { open, onOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(DialogHeader, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(DialogTitle2, { children: profile ? "Edit Connection" : "New Connection" }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(DialogDescription2, { children: "Non-secret connection metadata. The password is stored in the vault, never here." })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Name" }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+          Input,
+          {
+            "data-node": "conn-name",
+            value: form.name,
+            onChange: (e4) => patch({ name: e4.target.value }),
+            placeholder: "my-database",
+            autoFocus: true
+          }
+        )
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "grid grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Dialect" }),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
+            Select2,
+            {
+              value: form.dialect,
+              onValueChange: (v4) => patch({ dialect: v4 }),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectTrigger2, { "data-node": "conn-dialect", className: "w-full", children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectValue2, {}) }),
+                /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectContent2, { children: DIALECTS.map((d3) => /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(SelectItem2, { value: d3, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(DialectIcon, { dialect: d3 }),
+                  d3
+                ] }, d3)) })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Environment" }),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
+            Select2,
+            {
+              value: form.environment,
+              onValueChange: (v4) => patch({ environment: v4 }),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectTrigger2, { "data-node": "conn-env", className: "w-full", children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectValue2, {}) }),
+                /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectContent2, { children: ENVIRONMENTS.map((e4) => /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectItem2, { value: e4, children: e4 }, e4)) })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Separator4, {}),
+      isSqlite ? /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Database file" }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+          Input,
+          {
+            "data-node": "conn-file",
+            value: form.file,
+            onChange: (e4) => patch({ file: e4.target.value }),
+            placeholder: "/path/to/database.db",
+            className: "font-mono text-xs"
+          }
+        )
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "grid grid-cols-[1fr_auto] gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Host" }),
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+              Input,
+              {
+                "data-node": "conn-host",
+                value: form.host,
+                onChange: (e4) => patch({ host: e4.target.value }),
+                placeholder: "localhost",
+                className: "font-mono text-xs"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "w-24 space-y-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Port" }),
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+              Input,
+              {
+                "data-node": "conn-port",
+                value: form.port,
+                onChange: (e4) => patch({ port: e4.target.value.replace(/[^0-9]/g, "") }),
+                inputMode: "numeric",
+                placeholder: String(DEFAULT_PORT[form.dialect]),
+                className: "font-mono text-xs"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "grid grid-cols-2 gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Database" }),
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+              Input,
+              {
+                "data-node": "conn-database",
+                value: form.database,
+                onChange: (e4) => patch({ database: e4.target.value }),
+                placeholder: "postgres",
+                className: "font-mono text-xs"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "User" }),
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+              Input,
+              {
+                "data-node": "conn-user",
+                value: form.user,
+                onChange: (e4) => patch({ user: e4.target.value }),
+                placeholder: "postgres",
+                className: "font-mono text-xs"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("label", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+            Checkbox2,
+            {
+              "data-node": "conn-ssl",
+              checked: form.ssl,
+              onCheckedChange: (c3) => patch({ ssl: !!c3 })
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-sm", children: "Require SSL/TLS" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("label", { className: "text-sm font-medium", children: "Password" }),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+          Input,
+          {
+            type: "password",
+            value: form.password,
+            onChange: (e4) => patch({ password: e4.target.value }),
+            placeholder: hasStoredSecret ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022  (stored in vault)" : "Enter to store in vault",
+            autoComplete: "new-password",
+            className: "font-mono text-xs"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("p", { className: "text-[11px] text-muted-foreground", children: hasStoredSecret ? "\uC774 \uD504\uB85C\uD544\uC5D0\uB294 vault \uC5D0 \uC800\uC7A5\uB41C \uBE44\uBC00\uBC88\uD638\uAC00 \uC788\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C \uC785\uB825\uD558\uBA74 \uAD50\uCCB4\uB429\uB2C8\uB2E4(\uAC12\uC740 \uD45C\uC2DC\uB418\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4)." : "\uC785\uB825\uD55C \uBE44\uBC00\uBC88\uD638\uB294 vault \uC5D0\uB9CC \uC800\uC7A5\uB418\uBA70 \uC5EC\uAE30\uC11C \uB2E4\uC2DC \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4." })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Separator4, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("label", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+          Checkbox2,
+          {
+            "data-node": "conn-readonly",
+            checked: form.readOnly,
+            onCheckedChange: (c3) => patch({ readOnly: !!c3 })
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-sm", children: "Open read-only" })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(DialogFooter, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Button, { "data-node": "conn-cancel", variant: "outline", onClick: () => onOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Button, { "data-node": "conn-save", onClick: handleSave, disabled: !canSave, children: profile ? "Save" : "Add" })
+    ] })
+  ] }) });
+}
+
+// src/components/host/db-host.tsx
+var import_react12 = __toESM(require_react(), 1);
+
+// src/plugin/durable-doc.ts
+function createDurableDoc(kv, store, spec) {
+  let hydrated = false;
+  let restored = false;
+  let dirty = false;
+  let applying = false;
+  let writing = 0;
+  let timer = null;
+  let lastSavedAt = null;
+  let lastError = null;
+  let disabled = kv ? null : 'app.data.kv is unavailable ("data" permission?)';
+  let unsubscribe = null;
+  let unwatch = null;
+  const disable = (reason) => {
+    disabled = reason;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+  const flushNow = async () => {
+    if (!kv || disabled || !dirty) return false;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    dirty = false;
+    writing++;
+    try {
+      const doc = spec.serialize(store.getState());
+      await kv.set(spec.key, doc);
+      lastSavedAt = doc.savedAt;
+      lastError = null;
+      return true;
+    } catch (e4) {
+      dirty = true;
+      lastError = e4 instanceof Error ? e4.message : String(e4);
+      return false;
+    } finally {
+      writing--;
+    }
+  };
+  const scheduleFlush = () => {
+    if (!kv || disabled) return;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      void flushNow();
+    }, spec.debounceMs);
+  };
+  const readDoc = async () => {
+    const raw = await kv.get(spec.key);
+    if (raw == null) return null;
+    const doc = raw;
+    if (typeof doc !== "object" || typeof doc.v !== "number") {
+      throw new Error("stored document has no version tag");
+    }
+    if (doc.v > spec.version) {
+      disable(`stored document v${doc.v} is newer than supported v${spec.version}`);
+      return null;
+    }
+    return doc;
+  };
+  const applyStored = (doc) => {
+    applying = true;
+    try {
+      spec.apply(doc);
+    } finally {
+      applying = false;
+    }
+  };
+  const rehydrate = async () => {
+    if (!kv || disabled) return false;
+    if (dirty) return false;
+    try {
+      const doc = await readDoc();
+      if (!doc) return false;
+      if (lastSavedAt != null && doc.savedAt === lastSavedAt) return false;
+      applyStored(doc);
+      lastSavedAt = doc.savedAt;
+      restored = true;
+      return true;
+    } catch (e4) {
+      lastError = e4 instanceof Error ? e4.message : String(e4);
+      return false;
+    }
+  };
+  const hydrate = async () => {
+    if (hydrated) return;
+    if (kv && !disabled) {
+      try {
+        const doc = await readDoc();
+        if (doc) {
+          applyStored(doc);
+          lastSavedAt = doc.savedAt;
+          restored = true;
+        }
+      } catch (e4) {
+        lastError = e4 instanceof Error ? e4.message : String(e4);
+      }
+    }
+    hydrated = true;
+    if (kv && !disabled) {
+      unsubscribe = store.subscribe((s3, p4) => {
+        if (applying) return;
+        if (!spec.changed(s3, p4)) return;
+        dirty = true;
+        scheduleFlush();
+      });
+      if (kv.watch) {
+        unwatch = kv.watch((key) => {
+          if (key !== spec.key) return;
+          if (writing > 0) return;
+          void rehydrate();
+        });
+      }
+    }
+  };
+  const dispose = () => {
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
+    if (unwatch) {
+      unwatch();
+      unwatch = null;
+    }
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    void flushNow();
+  };
+  return {
+    hydrate,
+    rehydrate,
+    flush: flushNow,
+    status: () => ({
+      enabled: kv != null && !disabled,
+      hydrated,
+      restored,
+      dirty,
+      pendingFlush: timer != null,
+      lastSavedAt,
+      lastError,
+      disabled
+    }),
+    dispose
+  };
+}
+
+// src/plugin/connections.ts
+var CONNECTIONS_KEY = "connections:default";
+var CONNECTIONS_DOC_VERSION = 1;
+var FLUSH_DEBOUNCE_MS = 500;
+function secretRefFor(profileId) {
+  return `connections/${profileId}/password`;
+}
+function createConnectionsStore() {
+  return createStore()(
+    immer2((set2) => ({
+      connectionProfiles: {},
+      setConnectionProfiles: (profiles) => set2((s3) => {
+        s3.connectionProfiles = profiles;
+      })
+    }))
+  );
+}
+function addProfile(profiles, profile) {
+  return { ...profiles, [profile.id]: profile };
+}
+function removeProfile(profiles, id) {
+  if (!(id in profiles)) return profiles;
+  const next = { ...profiles };
+  delete next[id];
+  return next;
+}
+function listProfiles(profiles) {
+  return Object.values(profiles);
+}
+function serializeConnections(s3) {
+  return {
+    v: CONNECTIONS_DOC_VERSION,
+    savedAt: Date.now(),
+    profiles: s3.connectionProfiles
+  };
+}
+function applyConnections(store, doc) {
+  store.getState().setConnectionProfiles(doc.profiles ?? {});
+}
+function connectionsChanged(s3, p4) {
+  return s3.connectionProfiles !== p4.connectionProfiles;
+}
+function createConnectionsPersistence(kv, store) {
+  return createDurableDoc(kv, store, {
+    key: CONNECTIONS_KEY,
+    version: CONNECTIONS_DOC_VERSION,
+    debounceMs: FLUSH_DEBOUNCE_MS,
+    serialize: serializeConnections,
+    apply: (doc) => applyConnections(store, doc),
+    changed: connectionsChanged
+  });
+}
+var DIALECTS2 = ["sqlite", "mysql", "postgresql"];
+var ENVIRONMENTS2 = ["dev", "staging", "prod"];
+function slugify(name) {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function buildProfile(p4) {
+  const name = typeof p4.name === "string" ? p4.name.trim() : "";
+  if (!name) return { ok: false, code: "INVALID_INPUT", message: "name is required" };
+  const dialect = p4.dialect;
+  if (!DIALECTS2.includes(dialect)) {
+    return { ok: false, code: "INVALID_INPUT", message: `dialect must be one of ${DIALECTS2.join(", ")}` };
+  }
+  const environment = ENVIRONMENTS2.includes(p4.environment) ? p4.environment : "dev";
+  const id = typeof p4.id === "string" && p4.id.trim() || slugify(name) || generateId();
+  const profile = {
+    id,
+    name,
+    dialect,
+    environment,
+    readOnly: p4.readOnly === true
+  };
+  if (typeof p4.host === "string") profile.host = p4.host;
+  if (typeof p4.port === "number") profile.port = p4.port;
+  if (typeof p4.database === "string") profile.database = p4.database;
+  if (typeof p4.user === "string") profile.user = p4.user;
+  if (typeof p4.ssl === "boolean") profile.ssl = p4.ssl;
+  if (typeof p4.file === "string") profile.file = p4.file;
+  return { ok: true, profile };
+}
+function registerConnectionCommands(ctx, conns, store) {
+  const reg = ctx.app.commands?.register;
+  if (!reg) return;
+  const register = reg.bind(ctx.app.commands);
+  ctx.subscriptions.push(
+    register("db-profile-add", {
+      description: "Add or update a non-secret connection profile (dialect, host, port, database, user, environment, readOnly, ssl, file). Passwords are NOT accepted here \u2014 store them in the vault.",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uCD94\uAC00 \uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uC5F0\uACB0 \uB4F1\uB85D" },
+      message: (d3) => {
+        const r4 = d3;
+        if (!r4.ok) return r4.message ?? "\uD504\uB85C\uD544 \uCD94\uAC00 \uC2E4\uD328";
+        return `\uD504\uB85C\uD544 '${r4.profile?.name}' \uC744 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4(\uBE44\uBC00\uBC88\uD638\uB294 vault \uD0A4 '${r4.secretRef}' \uC5D0 \uBCC4\uB3C4 \uC800\uC7A5)`;
+      },
+      params: {
+        name: { type: "string", required: true, description: "Human-readable profile name" },
+        dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], required: true, description: "Database dialect" },
+        id: { type: "string", description: "Stable profile id (defaults to a slug of name)" },
+        environment: { type: "string", enum: ["dev", "staging", "prod"], default: "dev", description: "Deployment environment" },
+        readOnly: { type: "boolean", default: false, description: "Open the connection read-only" },
+        host: { type: "string", description: "Server host (network dialects)" },
+        port: { type: "number", description: "Server port (network dialects)" },
+        database: { type: "string", description: "Database name" },
+        user: { type: "string", description: "Connection user (secret password goes to the vault, not here)" },
+        ssl: { type: "boolean", description: "Require SSL/TLS" },
+        file: { type: "string", description: "File path (sqlite)" }
+      },
+      handler: async (params) => {
+        const built = buildProfile(params ?? {});
+        if (!built.ok) return { ok: false, code: built.code, message: built.message };
+        const st2 = store.getState();
+        st2.setConnectionProfiles(addProfile(st2.connectionProfiles, built.profile));
+        const flushed = await conns.flush();
+        const s3 = conns.status();
+        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
+        return {
+          ok: true,
+          profile: built.profile,
+          secretRef: secretRefFor(built.profile.id),
+          flushed,
+          savedAt: s3.lastSavedAt
+        };
+      }
+    })
+  );
+  ctx.subscriptions.push(
+    register("db-profile-list", {
+      description: "List all non-secret connection profiles",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uBAA9\uB85D \uC870\uD68C \uC5F0\uACB0 \uBAA9\uB85D" },
+      message: (d3) => `\uD504\uB85C\uD544 ${(d3.profiles ?? []).length}\uAC1C`,
+      params: {},
+      handler: async () => ({ ok: true, profiles: listProfiles(store.getState().connectionProfiles) })
+    })
+  );
+  ctx.subscriptions.push(
+    register("db-profile-remove", {
+      description: "Remove a connection profile by id (idempotent \u2014 removing an absent profile succeeds)",
+      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uC0AD\uC81C \uC81C\uAC70 \uC5F0\uACB0" },
+      message: (d3) => {
+        const r4 = d3;
+        return r4.removed ? `\uD504\uB85C\uD544 '${r4.id}' \uC744 \uC0AD\uC81C\uD588\uC2B5\uB2C8\uB2E4` : `\uD504\uB85C\uD544 '${r4.id}' \uC774 \uC5C6\uC2B5\uB2C8\uB2E4(\uBB34\uBCC0\uACBD)`;
+      },
+      params: {
+        id: { type: "string", required: true, description: "Profile id to remove" }
+      },
+      handler: async (params) => {
+        const id = typeof params?.id === "string" ? params.id : "";
+        if (!id) return { ok: false, code: "INVALID_INPUT", message: "id is required" };
+        const st2 = store.getState();
+        const removed = id in st2.connectionProfiles;
+        if (removed) st2.setConnectionProfiles(removeProfile(st2.connectionProfiles, id));
+        const flushed = await conns.flush();
+        const s3 = conns.status();
+        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
+        return { ok: true, id, removed, flushed, savedAt: s3.lastSavedAt };
+      }
+    })
+  );
+}
+
+// src/components/host/db-host.tsx
+var import_jsx_runtime42 = __toESM(require_jsx_runtime(), 1);
+var PLUGIN_ID = "soksak-plugin-db-studio";
+var DbHostContext = (0, import_react12.createContext)(null);
+function makeRun(exec) {
+  return async (short, params) => {
+    if (!exec) return { ok: false, code: "NO_HOST", message: "\uCF54\uC5B4 \uBA85\uB839 \uBE0C\uB9AC\uC9C0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4(\uC6F9 \uAC1C\uBC1C \uACBD\uB85C)" };
+    const out2 = await exec(`plugin.${PLUGIN_ID}.${short}`, params ?? {});
+    const data = out2 && typeof out2 === "object" ? out2.data : void 0;
+    return { ...out2, ...data ?? {} };
+  };
+}
+function DbHostProvider({
+  exec,
+  connStore,
+  children
+}) {
+  const run = (0, import_react12.useMemo)(() => makeRun(exec), [exec]);
+  const [selectedProfileId, setSelectedProfileId] = (0, import_react12.useState)(null);
+  const [statuses, setStatuses] = (0, import_react12.useState)({});
+  const select = (0, import_react12.useCallback)(
+    (id) => {
+      setSelectedProfileId(id);
+      const profile = connStore.getState().connectionProfiles[id];
+      if (!profile) return;
+      setStatuses((prev) => {
+        if (prev[id] === "connected" || prev[id] === "connecting") return prev;
+        void (async () => {
+          setStatuses((s3) => ({ ...s3, [id]: "connecting" }));
+          const params = { profile: id };
+          if (profile.file) params.file = profile.file;
+          const out2 = await run("db-connect", params);
+          setStatuses((s3) => ({ ...s3, [id]: out2.ok ? "connected" : "error" }));
+        })();
+        return { ...prev, [id]: "connecting" };
+      });
+    },
+    [connStore, run]
+  );
+  const value = (0, import_react12.useMemo)(
+    () => ({ run, live: exec !== void 0, connStore, session: { selectedProfileId, statuses, select } }),
+    [run, exec, connStore, selectedProfileId, statuses, select]
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(DbHostContext.Provider, { value, children });
+}
+function useDbHost() {
+  return (0, import_react12.useContext)(DbHostContext);
+}
+function useConnectionProfiles(connStore) {
+  const map = useStore(connStore, (s3) => s3.connectionProfiles);
+  return (0, import_react12.useMemo)(() => listProfiles(map), [map]);
+}
+function useSelectedProfile(host) {
+  const map = useStore(host.connStore, (s3) => s3.connectionProfiles);
+  const id = host.session.selectedProfileId;
+  return id ? map[id] ?? null : null;
+}
+
+// src/components/connections/ConnectionsContainer.tsx
+var import_jsx_runtime43 = __toESM(require_jsx_runtime(), 1);
+function draftToProfileParams(draft) {
+  const p4 = {
+    name: draft.name,
+    dialect: draft.dialect,
+    environment: draft.environment,
+    readOnly: draft.readOnly
+  };
+  if (draft.id) p4.id = draft.id;
+  if (draft.host) p4.host = draft.host;
+  if (draft.port != null) p4.port = draft.port;
+  if (draft.database) p4.database = draft.database;
+  if (draft.user) p4.user = draft.user;
+  if (draft.ssl != null) p4.ssl = draft.ssl;
+  if (draft.file) p4.file = draft.file;
+  return p4;
+}
+function Inner({ host }) {
+  const profiles = useConnectionProfiles(host.connStore);
+  const [dialogOpen, setDialogOpen] = (0, import_react13.useState)(false);
+  const onSave = async (draft) => {
+    const out2 = await host.run("db-profile-add", draftToProfileParams(draft));
+    if (!out2.ok) {
+      toast(out2.message ?? "\uD504\uB85C\uD544 \uCD94\uAC00 \uC2E4\uD328", "error");
+      return;
+    }
+    setDialogOpen(false);
+    toast(`\uD504\uB85C\uD544 '${draft.name}' \uC744 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4`, "success");
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime43.jsxs)(import_jsx_runtime43.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+      ConnectionsPanel,
+      {
+        profiles,
+        statuses: host.session.statuses,
+        selectedId: host.session.selectedProfileId,
+        onAdd: () => setDialogOpen(true),
+        onSelect: host.session.select
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(ConnectionDialog, { open: dialogOpen, onOpenChange: setDialogOpen, onSave })
+  ] });
+}
+function ConnectionsContainer() {
+  const host = useDbHost();
+  if (!host || !host.live) return null;
+  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(Inner, { host });
+}
+
+// src/components/sidebar/LeftSidebar.tsx
+var import_jsx_runtime44 = __toESM(require_jsx_runtime(), 1);
+function LeftSidebar() {
+  return /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime44.jsx)("div", { className: "min-h-0 flex-1 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(TableNavigator, {}) }),
+    /* @__PURE__ */ (0, import_jsx_runtime44.jsx)("div", { className: "shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(ConnectionsContainer, {}) })
+  ] });
+}
+
+// src/components/sidebar/PropertyEditor.tsx
+var import_react22 = __toESM(require_react(), 1);
+
+// src/components/ui/scroll-area.tsx
+var import_jsx_runtime45 = __toESM(require_jsx_runtime(), 1);
+function ScrollArea2({
+  className,
+  children,
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+    dist_exports11.Root,
+    {
+      "data-slot": "scroll-area",
+      className: cn("relative", className),
+      ...props,
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          dist_exports11.Viewport,
+          {
+            "data-slot": "scroll-area-viewport",
+            className: "focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
+            children
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ScrollBar, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(dist_exports11.Corner, {})
+      ]
+    }
+  );
+}
+function ScrollBar({
+  className,
+  orientation = "vertical",
+  ...props
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+    dist_exports11.ScrollAreaScrollbar,
+    {
+      "data-slot": "scroll-area-scrollbar",
+      orientation,
+      className: cn(
+        "flex touch-none p-px transition-colors select-none",
+        orientation === "vertical" && "h-full w-2.5 border-l border-l-transparent",
+        orientation === "horizontal" && "h-2.5 flex-col border-t border-t-transparent",
+        className
+      ),
+      ...props,
+      children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        dist_exports11.ScrollAreaThumb,
+        {
+          "data-slot": "scroll-area-thumb",
+          className: "bg-border relative flex-1 rounded-full"
+        }
+      )
+    }
+  );
+}
+
+// src/components/sidebar/TableProperties.tsx
+var import_react20 = __toESM(require_react(), 1);
+
+// src/components/ui/textarea.tsx
+var import_jsx_runtime46 = __toESM(require_jsx_runtime(), 1);
+function Textarea({ className, ...props }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+    "textarea",
+    {
+      "data-slot": "textarea",
+      className: cn(
+        "border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        className
+      ),
+      ...props
     }
   );
 }
 
 // src/components/sidebar/ColumnEditor.tsx
-var import_react16 = __toESM(require_react(), 1);
+var import_react19 = __toESM(require_react(), 1);
 
 // src/constants/data-types.ts
 var MYSQL_DATA_TYPES = [
@@ -73872,47 +74964,20 @@ var DATA_TYPES = {
   postgresql: POSTGRESQL_DATA_TYPES
 };
 
-// src/components/ui/checkbox.tsx
-var import_jsx_runtime40 = __toESM(require_jsx_runtime(), 1);
-function Checkbox2({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
-    dist_exports3.Root,
-    {
-      "data-slot": "checkbox",
-      className: cn(
-        "peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      ),
-      ...props,
-      children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
-        dist_exports3.Indicator,
-        {
-          "data-slot": "checkbox-indicator",
-          className: "grid place-content-center text-current transition-none",
-          children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "size-3.5" })
-        }
-      )
-    }
-  );
-}
-
 // src/components/sidebar/TypeCombobox.tsx
-var import_react11 = __toESM(require_react(), 1);
+var import_react14 = __toESM(require_react(), 1);
 
 // src/components/ui/popover.tsx
-var import_jsx_runtime41 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime47 = __toESM(require_jsx_runtime(), 1);
 function Popover2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(dist_exports10.Root, { "data-slot": "popover", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(dist_exports10.Root, { "data-slot": "popover", ...props });
 }
 function PopoverTrigger2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(dist_exports10.Trigger, { "data-slot": "popover-trigger", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(dist_exports10.Trigger, { "data-slot": "popover-trigger", ...props });
 }
 function PopoverContent2({
   className,
@@ -73921,7 +74986,7 @@ function PopoverContent2({
   ...props
 }) {
   const portalRoot = usePortalRoot();
-  return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(dist_exports10.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(dist_exports10.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
     dist_exports10.Content,
     {
       "data-slot": "popover-content",
@@ -74280,144 +75345,13 @@ function B3({ asChild: r4, children: o3 }, n3) {
 }
 var Te = { position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", borderWidth: "0" };
 
-// src/components/ui/dialog.tsx
-var import_jsx_runtime42 = __toESM(require_jsx_runtime(), 1);
-function Dialog2({
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(dist_exports2.Root, { "data-slot": "dialog", ...props });
-}
-function DialogPortal2({
-  container,
-  ...props
-}) {
-  const portalRoot = usePortalRoot();
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
-    dist_exports2.Portal,
-    {
-      "data-slot": "dialog-portal",
-      container: container ?? portalRoot,
-      ...props
-    }
-  );
-}
-function DialogOverlay2({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
-    dist_exports2.Overlay,
-    {
-      "data-slot": "dialog-overlay",
-      className: cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
-        className
-      ),
-      ...props
-    }
-  );
-}
-function DialogContent2({
-  className,
-  children,
-  showCloseButton = true,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(DialogPortal2, { "data-slot": "dialog-portal", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(DialogOverlay2, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(
-      dist_exports2.Content,
-      {
-        "data-slot": "dialog-content",
-        className: cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
-          className
-        ),
-        ...props,
-        children: [
-          children,
-          showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(
-            dist_exports2.Close,
-            {
-              "data-slot": "dialog-close",
-              className: "ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-              children: [
-                /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(X2, {}),
-                /* @__PURE__ */ (0, import_jsx_runtime42.jsx)("span", { className: "sr-only", children: "Close" })
-              ]
-            }
-          )
-        ]
-      }
-    )
-  ] });
-}
-function DialogHeader({ className, ...props }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
-    "div",
-    {
-      "data-slot": "dialog-header",
-      className: cn("flex flex-col gap-2 text-center sm:text-left", className),
-      ...props
-    }
-  );
-}
-function DialogFooter({
-  className,
-  showCloseButton = false,
-  children,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsxs)(
-    "div",
-    {
-      "data-slot": "dialog-footer",
-      className: cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className
-      ),
-      ...props,
-      children: [
-        children,
-        showCloseButton && /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(dist_exports2.Close, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(Button, { variant: "outline", children: "Close" }) })
-      ]
-    }
-  );
-}
-function DialogTitle2({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
-    dist_exports2.Title,
-    {
-      "data-slot": "dialog-title",
-      className: cn("text-lg leading-none font-semibold", className),
-      ...props
-    }
-  );
-}
-function DialogDescription2({
-  className,
-  ...props
-}) {
-  return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(
-    dist_exports2.Description,
-    {
-      "data-slot": "dialog-description",
-      className: cn("text-muted-foreground text-sm", className),
-      ...props
-    }
-  );
-}
-
 // src/components/ui/command.tsx
-var import_jsx_runtime43 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime48 = __toESM(require_jsx_runtime(), 1);
 function Command({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
     _e2,
     {
       "data-slot": "command",
@@ -74437,17 +75371,17 @@ function CommandDialog({
   showCloseButton = true,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsxs)(Dialog2, { ...props, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime43.jsxs)(DialogHeader, { className: "sr-only", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(DialogTitle2, { children: title }),
-      /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(DialogDescription2, { children: description })
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(Dialog2, { ...props, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(DialogHeader, { className: "sr-only", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(DialogTitle2, { children: title }),
+      /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(DialogDescription2, { children: description })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
       DialogContent2,
       {
         className: cn("overflow-hidden p-0", className),
         showCloseButton,
-        children: /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(Command, { className: "[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5", children })
+        children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(Command, { className: "[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5", children })
       }
     )
   ] });
@@ -74456,14 +75390,14 @@ function CommandInput({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(
     "div",
     {
       "data-slot": "command-input-wrapper",
       className: "flex h-9 items-center gap-2 border-b px-3",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(Search, { className: "size-4 shrink-0 opacity-50" }),
-        /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(Search, { className: "size-4 shrink-0 opacity-50" }),
+        /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
           _e2.Input,
           {
             "data-slot": "command-input",
@@ -74482,7 +75416,7 @@ function CommandList({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
     _e2.List,
     {
       "data-slot": "command-list",
@@ -74497,7 +75431,7 @@ function CommandList({
 function CommandEmpty({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
     _e2.Empty,
     {
       "data-slot": "command-empty",
@@ -74510,7 +75444,7 @@ function CommandGroup({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
     _e2.Group,
     {
       "data-slot": "command-group",
@@ -74526,7 +75460,7 @@ function CommandItem({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(
     _e2.Item,
     {
       "data-slot": "command-item",
@@ -74552,21 +75486,21 @@ function filterTypeOptions(allTypes, query) {
 }
 
 // src/components/sidebar/TypeCombobox.tsx
-var import_jsx_runtime44 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime49 = __toESM(require_jsx_runtime(), 1);
 function TypeCombobox({ value, options, onChange, className, nodeSuffix }) {
-  const [open, setOpen] = (0, import_react11.useState)(false);
-  const [query, setQuery] = (0, import_react11.useState)("");
-  const { matches, custom } = (0, import_react11.useMemo)(() => filterTypeOptions(options, query), [options, query]);
+  const [open, setOpen] = (0, import_react14.useState)(false);
+  const [query, setQuery] = (0, import_react14.useState)("");
+  const { matches, custom } = (0, import_react14.useMemo)(() => filterTypeOptions(options, query), [options, query]);
   const commit = (v4) => {
     onChange(v4);
     setOpen(false);
     setQuery("");
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)(Popover2, { open, onOpenChange: (o3) => {
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsxs)(Popover2, { open, onOpenChange: (o3) => {
     setOpen(o3);
     if (!o3) setQuery("");
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(PopoverTrigger2, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)(
+    /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(PopoverTrigger2, { asChild: true, children: /* @__PURE__ */ (0, import_jsx_runtime49.jsxs)(
       "button",
       {
         type: "button",
@@ -74579,13 +75513,13 @@ function TypeCombobox({ value, options, onChange, className, nodeSuffix }) {
           className
         ),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime44.jsx)("span", { className: "truncate", children: value || "\uD0C0\uC785 \uC120\uD0DD" }),
-          /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(ChevronsUpDown, { className: "size-3 shrink-0 opacity-50" })
+          /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("span", { className: "truncate", children: value || "\uD0C0\uC785 \uC120\uD0DD" }),
+          /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(ChevronsUpDown, { className: "size-3 shrink-0 opacity-50" })
         ]
       }
     ) }),
-    /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(PopoverContent2, { className: "w-[220px] p-0", align: "start", children: /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)(Command, { shouldFilter: false, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(PopoverContent2, { className: "w-[220px] p-0", align: "start", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsxs)(Command, { shouldFilter: false, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(
         CommandInput,
         {
           placeholder: "\uD0C0\uC785 \uAC80\uC0C9 \uB610\uB294 \uC785\uB825\u2026",
@@ -74594,30 +75528,30 @@ function TypeCombobox({ value, options, onChange, className, nodeSuffix }) {
           "data-node": nodeSuffix ? `coltype/${nodeSuffix}-input` : void 0
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)(CommandList, { children: [
-        matches.length === 0 && !custom && /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(CommandEmpty, { children: "\uC77C\uCE58\uD558\uB294 \uD0C0\uC785 \uC5C6\uC74C" }),
-        custom && /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(CommandGroup, { heading: "\uC0AC\uC6A9\uC790 \uC9C0\uC815", children: /* @__PURE__ */ (0, import_jsx_runtime44.jsxs)(CommandItem, { value: `__custom__ ${custom}`, onSelect: () => commit(custom), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime49.jsxs)(CommandList, { children: [
+        matches.length === 0 && !custom && /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(CommandEmpty, { children: "\uC77C\uCE58\uD558\uB294 \uD0C0\uC785 \uC5C6\uC74C" }),
+        custom && /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(CommandGroup, { heading: "\uC0AC\uC6A9\uC790 \uC9C0\uC815", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsxs)(CommandItem, { value: `__custom__ ${custom}`, onSelect: () => commit(custom), children: [
           '"',
           custom,
           '" \uC0AC\uC6A9'
         ] }) }),
-        matches.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(CommandGroup, { heading: "\uD0C0\uC785", children: matches.map((t4) => /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(CommandItem, { value: t4, onSelect: () => commit(t4), children: t4 }, t4)) })
+        matches.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(CommandGroup, { heading: "\uD0C0\uC785", children: matches.map((t4) => /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(CommandItem, { value: t4, onSelect: () => commit(t4), children: t4 }, t4)) })
       ] })
     ] }) })
   ] });
 }
 
 // node_modules/@dnd-kit/core/dist/core.esm.js
-var import_react14 = __toESM(require_react());
+var import_react17 = __toESM(require_react());
 var import_react_dom2 = __toESM(require_react_dom());
 
 // node_modules/@dnd-kit/utilities/dist/utilities.esm.js
-var import_react12 = __toESM(require_react());
+var import_react15 = __toESM(require_react());
 function useCombinedRefs() {
   for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
     refs[_key] = arguments[_key];
   }
-  return (0, import_react12.useMemo)(
+  return (0, import_react15.useMemo)(
     () => (node) => {
       refs.forEach((ref) => ref(node));
     },
@@ -74680,13 +75614,13 @@ function getOwnerDocument(target) {
   }
   return document;
 }
-var useIsomorphicLayoutEffect2 = canUseDOM2 ? import_react12.useLayoutEffect : import_react12.useEffect;
+var useIsomorphicLayoutEffect2 = canUseDOM2 ? import_react15.useLayoutEffect : import_react15.useEffect;
 function useEvent(handler) {
-  const handlerRef = (0, import_react12.useRef)(handler);
+  const handlerRef = (0, import_react15.useRef)(handler);
   useIsomorphicLayoutEffect2(() => {
     handlerRef.current = handler;
   });
-  return (0, import_react12.useCallback)(function() {
+  return (0, import_react15.useCallback)(function() {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -74694,11 +75628,11 @@ function useEvent(handler) {
   }, []);
 }
 function useInterval() {
-  const intervalRef = (0, import_react12.useRef)(null);
-  const set2 = (0, import_react12.useCallback)((listener, duration) => {
+  const intervalRef = (0, import_react15.useRef)(null);
+  const set2 = (0, import_react15.useCallback)((listener, duration) => {
     intervalRef.current = setInterval(listener, duration);
   }, []);
-  const clear = (0, import_react12.useCallback)(() => {
+  const clear = (0, import_react15.useCallback)(() => {
     if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -74710,7 +75644,7 @@ function useLatestValue(value, dependencies) {
   if (dependencies === void 0) {
     dependencies = [value];
   }
-  const valueRef = (0, import_react12.useRef)(value);
+  const valueRef = (0, import_react15.useRef)(value);
   useIsomorphicLayoutEffect2(() => {
     if (valueRef.current !== value) {
       valueRef.current = value;
@@ -74719,8 +75653,8 @@ function useLatestValue(value, dependencies) {
   return valueRef;
 }
 function useLazyMemo(callback, dependencies) {
-  const valueRef = (0, import_react12.useRef)();
-  return (0, import_react12.useMemo)(
+  const valueRef = (0, import_react15.useRef)();
+  return (0, import_react15.useMemo)(
     () => {
       const newValue = callback(valueRef.current);
       valueRef.current = newValue;
@@ -74732,8 +75666,8 @@ function useLazyMemo(callback, dependencies) {
 }
 function useNodeRef(onChange) {
   const onChangeHandler = useEvent(onChange);
-  const node = (0, import_react12.useRef)(null);
-  const setNodeRef = (0, import_react12.useCallback)(
+  const node = (0, import_react15.useRef)(null);
+  const setNodeRef = (0, import_react15.useCallback)(
     (element) => {
       if (element !== node.current) {
         onChangeHandler == null ? void 0 : onChangeHandler(element, node.current);
@@ -74746,15 +75680,15 @@ function useNodeRef(onChange) {
   return [node, setNodeRef];
 }
 function usePrevious2(value) {
-  const ref = (0, import_react12.useRef)();
-  (0, import_react12.useEffect)(() => {
+  const ref = (0, import_react15.useRef)();
+  (0, import_react15.useEffect)(() => {
     ref.current = value;
   }, [value]);
   return ref.current;
 }
 var ids = {};
 function useUniqueId(prefix, value) {
-  return (0, import_react12.useMemo)(() => {
+  return (0, import_react15.useMemo)(() => {
     if (value) {
       return value;
     }
@@ -74888,7 +75822,7 @@ function findFirstFocusableNode(element) {
 }
 
 // node_modules/@dnd-kit/accessibility/dist/accessibility.esm.js
-var import_react13 = __toESM(require_react());
+var import_react16 = __toESM(require_react());
 var hiddenStyles = {
   display: "none"
 };
@@ -74897,7 +75831,7 @@ function HiddenText(_ref) {
     id,
     value
   } = _ref;
-  return import_react13.default.createElement("div", {
+  return import_react16.default.createElement("div", {
     id,
     style: hiddenStyles
   }, value);
@@ -74922,7 +75856,7 @@ function LiveRegion(_ref) {
     clipPath: "inset(100%)",
     whiteSpace: "nowrap"
   };
-  return import_react13.default.createElement("div", {
+  return import_react16.default.createElement("div", {
     id,
     style: visuallyHidden,
     role: "status",
@@ -74931,8 +75865,8 @@ function LiveRegion(_ref) {
   }, announcement);
 }
 function useAnnouncement() {
-  const [announcement, setAnnouncement] = (0, import_react13.useState)("");
-  const announce = (0, import_react13.useCallback)((value) => {
+  const [announcement, setAnnouncement] = (0, import_react16.useState)("");
+  const announce = (0, import_react16.useCallback)((value) => {
     if (value != null) {
       setAnnouncement(value);
     }
@@ -74944,10 +75878,10 @@ function useAnnouncement() {
 }
 
 // node_modules/@dnd-kit/core/dist/core.esm.js
-var DndMonitorContext = /* @__PURE__ */ (0, import_react14.createContext)(null);
+var DndMonitorContext = /* @__PURE__ */ (0, import_react17.createContext)(null);
 function useDndMonitor(listener) {
-  const registerListener = (0, import_react14.useContext)(DndMonitorContext);
-  (0, import_react14.useEffect)(() => {
+  const registerListener = (0, import_react17.useContext)(DndMonitorContext);
+  (0, import_react17.useEffect)(() => {
     if (!registerListener) {
       throw new Error("useDndMonitor must be used within a children of <DndContext>");
     }
@@ -74956,12 +75890,12 @@ function useDndMonitor(listener) {
   }, [listener, registerListener]);
 }
 function useDndMonitorProvider() {
-  const [listeners] = (0, import_react14.useState)(() => /* @__PURE__ */ new Set());
-  const registerListener = (0, import_react14.useCallback)((listener) => {
+  const [listeners] = (0, import_react17.useState)(() => /* @__PURE__ */ new Set());
+  const registerListener = (0, import_react17.useCallback)((listener) => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   }, [listeners]);
-  const dispatch = (0, import_react14.useCallback)((_ref) => {
+  const dispatch = (0, import_react17.useCallback)((_ref) => {
     let {
       type,
       event
@@ -75022,11 +75956,11 @@ function Accessibility(_ref) {
     announcement
   } = useAnnouncement();
   const liveRegionId = useUniqueId("DndLiveRegion");
-  const [mounted, setMounted] = (0, import_react14.useState)(false);
-  (0, import_react14.useEffect)(() => {
+  const [mounted, setMounted] = (0, import_react17.useState)(false);
+  (0, import_react17.useEffect)(() => {
     setMounted(true);
   }, []);
-  useDndMonitor((0, import_react14.useMemo)(() => ({
+  useDndMonitor((0, import_react17.useMemo)(() => ({
     onDragStart(_ref2) {
       let {
         active: active2
@@ -75081,10 +76015,10 @@ function Accessibility(_ref) {
   if (!mounted) {
     return null;
   }
-  const markup = import_react14.default.createElement(import_react14.default.Fragment, null, import_react14.default.createElement(HiddenText, {
+  const markup = import_react17.default.createElement(import_react17.default.Fragment, null, import_react17.default.createElement(HiddenText, {
     id: hiddenTextDescribedById,
     value: screenReaderInstructions.draggable
-  }), import_react14.default.createElement(LiveRegion, {
+  }), import_react17.default.createElement(LiveRegion, {
     id: liveRegionId,
     announcement
   }));
@@ -75104,7 +76038,7 @@ var Action;
 function noop3() {
 }
 function useSensor(sensor, options) {
-  return (0, import_react14.useMemo)(
+  return (0, import_react17.useMemo)(
     () => ({
       sensor,
       options: options != null ? options : {}
@@ -75117,7 +76051,7 @@ function useSensors() {
   for (var _len = arguments.length, sensors = new Array(_len), _key = 0; _key < _len; _key++) {
     sensors[_key] = arguments[_key];
   }
-  return (0, import_react14.useMemo)(
+  return (0, import_react17.useMemo)(
     () => [...sensors].filter((sensor) => sensor != null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [...sensors]
@@ -76308,15 +77242,15 @@ function useAutoScroller(_ref) {
     disabled: !enabled
   });
   const [setAutoScrollInterval, clearAutoScrollInterval] = useInterval();
-  const scrollSpeed = (0, import_react14.useRef)({
+  const scrollSpeed = (0, import_react17.useRef)({
     x: 0,
     y: 0
   });
-  const scrollDirection = (0, import_react14.useRef)({
+  const scrollDirection = (0, import_react17.useRef)({
     x: 0,
     y: 0
   });
-  const rect = (0, import_react14.useMemo)(() => {
+  const rect = (0, import_react17.useMemo)(() => {
     switch (activator) {
       case AutoScrollActivator.Pointer:
         return pointerCoordinates ? {
@@ -76329,8 +77263,8 @@ function useAutoScroller(_ref) {
         return draggingRect;
     }
   }, [activator, draggingRect, pointerCoordinates]);
-  const scrollContainerRef = (0, import_react14.useRef)(null);
-  const autoScroll = (0, import_react14.useCallback)(() => {
+  const scrollContainerRef = (0, import_react17.useRef)(null);
+  const autoScroll = (0, import_react17.useCallback)(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) {
       return;
@@ -76339,8 +77273,8 @@ function useAutoScroller(_ref) {
     const scrollTop = scrollSpeed.current.y * scrollDirection.current.y;
     scrollContainer.scrollBy(scrollLeft, scrollTop);
   }, []);
-  const sortedScrollableAncestors = (0, import_react14.useMemo)(() => order === TraversalOrder.TreeOrder ? [...scrollableAncestors].reverse() : scrollableAncestors, [order, scrollableAncestors]);
-  (0, import_react14.useEffect)(
+  const sortedScrollableAncestors = (0, import_react17.useMemo)(() => order === TraversalOrder.TreeOrder ? [...scrollableAncestors].reverse() : scrollableAncestors, [order, scrollableAncestors]);
+  (0, import_react17.useEffect)(
     () => {
       if (!enabled || !scrollableAncestors.length || !rect) {
         clearAutoScrollInterval();
@@ -76453,7 +77387,7 @@ function useCachedNode(draggableNodes, id) {
   }, [node, id]);
 }
 function useCombineActivators(sensors, getSyntheticHandler) {
-  return (0, import_react14.useMemo)(() => sensors.reduce((accumulator, sensor) => {
+  return (0, import_react17.useMemo)(() => sensors.reduce((accumulator, sensor) => {
     const {
       sensor: Sensor
     } = sensor;
@@ -76481,16 +77415,16 @@ function useDroppableMeasuring(containers, _ref) {
     dependencies,
     config
   } = _ref;
-  const [queue, setQueue] = (0, import_react14.useState)(null);
+  const [queue, setQueue] = (0, import_react17.useState)(null);
   const {
     frequency,
     measure: measure2,
     strategy
   } = config;
-  const containersRef = (0, import_react14.useRef)(containers);
+  const containersRef = (0, import_react17.useRef)(containers);
   const disabled = isDisabled();
   const disabledRef = useLatestValue(disabled);
-  const measureDroppableContainers = (0, import_react14.useCallback)(function(ids2) {
+  const measureDroppableContainers = (0, import_react17.useCallback)(function(ids2) {
     if (ids2 === void 0) {
       ids2 = [];
     }
@@ -76504,7 +77438,7 @@ function useDroppableMeasuring(containers, _ref) {
       return value.concat(ids2.filter((id) => !value.includes(id)));
     });
   }, [disabledRef]);
-  const timeoutId = (0, import_react14.useRef)(null);
+  const timeoutId = (0, import_react17.useRef)(null);
   const droppableRects = useLazyMemo((previousValue) => {
     if (disabled && !dragging) {
       return defaultValue2;
@@ -76530,10 +77464,10 @@ function useDroppableMeasuring(containers, _ref) {
     }
     return previousValue;
   }, [containers, queue, dragging, disabled, measure2]);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     containersRef.current = containers;
   }, [containers]);
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       if (disabled) {
         return;
@@ -76543,7 +77477,7 @@ function useDroppableMeasuring(containers, _ref) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dragging, disabled]
   );
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       if (queue && queue.length > 0) {
         setQueue(null);
@@ -76552,7 +77486,7 @@ function useDroppableMeasuring(containers, _ref) {
     //eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(queue)]
   );
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       if (disabled || typeof frequency !== "number" || timeoutId.current !== null) {
         return;
@@ -76601,7 +77535,7 @@ function useMutationObserver(_ref) {
     disabled
   } = _ref;
   const handleMutations = useEvent(callback);
-  const mutationObserver = (0, import_react14.useMemo)(() => {
+  const mutationObserver = (0, import_react17.useMemo)(() => {
     if (disabled || typeof window === "undefined" || typeof window.MutationObserver === "undefined") {
       return void 0;
     }
@@ -76610,7 +77544,7 @@ function useMutationObserver(_ref) {
     } = window;
     return new MutationObserver2(handleMutations);
   }, [handleMutations, disabled]);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     return () => mutationObserver == null ? void 0 : mutationObserver.disconnect();
   }, [mutationObserver]);
   return mutationObserver;
@@ -76621,7 +77555,7 @@ function useResizeObserver2(_ref) {
     disabled
   } = _ref;
   const handleResize = useEvent(callback);
-  const resizeObserver = (0, import_react14.useMemo)(
+  const resizeObserver = (0, import_react17.useMemo)(
     () => {
       if (disabled || typeof window === "undefined" || typeof window.ResizeObserver === "undefined") {
         return void 0;
@@ -76634,7 +77568,7 @@ function useResizeObserver2(_ref) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [disabled]
   );
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     return () => resizeObserver == null ? void 0 : resizeObserver.disconnect();
   }, [resizeObserver]);
   return resizeObserver;
@@ -76646,7 +77580,7 @@ function useRect(element, measure2, fallbackRect) {
   if (measure2 === void 0) {
     measure2 = defaultMeasure;
   }
-  const [rect, setRect] = (0, import_react14.useState)(null);
+  const [rect, setRect] = (0, import_react17.useState)(null);
   function measureRect() {
     setRect((currentRect) => {
       if (!element) {
@@ -76704,7 +77638,7 @@ function useRectDelta(rect) {
 }
 var defaultValue$1 = [];
 function useScrollableAncestors(node) {
-  const previousNode = (0, import_react14.useRef)(node);
+  const previousNode = (0, import_react17.useRef)(node);
   const ancestors = useLazyMemo((previousValue) => {
     if (!node) {
       return defaultValue$1;
@@ -76714,15 +77648,15 @@ function useScrollableAncestors(node) {
     }
     return getScrollableAncestors(node);
   }, [node]);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     previousNode.current = node;
   }, [node]);
   return ancestors;
 }
 function useScrollOffsets(elements) {
-  const [scrollCoordinates, setScrollCoordinates] = (0, import_react14.useState)(null);
-  const prevElements = (0, import_react14.useRef)(elements);
-  const handleScroll2 = (0, import_react14.useCallback)((event) => {
+  const [scrollCoordinates, setScrollCoordinates] = (0, import_react17.useState)(null);
+  const prevElements = (0, import_react17.useRef)(elements);
+  const handleScroll2 = (0, import_react17.useCallback)((event) => {
     const scrollingElement = getScrollableElement(event.target);
     if (!scrollingElement) {
       return;
@@ -76735,7 +77669,7 @@ function useScrollOffsets(elements) {
       return new Map(scrollCoordinates2);
     });
   }, []);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     const previousElements = prevElements.current;
     if (elements !== previousElements) {
       cleanup(previousElements);
@@ -76763,7 +77697,7 @@ function useScrollOffsets(elements) {
       });
     }
   }, [handleScroll2, elements]);
-  return (0, import_react14.useMemo)(() => {
+  return (0, import_react17.useMemo)(() => {
     if (elements.length) {
       return scrollCoordinates ? Array.from(scrollCoordinates.values()).reduce((acc, coordinates) => add(acc, coordinates), defaultCoordinates) : getScrollOffsets(elements);
     }
@@ -76774,15 +77708,15 @@ function useScrollOffsetsDelta(scrollOffsets, dependencies) {
   if (dependencies === void 0) {
     dependencies = [];
   }
-  const initialScrollOffsets = (0, import_react14.useRef)(null);
-  (0, import_react14.useEffect)(
+  const initialScrollOffsets = (0, import_react17.useRef)(null);
+  (0, import_react17.useEffect)(
     () => {
       initialScrollOffsets.current = null;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies
   );
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     const hasScrollOffsets = scrollOffsets !== defaultCoordinates;
     if (hasScrollOffsets && !initialScrollOffsets.current) {
       initialScrollOffsets.current = scrollOffsets;
@@ -76794,7 +77728,7 @@ function useScrollOffsetsDelta(scrollOffsets, dependencies) {
   return initialScrollOffsets.current ? subtract(scrollOffsets, initialScrollOffsets.current) : defaultCoordinates;
 }
 function useSensorSetup(sensors) {
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       if (!canUseDOM2) {
         return;
@@ -76822,7 +77756,7 @@ function useSensorSetup(sensors) {
   );
 }
 function useSyntheticListeners(listeners, id) {
-  return (0, import_react14.useMemo)(() => {
+  return (0, import_react17.useMemo)(() => {
     return listeners.reduce((acc, _ref) => {
       let {
         eventName,
@@ -76836,7 +77770,7 @@ function useSyntheticListeners(listeners, id) {
   }, [listeners, id]);
 }
 function useWindowRect(element) {
-  return (0, import_react14.useMemo)(() => element ? getWindowClientRect(element) : null, [element]);
+  return (0, import_react17.useMemo)(() => element ? getWindowClientRect(element) : null, [element]);
 }
 var defaultValue$2 = [];
 function useRects(elements, measure2) {
@@ -76845,7 +77779,7 @@ function useRects(elements, measure2) {
   }
   const [firstElement] = elements;
   const windowRect = useWindowRect(firstElement ? getWindow2(firstElement) : null);
-  const [rects, setRects] = (0, import_react14.useState)(defaultValue$2);
+  const [rects, setRects] = (0, import_react17.useState)(defaultValue$2);
   function measureRects() {
     setRects(() => {
       if (!elements.length) {
@@ -76878,8 +77812,8 @@ function useDragOverlayMeasuring(_ref) {
   let {
     measure: measure2
   } = _ref;
-  const [rect, setRect] = (0, import_react14.useState)(null);
-  const handleResize = (0, import_react14.useCallback)((entries) => {
+  const [rect, setRect] = (0, import_react17.useState)(null);
+  const handleResize = (0, import_react17.useCallback)((entries) => {
     for (const {
       target
     } of entries) {
@@ -76899,7 +77833,7 @@ function useDragOverlayMeasuring(_ref) {
   const resizeObserver = useResizeObserver2({
     callback: handleResize
   });
-  const handleNodeChange = (0, import_react14.useCallback)((element) => {
+  const handleNodeChange = (0, import_react17.useCallback)((element) => {
     const node = getMeasurableNode(element);
     resizeObserver == null ? void 0 : resizeObserver.disconnect();
     if (node) {
@@ -76908,7 +77842,7 @@ function useDragOverlayMeasuring(_ref) {
     setRect(node ? measure2(node) : null);
   }, [measure2, resizeObserver]);
   const [nodeRef, setRef3] = useNodeRef(handleNodeChange);
-  return (0, import_react14.useMemo)(() => ({
+  return (0, import_react17.useMemo)(() => ({
     nodeRef,
     rect,
     setRef: setRef3
@@ -76996,8 +77930,8 @@ var defaultInternalContext = {
   over: null,
   measureDroppableContainers: noop3
 };
-var InternalContext = /* @__PURE__ */ (0, import_react14.createContext)(defaultInternalContext);
-var PublicContext = /* @__PURE__ */ (0, import_react14.createContext)(defaultPublicContext);
+var InternalContext = /* @__PURE__ */ (0, import_react17.createContext)(defaultInternalContext);
+var PublicContext = /* @__PURE__ */ (0, import_react17.createContext)(defaultPublicContext);
 function getInitialState() {
   return {
     draggable: {
@@ -77131,10 +78065,10 @@ function RestoreFocus(_ref) {
     active: active2,
     activatorEvent,
     draggableNodes
-  } = (0, import_react14.useContext)(InternalContext);
+  } = (0, import_react17.useContext)(InternalContext);
   const previousActivatorEvent = usePrevious2(activatorEvent);
   const previousActiveId = usePrevious2(active2 == null ? void 0 : active2.id);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (disabled) {
       return;
     }
@@ -77185,7 +78119,7 @@ function applyModifiers(modifiers, _ref) {
   }, transform) : transform;
 }
 function useMeasuringConfiguration(config) {
-  return (0, import_react14.useMemo)(
+  return (0, import_react17.useMemo)(
     () => ({
       draggable: {
         ...defaultMeasuringConfiguration.draggable,
@@ -77211,7 +78145,7 @@ function useLayoutShiftScrollCompensation(_ref) {
     initialRect,
     config = true
   } = _ref;
-  const initialized = (0, import_react14.useRef)(false);
+  const initialized = (0, import_react17.useRef)(false);
   const {
     x: x3,
     y: y4
@@ -77252,7 +78186,7 @@ function useLayoutShiftScrollCompensation(_ref) {
     }
   }, [activeNode, x3, y4, initialRect, measure2]);
 }
-var ActiveDraggableContext = /* @__PURE__ */ (0, import_react14.createContext)({
+var ActiveDraggableContext = /* @__PURE__ */ (0, import_react17.createContext)({
   ...defaultCoordinates,
   scaleX: 1,
   scaleY: 1
@@ -77263,7 +78197,7 @@ var Status;
   Status2[Status2["Initializing"] = 1] = "Initializing";
   Status2[Status2["Initialized"] = 2] = "Initialized";
 })(Status || (Status = {}));
-var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_ref) {
+var DndContext = /* @__PURE__ */ (0, import_react17.memo)(function DndContext2(_ref) {
   var _sensorContext$curren, _dragOverlay$nodeRef$, _dragOverlay$rect, _over$rect;
   let {
     id,
@@ -77276,10 +78210,10 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     modifiers,
     ...props
   } = _ref;
-  const store = (0, import_react14.useReducer)(reducer, void 0, getInitialState);
+  const store = (0, import_react17.useReducer)(reducer, void 0, getInitialState);
   const [state, dispatch] = store;
   const [dispatchMonitorEvent, registerMonitorListener] = useDndMonitorProvider();
-  const [status, setStatus] = (0, import_react14.useState)(Status.Uninitialized);
+  const [status, setStatus] = (0, import_react17.useState)(Status.Uninitialized);
   const isInitialized = status === Status.Initialized;
   const {
     draggable: {
@@ -77292,11 +78226,11 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     }
   } = state;
   const node = activeId != null ? draggableNodes.get(activeId) : null;
-  const activeRects = (0, import_react14.useRef)({
+  const activeRects = (0, import_react17.useRef)({
     initial: null,
     translated: null
   });
-  const active2 = (0, import_react14.useMemo)(() => {
+  const active2 = (0, import_react17.useMemo)(() => {
     var _node$data;
     return activeId != null ? {
       id: activeId,
@@ -77305,12 +78239,12 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
       rect: activeRects
     } : null;
   }, [activeId, node]);
-  const activeRef = (0, import_react14.useRef)(null);
-  const [activeSensor, setActiveSensor] = (0, import_react14.useState)(null);
-  const [activatorEvent, setActivatorEvent] = (0, import_react14.useState)(null);
+  const activeRef = (0, import_react17.useRef)(null);
+  const [activeSensor, setActiveSensor] = (0, import_react17.useState)(null);
+  const [activatorEvent, setActivatorEvent] = (0, import_react17.useState)(null);
   const latestProps = useLatestValue(props, Object.values(props));
   const draggableDescribedById = useUniqueId("DndDescribedBy", id);
-  const enabledDroppableContainers = (0, import_react14.useMemo)(() => droppableContainers.getEnabled(), [droppableContainers]);
+  const enabledDroppableContainers = (0, import_react17.useMemo)(() => droppableContainers.getEnabled(), [droppableContainers]);
   const measuringConfiguration = useMeasuringConfiguration(measuring);
   const {
     droppableRects,
@@ -77322,7 +78256,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     config: measuringConfiguration.droppable
   });
   const activeNode = useCachedNode(draggableNodes, activeId);
-  const activationCoordinates = (0, import_react14.useMemo)(() => activatorEvent ? getEventCoordinates(activatorEvent) : null, [activatorEvent]);
+  const activationCoordinates = (0, import_react17.useMemo)(() => activatorEvent ? getEventCoordinates(activatorEvent) : null, [activatorEvent]);
   const autoScrollOptions = getAutoScrollerOptions();
   const initialActiveNodeRect = useInitialRect(activeNode, measuringConfiguration.draggable.measure);
   useLayoutShiftScrollCompensation({
@@ -77333,7 +78267,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
   });
   const activeNodeRect = useRect(activeNode, measuringConfiguration.draggable.measure, initialActiveNodeRect);
   const containerNodeRect = useRect(activeNode ? activeNode.parentElement : null);
-  const sensorContext = (0, import_react14.useRef)({
+  const sensorContext = (0, import_react17.useRef)({
     activatorEvent: null,
     active: null,
     activeNode,
@@ -77391,11 +78325,11 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     pointerCoordinates
   }) : null;
   const overId = getFirstCollision(collisions, "id");
-  const [over, setOver] = (0, import_react14.useState)(null);
+  const [over, setOver] = (0, import_react17.useState)(null);
   const appliedTranslate = usesDragOverlay ? modifiedTranslate : add(modifiedTranslate, activeNodeScrollDelta);
   const transform = adjustScale(appliedTranslate, (_over$rect = over == null ? void 0 : over.rect) != null ? _over$rect : null, activeNodeRect);
-  const activeSensorRef = (0, import_react14.useRef)(null);
-  const instantiateSensor = (0, import_react14.useCallback)(
+  const activeSensorRef = (0, import_react17.useRef)(null);
+  const instantiateSensor = (0, import_react17.useCallback)(
     (event, _ref2) => {
       let {
         sensor: Sensor,
@@ -77553,7 +78487,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [draggableNodes]
   );
-  const bindActivatorToSensorInstantiator = (0, import_react14.useCallback)((handler, sensor) => {
+  const bindActivatorToSensorInstantiator = (0, import_react17.useCallback)((handler, sensor) => {
     return (event, active3) => {
       const nativeEvent = event.nativeEvent;
       const activeDraggableNode = draggableNodes.get(active3);
@@ -77585,7 +78519,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
       setStatus(Status.Initialized);
     }
   }, [activeNodeRect, status]);
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       const {
         onDragMove
@@ -77620,7 +78554,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scrollAdjustedTranslate.x, scrollAdjustedTranslate.y]
   );
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       const {
         active: active3,
@@ -77693,7 +78627,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     scrollableAncestors,
     scrollableAncestorRects
   });
-  const publicContext = (0, import_react14.useMemo)(() => {
+  const publicContext = (0, import_react17.useMemo)(() => {
     const context2 = {
       active: active2,
       activeNode,
@@ -77715,7 +78649,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     };
     return context2;
   }, [active2, activeNode, activeNodeRect, activatorEvent, collisions, containerNodeRect, dragOverlay, draggableNodes, droppableContainers, droppableRects, over, measureDroppableContainers, scrollableAncestors, scrollableAncestorRects, measuringConfiguration, measuringScheduled, windowRect]);
-  const internalContext = (0, import_react14.useMemo)(() => {
+  const internalContext = (0, import_react17.useMemo)(() => {
     const context2 = {
       activatorEvent,
       activators,
@@ -77731,17 +78665,17 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     };
     return context2;
   }, [activatorEvent, activators, active2, activeNodeRect, dispatch, draggableDescribedById, draggableNodes, over, measureDroppableContainers]);
-  return import_react14.default.createElement(DndMonitorContext.Provider, {
+  return import_react17.default.createElement(DndMonitorContext.Provider, {
     value: registerMonitorListener
-  }, import_react14.default.createElement(InternalContext.Provider, {
+  }, import_react17.default.createElement(InternalContext.Provider, {
     value: internalContext
-  }, import_react14.default.createElement(PublicContext.Provider, {
+  }, import_react17.default.createElement(PublicContext.Provider, {
     value: publicContext
-  }, import_react14.default.createElement(ActiveDraggableContext.Provider, {
+  }, import_react17.default.createElement(ActiveDraggableContext.Provider, {
     value: transform
-  }, children)), import_react14.default.createElement(RestoreFocus, {
+  }, children)), import_react17.default.createElement(RestoreFocus, {
     disabled: (accessibility == null ? void 0 : accessibility.restoreFocus) === false
-  })), import_react14.default.createElement(Accessibility, {
+  })), import_react17.default.createElement(Accessibility, {
     ...accessibility,
     hiddenTextDescribedById: draggableDescribedById
   }));
@@ -77760,7 +78694,7 @@ var DndContext = /* @__PURE__ */ (0, import_react14.memo)(function DndContext2(_
     };
   }
 });
-var NullContext = /* @__PURE__ */ (0, import_react14.createContext)(null);
+var NullContext = /* @__PURE__ */ (0, import_react17.createContext)(null);
 var defaultRole = "button";
 var ID_PREFIX = "Draggable";
 function useDraggable(_ref) {
@@ -77779,14 +78713,14 @@ function useDraggable(_ref) {
     ariaDescribedById,
     draggableNodes,
     over
-  } = (0, import_react14.useContext)(InternalContext);
+  } = (0, import_react17.useContext)(InternalContext);
   const {
     role = defaultRole,
     roleDescription = "draggable",
     tabIndex = 0
   } = attributes != null ? attributes : {};
   const isDragging = (active2 == null ? void 0 : active2.id) === id;
-  const transform = (0, import_react14.useContext)(isDragging ? ActiveDraggableContext : NullContext);
+  const transform = (0, import_react17.useContext)(isDragging ? ActiveDraggableContext : NullContext);
   const [node, setNodeRef] = useNodeRef();
   const [activatorNode, setActivatorNodeRef] = useNodeRef();
   const listeners = useSyntheticListeners(activators, id);
@@ -77810,7 +78744,7 @@ function useDraggable(_ref) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [draggableNodes, id]
   );
-  const memoizedAttributes = (0, import_react14.useMemo)(() => ({
+  const memoizedAttributes = (0, import_react17.useMemo)(() => ({
     role,
     tabIndex,
     "aria-disabled": disabled,
@@ -77833,7 +78767,7 @@ function useDraggable(_ref) {
   };
 }
 function useDndContext() {
-  return (0, import_react14.useContext)(PublicContext);
+  return (0, import_react17.useContext)(PublicContext);
 }
 var ID_PREFIX$1 = "Droppable";
 var defaultResizeObserverConfig = {
@@ -77852,13 +78786,13 @@ function useDroppable(_ref) {
     dispatch,
     over,
     measureDroppableContainers
-  } = (0, import_react14.useContext)(InternalContext);
-  const previous = (0, import_react14.useRef)({
+  } = (0, import_react17.useContext)(InternalContext);
+  const previous = (0, import_react17.useRef)({
     disabled
   });
-  const resizeObserverConnected = (0, import_react14.useRef)(false);
-  const rect = (0, import_react14.useRef)(null);
-  const callbackId = (0, import_react14.useRef)(null);
+  const resizeObserverConnected = (0, import_react17.useRef)(false);
+  const rect = (0, import_react17.useRef)(null);
+  const callbackId = (0, import_react17.useRef)(null);
   const {
     disabled: resizeObserverDisabled,
     updateMeasurementsFor,
@@ -77868,7 +78802,7 @@ function useDroppable(_ref) {
     ...resizeObserverConfig
   };
   const ids2 = useLatestValue(updateMeasurementsFor != null ? updateMeasurementsFor : id);
-  const handleResize = (0, import_react14.useCallback)(
+  const handleResize = (0, import_react17.useCallback)(
     () => {
       if (!resizeObserverConnected.current) {
         resizeObserverConnected.current = true;
@@ -77889,7 +78823,7 @@ function useDroppable(_ref) {
     callback: handleResize,
     disabled: resizeObserverDisabled || !active2
   });
-  const handleNodeChange = (0, import_react14.useCallback)((newElement, previousElement) => {
+  const handleNodeChange = (0, import_react17.useCallback)((newElement, previousElement) => {
     if (!resizeObserver) {
       return;
     }
@@ -77903,7 +78837,7 @@ function useDroppable(_ref) {
   }, [resizeObserver]);
   const [nodeRef, setNodeRef] = useNodeRef(handleNodeChange);
   const dataRef = useLatestValue(data);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (!resizeObserver || !nodeRef.current) {
       return;
     }
@@ -77911,7 +78845,7 @@ function useDroppable(_ref) {
     resizeObserverConnected.current = false;
     resizeObserver.observe(nodeRef.current);
   }, [nodeRef, resizeObserver]);
-  (0, import_react14.useEffect)(
+  (0, import_react17.useEffect)(
     () => {
       dispatch({
         type: Action.RegisterDroppable,
@@ -77933,7 +78867,7 @@ function useDroppable(_ref) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [id]
   );
-  (0, import_react14.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (disabled !== previous.current.disabled) {
       dispatch({
         type: Action.SetDroppableDisabled,
@@ -77955,7 +78889,7 @@ function useDroppable(_ref) {
 }
 
 // node_modules/@dnd-kit/sortable/dist/sortable.esm.js
-var import_react15 = __toESM(require_react());
+var import_react18 = __toESM(require_react());
 function arrayMove(array, from, to) {
   const newArray = array.slice();
   newArray.splice(to < 0 ? newArray.length + to : to, 0, newArray.splice(from, 1)[0]);
@@ -78078,7 +79012,7 @@ function getItemGap$1(clientRects, index2, activeIndex) {
   return nextRect ? nextRect.top - (currentRect.top + currentRect.height) : previousRect ? currentRect.top - (previousRect.top + previousRect.height) : 0;
 }
 var ID_PREFIX2 = "Sortable";
-var Context = /* @__PURE__ */ import_react15.default.createContext({
+var Context = /* @__PURE__ */ import_react18.default.createContext({
   activeIndex: -1,
   containerId: ID_PREFIX2,
   disableTransforms: false,
@@ -78109,11 +79043,11 @@ function SortableContext(_ref) {
   } = useDndContext();
   const containerId = useUniqueId(ID_PREFIX2, id);
   const useDragOverlay = Boolean(dragOverlay.rect !== null);
-  const items = (0, import_react15.useMemo)(() => userDefinedItems.map((item) => typeof item === "object" && "id" in item ? item.id : item), [userDefinedItems]);
+  const items = (0, import_react18.useMemo)(() => userDefinedItems.map((item) => typeof item === "object" && "id" in item ? item.id : item), [userDefinedItems]);
   const isDragging = active2 != null;
   const activeIndex = active2 ? items.indexOf(active2.id) : -1;
   const overIndex = over ? items.indexOf(over.id) : -1;
-  const previousItemsRef = (0, import_react15.useRef)(items);
+  const previousItemsRef = (0, import_react18.useRef)(items);
   const itemsHaveChanged = !itemsEqual(items, previousItemsRef.current);
   const disableTransforms = overIndex !== -1 && activeIndex === -1 || itemsHaveChanged;
   const disabled = normalizeDisabled(disabledProp);
@@ -78122,10 +79056,10 @@ function SortableContext(_ref) {
       measureDroppableContainers(items);
     }
   }, [itemsHaveChanged, items, isDragging, measureDroppableContainers]);
-  (0, import_react15.useEffect)(() => {
+  (0, import_react18.useEffect)(() => {
     previousItemsRef.current = items;
   }, [items]);
-  const contextValue = (0, import_react15.useMemo)(
+  const contextValue = (0, import_react18.useMemo)(
     () => ({
       activeIndex,
       containerId,
@@ -78140,7 +79074,7 @@ function SortableContext(_ref) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeIndex, containerId, disabled.draggable, disabled.droppable, disableTransforms, items, overIndex, droppableRects, useDragOverlay, strategy]
   );
-  return import_react15.default.createElement(Context.Provider, {
+  return import_react18.default.createElement(Context.Provider, {
     value: contextValue
   }, children);
 }
@@ -78196,8 +79130,8 @@ function useDerivedTransform(_ref) {
     node,
     rect
   } = _ref;
-  const [derivedTransform, setDerivedtransform] = (0, import_react15.useState)(null);
-  const previousIndex = (0, import_react15.useRef)(index2);
+  const [derivedTransform, setDerivedtransform] = (0, import_react18.useState)(null);
+  const previousIndex = (0, import_react18.useRef)(index2);
   useIsomorphicLayoutEffect2(() => {
     if (!disabled && index2 !== previousIndex.current && node.current) {
       const initial = rect.current;
@@ -78220,7 +79154,7 @@ function useDerivedTransform(_ref) {
       previousIndex.current = index2;
     }
   }, [disabled, index2, node, rect]);
-  (0, import_react15.useEffect)(() => {
+  (0, import_react18.useEffect)(() => {
     if (derivedTransform) {
       setDerivedtransform(null);
     }
@@ -78249,10 +79183,10 @@ function useSortable(_ref) {
     overIndex,
     useDragOverlay,
     strategy: globalStrategy
-  } = (0, import_react15.useContext)(Context);
+  } = (0, import_react18.useContext)(Context);
   const disabled = normalizeLocalDisabled(localDisabled, globalDisabled);
   const index2 = items.indexOf(id);
-  const data = (0, import_react15.useMemo)(() => ({
+  const data = (0, import_react18.useMemo)(() => ({
     sortable: {
       containerId,
       index: index2,
@@ -78260,7 +79194,7 @@ function useSortable(_ref) {
     },
     ...customData
   }), [containerId, customData, index2, items]);
-  const itemsAfterCurrentSortable = (0, import_react15.useMemo)(() => items.slice(items.indexOf(id)), [items, id]);
+  const itemsAfterCurrentSortable = (0, import_react18.useMemo)(() => items.slice(items.indexOf(id)), [items, id]);
   const {
     rect,
     node,
@@ -78315,7 +79249,7 @@ function useSortable(_ref) {
     overIndex
   }) : index2;
   const activeId = active2 == null ? void 0 : active2.id;
-  const previous = (0, import_react15.useRef)({
+  const previous = (0, import_react18.useRef)({
     activeId,
     items,
     newIndex,
@@ -78342,7 +79276,7 @@ function useSortable(_ref) {
     node,
     rect
   });
-  (0, import_react15.useEffect)(() => {
+  (0, import_react18.useEffect)(() => {
     if (isSorting && previous.current.newIndex !== newIndex) {
       previous.current.newIndex = newIndex;
     }
@@ -78353,7 +79287,7 @@ function useSortable(_ref) {
       previous.current.items = items;
     }
   }, [isSorting, newIndex, containerId, items]);
-  (0, import_react15.useEffect)(() => {
+  (0, import_react18.useEffect)(() => {
     if (activeId === previous.current.activeId) {
       return;
     }
@@ -78426,15 +79360,15 @@ function normalizeLocalDisabled(localDisabled, globalDisabled) {
 var directions = [KeyboardCode.Down, KeyboardCode.Right, KeyboardCode.Up, KeyboardCode.Left];
 
 // src/components/sidebar/ColumnEditor.tsx
-var import_jsx_runtime45 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
 var VIRTUALIZE_THRESHOLD = 60;
 var ITEM_HEIGHT2 = 88;
 var OVERSCAN2 = 6;
 function ColumnIcon({ column }) {
   if (column.isPrimaryKey) {
-    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(KeyRound, { className: "size-3.5 text-amber-500 shrink-0" });
+    return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(KeyRound, { className: "size-3.5 text-amber-500 shrink-0" });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Square, { className: "size-3 text-gray-400 dark:text-zinc-600 shrink-0" });
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(Square, { className: "size-3 text-gray-400 dark:text-zinc-600 shrink-0" });
 }
 function SortableColumn({ column, tableId }) {
   const updateColumn = useStore2((s3) => s3.updateColumn);
@@ -78453,7 +79387,7 @@ function SortableColumn({ column, tableId }) {
     transform: CSS2.Transform.toString(transform),
     transition
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)(
     "div",
     {
       ref: setNodeRef,
@@ -78463,18 +79397,18 @@ function SortableColumn({ column, tableId }) {
         isDragging && "opacity-50 z-50"
       ),
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-1.5 mb-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-1.5 mb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             "button",
             {
               ...attributes,
               ...listeners,
               className: "cursor-grab text-gray-400 dark:text-zinc-600 hover:text-gray-600 dark:hover:text-zinc-400",
-              children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(GripVertical, { className: "size-3" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(GripVertical, { className: "size-3" })
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ColumnIcon, { column }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(ColumnIcon, { column }),
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             Input,
             {
               value: column.name,
@@ -78482,17 +79416,17 @@ function SortableColumn({ column, tableId }) {
               className: "h-6 flex-1 text-xs font-bold border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             "button",
             {
               onClick: () => removeColumn(tableId, column.id),
               className: "text-gray-400 dark:text-zinc-600 hover:text-red-500 transition-colors",
-              children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(X2, { className: "size-3" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(X2, { className: "size-3" })
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             TypeCombobox,
             {
               value: column.dataType,
@@ -78501,9 +79435,9 @@ function SortableColumn({ column, tableId }) {
               nodeSuffix: column.id.toLowerCase().replace(/[^a-z0-9.-]+/g, "-")
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-1.5 shrink-0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-1.5 shrink-0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: !column.nullable,
@@ -78511,10 +79445,10 @@ function SortableColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "NN" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "NN" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: column.autoIncrement,
@@ -78522,10 +79456,10 @@ function SortableColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "AI" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "AI" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: column.isUnique,
@@ -78533,7 +79467,7 @@ function SortableColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "UQ" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "UQ" })
             ] })
           ] })
         ] })
@@ -78541,7 +79475,7 @@ function SortableColumn({ column, tableId }) {
     }
   );
 }
-var MemoSortableColumn = (0, import_react16.memo)(
+var MemoSortableColumn = (0, import_react19.memo)(
   SortableColumn,
   (prev, next) => prev.tableId === next.tableId && isSameColumn(prev.column, next.column)
 );
@@ -78550,7 +79484,7 @@ function PlainColumn({ column, tableId }) {
   const removeColumn = useStore2((s3) => s3.removeColumn);
   const dialect = useStore2((s3) => s3.dialect);
   const dataTypes = DATA_TYPES[dialect] ?? DATA_TYPES["mysql"];
-  return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)(
     "div",
     {
       className: cn(
@@ -78558,18 +79492,18 @@ function PlainColumn({ column, tableId }) {
       ),
       style: { height: ITEM_HEIGHT2 },
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-1.5 mb-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-1.5 mb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             "button",
             {
               className: "cursor-not-allowed text-gray-300 dark:text-zinc-700",
               title: "Reorder is disabled in virtualized mode",
               disabled: true,
-              children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(GripVertical, { className: "size-3" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(GripVertical, { className: "size-3" })
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ColumnIcon, { column }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(ColumnIcon, { column }),
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             Input,
             {
               value: column.name,
@@ -78577,17 +79511,17 @@ function PlainColumn({ column, tableId }) {
               className: "h-6 flex-1 text-xs font-bold border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             "button",
             {
               onClick: () => removeColumn(tableId, column.id),
               className: "text-gray-400 dark:text-zinc-600 hover:text-red-500 transition-colors",
-              children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(X2, { className: "size-3" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(X2, { className: "size-3" })
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
             TypeCombobox,
             {
               value: column.dataType,
@@ -78596,9 +79530,9 @@ function PlainColumn({ column, tableId }) {
               nodeSuffix: column.id.toLowerCase().replace(/[^a-z0-9.-]+/g, "-")
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-1.5 shrink-0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-1.5 shrink-0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: !column.nullable,
@@ -78606,10 +79540,10 @@ function PlainColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "NN" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "NN" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: column.autoIncrement,
@@ -78617,10 +79551,10 @@ function PlainColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "AI" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "AI" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("label", { className: "flex items-center gap-0.5 cursor-pointer", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
                 Checkbox2,
                 {
                   checked: column.isUnique,
@@ -78628,7 +79562,7 @@ function PlainColumn({ column, tableId }) {
                   className: "size-3.5"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "UQ" })
+              /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[10px] text-gray-500 dark:text-zinc-500", children: "UQ" })
             ] })
           ] })
         ] })
@@ -78636,18 +79570,18 @@ function PlainColumn({ column, tableId }) {
     }
   );
 }
-var MemoPlainColumn = (0, import_react16.memo)(
+var MemoPlainColumn = (0, import_react19.memo)(
   PlainColumn,
   (prev, next) => prev.tableId === next.tableId && isSameColumn(prev.column, next.column)
 );
 function ColumnEditor({ tableId, columns }) {
   const addColumn = useStore2((s3) => s3.addColumn);
   const reorderColumns = useStore2((s3) => s3.reorderColumns);
-  const [scrollTop, setScrollTop] = (0, import_react16.useState)(0);
+  const [scrollTop, setScrollTop] = (0, import_react19.useState)(0);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
-  const handleDragEnd = (0, import_react16.useCallback)(
+  const handleDragEnd = (0, import_react19.useCallback)(
     (event) => {
       const { active: active2, over } = event;
       if (!over || active2.id === over.id) return;
@@ -78667,41 +79601,41 @@ function ColumnEditor({ tableId, columns }) {
     columns.length,
     Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT2) + OVERSCAN2
   );
-  const visibleColumns = (0, import_react16.useMemo)(
+  const visibleColumns = (0, import_react19.useMemo)(
     () => useVirtualized ? columns.slice(startIndex, endIndex) : columns,
     [columns, useVirtualized, startIndex, endIndex]
   );
   const topSpacer = useVirtualized ? startIndex * ITEM_HEIGHT2 : 0;
   const bottomSpacer = useVirtualized ? Math.max(0, totalHeight - endIndex * ITEM_HEIGHT2) : 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex flex-col gap-2", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Columns" }),
-      /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex flex-col gap-2", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center justify-between", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Columns" }),
+      /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
         "button",
         {
           onClick: () => addColumn(tableId),
           className: "text-blue-500 hover:text-blue-400 transition-colors",
-          children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CirclePlus, { className: "size-4" })
+          children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(CirclePlus, { className: "size-4" })
         }
       )
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ScrollArea2, { className: "max-h-[400px]", onScrollCapture: (e4) => {
+    /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(ScrollArea2, { className: "max-h-[400px]", onScrollCapture: (e4) => {
       const t4 = e4.target;
       if (useVirtualized) setScrollTop(t4.scrollTop);
-    }, children: useVirtualized ? /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { children: [
-      topSpacer > 0 && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { style: { height: topSpacer } }),
-      /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "space-y-1.5", children: visibleColumns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(MemoPlainColumn, { column, tableId }, column.id)) }),
-      bottomSpacer > 0 && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { style: { height: bottomSpacer } })
-    ] }) : /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+    }, children: useVirtualized ? /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { children: [
+      topSpacer > 0 && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { style: { height: topSpacer } }),
+      /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { className: "space-y-1.5", children: visibleColumns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(MemoPlainColumn, { column, tableId }, column.id)) }),
+      bottomSpacer > 0 && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { style: { height: bottomSpacer } })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
       DndContext,
       {
         sensors,
         collisionDetection: closestCenter,
         onDragEnd: handleDragEnd,
-        children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(SortableContext, { items: columns.map((c3) => c3.id), strategy: verticalListSortingStrategy, children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("div", { className: "space-y-1.5", children: columns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(MemoSortableColumn, { column, tableId }, column.id)) }) })
+        children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(SortableContext, { items: columns.map((c3) => c3.id), strategy: verticalListSortingStrategy, children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { className: "space-y-1.5", children: columns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(MemoSortableColumn, { column, tableId }, column.id)) }) })
       }
     ) }),
-    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
       "button",
       {
         onClick: () => addColumn(tableId),
@@ -78716,16 +79650,16 @@ function isSameColumn(a3, b3) {
 }
 
 // src/components/sidebar/TableProperties.tsx
-var import_jsx_runtime46 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime51 = __toESM(require_jsx_runtime(), 1);
 function TableProperties({ table }) {
   const updateTable = useStore2((s3) => s3.updateTable);
   const dialect = useStore2((s3) => s3.dialect);
-  return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-col gap-4 p-3", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "General" }),
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Table Name" }),
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "flex flex-col gap-4 p-3", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "General" }),
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Table Name" }),
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
           Input,
           {
             value: table.name,
@@ -78734,9 +79668,9 @@ function TableProperties({ table }) {
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Schema" }),
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Schema" }),
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
           Input,
           {
             value: table.schema ?? "",
@@ -78746,23 +79680,23 @@ function TableProperties({ table }) {
           }
         )
       ] }),
-      dialect === "mysql" && /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Engine" }),
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
+      dialect === "mysql" && /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Engine" }),
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)(
           Select2,
           {
             value: table.engine ?? "InnoDB",
             onValueChange: (value) => updateTable(table.id, { engine: value }),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectValue2, {}) }),
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectContent2, { children: ENGINES.map((engine) => /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectItem2, { value: engine, children: engine }, engine)) })
+              /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectValue2, {}) }),
+              /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectContent2, { children: ENGINES.map((engine) => /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectItem2, { value: engine, children: engine }, engine)) })
             ]
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Comment" }),
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Comment" }),
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
           Textarea,
           {
             value: table.comment ?? "",
@@ -78772,9 +79706,9 @@ function TableProperties({ table }) {
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Color" }),
-        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Color" }),
+        /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
           ColorRow,
           {
             value: table.color,
@@ -78783,9 +79717,9 @@ function TableProperties({ table }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Separator4, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(DeferredColumnEditor, { tableId: table.id, columns: table.columns }),
-    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("button", { className: "w-full rounded border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 py-2.5 text-xs font-bold text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors", children: "UPDATE SCHEMA" })
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(Separator4, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(DeferredColumnEditor, { tableId: table.id, columns: table.columns }),
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("button", { className: "w-full rounded border border-gray-300 dark:border-zinc-700 bg-gray-100 dark:bg-zinc-800 py-2.5 text-xs font-bold text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors", children: "UPDATE SCHEMA" })
   ] });
 }
 var COLOR_PRESETS = [
@@ -78800,10 +79734,10 @@ var COLOR_PRESETS = [
 ];
 function ColorRow({ value, onPick }) {
   const active2 = value?.toLowerCase();
-  return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
     COLOR_PRESETS.map((hex) => {
       const isActive = active2 === hex;
-      return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
         "button",
         {
           type: "button",
@@ -78817,7 +79751,7 @@ function ColorRow({ value, onPick }) {
         hex
       );
     }),
-    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(
       "button",
       {
         type: "button",
@@ -78832,36 +79766,36 @@ function ColorRow({ value, onPick }) {
   ] });
 }
 function DeferredColumnEditor({ tableId, columns }) {
-  const [ready, setReady] = (0, import_react17.useState)(false);
-  (0, import_react17.useEffect)(() => {
+  const [ready, setReady] = (0, import_react20.useState)(false);
+  (0, import_react20.useEffect)(() => {
     const timer = setTimeout(() => setReady(true), 120);
     return () => clearTimeout(timer);
   }, []);
   if (!ready) {
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "rounded border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/40 p-3 text-xs text-gray-500 dark:text-zinc-500", children: "Loading columns..." });
+    return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("div", { className: "rounded border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/40 p-3 text-xs text-gray-500 dark:text-zinc-500", children: "Loading columns..." });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(ColumnEditor, { tableId, columns });
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(ColumnEditor, { tableId, columns });
 }
 
 // src/components/sidebar/RelationshipProperties.tsx
-var import_react18 = __toESM(require_react(), 1);
-var import_jsx_runtime47 = __toESM(require_jsx_runtime(), 1);
+var import_react21 = __toESM(require_react(), 1);
+var import_jsx_runtime52 = __toESM(require_jsx_runtime(), 1);
 function RelationshipProperties({ relationship }) {
   const tables = useStore2((s3) => s3.tables);
   const updateRelationship = useStore2((s3) => s3.updateRelationship);
   const sourceTable = tables[relationship.sourceTableId];
   const targetTable = tables[relationship.targetTableId];
-  const sourceColumnNames = (0, import_react18.useMemo)(() => {
+  const sourceColumnNames = (0, import_react21.useMemo)(() => {
     if (!sourceTable) return [];
     const map = new Map(sourceTable.columns.map((c3) => [c3.id, c3.name]));
     return relationship.sourceColumnIds.map((id) => map.get(id) ?? id);
   }, [sourceTable, relationship.sourceColumnIds]);
-  const targetColumnNames = (0, import_react18.useMemo)(() => {
+  const targetColumnNames = (0, import_react21.useMemo)(() => {
     if (!targetTable) return [];
     const map = new Map(targetTable.columns.map((c3) => [c3.id, c3.name]));
     return relationship.targetColumnIds.map((id) => map.get(id) ?? id);
   }, [targetTable, relationship.targetColumnIds]);
-  const pairs = (0, import_react18.useMemo)(() => {
+  const pairs = (0, import_react21.useMemo)(() => {
     const len = Math.max(sourceColumnNames.length, targetColumnNames.length);
     const rows = [];
     for (let i3 = 0; i3 < len; i3++) {
@@ -78872,82 +79806,82 @@ function RelationshipProperties({ relationship }) {
     }
     return rows;
   }, [sourceColumnNames, targetColumnNames]);
-  return /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex flex-col gap-4 p-3", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "space-y-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Relationship" }),
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "rounded border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 p-2 text-xs", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("p", { className: "text-gray-500 dark:text-zinc-500", children: "Table" }),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("p", { className: "mt-1 text-gray-700 dark:text-zinc-300 break-words", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "flex flex-col gap-4 p-3", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Relationship" }),
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "rounded border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 p-2 text-xs", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("p", { className: "text-gray-500 dark:text-zinc-500", children: "Table" }),
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("p", { className: "mt-1 text-gray-700 dark:text-zinc-300 break-words", children: [
           sourceTable?.name ?? "?",
           " -> ",
           targetTable?.name ?? "?"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "mt-3 border-t border-gray-200 dark:border-zinc-800 pt-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("p", { className: "mb-1 text-gray-500 dark:text-zinc-500", children: "Column Mapping" }),
-          pairs.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("div", { className: "space-y-1", children: pairs.map((row, idx) => /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("p", { className: "text-gray-700 dark:text-zinc-300 break-words", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { className: "text-amber-500", children: row.source }),
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "mt-3 border-t border-gray-200 dark:border-zinc-800 pt-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("p", { className: "mb-1 text-gray-500 dark:text-zinc-500", children: "Column Mapping" }),
+          pairs.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("div", { className: "space-y-1", children: pairs.map((row, idx) => /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("p", { className: "text-gray-700 dark:text-zinc-300 break-words", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: "text-amber-500", children: row.source }),
             " (PK) -> ",
-            /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { className: "text-sky-400", children: row.target }),
+            /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: "text-sky-400", children: row.target }),
             " (FK)"
-          ] }, `${row.source}-${row.target}-${idx}`)) }) : /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("p", { className: "text-gray-700 dark:text-zinc-300", children: "-" })
+          ] }, `${row.source}-${row.target}-${idx}`)) }) : /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("p", { className: "text-gray-700 dark:text-zinc-300", children: "-" })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "space-y-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Constraint" }),
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Cardinality" }),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
+    /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "space-y-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Constraint" }),
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "Cardinality" }),
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(
           Select2,
           {
             value: relationship.type,
             onValueChange: (value) => updateRelationship(relationship.id, { type: value }),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectValue2, {}) }),
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(SelectContent2, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "1:1", children: "1:1" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "1:N", children: "1:N" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "N:M", children: "N:M" })
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectValue2, {}) }),
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(SelectContent2, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "1:1", children: "1:1" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "1:N", children: "1:N" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "N:M", children: "N:M" })
               ] })
             ]
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "On Delete" }),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "On Delete" }),
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(
           Select2,
           {
             value: relationship.onDelete,
             onValueChange: (value) => updateRelationship(relationship.id, { onDelete: value }),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectValue2, {}) }),
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(SelectContent2, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "CASCADE", children: "CASCADE" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "SET NULL", children: "SET NULL" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "RESTRICT", children: "RESTRICT" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "NO ACTION", children: "NO ACTION" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "SET DEFAULT", children: "SET DEFAULT" })
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectValue2, {}) }),
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(SelectContent2, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "CASCADE", children: "CASCADE" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "SET NULL", children: "SET NULL" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "RESTRICT", children: "RESTRICT" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "NO ACTION", children: "NO ACTION" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "SET DEFAULT", children: "SET DEFAULT" })
               ] })
             ]
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "On Update" }),
-        /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("label", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: "On Update" }),
+        /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(
           Select2,
           {
             value: relationship.onUpdate,
             onValueChange: (value) => updateRelationship(relationship.id, { onUpdate: value }),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectValue2, {}) }),
-              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(SelectContent2, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "CASCADE", children: "CASCADE" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "SET NULL", children: "SET NULL" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "RESTRICT", children: "RESTRICT" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "NO ACTION", children: "NO ACTION" }),
-                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SelectItem2, { value: "SET DEFAULT", children: "SET DEFAULT" })
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-sm", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectValue2, {}) }),
+              /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(SelectContent2, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "CASCADE", children: "CASCADE" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "SET NULL", children: "SET NULL" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "RESTRICT", children: "RESTRICT" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "NO ACTION", children: "NO ACTION" }),
+                /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItem2, { value: "SET DEFAULT", children: "SET DEFAULT" })
               ] })
             ]
           }
@@ -78958,36 +79892,36 @@ function RelationshipProperties({ relationship }) {
 }
 
 // src/components/sidebar/PropertyEditor.tsx
-var import_jsx_runtime48 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime53 = __toESM(require_jsx_runtime(), 1);
 function PropertyEditor() {
   const selectedNodeIds = useStore2((s3) => s3.selectedNodeIds);
   const selectedEdgeIds = useStore2((s3) => s3.selectedEdgeIds);
   const tables = useStore2((s3) => s3.tables);
   const relationships = useStore2((s3) => s3.relationships);
-  const deferredSelectedNodeIds = (0, import_react19.useDeferredValue)(selectedNodeIds);
-  const deferredSelectedEdgeIds = (0, import_react19.useDeferredValue)(selectedEdgeIds);
-  const selectedTable = (0, import_react19.useMemo)(
+  const deferredSelectedNodeIds = (0, import_react22.useDeferredValue)(selectedNodeIds);
+  const deferredSelectedEdgeIds = (0, import_react22.useDeferredValue)(selectedEdgeIds);
+  const selectedTable = (0, import_react22.useMemo)(
     () => deferredSelectedNodeIds.length === 1 ? tables[deferredSelectedNodeIds[0]] : null,
     [deferredSelectedNodeIds, tables]
   );
-  const selectedRelationship = (0, import_react19.useMemo)(
+  const selectedRelationship = (0, import_react22.useMemo)(
     () => deferredSelectedEdgeIds.length === 1 ? relationships[deferredSelectedEdgeIds[0]] : null,
     [deferredSelectedEdgeIds, relationships]
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)("div", { className: "flex h-full flex-col", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("div", { className: "px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Property Editor" }) }),
-    selectedTable ? /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(ScrollArea2, { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(TableProperties, { table: selectedTable }) }) : selectedRelationship ? /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(ScrollArea2, { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(RelationshipProperties, { relationship: selectedRelationship }) }) : /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("div", { className: "flex flex-1 items-center justify-center px-4", children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("p", { className: "text-sm text-gray-500 dark:text-zinc-500 text-center", children: "Select a table or relationship" }) })
+  return /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)("div", { className: "flex h-full flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { className: "px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("span", { className: "text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-500", children: "Property Editor" }) }),
+    selectedTable ? /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(ScrollArea2, { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(TableProperties, { table: selectedTable }) }) : selectedRelationship ? /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(ScrollArea2, { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(RelationshipProperties, { relationship: selectedRelationship }) }) : /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("div", { className: "flex flex-1 items-center justify-center px-4", children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)("p", { className: "text-sm text-gray-500 dark:text-zinc-500 text-center", children: "Select a table or relationship" }) })
   ] });
 }
 
 // src/components/sidebar/RightSidebar.tsx
-var import_jsx_runtime49 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime54 = __toESM(require_jsx_runtime(), 1);
 function RightSidebar() {
-  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-zinc-800", children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(PropertyEditor, {}) });
+  return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-l border-gray-200 dark:border-zinc-800", children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(PropertyEditor, {}) });
 }
 
 // src/components/panels/BottomPanel.tsx
-var import_react20 = __toESM(require_react(), 1);
+var import_react26 = __toESM(require_react(), 1);
 
 // src/features/validation/schema-validator.ts
 function validateSchema(schema) {
@@ -79090,17 +80024,2560 @@ function validateSchema(schema) {
   return issues;
 }
 
-// src/components/panels/BottomPanel.tsx
-var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
+// src/components/panels/db-containers.tsx
+var import_react25 = __toESM(require_react(), 1);
+
+// src/components/panels/QueryPanel.tsx
+var import_react23 = __toESM(require_react(), 1);
+
+// src/components/ui/badge.tsx
+var import_jsx_runtime55 = __toESM(require_jsx_runtime(), 1);
+var badgeVariants = cva(
+  "inline-flex items-center justify-center rounded-full border border-transparent px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        secondary: "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        destructive: "bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline: "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 [a&]:hover:underline"
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+);
+function Badge({
+  className,
+  variant = "default",
+  asChild = false,
+  ...props
+}) {
+  const Comp = asChild ? dist_exports.Root : "span";
+  return /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+    Comp,
+    {
+      "data-slot": "badge",
+      "data-variant": variant,
+      className: cn(badgeVariants({ variant }), className),
+      ...props
+    }
+  );
+}
+
+// src/components/panels/QueryPanel.tsx
+var import_jsx_runtime56 = __toESM(require_jsx_runtime(), 1);
+var DIALECT_LABEL = {
+  sqlite: "SQLite",
+  mysql: "MySQL",
+  postgresql: "PostgreSQL"
+};
+var MASK_GLYPH = "\u25CF\u25CF\u25CF\u25CF";
+function formatCount(n3) {
+  return n3.toLocaleString("en-US");
+}
+function renderCell(value) {
+  if (value === null) return { text: "NULL", muted: true };
+  if (typeof value === "boolean") return { text: value ? "true" : "false", muted: false };
+  return { text: String(value), muted: false };
+}
+function QueryPanel({ onRun, onLoadMore, result, profile, running }) {
+  const [sql, setSql] = (0, import_react23.useState)("");
+  const run = (0, import_react23.useCallback)(() => {
+    const text = sql.trim();
+    if (!text || running) return;
+    onRun(text);
+  }, [sql, running, onRun]);
+  const handleKeyDown = (0, import_react23.useCallback)(
+    (e4) => {
+      if (e4.nativeEvent.isComposing) return;
+      if ((e4.metaKey || e4.ctrlKey) && e4.key === "Enter") {
+        e4.preventDefault();
+        e4.stopPropagation();
+        run();
+      }
+    },
+    [run]
+  );
+  const dialectLabel = profile ? DIALECT_LABEL[profile.dialect] : null;
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex h-full flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 flex-col gap-2 border-b border-gray-200 dark:border-zinc-800 p-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-2", children: [
+        profile ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          Badge,
+          {
+            variant: "secondary",
+            className: "font-mono text-[11px]",
+            title: `${profile.name} \xB7 ${dialectLabel}`,
+            children: profile.name
+          }
+        ) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-xs text-gray-400 dark:text-zinc-600", children: "\uD504\uB85C\uD544 \uC5C6\uC74C" }),
+        dialectLabel && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[11px] font-medium uppercase tracking-wide text-gray-400 dark:text-zinc-600", children: dialectLabel }),
+        profile?.readOnly && // read-only 실드 — 이 프로필로는 쓰기가 차단된다(SELECT 만).
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+          Badge,
+          {
+            variant: "outline",
+            className: "gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 border-emerald-500/40",
+            title: "\uC77D\uAE30 \uC804\uC6A9 \uD504\uB85C\uD544 \u2014 SELECT \uB9CC \uC2E4\uD589\uB429\uB2C8\uB2E4",
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldCheck, { className: "size-3" }),
+              "\uC77D\uAE30 \uC804\uC6A9"
+            ]
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "ml-auto", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+          Button,
+          {
+            "data-node": "query-run",
+            size: "xs",
+            onClick: run,
+            disabled: !sql.trim() || running,
+            className: "gap-1 bg-blue-600 hover:bg-blue-700 text-white",
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-3" }),
+              "\uC2E4\uD589",
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("kbd", { className: "ml-0.5 rounded bg-white/20 px-1 text-[10px] font-medium", children: "\u2318\u21B5" })
+            ]
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+        "textarea",
+        {
+          "data-node": "query-editor",
+          value: sql,
+          onChange: (e4) => setSql(e4.target.value),
+          onKeyDown: handleKeyDown,
+          spellCheck: false,
+          placeholder: profile?.readOnly ? "SELECT \u2026 (\uC77D\uAE30 \uC804\uC6A9)" : "SELECT * FROM \u2026",
+          className: cn(
+            "min-h-20 w-full resize-y rounded-md border border-gray-200 dark:border-zinc-700",
+            "bg-gray-50 dark:bg-zinc-950 px-3 py-2 font-mono text-sm",
+            "text-gray-800 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-600",
+            "outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-500/40"
+          )
+        }
+      )
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "min-h-0 flex-1 overflow-auto", children: !result ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex h-full items-center justify-center p-6 text-center text-xs text-gray-400 dark:text-zinc-600", children: "SQL \uC744 \uC2E4\uD589\uD558\uBA74 \uACB0\uACFC\uAC00 \uC5EC\uAE30\uC5D0 \uD45C\uC2DC\uB429\uB2C8\uB2E4." }) : result.columns.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex h-full items-center justify-center p-6 text-center text-xs text-gray-400 dark:text-zinc-600", children: "\uBC18\uD658\uB41C \uCEEC\uB7FC\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ResultGrid, { result, onLoadMore }) })
+  ] });
+}
+function ResultGrid({
+  result,
+  onLoadMore
+}) {
+  const { columns, rows, truncated } = result;
+  const returned = result.rowLimit ?? rows.length;
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex h-full flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { "data-node": "query-result-grid", className: "min-h-0 flex-1 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("table", { className: "w-full border-collapse text-left font-mono text-xs", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("thead", { className: "sticky top-0 z-10 bg-gray-100 dark:bg-zinc-800", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("tr", { children: columns.map((col, ci) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+        "th",
+        {
+          className: "whitespace-nowrap border-b border-gray-200 dark:border-zinc-700 px-3 py-1.5 font-semibold text-gray-600 dark:text-zinc-300",
+          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex items-center gap-1", children: [
+            col.name,
+            col.masked && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              EyeOff,
+              {
+                "data-node": `query-mask-icon/${col.name.toLowerCase().replace(/[^a-z0-9.-]+/g, "-")}`,
+                className: "size-3 text-amber-500",
+                "aria-label": `${col.name} \uB9C8\uC2A4\uD0B9\uB428`
+              }
+            )
+          ] })
+        },
+        `${col.name}-${ci}`
+      )) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("tbody", { children: [
+        rows.map((row, ri) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("tr", { className: "even:bg-gray-50 dark:even:bg-zinc-900/50", children: columns.map((col, ci) => {
+          if (col.masked) {
+            return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              "td",
+              {
+                className: "select-none whitespace-nowrap px-3 py-1 text-amber-500/70",
+                children: MASK_GLYPH
+              },
+              ci
+            );
+          }
+          const { text, muted } = renderCell(row[ci]);
+          return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+            "td",
+            {
+              className: cn(
+                "whitespace-nowrap px-3 py-1",
+                muted ? "italic text-gray-400 dark:text-zinc-600" : "text-gray-700 dark:text-zinc-300"
+              ),
+              children: text
+            },
+            ci
+          );
+        }) }, ri)),
+        rows.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          "td",
+          {
+            colSpan: columns.length,
+            className: "px-3 py-4 text-center text-gray-400 dark:text-zinc-600",
+            children: "0 \uD589"
+          }
+        ) })
+      ] })
+    ] }) }),
+    truncated && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center justify-between gap-2 border-t border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 px-3 py-1.5", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+        Badge,
+        {
+          variant: "outline",
+          className: "gap-1 text-[11px] text-amber-600 dark:text-amber-400 border-amber-500/40",
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Scissors, { className: "size-3" }),
+            formatCount(returned),
+            "\uD589\uC5D0\uC11C \uC798\uB9BC"
+          ]
+        }
+      ),
+      onLoadMore && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+        Button,
+        {
+          "data-node": "query-load-more",
+          size: "xs",
+          variant: "outline",
+          onClick: onLoadMore,
+          className: "text-xs",
+          children: "\uB354 \uBD88\uB7EC\uC624\uAE30"
+        }
+      )
+    ] })
+  ] });
+}
+
+// src/components/panels/SyncPanel.tsx
+var import_react24 = __toESM(require_react(), 1);
+var import_jsx_runtime57 = __toESM(require_jsx_runtime(), 1);
+var KIND_META = {
+  add: { sign: "+", label: "add", icon: Plus, tone: "text-emerald-600 dark:text-emerald-400" },
+  change: { sign: "~", label: "change", icon: Pencil, tone: "text-amber-600 dark:text-amber-400" },
+  drop: { sign: "\u2212", label: "drop", icon: Minus, tone: "text-red-600 dark:text-red-400" },
+  rename: { sign: "?", label: "rename", icon: ArrowRightLeft, tone: "text-violet-600 dark:text-violet-400" }
+};
+function defaultChecked(obj) {
+  return !obj.destructive;
+}
+var DIRECTIONS = [
+  { id: "reverse", label: "Reverse" },
+  { id: "forward", label: "Forward" }
+];
+var PREVIEWS = [
+  { id: "sql", label: "SQL" },
+  { id: "mig", label: ".mig" }
+];
+function Segment({
+  items,
+  active: active2,
+  onChange,
+  nodeId
+}) {
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    "div",
+    {
+      "data-node": nodeId,
+      className: "inline-flex items-center rounded-md border border-gray-200 dark:border-zinc-800 p-0.5",
+      children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+        "button",
+        {
+          "data-node": nodeId ? `${nodeId}/${item.id}` : void 0,
+          onClick: () => onChange(item.id),
+          className: cn(
+            "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+            active2 === item.id ? "bg-blue-500 text-white" : "text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+          ),
+          children: item.label
+        },
+        item.id
+      ))
+    }
+  );
+}
+function ObjectRow({
+  obj,
+  checked,
+  onToggle,
+  renameChoice,
+  onRenameChoice
+}) {
+  const meta = KIND_META[obj.kind];
+  const Icon2 = meta.icon;
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(
+    "div",
+    {
+      "data-node": `sync-object/${obj.name}`,
+      className: "flex items-center gap-2 rounded px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-zinc-800/50",
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+          Checkbox2,
+          {
+            checked,
+            onCheckedChange: (c3) => onToggle(obj.name, !!c3),
+            className: "size-3.5"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { className: cn("flex w-4 shrink-0 justify-center font-mono text-xs font-bold", meta.tone), children: meta.sign }),
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Icon2, { className: cn("size-3.5 shrink-0", meta.tone) }),
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { className: "truncate font-mono text-xs text-gray-800 dark:text-zinc-200", children: obj.name }),
+        obj.detail && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { className: "truncate font-mono text-[11px] text-gray-500 dark:text-zinc-500", children: obj.detail }),
+        obj.destructive && obj.kind !== "rename" && /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "ml-auto flex shrink-0 items-center gap-0.5 text-[10px] font-medium uppercase text-red-500 dark:text-red-400", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TriangleAlert, { className: "size-3" }),
+          "data loss"
+        ] }),
+        obj.kind === "rename" && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "ml-auto flex shrink-0 items-center gap-0.5", children: ["rename", "drop+add"].map((choice) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+          "button",
+          {
+            onClick: () => onRenameChoice(obj.name, choice),
+            className: cn(
+              "rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors",
+              renameChoice === choice ? "bg-violet-500 text-white" : "text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+            ),
+            children: choice
+          },
+          choice
+        )) })
+      ]
+    }
+  );
+}
+function SyncPanel({
+  direction,
+  onDirectionChange,
+  objects,
+  checked,
+  onToggle,
+  renameChoices,
+  onRenameChoice,
+  previewMode,
+  onPreviewModeChange,
+  preview,
+  applying,
+  onApply
+}) {
+  const isChecked = (0, import_react24.useCallback)(
+    (obj) => checked?.[obj.name] ?? defaultChecked(obj),
+    [checked]
+  );
+  const choiceOf = (0, import_react24.useCallback)(
+    (name) => renameChoices?.[name] ?? "rename",
+    [renameChoices]
+  );
+  const previewText = previewMode === "sql" ? preview.sql : preview.mig;
+  const selectedCount = objects.filter((o3) => isChecked(o3)).length;
+  const destructiveSelected = objects.some((o3) => o3.destructive && o3.kind !== "rename" && isChecked(o3));
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex h-full min-h-0 flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 dark:border-zinc-800 px-3 py-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+        Segment,
+        {
+          items: DIRECTIONS,
+          active: direction,
+          onChange: onDirectionChange,
+          nodeId: "sync-direction"
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "text-[11px] text-gray-500 dark:text-zinc-500", children: [
+          selectedCount,
+          "/",
+          objects.length,
+          " selected"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(
+          Button,
+          {
+            "data-node": "sync-apply",
+            size: "xs",
+            onClick: onApply,
+            disabled: applying || selectedCount === 0,
+            className: cn(
+              "text-white",
+              destructiveSelected ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+            ),
+            children: [
+              applying && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(LoaderCircle, { className: "size-3 animate-spin" }),
+              "Apply"
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "grid min-h-0 flex-1 grid-cols-2 gap-0", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "min-h-0 overflow-auto border-r border-gray-200 dark:border-zinc-800 p-2", children: objects.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "flex h-full items-center justify-center text-xs text-gray-400 dark:text-zinc-600", children: "No differences" }) : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "space-y-0.5", children: objects.map((obj) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+        ObjectRow,
+        {
+          obj,
+          checked: isChecked(obj),
+          onToggle,
+          renameChoice: choiceOf(obj.name),
+          onRenameChoice
+        },
+        obj.name
+      )) }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex min-h-0 flex-col", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "flex shrink-0 items-center gap-1 border-b border-gray-200 dark:border-zinc-800 px-2 py-1.5", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Segment, { items: PREVIEWS, active: previewMode, onChange: onPreviewModeChange }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "min-h-0 flex-1 overflow-auto p-2", children: previewText.trim() ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("pre", { className: "whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-gray-700 dark:text-zinc-300", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("code", { children: previewText }) }) : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { className: "flex h-full items-center justify-center text-xs text-gray-400 dark:text-zinc-600", children: "Nothing to apply" }) })
+      ] })
+    ] })
+  ] });
+}
+
+// src/components/panels/MigrationPanel.tsx
+var import_jsx_runtime58 = __toESM(require_jsx_runtime(), 1);
+function txGuarantee(dialect) {
+  if (dialect === "mysql") {
+    return {
+      label: "MySQL: DDL implicitly commits \u2014 a failed file can leave a PARTIAL apply",
+      warn: true
+    };
+  }
+  return { label: `${dialect === "sqlite" ? "SQLite" : "PostgreSQL"}: atomic \u2014 the whole file rolls back on failure`, warn: false };
+}
+function StepIcon({ status }) {
+  if (status === "running") return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(LoaderCircle, { className: "size-3.5 shrink-0 animate-spin text-blue-500 dark:text-blue-400" });
+  if (status === "done") return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CircleCheck, { className: "size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" });
+  if (status === "failed") return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CircleX, { className: "size-3.5 shrink-0 text-red-600 dark:text-red-400" });
+  return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Circle, { className: "size-3.5 shrink-0 text-gray-300 dark:text-zinc-700" });
+}
+function formatAppliedAt(at) {
+  if (typeof at === "number") return new Date(at).toISOString().replace("T", " ").slice(0, 19);
+  return at;
+}
+function FileRow({
+  file,
+  expanded,
+  dialect,
+  onToggleExpand,
+  onPlan,
+  onRun,
+  running
+}) {
+  const tx = txGuarantee(dialect);
+  return /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+    "div",
+    {
+      "data-node": `migration-item/${file.file}`,
+      className: "rounded border border-gray-200 dark:border-zinc-800",
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex items-center gap-2 px-2 py-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+            "button",
+            {
+              onClick: () => onToggleExpand(file.file),
+              className: "flex min-w-0 flex-1 items-center gap-2 text-left",
+              children: [
+                expanded ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(ChevronDown, { className: "size-3.5 shrink-0 text-gray-400 dark:text-zinc-600" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(ChevronRight, { className: "size-3.5 shrink-0 text-gray-400 dark:text-zinc-600" }),
+                file.checksumOk ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Check, { className: "size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TriangleAlert, { className: "size-3.5 shrink-0 text-amber-600 dark:text-amber-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "truncate font-mono text-xs text-gray-800 dark:text-zinc-200", children: file.file }),
+                typeof file.ops === "number" && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "shrink-0 text-[10px] text-gray-400 dark:text-zinc-600", children: [
+                  file.ops,
+                  " ops"
+                ] })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+            "span",
+            {
+              className: cn(
+                "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium",
+                file.applied ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-gray-100 text-gray-500 dark:bg-zinc-800 dark:text-zinc-400"
+              ),
+              children: file.applied ? "applied" : "pending"
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+            Button,
+            {
+              variant: "ghost",
+              size: "xs",
+              className: "shrink-0 text-gray-500 dark:text-zinc-400",
+              onClick: () => onPlan(file.file),
+              children: "Plan"
+            }
+          )
+        ] }),
+        expanded && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "border-t border-gray-200 dark:border-zinc-800 p-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+            "div",
+            {
+              className: cn(
+                "mb-2 flex items-center gap-1.5 text-[11px]",
+                tx.warn ? "text-amber-600 dark:text-amber-400" : "text-gray-500 dark:text-zinc-500"
+              ),
+              children: [
+                tx.warn && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TriangleAlert, { className: "size-3 shrink-0" }),
+                tx.label
+              ]
+            }
+          ),
+          file.lint && file.lint.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("ul", { className: "mb-2 space-y-0.5", children: file.lint.map((l3, i3) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("li", { className: "flex items-start gap-1 text-[11px] text-amber-600 dark:text-amber-400", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TriangleAlert, { className: "mt-0.5 size-3 shrink-0" }),
+            l3
+          ] }, i3)) }),
+          file.sql ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("pre", { className: "max-h-48 overflow-auto whitespace-pre-wrap rounded bg-gray-50 dark:bg-zinc-950/50 p-2 font-mono text-[11px] leading-relaxed text-gray-700 dark:text-zinc-300", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("code", { children: file.sql }) }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "text-[11px] text-gray-400 dark:text-zinc-600", children: "Press Plan to render the SQL." }),
+          !file.applied && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "mt-2 flex justify-end", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+            Button,
+            {
+              size: "xs",
+              className: "bg-blue-600 text-white hover:bg-blue-700",
+              onClick: () => onRun(file.file),
+              disabled: running || !file.checksumOk,
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Play, { className: "size-3" }),
+                "Run this file"
+              ]
+            }
+          ) })
+        ] })
+      ]
+    }
+  );
+}
 var TABS = [
+  { id: "files", label: "Files" },
+  { id: "history", label: "History" }
+];
+function MigrationPanel({
+  dialect,
+  activeTab = "files",
+  onTabChange,
+  files,
+  expandedFile,
+  onToggleExpand,
+  onPlan,
+  onRun,
+  running,
+  runSteps,
+  ledger = []
+}) {
+  const pendingCount = files.filter((f3) => !f3.applied).length;
+  const hasChecksumWarning = files.some((f3) => !f3.checksumOk);
+  return /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex h-full min-h-0 flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 dark:border-zinc-800 px-3 py-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "flex items-center gap-1", children: TABS.map((tab) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+        "button",
+        {
+          onClick: () => onTabChange(tab.id),
+          className: cn(
+            "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+            activeTab === tab.id ? "bg-blue-500 text-white" : "text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200"
+          ),
+          children: [
+            tab.label,
+            tab.id === "files" && hasChecksumWarning && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "ml-1 inline-block size-1.5 rounded-full bg-amber-400" })
+          ]
+        },
+        tab.id
+      )) }),
+      activeTab === "files" && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+        Button,
+        {
+          "data-node": "migration-run-btn",
+          size: "xs",
+          className: "bg-blue-600 text-white hover:bg-blue-700",
+          onClick: () => onRun(),
+          disabled: running || pendingCount === 0,
+          children: [
+            running ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(LoaderCircle, { className: "size-3 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Play, { className: "size-3" }),
+            "Run ",
+            pendingCount,
+            " pending"
+          ]
+        }
+      )
+    ] }),
+    activeTab === "files" ? /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex min-h-0 flex-1", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "min-h-0 flex-1 overflow-auto p-2", children: files.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "flex h-full items-center justify-center text-xs text-gray-400 dark:text-zinc-600", children: "No .mig files" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "space-y-1.5", children: files.map((file) => /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+        FileRow,
+        {
+          file,
+          expanded: expandedFile === file.file,
+          dialect,
+          onToggleExpand,
+          onPlan,
+          onRun,
+          running
+        },
+        file.file
+      )) }) }),
+      runSteps && runSteps.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "min-h-0 w-56 shrink-0 overflow-auto border-l border-gray-200 dark:border-zinc-800 p-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-zinc-600", children: "Run progress" }),
+        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "space-y-1", children: runSteps.map((step) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(StepIcon, { status: step.status }),
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "truncate font-mono text-[11px] text-gray-700 dark:text-zinc-300", children: step.file })
+        ] }, step.file)) }),
+        runSteps.some((s3) => s3.status === "failed") && dialect === "mysql" && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "mt-2 flex items-start gap-1 text-[10px] text-amber-600 dark:text-amber-400", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TriangleAlert, { className: "mt-0.5 size-3 shrink-0" }),
+          "A failed file may be partially applied \u2014 check for drift before retrying."
+        ] })
+      ] })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "min-h-0 flex-1 overflow-auto p-2", children: ledger.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "flex h-full items-center justify-center text-xs text-gray-400 dark:text-zinc-600", children: "No applied migrations" }) : /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("div", { className: "space-y-0.5", children: ledger.map((entry, i3) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
+      "div",
+      {
+        className: "flex items-center gap-2 rounded px-1.5 py-1 hover:bg-gray-50 dark:hover:bg-zinc-800/50",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Dot, { className: "size-4 shrink-0 text-emerald-500" }),
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "truncate font-mono text-xs text-gray-800 dark:text-zinc-200", children: entry.file }),
+          entry.version && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "shrink-0 text-[10px] text-gray-400 dark:text-zinc-600", children: [
+            "v",
+            entry.version
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "ml-auto shrink-0 font-mono text-[10px] text-gray-500 dark:text-zinc-500", children: formatAppliedAt(entry.appliedAt) })
+        ]
+      },
+      `${entry.file}-${i3}`
+    )) }) })
+  ] });
+}
+
+// src/features/db/introspect-map.ts
+function refAction2(a3) {
+  if (!a3) return "NO ACTION";
+  const n3 = a3.toUpperCase().replace(/\s+/g, " ").trim();
+  switch (n3) {
+    case "CASCADE":
+      return "CASCADE";
+    case "SET NULL":
+      return "SET NULL";
+    case "SET DEFAULT":
+      return "SET DEFAULT";
+    case "RESTRICT":
+      return "RESTRICT";
+    default:
+      return "NO ACTION";
+  }
+}
+function parseTypeArgs(type) {
+  const m4 = type.match(/\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/);
+  if (!m4) return {};
+  const first = Number(m4[1]);
+  if (m4[2] !== void 0) {
+    return { precision: first, scale: Number(m4[2]) };
+  }
+  return { length: first };
+}
+function catalogToSchema(catalog) {
+  const schema = { tables: {}, relationships: {}, layers: {} };
+  const losses = [];
+  const tableByName = /* @__PURE__ */ new Map();
+  const columnIdByRef = /* @__PURE__ */ new Map();
+  for (const ct of catalog.tables) {
+    const pkCount = ct.columns.filter((c3) => c3.pk).length;
+    const columns = ct.columns.map((cc) => {
+      const id = generateId();
+      columnIdByRef.set(`${ct.name}\0${cc.name}`, id);
+      const autoIncrement = cc.pk && pkCount === 1 && cc.type.trim().toUpperCase() === "INTEGER";
+      const col = {
+        id,
+        name: cc.name,
+        dataType: cc.type,
+        // A primary key is semantically NOT NULL. SQLite reports notnull=0 for an
+        // INTEGER PRIMARY KEY (rowid alias), so pk overrides it — otherwise a
+        // reverse→forward round-trip proposes a spurious nullable change on the PK.
+        nullable: !cc.notnull && !cc.pk,
+        autoIncrement,
+        isPrimaryKey: cc.pk,
+        isUnique: false,
+        ...parseTypeArgs(cc.type)
+      };
+      if (cc.default != null) col.defaultValue = cc.default;
+      return col;
+    });
+    const colByName = new Map(columns.map((c3) => [c3.name, c3]));
+    const indexes = [];
+    for (const ci of ct.indexes ?? []) {
+      const columnIds = [];
+      for (const cn2 of ci.columns) {
+        const col = colByName.get(cn2);
+        if (col) columnIds.push(col.id);
+        else
+          losses.push({
+            kind: "index-column",
+            table: ct.name,
+            detail: `index ${ci.name} references unknown column ${cn2}`
+          });
+      }
+      if (ci.unique && columnIds.length === 1) {
+        const col = colByName.get(ci.columns[0]);
+        if (col) {
+          col.isUnique = true;
+          continue;
+        }
+      }
+      indexes.push({
+        id: generateId(),
+        name: ci.name,
+        columnIds,
+        unique: ci.unique
+      });
+    }
+    const table = { id: generateId(), name: ct.name, columns, indexes };
+    schema.tables[table.id] = table;
+    tableByName.set(ct.name, table);
+  }
+  for (const ct of catalog.tables) {
+    const childTable = tableByName.get(ct.name);
+    for (const fk of ct.foreignKeys ?? []) {
+      const parentTable = tableByName.get(fk.table);
+      if (!parentTable) {
+        losses.push({
+          kind: "foreign-key",
+          table: ct.name,
+          detail: `FK ${ct.name}.${fk.from} references unknown table ${fk.table}`
+        });
+        continue;
+      }
+      const childColId = columnIdByRef.get(`${ct.name}\0${fk.from}`);
+      if (!childColId) {
+        losses.push({
+          kind: "foreign-key",
+          table: ct.name,
+          detail: `FK references unknown local column ${fk.from}`
+        });
+        continue;
+      }
+      let parentColId;
+      if (fk.to != null) {
+        parentColId = columnIdByRef.get(`${fk.table}\0${fk.to}`);
+      } else {
+        const pk = parentTable.columns.find((c3) => c3.isPrimaryKey);
+        parentColId = pk?.id;
+      }
+      if (!parentColId) {
+        losses.push({
+          kind: "foreign-key",
+          table: ct.name,
+          detail: `FK ${ct.name}.${fk.from} \u2192 ${fk.table}${fk.to ? "." + fk.to : " (implicit PK)"} could not resolve the referenced column`
+        });
+        continue;
+      }
+      const childCol = childTable.columns.find((c3) => c3.id === childColId);
+      const type = childCol && (childCol.isUnique || childCol.isPrimaryKey) ? "1:1" : "1:N";
+      const relId = generateId();
+      schema.relationships[relId] = {
+        id: relId,
+        sourceTableId: parentTable.id,
+        targetTableId: childTable.id,
+        type,
+        sourceColumnIds: [parentColId],
+        targetColumnIds: [childColId],
+        onDelete: refAction2(fk.onDelete),
+        onUpdate: refAction2(fk.onUpdate)
+      };
+    }
+  }
+  for (const v4 of catalog.views ?? [])
+    losses.push({ kind: "view", table: v4.name, detail: `view ${v4.name} is not representable` });
+  for (const t4 of catalog.triggers ?? [])
+    losses.push({ kind: "trigger", table: t4.name, detail: `trigger ${t4.name} is not representable` });
+  return { schema, losses };
+}
+
+// src/features/migration/diff.ts
+function mkOp(type, params) {
+  return { id: generateId(), type, timestamp: 0, params };
+}
+function columnParams(c3) {
+  const out2 = {
+    name: c3.name,
+    dataType: c3.dataType,
+    nullable: c3.nullable,
+    isPrimaryKey: c3.isPrimaryKey,
+    isUnique: c3.isUnique,
+    autoIncrement: c3.autoIncrement
+  };
+  if (c3.defaultValue != null) out2.defaultValue = c3.defaultValue;
+  if (c3.length != null) out2.length = c3.length;
+  if (c3.precision != null) out2.precision = c3.precision;
+  if (c3.scale != null) out2.scale = c3.scale;
+  return out2;
+}
+function columnDefEqual(a3, b3) {
+  return a3.dataType === b3.dataType && (a3.nullable ?? true) === (b3.nullable ?? true) && (a3.isPrimaryKey ?? false) === (b3.isPrimaryKey ?? false) && (a3.isUnique ?? false) === (b3.isUnique ?? false) && (a3.autoIncrement ?? false) === (b3.autoIncrement ?? false) && (a3.defaultValue ?? null) === (b3.defaultValue ?? null);
+}
+function diffColumns(tableName, before, after) {
+  const ops = [];
+  const afterById = new Map(after.columns.map((c3) => [c3.id, c3]));
+  const beforeByName = new Map(before.columns.map((c3) => [c3.name, c3]));
+  const afterByName = new Map(after.columns.map((c3) => [c3.name, c3]));
+  const matchedBeforeIds = /* @__PURE__ */ new Set();
+  const matchedAfterIds = /* @__PURE__ */ new Set();
+  for (const bc of before.columns) {
+    const ac = afterById.get(bc.id);
+    if (!ac) continue;
+    matchedBeforeIds.add(bc.id);
+    matchedAfterIds.add(ac.id);
+    if (bc.name !== ac.name) {
+      ops.push(mkOp("renameColumn", { table: tableName, oldName: bc.name, newName: ac.name }));
+    }
+    if (bc.dataType !== ac.dataType) {
+      ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
+    }
+    const nameAligned = { ...bc, name: ac.name };
+    if (!columnDefEqual(nameAligned, ac)) {
+      ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
+      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+    }
+  }
+  for (const ac of after.columns) {
+    if (matchedAfterIds.has(ac.id)) continue;
+    if (beforeByName.has(ac.name)) {
+      const bc = beforeByName.get(ac.name);
+      if (bc.dataType !== ac.dataType) {
+        ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
+      }
+      if (!columnDefEqual(bc, ac)) {
+        ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
+        ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+      }
+      matchedBeforeIds.add(bc.id);
+    } else {
+      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
+    }
+  }
+  for (const bc of before.columns) {
+    if (matchedBeforeIds.has(bc.id)) continue;
+    if (!afterByName.has(bc.name)) {
+      ops.push(mkOp("dropColumn", { table: tableName, name: bc.name }));
+    }
+  }
+  return ops;
+}
+function diffIndexes(tableName, before, after) {
+  const ops = [];
+  const colName = (t4, id) => t4.columns.find((c3) => c3.id === id)?.name;
+  const beforeNames = new Set(before.indexes.map((i3) => i3.name));
+  const afterNames = new Set(after.indexes.map((i3) => i3.name));
+  for (const idx of after.indexes) {
+    if (beforeNames.has(idx.name)) continue;
+    const columns = idx.columnIds.map((id) => colName(after, id)).filter((n3) => n3 != null);
+    if (columns.length === 0) continue;
+    ops.push(mkOp("createIndex", { table: tableName, name: idx.name, columns, unique: idx.unique }));
+  }
+  for (const idx of before.indexes) {
+    if (afterNames.has(idx.name)) continue;
+    ops.push(mkOp("dropIndex", { table: tableName, name: idx.name }));
+  }
+  return ops;
+}
+function relToFkParams(rel, after) {
+  const target = after.tables[rel.targetTableId];
+  const source3 = after.tables[rel.sourceTableId];
+  if (!target || !source3) return null;
+  const columns = rel.targetColumnIds.map((id) => target.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
+  const refColumns = rel.sourceColumnIds.map((id) => source3.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
+  if (columns.length === 0 || refColumns.length === 0) return null;
+  const name = rel.name ?? `fk_${target.name}_${columns[0]}`;
+  return {
+    name,
+    table: target.name,
+    columns,
+    refTable: source3.name,
+    refColumns,
+    onDelete: rel.onDelete,
+    onUpdate: rel.onUpdate
+  };
+}
+function relKey(rel, schema) {
+  const s3 = schema.tables[rel.sourceTableId];
+  const t4 = schema.tables[rel.targetTableId];
+  const sName = s3?.name ?? rel.sourceTableId;
+  const tName = t4?.name ?? rel.targetTableId;
+  const sCols = rel.sourceColumnIds.map((id) => s3?.columns.find((c3) => c3.id === id)?.name ?? id).sort().join(",");
+  const tCols = rel.targetColumnIds.map((id) => t4?.columns.find((c3) => c3.id === id)?.name ?? id).sort().join(",");
+  return `${sName}(${sCols})->${tName}(${tCols})`;
+}
+function diffRelationships(before, after) {
+  const ops = [];
+  const beforeKeys = new Set(Object.values(before.relationships).map((r4) => relKey(r4, before)));
+  const afterKeys = new Set(Object.values(after.relationships).map((r4) => relKey(r4, after)));
+  for (const rel of Object.values(after.relationships)) {
+    if (beforeKeys.has(relKey(rel, after))) continue;
+    const params = relToFkParams(rel, after);
+    if (params) ops.push(mkOp("addForeignKey", params));
+  }
+  for (const rel of Object.values(before.relationships)) {
+    if (afterKeys.has(relKey(rel, before))) continue;
+    const target = before.tables[rel.targetTableId];
+    if (!target) continue;
+    const columns = rel.targetColumnIds.map((id) => target.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
+    const name = rel.name ?? `fk_${target.name}_${columns[0] ?? "x"}`;
+    ops.push(mkOp("dropForeignKey", { table: target.name, name }));
+  }
+  return ops;
+}
+function diffSchemas(before, after) {
+  const created = [];
+  const altered = [];
+  const dropped = [];
+  const beforeTables = Object.values(before.tables);
+  const afterTables = Object.values(after.tables);
+  const afterById = new Map(afterTables.map((t4) => [t4.id, t4]));
+  const beforeByName = new Map(beforeTables.map((t4) => [t4.name, t4]));
+  const afterByName = new Map(afterTables.map((t4) => [t4.name, t4]));
+  const matchedBeforeIds = /* @__PURE__ */ new Set();
+  const matchedAfterIds = /* @__PURE__ */ new Set();
+  for (const bt of beforeTables) {
+    const at = afterById.get(bt.id);
+    if (!at) continue;
+    matchedBeforeIds.add(bt.id);
+    matchedAfterIds.add(at.id);
+    if (bt.name !== at.name) {
+      altered.push(mkOp("renameTable", { oldName: bt.name, newName: at.name }));
+    }
+    altered.push(...diffColumns(at.name, bt, at));
+    altered.push(...diffIndexes(at.name, bt, at));
+  }
+  for (const at of afterTables) {
+    if (matchedAfterIds.has(at.id)) continue;
+    const bt = beforeByName.get(at.name);
+    if (bt && !matchedBeforeIds.has(bt.id)) {
+      matchedBeforeIds.add(bt.id);
+      altered.push(...diffColumns(at.name, bt, at));
+      altered.push(...diffIndexes(at.name, bt, at));
+    } else {
+      created.push(mkOp("createTable", { name: at.name, columns: at.columns.map(columnParams), ...at.schema ? { schema: at.schema } : {} }));
+      altered.push(...diffIndexes(at.name, { ...at, indexes: [] }, at));
+    }
+  }
+  for (const bt of beforeTables) {
+    if (matchedBeforeIds.has(bt.id)) continue;
+    if (!afterByName.has(bt.name)) {
+      dropped.push(mkOp("dropTable", { name: bt.name }));
+    }
+  }
+  const rels = diffRelationships(before, after);
+  return [...created, ...altered, ...dropped, ...rels];
+}
+
+// src/features/migration/sql-generator/mysql-generator.ts
+var MySQLGenerator = class {
+  dialect = "mysql";
+  generate(op) {
+    const p4 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p4.columns ?? [];
+        const colDefs = columns.map((c3) => {
+          let def = `  \`${c3.name}\` ${c3.dataType}`;
+          if (c3.length) def += `(${c3.length})`;
+          if (c3.autoIncrement) def += " AUTO_INCREMENT";
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          if (c3.comment) def += ` COMMENT '${c3.comment}'`;
+          return def;
+        });
+        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `\`${c3.name}\``);
+        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        let sql = `CREATE TABLE \`${p4.name}\` (
+${colDefs.join(",\n")}
+)`;
+        if (p4.engine) sql += ` ENGINE=${p4.engine}`;
+        if (p4.charset) sql += ` DEFAULT CHARSET=${p4.charset}`;
+        if (p4.comment) sql += ` COMMENT='${p4.comment}'`;
+        return sql + ";";
+      }
+      case "dropTable":
+        return `DROP TABLE IF EXISTS \`${p4.name}\`;`;
+      case "renameTable":
+        return `ALTER TABLE \`${p4.oldName}\` RENAME TO \`${p4.newName}\`;`;
+      case "addColumn": {
+        let sql = `ALTER TABLE \`${p4.table}\` ADD COLUMN \`${p4.name}\` ${p4.dataType ?? "VARCHAR(255)"}`;
+        if (!(p4.nullable ?? true)) sql += " NOT NULL";
+        if (p4.defaultValue != null) sql += ` DEFAULT ${p4.defaultValue}`;
+        if (p4.autoIncrement) sql += " AUTO_INCREMENT";
+        if (p4.isUnique) sql += " UNIQUE";
+        if (p4.after) sql += ` AFTER \`${p4.after}\``;
+        return sql + ";";
+      }
+      case "dropColumn":
+        return `ALTER TABLE \`${p4.table}\` DROP COLUMN \`${p4.name}\`;`;
+      case "renameColumn":
+        return `ALTER TABLE \`${p4.table}\` RENAME COLUMN \`${p4.oldName}\` TO \`${p4.newName}\`;`;
+      case "modifyColumnType":
+        return `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` ${p4.newType};`;
+      case "modifyColumnDefault":
+        return p4.newDefault != null ? `ALTER TABLE \`${p4.table}\` ALTER COLUMN \`${p4.column}\` SET DEFAULT ${p4.newDefault};` : `ALTER TABLE \`${p4.table}\` ALTER COLUMN \`${p4.column}\` DROP DEFAULT;`;
+      case "setColumnNullable":
+        return p4.nullable ? `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` NULL;` : `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` NOT NULL;`;
+      case "setColumnAutoIncrement":
+        return p4.autoIncrement ? `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` AUTO_INCREMENT;` : `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\`;`;
+      case "setColumnUnique":
+        return p4.unique ? `ALTER TABLE \`${p4.table}\` ADD UNIQUE (\`${p4.column}\`);` : `ALTER TABLE \`${p4.table}\` DROP INDEX \`${p4.column}\`;`;
+      case "addPrimaryKey": {
+        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p4.table}\` ADD PRIMARY KEY (${cols});`;
+      }
+      case "dropPrimaryKey":
+        return `ALTER TABLE \`${p4.table}\` DROP PRIMARY KEY;`;
+      case "addForeignKey": {
+        const name = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
+        const refCols = p4.refColumns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p4.table}\` ADD CONSTRAINT \`${name}\` FOREIGN KEY (${cols}) REFERENCES \`${p4.refTable}\`(${refCols}) ON DELETE ${p4.onDelete} ON UPDATE ${p4.onUpdate};`;
+      }
+      case "dropForeignKey":
+        return `ALTER TABLE \`${p4.table}\` DROP FOREIGN KEY \`${p4.name}\`;`;
+      case "addUniqueConstraint": {
+        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `ALTER TABLE \`${p4.table}\` ADD CONSTRAINT \`${name}\` UNIQUE (${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `ALTER TABLE \`${p4.table}\` DROP INDEX \`${p4.name}\`;`;
+      case "createIndex": {
+        const unique = p4.unique ? "UNIQUE " : "";
+        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
+        return `CREATE ${unique}INDEX \`${p4.name}\` ON \`${p4.table}\`(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX \`${p4.name}\` ON \`${p4.table}\`;`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
+// src/features/migration/sql-generator/postgresql-generator.ts
+var PostgreSQLGenerator = class {
+  dialect = "postgresql";
+  generate(op) {
+    const p4 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p4.columns ?? [];
+        const colDefs = columns.map((c3) => {
+          const isSerial = c3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(c3.dataType);
+          let def;
+          if (isSerial) {
+            const serialType = /^BIGINT/i.test(c3.dataType) ? "BIGSERIAL" : "SERIAL";
+            def = `  "${c3.name}" ${serialType}`;
+          } else {
+            def = `  "${c3.name}" ${c3.dataType}`;
+            if (c3.length) def += `(${c3.length})`;
+          }
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null && !isSerial) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          return def;
+        });
+        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `"${c3.name}"`);
+        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        const schemaPrefix = p4.schema ? `"${p4.schema}".` : "";
+        let sql = `CREATE TABLE ${schemaPrefix}"${p4.name}" (
+${colDefs.join(",\n")}
+)`;
+        if (p4.comment) sql += `;
+COMMENT ON TABLE ${schemaPrefix}"${p4.name}" IS '${p4.comment}'`;
+        return sql + ";";
+      }
+      case "dropTable": {
+        const schemaPrefix = p4.schema ? `"${p4.schema}".` : "";
+        return `DROP TABLE IF EXISTS ${schemaPrefix}"${p4.name}" CASCADE;`;
+      }
+      case "renameTable":
+        return `ALTER TABLE "${p4.oldName}" RENAME TO "${p4.newName}";`;
+      case "addColumn": {
+        const isSerial = p4.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(p4.dataType ?? "");
+        let colType;
+        if (isSerial) {
+          colType = /^BIGINT/i.test(p4.dataType ?? "") ? "BIGSERIAL" : "SERIAL";
+        } else {
+          colType = p4.dataType ?? "VARCHAR(255)";
+        }
+        let sql = `ALTER TABLE "${p4.table}" ADD COLUMN "${p4.name}" ${colType}`;
+        if (!(p4.nullable ?? true)) sql += " NOT NULL";
+        if (p4.defaultValue != null && !isSerial) sql += ` DEFAULT ${p4.defaultValue}`;
+        if (p4.isUnique) sql += " UNIQUE";
+        return sql + ";";
+      }
+      case "dropColumn":
+        return `ALTER TABLE "${p4.table}" DROP COLUMN "${p4.name}";`;
+      case "renameColumn":
+        return `ALTER TABLE "${p4.table}" RENAME COLUMN "${p4.oldName}" TO "${p4.newName}";`;
+      case "modifyColumnType":
+        return `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" TYPE ${p4.newType};`;
+      case "modifyColumnDefault":
+        return p4.newDefault != null ? `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET DEFAULT ${p4.newDefault};` : `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP DEFAULT;`;
+      case "setColumnNullable":
+        return p4.nullable ? `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP NOT NULL;` : `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET NOT NULL;`;
+      case "setColumnAutoIncrement": {
+        const seqName = `${p4.table}_${p4.column}_seq`;
+        if (p4.autoIncrement) {
+          return [
+            `CREATE SEQUENCE "${seqName}";`,
+            `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET DEFAULT nextval('"${seqName}"');`,
+            `ALTER SEQUENCE "${seqName}" OWNED BY "${p4.table}"."${p4.column}";`
+          ].join("\n");
+        }
+        return `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP DEFAULT;`;
+      }
+      case "setColumnUnique":
+        if (p4.unique) {
+          const constraintName = `uq_${p4.table}_${p4.column}`;
+          return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${constraintName}" UNIQUE ("${p4.column}");`;
+        }
+        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "uq_${p4.table}_${p4.column}";`;
+      case "addPrimaryKey": {
+        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p4.table}" ADD PRIMARY KEY (${cols});`;
+      }
+      case "dropPrimaryKey":
+        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT "${p4.table}_pkey";`;
+      case "addForeignKey": {
+        const name = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
+        const refCols = p4.refColumns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${name}" FOREIGN KEY (${cols}) REFERENCES "${p4.refTable}"(${refCols}) ON DELETE ${p4.onDelete} ON UPDATE ${p4.onUpdate};`;
+      }
+      case "dropForeignKey":
+        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "${p4.name}";`;
+      case "addUniqueConstraint": {
+        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
+        return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${name}" UNIQUE (${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "${p4.name}";`;
+      case "createIndex": {
+        const unique = p4.unique ? "UNIQUE " : "";
+        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
+        return `CREATE ${unique}INDEX "${p4.name}" ON "${p4.table}"(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX IF EXISTS "${p4.name}";`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
+// src/features/migration/sql-generator/sqlite-generator.ts
+var SQLiteGenerator = class {
+  dialect = "sqlite";
+  q(name) {
+    return `"${name}"`;
+  }
+  unsupported(op) {
+    return `-- SQLite: '${op}' \uB294 ALTER \uB85C \uBD88\uAC00 \u2014 \uD14C\uC774\uBE14 \uC7AC\uC791\uC131 \uD544\uC694(\uC218\uB3D9)`;
+  }
+  generate(op) {
+    const p4 = op.params;
+    switch (op.type) {
+      case "createTable": {
+        const columns = p4.columns ?? [];
+        const inlinePk = columns.find((c3) => c3.autoIncrement && c3.isPrimaryKey);
+        const colDefs = columns.map((c3) => {
+          if (c3 === inlinePk) return `  ${this.q(c3.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
+          let def = `  ${this.q(c3.name)} ${c3.dataType}`;
+          if (c3.length) def += `(${c3.length})`;
+          if (!c3.nullable) def += " NOT NULL";
+          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
+          if (c3.isUnique) def += " UNIQUE";
+          return def;
+        });
+        if (!inlinePk) {
+          const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => this.q(c3.name));
+          if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
+        }
+        return `CREATE TABLE ${this.q(p4.name)} (
+${colDefs.join(",\n")}
+);`;
+      }
+      case "dropTable":
+        return `DROP TABLE IF EXISTS ${this.q(p4.name)};`;
+      case "renameTable":
+        return `ALTER TABLE ${this.q(p4.oldName)} RENAME TO ${this.q(p4.newName)};`;
+      case "addColumn": {
+        let sql = `ALTER TABLE ${this.q(p4.table)} ADD COLUMN ${this.q(p4.name)} ${p4.dataType ?? "TEXT"}`;
+        if (!(p4.nullable ?? true)) sql += " NOT NULL";
+        if (p4.defaultValue != null) sql += ` DEFAULT ${p4.defaultValue}`;
+        const stmt = sql + ";";
+        if (p4.isUnique) {
+          return `${stmt}
+CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.name}`)} ON ${this.q(p4.table)}(${this.q(p4.name)});`;
+        }
+        return stmt;
+      }
+      case "dropColumn":
+        return `ALTER TABLE ${this.q(p4.table)} DROP COLUMN ${this.q(p4.name)};`;
+      case "renameColumn":
+        return `ALTER TABLE ${this.q(p4.table)} RENAME COLUMN ${this.q(p4.oldName)} TO ${this.q(p4.newName)};`;
+      case "modifyColumnType":
+      case "modifyColumnDefault":
+      case "setColumnNullable":
+      case "setColumnAutoIncrement":
+      case "addPrimaryKey":
+      case "dropPrimaryKey":
+      case "addForeignKey":
+      // FK 는 CREATE TABLE 인라인으로만, ALTER 추가 불가
+      case "dropForeignKey":
+        return this.unsupported(op.type);
+      case "setColumnUnique":
+        return p4.unique ? `CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.column}`)} ON ${this.q(p4.table)}(${this.q(p4.column)});` : `DROP INDEX ${this.q(`uq_${p4.table}_${p4.column}`)};`;
+      case "addUniqueConstraint": {
+        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
+        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
+        return `CREATE UNIQUE INDEX ${this.q(name)} ON ${this.q(p4.table)}(${cols});`;
+      }
+      case "dropUniqueConstraint":
+        return `DROP INDEX ${this.q(p4.name)};`;
+      case "createIndex": {
+        const unique = p4.unique ? "UNIQUE " : "";
+        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
+        return `CREATE ${unique}INDEX ${this.q(p4.name)} ON ${this.q(p4.table)}(${cols});`;
+      }
+      case "dropIndex":
+        return `DROP INDEX ${this.q(p4.name)};`;
+      default:
+        return `-- Unknown operation: ${op.type}`;
+    }
+  }
+  generateBatch(ops) {
+    return ops.map((op) => this.generate(op)).join("\n\n");
+  }
+};
+
+// src/features/migration/sql-generator/index.ts
+var generators = {
+  sqlite: new SQLiteGenerator(),
+  mysql: new MySQLGenerator(),
+  postgresql: new PostgreSQLGenerator()
+};
+function getSQLGenerator(dialect) {
+  return generators[dialect];
+}
+function splitStatements(batch) {
+  return batch.split(";").map((s3) => s3.replace(/--[^\n]*/g, "").trim()).filter((s3) => s3.length > 0).map((s3) => `${s3};`);
+}
+
+// src/features/db/push-plan.ts
+var INT_RANK = {
+  TINYINT: 1,
+  SMALLINT: 2,
+  MEDIUMINT: 3,
+  INT: 4,
+  INTEGER: 4,
+  BIGINT: 5
+};
+function parseType(raw) {
+  const s3 = String(raw ?? "").trim();
+  const m4 = s3.match(/^([A-Za-z_]+)\s*(?:\(\s*(\d+))?/);
+  if (!m4) return { base: s3.toUpperCase() };
+  return { base: m4[1].toUpperCase(), len: m4[2] != null ? Number(m4[2]) : void 0 };
+}
+function isNarrowingOrUnsafe(oldType, newType) {
+  const from = parseType(oldType);
+  const to = parseType(newType);
+  if (from.base === to.base) {
+    if (from.len != null && to.len != null) return to.len < from.len;
+    return false;
+  }
+  const fromRank = INT_RANK[from.base];
+  const toRank = INT_RANK[to.base];
+  if (fromRank != null && toRank != null) return toRank < fromRank;
+  return true;
+}
+function colOps(ops, type) {
+  const out2 = [];
+  for (const op of ops) {
+    if (op.type !== type) continue;
+    out2.push({ op, table: String(op.params.table ?? ""), name: String(op.params.name ?? "") });
+  }
+  return out2;
+}
+function applyRenameHints(live, current2, hints) {
+  if (hints.length === 0) return live;
+  const tables = {};
+  for (const [id, t4] of Object.entries(live.tables)) {
+    tables[id] = { ...t4, columns: t4.columns.map((c3) => ({ ...c3 })), indexes: t4.indexes.map((i3) => ({ ...i3 })) };
+  }
+  const currentByName = new Map(Object.values(current2.tables).map((t4) => [t4.name, t4]));
+  for (const h3 of hints) {
+    if (h3.level === "table") {
+      const liveT = Object.values(tables).find((t4) => t4.name === h3.from);
+      const curT = currentByName.get(h3.to);
+      if (liveT && curT) {
+        delete tables[liveT.id];
+        liveT.id = curT.id;
+        tables[curT.id] = liveT;
+      }
+    } else {
+      const curT = currentByName.get(h3.table ?? "");
+      const liveT = Object.values(tables).find((t4) => t4.name === (h3.table ?? ""));
+      const liveCol = liveT?.columns.find((c3) => c3.name === h3.from);
+      const curCol = curT?.columns.find((c3) => c3.name === h3.to);
+      if (liveCol && curCol) liveCol.id = curCol.id;
+    }
+  }
+  return { ...live, tables };
+}
+function buildPushPlan(current2, live, dialect, renameHints = []) {
+  const ops = diffSchemas(applyRenameHints(live, current2, renameHints), current2);
+  const sql = getSQLGenerator(dialect).generateBatch(ops);
+  const drops = colOps(ops, "dropColumn");
+  const adds = colOps(ops, "addColumn");
+  const addKey = new Set(adds.map((a3) => `${a3.table}\0${a3.name}`));
+  const isRedefinition = (d3) => addKey.has(`${d3.table}\0${d3.name}`);
+  const destructive = [];
+  for (const op of ops) {
+    switch (op.type) {
+      case "dropTable":
+        destructive.push({ op, reason: `\uD14C\uC774\uBE14 '${op.params.name}' \uC0AD\uC81C \u2014 \uBAA8\uB4E0 \uD589 \uC18C\uC2E4` });
+        break;
+      case "dropColumn": {
+        const d3 = { op, table: String(op.params.table ?? ""), name: String(op.params.name ?? "") };
+        if (isRedefinition(d3)) {
+          destructive.push({
+            op,
+            reason: `\uCEEC\uB7FC '${d3.table}.${d3.name}' \uC7AC\uC815\uC758(drop+add) \u2014 nullable/default/pk \uBCC0\uACBD\uC73C\uB85C \uAE30\uC874 \uAC12 \uC18C\uC2E4 \uAC00\uB2A5`
+          });
+        } else {
+          destructive.push({ op, reason: `\uCEEC\uB7FC '${d3.table}.${d3.name}' \uC0AD\uC81C \u2014 \uD574\uB2F9 \uC5F4 \uAC12 \uC18C\uC2E4` });
+        }
+        break;
+      }
+      case "modifyColumnType": {
+        if (isNarrowingOrUnsafe(op.params.oldType, op.params.newType)) {
+          destructive.push({
+            op,
+            reason: `\uD0C0\uC785 \uCD95\uC18C/\uC774\uC885 \uBCC0\uD658 ${op.params.oldType}\u2192${op.params.newType} on '${op.params.table}.${op.params.column}' \u2014 \uC808\uB2E8\xB7\uBCC0\uD658 \uC2E4\uD328 \uC704\uD5D8`
+          });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  const renamesNeedingConfirm = [];
+  const leftoverDrops = drops.filter((d3) => !isRedefinition(d3));
+  const leftoverAdds = adds.filter((a3) => !addHasMatchingDrop(a3, drops));
+  const byTable = /* @__PURE__ */ new Map();
+  for (const d3 of leftoverDrops) {
+    const e4 = byTable.get(d3.table) ?? { d: [], a: [] };
+    e4.d.push(d3);
+    byTable.set(d3.table, e4);
+  }
+  for (const a3 of leftoverAdds) {
+    const e4 = byTable.get(a3.table) ?? { d: [], a: [] };
+    e4.a.push(a3);
+    byTable.set(a3.table, e4);
+  }
+  for (const [table, { d: d3, a: a3 }] of byTable) {
+    const n3 = Math.min(d3.length, a3.length);
+    for (let i3 = 0; i3 < n3; i3++) {
+      renamesNeedingConfirm.push({
+        level: "column",
+        table,
+        from: d3[i3].name,
+        to: a3[i3].name,
+        drop: d3[i3].op,
+        add: a3[i3].op
+      });
+    }
+  }
+  const dropTables = ops.filter((o3) => o3.type === "dropTable");
+  const createTables = ops.filter((o3) => o3.type === "createTable");
+  const nT = Math.min(dropTables.length, createTables.length);
+  for (let i3 = 0; i3 < nT; i3++) {
+    renamesNeedingConfirm.push({
+      level: "table",
+      from: String(dropTables[i3].params.name ?? ""),
+      to: String(createTables[i3].params.name ?? ""),
+      drop: dropTables[i3],
+      add: createTables[i3]
+    });
+  }
+  return { ops, sql, destructive, renamesNeedingConfirm };
+}
+function addHasMatchingDrop(a3, drops) {
+  return drops.some((d3) => d3.table === a3.table && d3.name === a3.name);
+}
+
+// src/features/migration/mig-dsl/tokenizer.ts
+var TokenType = {
+  Keyword: "Keyword",
+  Ident: "Ident",
+  Number: "Number",
+  String: "String",
+  Comment: "Comment",
+  LBrace: "LBrace",
+  // {
+  RBrace: "RBrace",
+  // }
+  LParen: "LParen",
+  // (
+  RParen: "RParen",
+  // )
+  Semicolon: "Semicolon",
+  // ;
+  Dot: "Dot",
+  // .
+  Comma: "Comma",
+  // ,
+  Arrow: "Arrow",
+  // ->
+  NL: "NL",
+  // 줄바꿈(파서는 무시하지만 위치 보존용으로 노출)
+  EOF: "EOF"
+};
+var KEYWORDS = /* @__PURE__ */ new Set([
+  "create",
+  "table",
+  "alter",
+  "add",
+  "drop",
+  "rename",
+  "column",
+  "fk",
+  "index",
+  "unique",
+  "on",
+  "delete",
+  "update",
+  "up",
+  "down",
+  "raw",
+  "to",
+  "primary",
+  "key",
+  "not",
+  "null",
+  "auto_increment",
+  "default",
+  "check"
+]);
+function isIdentStart(ch) {
+  return /[A-Za-z_]/.test(ch);
+}
+function isIdentPart(ch) {
+  return /[A-Za-z0-9_]/.test(ch);
+}
+function isDigit(ch) {
+  return ch >= "0" && ch <= "9";
+}
+function tokenize(input) {
+  const tokens = [];
+  let i3 = 0;
+  let line = 1;
+  let col = 1;
+  const n3 = input.length;
+  function advance() {
+    const ch = input[i3++];
+    if (ch === "\n") {
+      line++;
+      col = 1;
+    } else {
+      col++;
+    }
+    return ch;
+  }
+  while (i3 < n3) {
+    const ch = input[i3];
+    const startLine = line;
+    const startCol = col;
+    if (ch === "\n") {
+      advance();
+      tokens.push({ type: TokenType.NL, value: "\n", line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === " " || ch === "	" || ch === "\r") {
+      advance();
+      continue;
+    }
+    if (ch === "-" && input[i3 + 1] === "-") {
+      advance();
+      advance();
+      let value = "";
+      while (i3 < n3 && input[i3] !== "\n") value += advance();
+      tokens.push({ type: TokenType.Comment, value: value.trim(), line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === "-" && input[i3 + 1] === ">") {
+      advance();
+      advance();
+      tokens.push({ type: TokenType.Arrow, value: "->", line: startLine, col: startCol });
+      continue;
+    }
+    if (ch === "'") {
+      advance();
+      let value = "";
+      let closed = false;
+      while (i3 < n3) {
+        const c3 = input[i3];
+        if (c3 === "'") {
+          if (input[i3 + 1] === "'") {
+            advance();
+            advance();
+            value += "'";
+            continue;
+          }
+          advance();
+          closed = true;
+          break;
+        }
+        value += advance();
+      }
+      if (!closed) {
+        throw makeLexError("Unterminated string literal", startLine, startCol);
+      }
+      tokens.push({ type: TokenType.String, value, line: startLine, col: startCol });
+      continue;
+    }
+    if (isDigit(ch)) {
+      let value = "";
+      while (i3 < n3 && isDigit(input[i3])) value += advance();
+      tokens.push({ type: TokenType.Number, value, line: startLine, col: startCol });
+      continue;
+    }
+    if (isIdentStart(ch)) {
+      let value = "";
+      while (i3 < n3 && isIdentPart(input[i3])) value += advance();
+      const lower = value.toLowerCase();
+      tokens.push({
+        type: KEYWORDS.has(lower) ? TokenType.Keyword : TokenType.Ident,
+        value: KEYWORDS.has(lower) ? lower : value,
+        line: startLine,
+        col: startCol
+      });
+      continue;
+    }
+    const punct = {
+      "{": TokenType.LBrace,
+      "}": TokenType.RBrace,
+      "(": TokenType.LParen,
+      ")": TokenType.RParen,
+      ";": TokenType.Semicolon,
+      ".": TokenType.Dot,
+      ",": TokenType.Comma
+    };
+    if (punct[ch] !== void 0) {
+      advance();
+      tokens.push({ type: punct[ch], value: ch, line: startLine, col: startCol });
+      continue;
+    }
+    throw makeLexError(`Unexpected character '${ch}'`, startLine, startCol);
+  }
+  tokens.push({ type: TokenType.EOF, value: "", line, col });
+  return tokens;
+}
+function makeLexError(message, line, col) {
+  const err = new Error(`${message} (line ${line}, col ${col})`);
+  err.line = line;
+  err.col = col;
+  return err;
+}
+
+// src/features/migration/mig-dsl/parser.ts
+function makeError(message, tok) {
+  const err = new Error(`${message} (line ${tok.line}, col ${tok.col})`);
+  err.line = tok.line;
+  err.col = tok.col;
+  return err;
+}
+var REF_ACTIONS = {
+  cascade: "CASCADE",
+  restrict: "RESTRICT",
+  set_null: "SET NULL",
+  no_action: "NO ACTION",
+  set_default: "SET DEFAULT"
+};
+var Parser = class {
+  toks;
+  pos = 0;
+  warnings = [];
+  constructor(input) {
+    this.toks = tokenize(input).filter((t4) => t4.type !== TokenType.NL);
+  }
+  // ── 토큰 커서 헬퍼 ──────────────────────────────────────────────
+  peek() {
+    return this.toks[this.pos];
+  }
+  next() {
+    return this.toks[this.pos++];
+  }
+  atEof() {
+    return this.peek().type === TokenType.EOF;
+  }
+  // 다음 토큰이 특정 키워드인지(소비하지 않음)
+  isKeyword(kw) {
+    const t4 = this.peek();
+    return t4.type === TokenType.Keyword && t4.value === kw;
+  }
+  // 특정 키워드를 기대하고 소비. 아니면 에러.
+  expectKeyword(kw) {
+    const t4 = this.peek();
+    if (t4.type !== TokenType.Keyword || t4.value !== kw) {
+      throw makeError(`Expected keyword '${kw}'`, t4);
+    }
+    return this.next();
+  }
+  // 특정 토큰 타입을 기대하고 소비. 아니면 에러.
+  expect(type, label) {
+    const t4 = this.peek();
+    if (t4.type !== type) {
+      throw makeError(`Expected ${label}`, t4);
+    }
+    return this.next();
+  }
+  // 식별자(또는 키워드도 식별자로 허용하지 않음 — 식별자만)
+  expectIdent(label = "identifier") {
+    const t4 = this.peek();
+    if (t4.type !== TokenType.Ident) {
+      throw makeError(`Expected ${label}`, t4);
+    }
+    return this.next();
+  }
+  // qname := (ident '.')? ident → { schema?, name }
+  parseQName() {
+    const first = this.expectIdent("table name");
+    if (this.peek().type === TokenType.Dot) {
+      this.next();
+      const second = this.expectIdent("table name");
+      return { schema: first.value, name: second.value };
+    }
+    return { name: first.value };
+  }
+  // ── 진입점 ─────────────────────────────────────────────────────
+  parse() {
+    while (this.peek().type === TokenType.Comment) this.next();
+    let ops = [];
+    let downOps = [];
+    if (this.isKeyword("up")) {
+      ops = this.parseBlock("up");
+    } else {
+      ops = this.parseStatementsUntilEof();
+      return { ops, downOps, warnings: this.warnings };
+    }
+    while (this.peek().type === TokenType.Comment) this.next();
+    if (this.isKeyword("down")) {
+      downOps = this.parseBlock("down");
+    }
+    while (this.peek().type === TokenType.Comment) this.next();
+    if (!this.atEof()) {
+      throw makeError("Unexpected trailing tokens", this.peek());
+    }
+    return { ops, downOps, warnings: this.warnings };
+  }
+  // 'up'|'down' '{' stmt* '}'
+  parseBlock(kw) {
+    this.expectKeyword(kw);
+    this.expect(TokenType.LBrace, "'{'");
+    const ops = [];
+    while (!this.atEof() && this.peek().type !== TokenType.RBrace) {
+      if (this.peek().type === TokenType.Comment) {
+        this.next();
+        continue;
+      }
+      ops.push(this.parseStatement());
+    }
+    this.expect(TokenType.RBrace, "'}'");
+    return ops;
+  }
+  // 블록 없이 톱레벨 문장(EOF 까지)
+  parseStatementsUntilEof() {
+    const ops = [];
+    while (!this.atEof()) {
+      if (this.peek().type === TokenType.Comment) {
+        this.next();
+        continue;
+      }
+      ops.push(this.parseStatement());
+    }
+    return ops;
+  }
+  // 단일 문장 → Operation. 끝에 ';' 강제.
+  parseStatement() {
+    const head = this.peek();
+    if (head.type !== TokenType.Keyword) {
+      throw makeError(`Expected statement keyword, got '${head.value}'`, head);
+    }
+    let op;
+    switch (head.value) {
+      case "create":
+        op = this.parseCreate();
+        break;
+      case "alter":
+        op = this.parseAlter();
+        break;
+      case "drop":
+        op = this.parseDrop();
+        break;
+      case "rename":
+        op = this.parseRenameTable();
+        break;
+      case "add":
+        op = this.parseAdd();
+        break;
+      case "raw":
+        op = this.parseRaw();
+        break;
+      default:
+        throw makeError(`Unknown statement keyword '${head.value}'`, head);
+    }
+    this.expect(TokenType.Semicolon, "';'");
+    return op;
+  }
+  // create table | create [unique] index
+  parseCreate() {
+    this.expectKeyword("create");
+    if (this.isKeyword("table")) {
+      return this.parseCreateTable();
+    }
+    if (this.isKeyword("unique") || this.isKeyword("index")) {
+      return this.parseCreateIndex();
+    }
+    throw makeError("Expected 'table' or 'index' after 'create'", this.peek());
+  }
+  // create table qname '(' column_def (';' column_def)* ')'
+  parseCreateTable() {
+    this.expectKeyword("table");
+    const { schema, name } = this.parseQName();
+    this.expect(TokenType.LParen, "'('");
+    const columns = [];
+    while (this.peek().type !== TokenType.RParen && !this.atEof()) {
+      columns.push(this.parseColumnDef());
+      if (this.peek().type === TokenType.Semicolon) {
+        this.next();
+      } else if (this.peek().type !== TokenType.RParen) {
+        throw makeError("Expected ';' or ')' in column list", this.peek());
+      }
+    }
+    this.expect(TokenType.RParen, "')'");
+    const params = { name, columns };
+    if (schema) params.schema = schema;
+    return this.mkOp("createTable", params);
+  }
+  // column_def := ident type flag*
+  //   flag := 'primary' 'key' | 'auto_increment' | 'not' 'null' | 'null'
+  //         | 'unique' | 'default' (string|number|ident)
+  parseColumnDef() {
+    const nameTok = this.expectIdent("column name");
+    const typeTok = this.parseTypeName();
+    const col = { name: nameTok.value, dataType: typeTok };
+    let sawNotNull = false;
+    let sawNull = false;
+    while (this.peek().type === TokenType.Keyword) {
+      const kw = this.peek().value;
+      if (kw === "primary") {
+        this.next();
+        this.expectKeyword("key");
+        col.isPrimaryKey = true;
+      } else if (kw === "auto_increment") {
+        this.next();
+        col.autoIncrement = true;
+      } else if (kw === "not") {
+        this.next();
+        this.expectKeyword("null");
+        sawNotNull = true;
+      } else if (kw === "null") {
+        this.next();
+        sawNull = true;
+      } else if (kw === "unique") {
+        this.next();
+        col.isUnique = true;
+      } else if (kw === "default") {
+        this.next();
+        col.defaultValue = this.parseDefaultValue();
+      } else {
+        break;
+      }
+    }
+    if (sawNotNull) col.nullable = false;
+    else if (sawNull) col.nullable = true;
+    return col;
+  }
+  // 타입 이름: 식별자(+선택적 '(' 정수 [',' 정수] ')'). 타입에 붙은 길이/정밀도는 이름에 합친다.
+  parseTypeName() {
+    const base = this.expectIdent("type name");
+    let type = base.value;
+    if (this.peek().type === TokenType.LParen) {
+      this.next();
+      const parts = [];
+      while (this.peek().type !== TokenType.RParen && !this.atEof()) {
+        const t4 = this.peek();
+        if (t4.type === TokenType.Number || t4.type === TokenType.Ident) {
+          parts.push(this.next().value);
+        } else if (t4.type === TokenType.Comma) {
+          this.next();
+        } else {
+          throw makeError("Invalid type parameter", t4);
+        }
+      }
+      this.expect(TokenType.RParen, "')'");
+      type += `(${parts.join(",")})`;
+    }
+    return type;
+  }
+  // default 값: 문자열은 따옴표 포함 정규형('...'), 정수/식별자(NULL·CURRENT_TIMESTAMP 등)는 원문
+  parseDefaultValue() {
+    const t4 = this.peek();
+    if (t4.type === TokenType.String) {
+      this.next();
+      return `'${t4.value}'`;
+    }
+    if (t4.type === TokenType.Number) {
+      this.next();
+      return t4.value;
+    }
+    if (t4.type === TokenType.Ident || t4.type === TokenType.Keyword) {
+      this.next();
+      return t4.value.toUpperCase() === "NULL" ? "NULL" : t4.value;
+    }
+    throw makeError("Expected default value", t4);
+  }
+  // alter table qname (add|drop|rename|alter) column ...
+  parseAlter() {
+    this.expectKeyword("alter");
+    this.expectKeyword("table");
+    const { name: table } = this.parseQName();
+    const sub = this.peek();
+    if (sub.type !== TokenType.Keyword) {
+      throw makeError("Expected add/drop/rename/alter in alter table", sub);
+    }
+    switch (sub.value) {
+      case "add": {
+        this.next();
+        this.expectKeyword("column");
+        const colNameTok = this.expectIdent("column name");
+        const typeTok = this.parseTypeName();
+        const params = { table, name: colNameTok.value, dataType: typeTok };
+        let sawNotNull = false;
+        let sawNull = false;
+        while (this.peek().type === TokenType.Keyword) {
+          const kw = this.peek().value;
+          if (kw === "not") {
+            this.next();
+            this.expectKeyword("null");
+            sawNotNull = true;
+          } else if (kw === "null") {
+            this.next();
+            sawNull = true;
+          } else if (kw === "unique") {
+            this.next();
+            params.isUnique = true;
+          } else if (kw === "auto_increment") {
+            this.next();
+            params.autoIncrement = true;
+          } else if (kw === "default") {
+            this.next();
+            params.defaultValue = this.parseDefaultValue();
+          } else break;
+        }
+        if (sawNotNull) params.nullable = false;
+        else if (sawNull) params.nullable = true;
+        return this.mkOp("addColumn", params);
+      }
+      case "drop": {
+        this.next();
+        this.expectKeyword("column");
+        const colNameTok = this.expectIdent("column name");
+        return this.mkOp("dropColumn", { table, name: colNameTok.value });
+      }
+      case "rename": {
+        this.next();
+        this.expectKeyword("column");
+        const oldTok = this.expectIdent("column name");
+        this.expectKeyword("to");
+        const newTok = this.expectIdent("column name");
+        return this.mkOp("renameColumn", { table, oldName: oldTok.value, newName: newTok.value });
+      }
+      case "alter": {
+        this.next();
+        this.expectKeyword("column");
+        const colTok = this.expectIdent("column name");
+        const newType = this.parseTypeName();
+        return this.mkOp("modifyColumnType", { table, column: colTok.value, newType });
+      }
+      default:
+        throw makeError(`Unknown alter action '${sub.value}'`, sub);
+    }
+  }
+  // drop table qname | drop fk name on qname | drop index name on qname
+  parseDrop() {
+    this.expectKeyword("drop");
+    if (this.isKeyword("table")) {
+      this.next();
+      const { name } = this.parseQName();
+      return this.mkOp("dropTable", { name });
+    }
+    if (this.isKeyword("fk")) {
+      this.next();
+      const fkName = this.expectIdent("fk name").value;
+      this.expectKeyword("on");
+      const { name: table } = this.parseQName();
+      return this.mkOp("dropForeignKey", { table, name: fkName });
+    }
+    if (this.isKeyword("index")) {
+      this.next();
+      const idxName = this.expectIdent("index name").value;
+      this.expectKeyword("on");
+      const { name: table } = this.parseQName();
+      return this.mkOp("dropIndex", { table, name: idxName });
+    }
+    throw makeError("Expected 'table', 'fk', or 'index' after 'drop'", this.peek());
+  }
+  // rename table qname to ident
+  parseRenameTable() {
+    this.expectKeyword("rename");
+    this.expectKeyword("table");
+    const { name: oldName } = this.parseQName();
+    this.expectKeyword("to");
+    const newName = this.expectIdent("new table name").value;
+    return this.mkOp("renameTable", { oldName, newName });
+  }
+  // add fk name on qname '(' cols ')' -> qname '(' cols ')' [on delete X] [on update Y]
+  parseAdd() {
+    this.expectKeyword("add");
+    this.expectKeyword("fk");
+    const fkName = this.expectIdent("fk name").value;
+    this.expectKeyword("on");
+    const { name: table } = this.parseQName();
+    const columns = this.parseColumnList();
+    this.expect(TokenType.Arrow, "'->'");
+    const { name: refTable } = this.parseQName();
+    const refColumns = this.parseColumnList();
+    let onDelete = "NO ACTION";
+    let onUpdate = "NO ACTION";
+    while (this.isKeyword("on")) {
+      this.next();
+      if (this.isKeyword("delete")) {
+        this.next();
+        onDelete = this.parseRefAction();
+      } else if (this.isKeyword("update")) {
+        this.next();
+        onUpdate = this.parseRefAction();
+      } else {
+        throw makeError("Expected 'delete' or 'update' after 'on'", this.peek());
+      }
+    }
+    return this.mkOp("addForeignKey", {
+      name: fkName,
+      table,
+      columns,
+      refTable,
+      refColumns,
+      onDelete,
+      onUpdate
+    });
+  }
+  // 참조 동작: cascade/restrict/set null/no action/set default
+  parseRefAction() {
+    const t4 = this.peek();
+    const first = this.consumeWord();
+    let key = first.toLowerCase();
+    if (key === "set" || key === "no") {
+      const second = this.consumeWord();
+      key = `${key}_${second.toLowerCase()}`;
+    }
+    const action = REF_ACTIONS[key];
+    if (!action) {
+      throw makeError(`Unknown referential action '${key.replace("_", " ")}'`, t4);
+    }
+    return action;
+  }
+  // 키워드/식별자 어느 쪽이든 단어 하나를 소비해 값 반환
+  consumeWord() {
+    const t4 = this.peek();
+    if (t4.type === TokenType.Keyword || t4.type === TokenType.Ident) {
+      return this.next().value;
+    }
+    throw makeError("Expected word", t4);
+  }
+  // create [unique] index name on qname '(' cols ')'
+  parseCreateIndex() {
+    let unique = false;
+    if (this.isKeyword("unique")) {
+      this.next();
+      unique = true;
+    }
+    this.expectKeyword("index");
+    const idxName = this.expectIdent("index name").value;
+    this.expectKeyword("on");
+    const { name: table } = this.parseQName();
+    const columns = this.parseColumnList();
+    return this.mkOp("createIndex", { table, name: idxName, columns, unique });
+  }
+  // raw '<sql string>'
+  parseRaw() {
+    this.expectKeyword("raw");
+    const sqlTok = this.expect(TokenType.String, "raw SQL string");
+    return this.mkOp("raw", { sql: sqlTok.value });
+  }
+  // '(' ident (',' ident)* ')'
+  parseColumnList() {
+    this.expect(TokenType.LParen, "'('");
+    const cols = [];
+    cols.push(this.expectIdent("column name").value);
+    while (this.peek().type === TokenType.Comma) {
+      this.next();
+      cols.push(this.expectIdent("column name").value);
+    }
+    this.expect(TokenType.RParen, "')'");
+    return cols;
+  }
+  // Operation 생성(id/timestamp 채움)
+  mkOp(type, params) {
+    return { id: generateId(), type, timestamp: 0, params };
+  }
+};
+function parse2(input) {
+  return new Parser(input).parse();
+}
+
+// src/features/migration/operations/inverse.ts
+function generateInverse(op) {
+  const p4 = op.params;
+  switch (op.type) {
+    case "createTable":
+      return {
+        ...op,
+        type: "dropTable",
+        params: { name: p4.name, _tableData: op.params }
+      };
+    case "dropTable":
+      return p4._tableData ? { ...op, type: "createTable", params: p4._tableData } : null;
+    case "renameTable":
+      return {
+        ...op,
+        type: "renameTable",
+        params: { oldName: p4.newName, newName: p4.oldName }
+      };
+    case "addColumn":
+      return {
+        ...op,
+        type: "dropColumn",
+        params: { table: p4.table, name: p4.name, _columnData: op.params }
+      };
+    case "dropColumn":
+      return p4._columnData ? { ...op, type: "addColumn", params: p4._columnData } : null;
+    case "renameColumn":
+      return {
+        ...op,
+        type: "renameColumn",
+        params: { table: p4.table, oldName: p4.newName, newName: p4.oldName }
+      };
+    case "modifyColumnType":
+      return {
+        ...op,
+        type: "modifyColumnType",
+        params: { table: p4.table, column: p4.column, oldType: p4.newType, newType: p4.oldType }
+      };
+    case "modifyColumnDefault":
+      return {
+        ...op,
+        type: "modifyColumnDefault",
+        params: { table: p4.table, column: p4.column, oldDefault: p4.newDefault, newDefault: p4.oldDefault }
+      };
+    case "setColumnNullable":
+      return {
+        ...op,
+        type: "setColumnNullable",
+        params: { table: p4.table, column: p4.column, nullable: p4.oldNullable, oldNullable: p4.nullable }
+      };
+    case "setColumnAutoIncrement":
+      return {
+        ...op,
+        type: "setColumnAutoIncrement",
+        params: { table: p4.table, column: p4.column, autoIncrement: !p4.autoIncrement }
+      };
+    case "setColumnUnique":
+      return {
+        ...op,
+        type: "setColumnUnique",
+        params: { table: p4.table, column: p4.column, unique: !p4.unique }
+      };
+    case "addPrimaryKey":
+      return {
+        ...op,
+        type: "dropPrimaryKey",
+        params: { table: p4.table, columns: p4.columns }
+      };
+    case "dropPrimaryKey":
+      return {
+        ...op,
+        type: "addPrimaryKey",
+        params: { table: p4.table, columns: p4.columns }
+      };
+    case "addForeignKey": {
+      const fkName = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
+      return {
+        ...op,
+        type: "dropForeignKey",
+        params: { table: p4.table, name: fkName, _fkData: op.params }
+      };
+    }
+    case "dropForeignKey":
+      return p4._fkData ? { ...op, type: "addForeignKey", params: p4._fkData } : null;
+    case "addUniqueConstraint": {
+      const uqName = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
+      return {
+        ...op,
+        type: "dropUniqueConstraint",
+        params: { table: p4.table, name: uqName, columns: p4.columns }
+      };
+    }
+    case "dropUniqueConstraint":
+      return p4.columns ? { ...op, type: "addUniqueConstraint", params: { table: p4.table, name: p4.name, columns: p4.columns } } : null;
+    case "createIndex":
+      return {
+        ...op,
+        type: "dropIndex",
+        params: { table: p4.table, name: p4.name, _indexData: op.params }
+      };
+    case "dropIndex":
+      return p4._indexData ? { ...op, type: "createIndex", params: p4._indexData } : null;
+    default:
+      return null;
+  }
+}
+
+// src/features/migration/mig-dsl/serializer.ts
+var INDENT = "  ";
+function serializeColumnDef(c3) {
+  const parts = [String(c3.name), String(c3.dataType)];
+  if (c3.isPrimaryKey) parts.push("primary key");
+  if (c3.autoIncrement) parts.push("auto_increment");
+  if (c3.nullable === false) parts.push("not null");
+  else if (c3.nullable === true) parts.push("null");
+  if (c3.isUnique) parts.push("unique");
+  if (c3.defaultValue != null) parts.push(`default ${String(c3.defaultValue)}`);
+  return parts.join(" ");
+}
+function qname(name, schema) {
+  return schema ? `${String(schema)}.${String(name)}` : String(name);
+}
+function refAction3(a3) {
+  return String(a3).toLowerCase();
+}
+function serializeOp(op) {
+  const p4 = op.params;
+  switch (op.type) {
+    case "createTable": {
+      const cols = p4.columns ?? [];
+      const header = `create table ${qname(p4.name, p4.schema)} (`;
+      const colLines = cols.map((c3) => `${INDENT}${INDENT}${serializeColumnDef(c3)};`);
+      return `${header}
+${colLines.join("\n")}
+${INDENT});`;
+    }
+    case "addColumn": {
+      const flags = [];
+      if (p4.nullable === false) flags.push("not null");
+      if (p4.isUnique) flags.push("unique");
+      if (p4.autoIncrement) flags.push("auto_increment");
+      if (p4.defaultValue != null) flags.push(`default ${String(p4.defaultValue)}`);
+      const tail = flags.length ? ` ${flags.join(" ")}` : "";
+      return `alter table ${String(p4.table)} add column ${String(p4.name)} ${String(p4.dataType)}${tail};`;
+    }
+    case "dropColumn":
+      return `alter table ${String(p4.table)} drop column ${String(p4.name)};`;
+    case "renameColumn":
+      return `alter table ${String(p4.table)} rename column ${String(p4.oldName)} to ${String(p4.newName)};`;
+    case "modifyColumnType":
+      return `alter table ${String(p4.table)} alter column ${String(p4.column)} ${String(p4.newType)};`;
+    case "dropTable":
+      return `drop table ${qname(p4.name, p4.schema)};`;
+    case "renameTable":
+      return `rename table ${String(p4.oldName)} to ${String(p4.newName)};`;
+    case "addForeignKey": {
+      const cols = p4.columns.join(", ");
+      const refCols = p4.refColumns.join(", ");
+      let s3 = `add fk ${String(p4.name)} on ${String(p4.table)} ( ${cols} ) -> ${String(p4.refTable)} ( ${refCols} )`;
+      s3 += ` on delete ${refAction3(p4.onDelete)} on update ${refAction3(p4.onUpdate)}`;
+      return `${s3};`;
+    }
+    case "dropForeignKey":
+      return `drop fk ${String(p4.name)} on ${String(p4.table)};`;
+    case "createIndex": {
+      const cols = p4.columns.join(", ");
+      const uniq = p4.unique ? "unique " : "";
+      return `create ${uniq}index ${String(p4.name)} on ${String(p4.table)} ( ${cols} );`;
+    }
+    case "dropIndex":
+      return `drop index ${String(p4.name)} on ${String(p4.table)};`;
+    // raw 는 OperationType 에 없으므로 문자열 비교로 처리
+    default:
+      if (op.type === "raw") {
+        return `raw '${String(p4.sql)}';`;
+      }
+      throw new Error(`serialize: unsupported operation type '${op.type}'`);
+  }
+}
+function serializeBlockBody(ops) {
+  return ops.map((op) => {
+    const text = serializeOp(op);
+    return text.split("\n").map((line, i3) => i3 === 0 ? `${INDENT}${line}` : line).join("\n");
+  }).join("\n");
+}
+function serialize(ops, opts = {}) {
+  const upBody = serializeBlockBody(ops);
+  let out2 = `up {
+${upBody}
+}`;
+  if (opts.omitDown) return out2;
+  let downOps = opts.downOps;
+  if (!downOps || downOps.length === 0) {
+    downOps = [];
+    for (let i3 = ops.length - 1; i3 >= 0; i3--) {
+      const inv = generateInverse(ops[i3]);
+      if (inv) downOps.push(inv);
+    }
+  }
+  if (downOps.length > 0) {
+    const downBody = serializeBlockBody(downOps);
+    out2 += `
+down {
+${downBody}
+}`;
+  }
+  return out2;
+}
+
+// src/features/migration/mig-dsl/index.ts
+function parseMig(text) {
+  const { ops, downOps, warnings: warnings2 } = parse2(text);
+  return { ops, downOps, warnings: warnings2 };
+}
+function serializeMig(ops, opts = {}) {
+  return serialize(ops, opts);
+}
+function lintMig(text) {
+  try {
+    parse2(text);
+    return { errors: [] };
+  } catch (e4) {
+    const err = e4;
+    const line = typeof err.line === "number" ? err.line : 1;
+    const col = typeof err.col === "number" ? err.col : 1;
+    const message = (err.message ?? "parse error").replace(/\s*\(line \d+, col \d+\)\s*$/, "");
+    return { errors: [{ line, col, message }] };
+  }
+}
+
+// src/components/panels/db-containers.tsx
+var import_jsx_runtime59 = __toESM(require_jsx_runtime(), 1);
+function EmptyHost({ message }) {
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("div", { className: "flex h-full items-center justify-center p-6 text-center text-xs text-gray-400 dark:text-zinc-600", children: message });
+}
+function mapQueryResult(out2) {
+  const cols = out2.columns ?? [];
+  const rows = out2.rows ?? [];
+  const columns = cols.map((c3, ci) => ({
+    name: c3.name,
+    masked: rows.some((r4) => typeof r4[ci] === "string" && r4[ci].startsWith("<redacted:"))
+  }));
+  return { columns, rows, truncated: !!out2.truncated, rowLimit: out2.rowCount };
+}
+function QueryInner({ host }) {
+  const profile = useSelectedProfile(host);
+  const [result, setResult] = (0, import_react25.useState)(null);
+  const [running, setRunning] = (0, import_react25.useState)(false);
+  const onRun = (0, import_react25.useCallback)(
+    async (sql) => {
+      const id = host.session.selectedProfileId;
+      if (!id) {
+        toast("\uBA3C\uC800 \uC811\uC18D \uD504\uB85C\uD544\uC744 \uC120\uD0DD\uD558\uC138\uC694", "error");
+        return;
+      }
+      setRunning(true);
+      const out2 = await host.run("query-run", { profile: id, sql });
+      setRunning(false);
+      if (!out2.ok) {
+        toast(out2.message ?? "\uCFFC\uB9AC \uC2E4\uD328", "error");
+        return;
+      }
+      setResult(mapQueryResult(out2));
+    },
+    [host]
+  );
+  const profileInfo = profile ? { id: profile.id, name: profile.name, dialect: profile.dialect, readOnly: profile.readOnly } : null;
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(QueryPanel, { onRun, result, profile: profileInfo, running });
+}
+function QueryContainer() {
+  const host = useDbHost();
+  if (!host || !host.live) return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(EmptyHost, { message: "\uC571\uC5D0\uC11C DB Studio \uBDF0\uB97C \uC5F4\uBA74 \uCFFC\uB9AC\uB97C \uC2E4\uD589\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4." });
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(QueryInner, { host });
+}
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b3) => b3.toString(16).padStart(2, "0")).join("");
+}
+function mapOp(op, destructive) {
+  const p4 = op.params;
+  const s3 = (k5) => p4[k5] != null ? String(p4[k5]) : "";
+  switch (op.type) {
+    case "createTable":
+      return { op, object: { name: s3("name"), kind: "add", level: "table" } };
+    case "dropTable":
+      return { op, object: { name: s3("name"), kind: "drop", level: "table", destructive: true } };
+    case "renameTable":
+      return { op, object: { name: s3("to") || s3("name"), kind: "rename", level: "table", detail: `${s3("from")} \u2192 ${s3("to")}` } };
+    case "addColumn":
+      return { op, object: { name: `${s3("table")}.${s3("name")}`, kind: "add", level: "column" } };
+    case "dropColumn":
+      return { op, object: { name: `${s3("table")}.${s3("name")}`, kind: "drop", level: "column", destructive: true } };
+    case "renameColumn":
+      return { op, object: { name: `${s3("table")}.${s3("to")}`, kind: "rename", level: "column", detail: `${s3("from")} \u2192 ${s3("to")}` } };
+    case "modifyColumnType":
+      return {
+        op,
+        object: { name: `${s3("table")}.${s3("column")}`, kind: "change", level: "column", detail: `${s3("oldType")} \u2192 ${s3("newType")}`, destructive }
+      };
+    default: {
+      const table = s3("table") || s3("name");
+      const col = s3("column");
+      const name = col ? `${table}.${col}` : table || op.type;
+      return { op, object: { name, kind: "change", level: col ? "column" : "table", detail: op.type, destructive } };
+    }
+  }
+}
+function buildSyncPlan(direction, catalog, current2, dialect) {
+  const { schema: live } = catalogToSchema(catalog);
+  let ops;
+  let destructive = [];
+  if (direction === "forward") {
+    const plan = buildPushPlan(current2, live, dialect);
+    ops = plan.ops;
+    destructive = plan.destructive;
+  } else {
+    ops = diffSchemas(current2, live);
+  }
+  const destSet = new Set(destructive.map((d3) => d3.op));
+  const mapped = ops.map((op) => mapOp(op, destSet.has(op)));
+  const nameToOps = {};
+  const objects = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const m4 of mapped) {
+    (nameToOps[m4.object.name] ??= []).push(m4.op);
+    if (!seen.has(m4.object.name)) {
+      seen.add(m4.object.name);
+      objects.push(m4.object);
+    }
+  }
+  const preview = { sql: getSQLGenerator(dialect).generateBatch(ops), mig: serializeMig(ops) };
+  return direction === "reverse" ? { objects, nameToOps, preview, reverseCatalog: catalog } : { objects, nameToOps, preview };
+}
+function SyncInner({ host }) {
+  const tables = useStore2((s3) => s3.tables);
+  const relationships = useStore2((s3) => s3.relationships);
+  const dialect = useStore2((s3) => s3.dialect);
+  const selectedId = host.session.selectedProfileId;
+  const [direction, setDirection] = (0, import_react25.useState)("reverse");
+  const [plan, setPlan] = (0, import_react25.useState)({ objects: [], nameToOps: {}, preview: { sql: "", mig: "" } });
+  const [checked, setChecked] = (0, import_react25.useState)({});
+  const [renameChoices, setRenameChoices] = (0, import_react25.useState)({});
+  const [previewMode, setPreviewMode] = (0, import_react25.useState)("sql");
+  const [applying, setApplying] = (0, import_react25.useState)(false);
+  const current2 = (0, import_react25.useMemo)(() => ({ tables, relationships, layers: {} }), [tables, relationships]);
+  const load = (0, import_react25.useCallback)(async () => {
+    if (!selectedId) {
+      setPlan({ objects: [], nameToOps: {}, preview: { sql: "", mig: "" } });
+      return;
+    }
+    const intro = await host.run("db-introspect", { profile: selectedId });
+    if (!intro.ok) {
+      toast(intro.message ?? "\uC2A4\uD0A4\uB9C8 \uC870\uD68C \uC2E4\uD328", "error");
+      return;
+    }
+    const catalog = { tables: intro.tables ?? [] };
+    setPlan(buildSyncPlan(direction, catalog, current2, dialect));
+    setChecked({});
+  }, [host, selectedId, direction, current2, dialect]);
+  (0, import_react25.useEffect)(() => {
+    void load();
+  }, [load]);
+  const isChecked = (0, import_react25.useCallback)(
+    (obj) => checked[obj.name] ?? !obj.destructive,
+    [checked]
+  );
+  const onApply = (0, import_react25.useCallback)(async () => {
+    if (!selectedId) {
+      toast("\uBA3C\uC800 \uC811\uC18D \uD504\uB85C\uD544\uC744 \uC120\uD0DD\uD558\uC138\uC694", "error");
+      return;
+    }
+    setApplying(true);
+    try {
+      if (direction === "reverse") {
+        const out2 = await host.run("db-pull-apply", { catalog: plan.reverseCatalog ?? { tables: [] } });
+        if (!out2.ok) {
+          toast(out2.message ?? "\uB9AC\uBC84\uC2A4 \uC801\uC6A9 \uC2E4\uD328", "error");
+          return;
+        }
+        toast(`\uB9AC\uBC84\uC2A4: \uD14C\uC774\uBE14 ${out2.tables ?? 0}\uAC1C\uB97C \uBAA8\uB378\uB85C \uAC00\uC838\uC654\uC2B5\uB2C8\uB2E4`, "success");
+      } else {
+        const chosen = plan.objects.filter((o3) => isChecked(o3));
+        const applyOps = chosen.flatMap((o3) => plan.nameToOps[o3.name] ?? []);
+        if (applyOps.length === 0) {
+          toast("\uC801\uC6A9\uD560 \uD56D\uBAA9\uC774 \uC5C6\uC2B5\uB2C8\uB2E4", "error");
+          return;
+        }
+        const statements = splitStatements(getSQLGenerator(dialect).generateBatch(applyOps));
+        const mig = serializeMig(applyOps);
+        const checksum = await sha256Hex(mig);
+        const out2 = await host.run("db-migrate", {
+          profile: selectedId,
+          id: `forward-${checksum.slice(0, 12)}`,
+          checksum,
+          statements
+        });
+        if (!out2.ok) {
+          toast(out2.message ?? "\uD3EC\uC6CC\uB4DC \uC801\uC6A9 \uC2E4\uD328", "error");
+          return;
+        }
+        toast(`\uD3EC\uC6CC\uB4DC: \uBB38 ${statements.length}\uAC1C\uB97C \uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4`, "success");
+      }
+      await load();
+    } finally {
+      setApplying(false);
+    }
+  }, [host, selectedId, direction, plan, isChecked, dialect, load]);
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+    SyncPanel,
+    {
+      direction,
+      onDirectionChange: setDirection,
+      objects: plan.objects,
+      checked,
+      onToggle: (name, c3) => setChecked((prev) => ({ ...prev, [name]: c3 })),
+      renameChoices,
+      onRenameChoice: (name, choice) => setRenameChoices((prev) => ({ ...prev, [name]: choice })),
+      previewMode,
+      onPreviewModeChange: setPreviewMode,
+      preview: plan.preview,
+      applying,
+      onApply
+    }
+  );
+}
+function SyncContainer() {
+  const host = useDbHost();
+  if (!host || !host.live) return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(EmptyHost, { message: "\uC571\uC5D0\uC11C DB Studio \uBDF0\uB97C \uC5F4\uBA74 \uC2A4\uD0A4\uB9C8\uB97C \uB3D9\uAE30\uD654\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4." });
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SyncInner, { host });
+}
+function MigrationInner({ host }) {
+  const dialect = useStore2((s3) => s3.dialect);
+  const selectedId = host.session.selectedProfileId;
+  const [dir, setDir] = (0, import_react25.useState)("");
+  const [tab, setTab] = (0, import_react25.useState)("files");
+  const [pending, setPending] = (0, import_react25.useState)([]);
+  const [ledger, setLedger] = (0, import_react25.useState)([]);
+  const [expanded, setExpanded] = (0, import_react25.useState)(null);
+  const [running, setRunning] = (0, import_react25.useState)(false);
+  const refresh = (0, import_react25.useCallback)(async () => {
+    if (!selectedId || !dir.trim()) {
+      setPending([]);
+      setLedger([]);
+      return;
+    }
+    const planOut = await host.run("migration-run", { profile: selectedId, dir: dir.trim() });
+    if (planOut.ok) {
+      setPending((planOut.pending ?? []).map((m4) => ({ id: m4.id, sql: m4.sql })));
+    } else {
+      toast(planOut.message ?? "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC870\uD68C \uC2E4\uD328", "error");
+    }
+    const applied = await host.run("migration-applied", { profile: selectedId });
+    if (applied.ok) {
+      setLedger(
+        (applied.migrations ?? []).map((m4) => ({
+          file: m4.id,
+          checksum: m4.checksum,
+          appliedAt: m4.appliedAt ?? ""
+        }))
+      );
+    }
+  }, [host, selectedId, dir]);
+  (0, import_react25.useEffect)(() => {
+    void refresh();
+  }, [refresh]);
+  const files = (0, import_react25.useMemo)(
+    () => pending.map((m4) => ({ file: m4.id, checksumOk: true, applied: false, sql: m4.sql })),
+    [pending]
+  );
+  const onRun = (0, import_react25.useCallback)(async () => {
+    if (!selectedId || !dir.trim()) {
+      toast("\uD504\uB85C\uD544\uACFC .mig \uB514\uB809\uD130\uB9AC\uB97C \uC9C0\uC815\uD558\uC138\uC694", "error");
+      return;
+    }
+    setRunning(true);
+    const out2 = await host.run("migration-run", { profile: selectedId, dir: dir.trim(), confirm: true });
+    setRunning(false);
+    if (!out2.ok) {
+      toast(out2.message ?? "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC2E4\uD328", "error");
+      return;
+    }
+    toast(`\uB9C8\uC774\uADF8\uB808\uC774\uC158 ${out2.count ?? 0}\uAC74\uC744 \uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4`, "success");
+    await refresh();
+  }, [host, selectedId, dir, refresh]);
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex h-full min-h-0 flex-col", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex shrink-0 items-center gap-2 border-b border-gray-200 dark:border-zinc-800 px-3 py-1.5", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "text-[11px] font-medium text-gray-500 dark:text-zinc-500", children: ".mig dir" }),
+      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+        "input",
+        {
+          value: dir,
+          onChange: (e4) => setDir(e4.target.value),
+          placeholder: "/absolute/path/to/migrations",
+          spellCheck: false,
+          className: "flex-1 rounded border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-950 px-2 py-1 font-mono text-xs text-gray-800 dark:text-zinc-200 outline-none focus-visible:border-blue-500"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("div", { className: "min-h-0 flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+      MigrationPanel,
+      {
+        dialect,
+        activeTab: tab,
+        onTabChange: setTab,
+        files,
+        expandedFile: expanded,
+        onToggleExpand: (f3) => setExpanded((prev) => prev === f3 ? null : f3),
+        onPlan: () => void refresh(),
+        onRun: () => void onRun(),
+        running,
+        ledger
+      }
+    ) })
+  ] });
+}
+function MigrationContainer() {
+  const host = useDbHost();
+  if (!host || !host.live) return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(EmptyHost, { message: "\uC571\uC5D0\uC11C DB Studio \uBDF0\uB97C \uC5F4\uBA74 \uB9C8\uC774\uADF8\uB808\uC774\uC158\uC744 \uC2E4\uD589\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4." });
+  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(MigrationInner, { host });
+}
+
+// src/components/panels/BottomPanel.tsx
+var import_jsx_runtime60 = __toESM(require_jsx_runtime(), 1);
+var TABS2 = [
   { id: "sql", label: "SQL" },
   { id: "mermaid", label: "Mermaid" },
-  { id: "console", label: "Console" }
+  { id: "console", label: "Console" },
+  { id: "query", label: "Query" },
+  { id: "sync", label: "Sync" },
+  { id: "migration", label: "Migration" }
 ];
 function IssueIcon({ level }) {
-  if (level === "error") return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(CircleAlert, { className: "size-3.5 shrink-0 text-red-400" });
-  if (level === "warning") return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(TriangleAlert, { className: "size-3.5 shrink-0 text-yellow-400" });
-  return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(Info, { className: "size-3.5 shrink-0 text-blue-400" });
+  if (level === "error") return /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CircleAlert, { className: "size-3.5 shrink-0 text-red-400" });
+  if (level === "warning") return /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TriangleAlert, { className: "size-3.5 shrink-0 text-yellow-400" });
+  return /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Info, { className: "size-3.5 shrink-0 text-blue-400" });
 }
 function BottomPanel() {
   const activeTab = useStore2((s3) => s3.bottomPanelTab);
@@ -79109,13 +82586,13 @@ function BottomPanel() {
   const tables = useStore2((s3) => s3.tables);
   const relationships = useStore2((s3) => s3.relationships);
   const dialect = useStore2((s3) => s3.dialect);
-  const schema = (0, import_react20.useMemo)(
+  const schema = (0, import_react26.useMemo)(
     () => ({ tables, relationships, layers: {} }),
     [tables, relationships]
   );
-  const ddl = (0, import_react20.useMemo)(() => getDialect(dialect).generate(schema), [schema, dialect]);
-  const mermaidText = (0, import_react20.useMemo)(() => generateMermaid(schema), [schema]);
-  const issues = (0, import_react20.useMemo)(() => validateSchema(schema), [schema]);
+  const ddl = (0, import_react26.useMemo)(() => getDialect(dialect).generate(schema), [schema, dialect]);
+  const mermaidText = (0, import_react26.useMemo)(() => generateMermaid(schema), [schema]);
+  const issues = (0, import_react26.useMemo)(() => validateSchema(schema), [schema]);
   const handleCopy = () => {
     if (activeTab === "sql") {
       navigator.clipboard.writeText(ddl).then(
@@ -79129,9 +82606,9 @@ function BottomPanel() {
       );
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex h-8 shrink-0 items-center justify-between border-b border-gray-200 dark:border-zinc-800 px-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { className: "flex items-center gap-0.5", children: TABS.map((tab) => /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex h-full flex-col bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex h-8 shrink-0 items-center justify-between border-b border-gray-200 dark:border-zinc-800 px-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "flex items-center gap-0.5", children: TABS2.map((tab) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
         "button",
         {
           "data-node": `panel-tab/${tab.id}`,
@@ -79142,22 +82619,26 @@ function BottomPanel() {
           ),
           children: [
             tab.label,
-            tab.id === "console" && issues.some((i3) => i3.level === "error") && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("span", { className: "ml-1 inline-block size-1.5 rounded-full bg-red-400" })
+            tab.id === "console" && issues.some((i3) => i3.level === "error") && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("span", { className: "ml-1 inline-block size-1.5 rounded-full bg-red-400" })
           ]
         },
         tab.id
       )) }),
-      /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-center gap-1", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(Button, { "data-node": "panel-copy", variant: "ghost", size: "icon-xs", className: "text-gray-500 dark:text-zinc-500", onClick: handleCopy, children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(Copy, { className: "size-3" }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(Button, { "data-node": "panel-collapse", variant: "ghost", size: "icon-xs", className: "text-gray-500 dark:text-zinc-500", onClick: togglePanel, children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(ChevronDown, { className: "size-3" }) })
+      /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex items-center gap-1", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Button, { "data-node": "panel-copy", variant: "ghost", size: "icon-xs", className: "text-gray-500 dark:text-zinc-500", onClick: handleCopy, children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Copy, { className: "size-3" }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Button, { "data-node": "panel-collapse", variant: "ghost", size: "icon-xs", className: "text-gray-500 dark:text-zinc-500", onClick: togglePanel, children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(ChevronDown, { className: "size-3" }) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex-1 overflow-auto p-3", children: [
-      activeTab === "sql" && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("pre", { className: "font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("code", { children: ddl }) }),
-      activeTab === "mermaid" && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("pre", { className: "font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("code", { children: mermaidText }) }),
-      activeTab === "console" && /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("div", { className: "space-y-1", children: issues.map((issue, i3) => /* @__PURE__ */ (0, import_jsx_runtime50.jsxs)("div", { className: "flex items-start gap-2 text-sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(IssueIcon, { level: issue.level }),
-        /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
+    activeTab === "query" || activeTab === "sync" || activeTab === "migration" ? /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "min-h-0 flex-1", children: [
+      activeTab === "query" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(QueryContainer, {}),
+      activeTab === "sync" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(SyncContainer, {}),
+      activeTab === "migration" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(MigrationContainer, {})
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex-1 overflow-auto p-3", children: [
+      activeTab === "sql" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("pre", { className: "font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("code", { children: ddl }) }),
+      activeTab === "mermaid" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("pre", { className: "font-mono text-sm text-gray-700 dark:text-zinc-300 whitespace-pre-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("code", { children: mermaidText }) }),
+      activeTab === "console" && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "space-y-1", children: issues.map((issue, i3) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex items-start gap-2 text-sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(IssueIcon, { level: issue.level }),
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
           "span",
           {
             className: cn(
@@ -79175,7 +82656,7 @@ function BottomPanel() {
 }
 
 // src/components/layout/StatusBar.tsx
-var import_jsx_runtime51 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime61 = __toESM(require_jsx_runtime(), 1);
 function StatusBar() {
   const dialect = useStore2((s3) => s3.dialect);
   const zoom = useStore2((s3) => s3.viewport.zoom);
@@ -79204,22 +82685,22 @@ function StatusBar() {
   } else if (selectedEdgeIds.length > 1) {
     selectionInfo = `${selectedEdgeIds.length} relations selected`;
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "flex h-6 shrink-0 items-center justify-between bg-blue-500 px-3 text-white", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "flex items-center gap-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "text-[10px] font-medium uppercase", children: dialectLabel }),
-      /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "text-[10px] font-medium opacity-70", children: selectionInfo })
+  return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: "flex h-6 shrink-0 items-center justify-between bg-blue-500 px-3 text-white", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: "flex items-center gap-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("span", { className: "text-[10px] font-medium uppercase", children: dialectLabel }),
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("span", { className: "text-[10px] font-medium opacity-70", children: selectionInfo })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("div", { className: "flex items-center gap-3", children: [
-      autoLayoutRunning && /* @__PURE__ */ (0, import_jsx_runtime51.jsx)("span", { className: "text-[10px] font-semibold uppercase tracking-wide", children: "Auto Layout Running..." }),
-      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("span", { className: "text-[10px] font-medium", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: "flex items-center gap-3", children: [
+      autoLayoutRunning && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("span", { className: "text-[10px] font-semibold uppercase tracking-wide", children: "Auto Layout Running..." }),
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("span", { className: "text-[10px] font-medium", children: [
         zoomPct,
         "%"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("span", { className: "text-[10px] font-medium", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("span", { className: "text-[10px] font-medium", children: [
         tableCount,
         " tables"
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime51.jsxs)("span", { className: "text-[10px] font-medium", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("span", { className: "text-[10px] font-medium", children: [
         relCount,
         " relations"
       ] })
@@ -79228,7 +82709,7 @@ function StatusBar() {
 }
 
 // src/components/layout/AppLayout.tsx
-var import_jsx_runtime52 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime62 = __toESM(require_jsx_runtime(), 1);
 var LEFT_SIDEBAR_SIZE_PX = 240;
 var RIGHT_SIDEBAR_MIN_PX = 240;
 var MAIN_MIN_PX = 480;
@@ -79241,17 +82722,17 @@ function AppLayout({ canvas }) {
   const rightWidth = useStore2((s3) => s3.rightWidth);
   const bottomHeight = useStore2((s3) => s3.bottomHeight);
   const setPanelSizes = useStore2((s3) => s3.setPanelSizes);
-  const handleMainChange = (0, import_react21.useCallback)((sizes) => {
+  const handleMainChange = (0, import_react27.useCallback)((sizes) => {
     const next = {};
     if (leftSidebarOpen && sizes[0] !== void 0) next.leftWidth = Math.max(LEFT_SIDEBAR_SIZE_PX, Math.round(sizes[0]));
     if (rightSidebarOpen && sizes[2] !== void 0) next.rightWidth = Math.max(RIGHT_SIDEBAR_MIN_PX, Math.round(sizes[2]));
     if (next.leftWidth !== void 0 || next.rightWidth !== void 0) setPanelSizes(next);
   }, [leftSidebarOpen, rightSidebarOpen, setPanelSizes]);
-  const handleVerticalChange = (0, import_react21.useCallback)((sizes) => {
+  const handleVerticalChange = (0, import_react27.useCallback)((sizes) => {
     if (!bottomPanelOpen || sizes[1] === void 0) return;
     setPanelSizes({ bottomHeight: Math.max(BOTTOM_MIN_PX, Math.round(sizes[1])) });
   }, [bottomPanelOpen, setPanelSizes]);
-  const mainSplit = /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(
+  const mainSplit = /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)(
     Ve,
     {
       proportionalLayout: false,
@@ -79259,31 +82740,31 @@ function AppLayout({ canvas }) {
       onChange: handleMainChange,
       className: "h-full w-full",
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(
           Ve.Pane,
           {
             minSize: leftSidebarOpen ? LEFT_SIDEBAR_SIZE_PX : 0,
             maxSize: leftSidebarOpen ? void 0 : 0,
             preferredSize: leftSidebarOpen ? leftWidth : 0,
-            children: leftSidebarOpen ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(LeftSidebar, {}) : null
+            children: leftSidebarOpen ? /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(LeftSidebar, {}) : null
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(Ve.Pane, { minSize: MAIN_MIN_PX, priority: de.High, children: canvas }),
-        /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Ve.Pane, { minSize: MAIN_MIN_PX, priority: de.High, children: canvas }),
+        /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(
           Ve.Pane,
           {
             minSize: rightSidebarOpen ? RIGHT_SIDEBAR_MIN_PX : 0,
             maxSize: rightSidebarOpen ? void 0 : 0,
             preferredSize: rightSidebarOpen ? rightWidth : 0,
-            children: rightSidebarOpen ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(RightSidebar, {}) : null
+            children: rightSidebarOpen ? /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(RightSidebar, {}) : null
           }
         )
       ]
     }
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)("div", { className: "flex h-full flex-col overflow-hidden bg-gray-50 dark:bg-zinc-950", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(Toolbar, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("div", { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime52.jsxs)(
+  return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)("div", { className: "flex h-full flex-col overflow-hidden bg-gray-50 dark:bg-zinc-950", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Toolbar, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)("div", { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)(
       Ve,
       {
         vertical: true,
@@ -79292,25 +82773,25 @@ function AppLayout({ canvas }) {
         onChange: handleVerticalChange,
         className: "h-full w-full",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(Ve.Pane, { minSize: 320, priority: de.High, children: mainSplit }),
-          /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Ve.Pane, { minSize: 320, priority: de.High, children: mainSplit }),
+          /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(
             Ve.Pane,
             {
               minSize: bottomPanelOpen ? BOTTOM_MIN_PX : 0,
               maxSize: bottomPanelOpen ? void 0 : 0,
               preferredSize: bottomPanelOpen ? bottomHeight : 0,
-              children: bottomPanelOpen ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(BottomPanel, {}) : null
+              children: bottomPanelOpen ? /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(BottomPanel, {}) : null
             }
           )
         ]
       }
     ) }),
-    /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(StatusBar, {})
+    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(StatusBar, {})
   ] });
 }
 
 // src/components/canvas/pixi/PixiERDCanvas.tsx
-var import_react24 = __toESM(require_react(), 1);
+var import_react30 = __toESM(require_react(), 1);
 
 // node_modules/pixi.js/lib/environment-browser/browserExt.mjs
 init_Extensions();
@@ -82733,34 +86214,34 @@ function camerasClose(a3, b3) {
 }
 
 // src/components/canvas/CanvasContextMenu.tsx
-var import_react23 = __toESM(require_react(), 1);
+var import_react29 = __toESM(require_react(), 1);
 
 // src/components/canvas/pixi/PixiCanvasContext.tsx
-var import_react22 = __toESM(require_react(), 1);
-var PixiCanvasContext = (0, import_react22.createContext)(null);
+var import_react28 = __toESM(require_react(), 1);
+var PixiCanvasContext = (0, import_react28.createContext)(null);
 var PixiCanvasProvider = PixiCanvasContext.Provider;
 function usePixiCanvas() {
-  return (0, import_react22.useContext)(PixiCanvasContext);
+  return (0, import_react28.useContext)(PixiCanvasContext);
 }
 
 // src/components/ui/context-menu.tsx
-var import_jsx_runtime53 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime63 = __toESM(require_jsx_runtime(), 1);
 function ContextMenu2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(dist_exports7.Root, { "data-slot": "context-menu", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(dist_exports7.Root, { "data-slot": "context-menu", ...props });
 }
 function ContextMenuTrigger2({
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(dist_exports7.Trigger, { "data-slot": "context-menu-trigger", ...props });
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(dist_exports7.Trigger, { "data-slot": "context-menu-trigger", ...props });
 }
 function ContextMenuContent2({
   className,
   ...props
 }) {
   const portalRoot = usePortalRoot();
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(dist_exports7.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(dist_exports7.Portal, { container: portalRoot, children: /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
     dist_exports7.Content,
     {
       "data-slot": "context-menu-content",
@@ -82778,7 +86259,7 @@ function ContextMenuItem2({
   variant = "default",
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
     dist_exports7.Item,
     {
       "data-slot": "context-menu-item",
@@ -82796,7 +86277,7 @@ function ContextMenuSeparator2({
   className,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(
     dist_exports7.Separator,
     {
       "data-slot": "context-menu-separator",
@@ -82807,7 +86288,7 @@ function ContextMenuSeparator2({
 }
 
 // src/components/canvas/CanvasContextMenu.tsx
-var import_jsx_runtime54 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime64 = __toESM(require_jsx_runtime(), 1);
 function CanvasContextMenu({ children }) {
   const canvasApi = usePixiCanvas();
   const addTable = useStore2((s3) => s3.addTable);
@@ -82817,11 +86298,11 @@ function CanvasContextMenu({ children }) {
   const removeRelationship = useStore2((s3) => s3.removeRelationship);
   const selectedNodeIds = useStore2((s3) => s3.selectedNodeIds);
   const selectedEdgeIds = useStore2((s3) => s3.selectedEdgeIds);
-  const clickPos = (0, import_react23.useRef)({ x: 0, y: 0 });
-  const targetNodeId = (0, import_react23.useRef)(null);
-  const targetEdgeId = (0, import_react23.useRef)(null);
-  const [contextKind, setContextKind] = (0, import_react23.useState)("canvas");
-  const onContextMenu = (0, import_react23.useCallback)((e4) => {
+  const clickPos = (0, import_react29.useRef)({ x: 0, y: 0 });
+  const targetNodeId = (0, import_react29.useRef)(null);
+  const targetEdgeId = (0, import_react29.useRef)(null);
+  const [contextKind, setContextKind] = (0, import_react29.useState)("canvas");
+  const onContextMenu = (0, import_react29.useCallback)((e4) => {
     clickPos.current = { x: e4.clientX, y: e4.clientY };
     const edgeId = canvasApi?.hitTestEdgeAt(e4.clientX, e4.clientY) ?? null;
     targetEdgeId.current = edgeId;
@@ -82833,28 +86314,28 @@ function CanvasContextMenu({ children }) {
     targetNodeId.current = canvasApi?.hitTestAt(e4.clientX, e4.clientY) ?? null;
     setContextKind(targetNodeId.current ? "node" : "canvas");
   }, [canvasApi]);
-  const handleAddTable = (0, import_react23.useCallback)(() => {
+  const handleAddTable = (0, import_react29.useCallback)(() => {
     const worldPos = canvasApi?.screenToWorld(clickPos.current.x, clickPos.current.y);
     const position = worldPos ?? { x: 0, y: 0 };
     const newId = addTable({ name: "new_table" });
     setNodePosition(newId, position);
   }, [canvasApi, addTable, setNodePosition]);
-  const handleFitView = (0, import_react23.useCallback)(() => {
+  const handleFitView = (0, import_react29.useCallback)(() => {
     useStore2.getState().fitViewFn?.();
   }, []);
-  const handleDuplicate = (0, import_react23.useCallback)(() => {
+  const handleDuplicate = (0, import_react29.useCallback)(() => {
     const nodeId = targetNodeId.current ?? selectedNodeIds[0];
     if (nodeId) {
       duplicateTable(nodeId);
     }
   }, [duplicateTable, selectedNodeIds]);
-  const handleDelete = (0, import_react23.useCallback)(() => {
+  const handleDelete = (0, import_react29.useCallback)(() => {
     const nodeId = targetNodeId.current ?? selectedNodeIds[0];
     if (nodeId) {
       removeTable(nodeId);
     }
   }, [removeTable, selectedNodeIds]);
-  const handleDeleteRelationship = (0, import_react23.useCallback)(() => {
+  const handleDeleteRelationship = (0, import_react29.useCallback)(() => {
     const edgeId = targetEdgeId.current ?? selectedEdgeIds[0];
     if (edgeId) {
       removeRelationship(edgeId);
@@ -82862,34 +86343,34 @@ function CanvasContextMenu({ children }) {
   }, [removeRelationship, selectedEdgeIds]);
   const isNodeContext = contextKind === "node" || contextKind === "canvas" && selectedNodeIds.length > 0;
   const isEdgeContext = contextKind === "edge" || contextKind === "canvas" && selectedEdgeIds.length > 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenu2, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(ContextMenuTrigger2, { asChild: true, onContextMenu, children }),
-    /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuContent2, { className: "w-48", children: [
-      contextKind !== "edge" && /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(import_jsx_runtime54.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuItem2, { onClick: handleAddTable, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Plus, { className: "size-4" }),
+  return /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenu2, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ContextMenuTrigger2, { asChild: true, onContextMenu, children }),
+    /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuContent2, { className: "w-48", children: [
+      contextKind !== "edge" && /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(import_jsx_runtime64.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuItem2, { onClick: handleAddTable, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Plus, { className: "size-4" }),
           "Add Table Here"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuItem2, { onClick: handleFitView, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Maximize, { className: "size-4" }),
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuItem2, { onClick: handleFitView, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Maximize, { className: "size-4" }),
           "Fit View"
         ] })
       ] }),
-      isNodeContext && /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(import_jsx_runtime54.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(ContextMenuSeparator2, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuItem2, { onClick: handleDuplicate, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Copy, { className: "size-4" }),
+      isNodeContext && /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(import_jsx_runtime64.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ContextMenuSeparator2, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuItem2, { onClick: handleDuplicate, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Copy, { className: "size-4" }),
           "Duplicate"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuItem2, { variant: "destructive", onClick: handleDelete, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Trash2, { className: "size-4" }),
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuItem2, { variant: "destructive", onClick: handleDelete, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Trash2, { className: "size-4" }),
           "Delete"
         ] })
       ] }),
-      isEdgeContext && /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(import_jsx_runtime54.Fragment, { children: [
-        contextKind !== "edge" && /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(ContextMenuSeparator2, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime54.jsxs)(ContextMenuItem2, { variant: "destructive", onClick: handleDeleteRelationship, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Link2Off, { className: "size-4" }),
+      isEdgeContext && /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(import_jsx_runtime64.Fragment, { children: [
+        contextKind !== "edge" && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ContextMenuSeparator2, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(ContextMenuItem2, { variant: "destructive", onClick: handleDeleteRelationship, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Link2Off, { className: "size-4" }),
           "Delete Relationship"
         ] })
       ] })
@@ -82906,7 +86387,7 @@ function blobWorker(code) {
 }
 
 // src/components/canvas/pixi/PixiERDCanvas.tsx
-var import_jsx_runtime55 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime65 = __toESM(require_jsx_runtime(), 1);
 var MIN_ZOOM = 0.02;
 var MAX_ZOOM = 3;
 var CAMERA_TWEEN_MS = 300;
@@ -83059,23 +86540,23 @@ function shouldRedrawGrid(prev, nowCam, elapsedMs, interacting) {
   return dxPx >= minPx || dyPx >= minPx || dz >= minZoomDelta;
 }
 function PixiERDCanvas() {
-  const containerRef = (0, import_react24.useRef)(null);
-  const appRef = (0, import_react24.useRef)(null);
-  const worldRef = (0, import_react24.useRef)(null);
-  const gridGfxRef = (0, import_react24.useRef)(null);
-  const nodeLayerRef = (0, import_react24.useRef)(null);
-  const nodeRenderers = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
-  const edgeRendererRef = (0, import_react24.useRef)(null);
-  const edgeWorkerRef = (0, import_react24.useRef)(null);
-  const edgeWorkerReadyRef = (0, import_react24.useRef)(false);
-  const edgeCanvasRef = (0, import_react24.useRef)(null);
-  const lastEdgeWorkerUpdateAtRef = (0, import_react24.useRef)(0);
-  const edgePickSeqRef = (0, import_react24.useRef)(1);
-  const edgePickInFlightRef = (0, import_react24.useRef)(false);
-  const pendingEdgePickRef = (0, import_react24.useRef)(null);
-  const lastHoverPickReqIdRef = (0, import_react24.useRef)(0);
-  const hoverPickPosRef = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
-  const edgePerfRef = (0, import_react24.useRef)({
+  const containerRef = (0, import_react30.useRef)(null);
+  const appRef = (0, import_react30.useRef)(null);
+  const worldRef = (0, import_react30.useRef)(null);
+  const gridGfxRef = (0, import_react30.useRef)(null);
+  const nodeLayerRef = (0, import_react30.useRef)(null);
+  const nodeRenderers = (0, import_react30.useRef)(/* @__PURE__ */ new Map());
+  const edgeRendererRef = (0, import_react30.useRef)(null);
+  const edgeWorkerRef = (0, import_react30.useRef)(null);
+  const edgeWorkerReadyRef = (0, import_react30.useRef)(false);
+  const edgeCanvasRef = (0, import_react30.useRef)(null);
+  const lastEdgeWorkerUpdateAtRef = (0, import_react30.useRef)(0);
+  const edgePickSeqRef = (0, import_react30.useRef)(1);
+  const edgePickInFlightRef = (0, import_react30.useRef)(false);
+  const pendingEdgePickRef = (0, import_react30.useRef)(null);
+  const lastHoverPickReqIdRef = (0, import_react30.useRef)(0);
+  const hoverPickPosRef = (0, import_react30.useRef)(/* @__PURE__ */ new Map());
+  const edgePerfRef = (0, import_react30.useRef)({
     avgDrawMs: 0,
     edgeCount: 0,
     segmentCount: 0,
@@ -83083,46 +86564,46 @@ function PixiERDCanvas() {
     pickRttMs: 0,
     lastLogAt: 0
   });
-  const spatialRef = (0, import_react24.useRef)(new SpatialIndex());
-  const visibleNodeIdsRef = (0, import_react24.useRef)(/* @__PURE__ */ new Set());
-  const prevSelectedNodeIdsRef = (0, import_react24.useRef)(/* @__PURE__ */ new Set());
-  const lastDragEdgeRedrawAtRef = (0, import_react24.useRef)(0);
-  const lastHoverHitTestAtRef = (0, import_react24.useRef)(0);
-  const lastHoverUiUpdateAtRef = (0, import_react24.useRef)(0);
-  const hoveredEdgeIdRef = (0, import_react24.useRef)(null);
-  const hoverEdgeUiRef = (0, import_react24.useRef)(null);
-  const interactionSimplifyUntilRef = (0, import_react24.useRef)(0);
-  const interactionSimplifiedRef = (0, import_react24.useRef)(false);
-  const tablesSyncGenRef = (0, import_react24.useRef)(0);
-  const positionsSyncGenRef = (0, import_react24.useRef)(0);
-  const qualityRef = (0, import_react24.useRef)(1);
-  const routingModeRef = (0, import_react24.useRef)("direct");
-  const notationStyleRef = (0, import_react24.useRef)("crowsfoot");
-  const edgeDataRef = (0, import_react24.useRef)([]);
-  const edgeIndexByNodeRef = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
-  const edgeByIdRef = (0, import_react24.useRef)(/* @__PURE__ */ new Map());
-  const cachedWorkerEdgesRef = (0, import_react24.useRef)(null);
-  const cachedWorkerEndpointsRef = (0, import_react24.useRef)(null);
-  const onlyVisibleEdgesRef = (0, import_react24.useRef)(true);
-  const onlySelectedEdgesRef = (0, import_react24.useRef)(false);
-  const lastActivityAtRef = (0, import_react24.useRef)(0);
-  const wakeRenderLoopRef = (0, import_react24.useRef)(null);
-  const lastGridDrawAtRef = (0, import_react24.useRef)(0);
-  const lastGridCamRef = (0, import_react24.useRef)(null);
-  const lastGridVisibleRef = (0, import_react24.useRef)(null);
-  const camRef = (0, import_react24.useRef)({ x: 0, y: 0, zoom: 1 });
-  const sizeRef = (0, import_react24.useRef)({ w: 800, h: 600 });
-  const lodRef = (0, import_react24.useRef)(LOD.FULL);
-  const cameraTweenRef = (0, import_react24.useRef)(null);
-  const cancelCameraTween = (0, import_react24.useCallback)(() => {
+  const spatialRef = (0, import_react30.useRef)(new SpatialIndex());
+  const visibleNodeIdsRef = (0, import_react30.useRef)(/* @__PURE__ */ new Set());
+  const prevSelectedNodeIdsRef = (0, import_react30.useRef)(/* @__PURE__ */ new Set());
+  const lastDragEdgeRedrawAtRef = (0, import_react30.useRef)(0);
+  const lastHoverHitTestAtRef = (0, import_react30.useRef)(0);
+  const lastHoverUiUpdateAtRef = (0, import_react30.useRef)(0);
+  const hoveredEdgeIdRef = (0, import_react30.useRef)(null);
+  const hoverEdgeUiRef = (0, import_react30.useRef)(null);
+  const interactionSimplifyUntilRef = (0, import_react30.useRef)(0);
+  const interactionSimplifiedRef = (0, import_react30.useRef)(false);
+  const tablesSyncGenRef = (0, import_react30.useRef)(0);
+  const positionsSyncGenRef = (0, import_react30.useRef)(0);
+  const qualityRef = (0, import_react30.useRef)(1);
+  const routingModeRef = (0, import_react30.useRef)("direct");
+  const notationStyleRef = (0, import_react30.useRef)("crowsfoot");
+  const edgeDataRef = (0, import_react30.useRef)([]);
+  const edgeIndexByNodeRef = (0, import_react30.useRef)(/* @__PURE__ */ new Map());
+  const edgeByIdRef = (0, import_react30.useRef)(/* @__PURE__ */ new Map());
+  const cachedWorkerEdgesRef = (0, import_react30.useRef)(null);
+  const cachedWorkerEndpointsRef = (0, import_react30.useRef)(null);
+  const onlyVisibleEdgesRef = (0, import_react30.useRef)(true);
+  const onlySelectedEdgesRef = (0, import_react30.useRef)(false);
+  const lastActivityAtRef = (0, import_react30.useRef)(0);
+  const wakeRenderLoopRef = (0, import_react30.useRef)(null);
+  const lastGridDrawAtRef = (0, import_react30.useRef)(0);
+  const lastGridCamRef = (0, import_react30.useRef)(null);
+  const lastGridVisibleRef = (0, import_react30.useRef)(null);
+  const camRef = (0, import_react30.useRef)({ x: 0, y: 0, zoom: 1 });
+  const sizeRef = (0, import_react30.useRef)({ w: 800, h: 600 });
+  const lodRef = (0, import_react30.useRef)(LOD.FULL);
+  const cameraTweenRef = (0, import_react30.useRef)(null);
+  const cancelCameraTween = (0, import_react30.useCallback)(() => {
     if (cameraTweenRef.current != null) {
       cancelAnimationFrame(cameraTweenRef.current);
       cameraTweenRef.current = null;
     }
   }, []);
-  const camDirty = (0, import_react24.useRef)(true);
-  const edgeDirty = (0, import_react24.useRef)(true);
-  const ptrRef = (0, import_react24.useRef)({
+  const camDirty = (0, import_react30.useRef)(true);
+  const edgeDirty = (0, import_react30.useRef)(true);
+  const ptrRef = (0, import_react30.useRef)({
     down: false,
     mode: "none",
     nodeId: null,
@@ -83141,15 +86622,15 @@ function PixiERDCanvas() {
     nodeY: 0,
     moved: false
   });
-  const [connectPreview, setConnectPreview] = (0, import_react24.useState)(null);
-  const workerRef = (0, import_react24.useRef)(null);
-  const [canvasApi, setCanvasApi] = (0, import_react24.useState)(null);
-  const [hoverEdgeUi, setHoverEdgeUi] = (0, import_react24.useState)(null);
-  const [renameUi, setRenameUi] = (0, import_react24.useState)(null);
-  const renameInputRef = (0, import_react24.useRef)(null);
-  const commitRenameRef = (0, import_react24.useRef)(() => {
+  const [connectPreview, setConnectPreview] = (0, import_react30.useState)(null);
+  const workerRef = (0, import_react30.useRef)(null);
+  const [canvasApi, setCanvasApi] = (0, import_react30.useState)(null);
+  const [hoverEdgeUi, setHoverEdgeUi] = (0, import_react30.useState)(null);
+  const [renameUi, setRenameUi] = (0, import_react30.useState)(null);
+  const renameInputRef = (0, import_react30.useRef)(null);
+  const commitRenameRef = (0, import_react30.useRef)(() => {
   });
-  const [pixiReady, setPixiReady] = (0, import_react24.useState)(false);
+  const [pixiReady, setPixiReady] = (0, import_react30.useState)(false);
   const wakeRenderLoop = () => wakeRenderLoopRef.current?.();
   const tables = useStore2((s3) => s3.tables);
   const relationships = useStore2((s3) => s3.relationships);
@@ -83167,7 +86648,7 @@ function PixiERDCanvas() {
   const notationStyle = useStore2((s3) => s3.notationStyle);
   const autoLayoutTrigger = useStore2((s3) => s3.autoLayoutTrigger);
   const hoveredRow = useStore2((s3) => s3.hoveredRow);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     qualityRef.current = renderQualityLevel;
     for (const [, r4] of nodeRenderers.current) {
       r4.setRenderQualityLevel(renderQualityLevel);
@@ -83176,23 +86657,23 @@ function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [renderQualityLevel]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     onlyVisibleEdgesRef.current = showOnlyVisibleRelatedEdges;
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [showOnlyVisibleRelatedEdges]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     onlySelectedEdgesRef.current = showOnlySelectedRelatedEdges;
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [showOnlySelectedRelatedEdges]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     routingModeRef.current = edgeRoutingMode;
     edgeRendererRef.current?.setRoutingMode(edgeRoutingMode);
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [edgeRoutingMode]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     notationStyleRef.current = notationStyle;
     edgeRendererRef.current?.setNotation(notationStyle);
     edgeDirty.current = true;
@@ -83207,7 +86688,7 @@ function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   });
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const el = containerRef.current;
     if (!el) return;
     const app = new Application();
@@ -83594,7 +87075,7 @@ function PixiERDCanvas() {
       setCanvasApi(null);
     };
   }, []);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const edgeCanvas = edgeCanvasRef.current;
     const edgeRenderer = edgeRendererRef.current;
     if (!edgeCanvas || !edgeRenderer) return;
@@ -83701,7 +87182,7 @@ function PixiERDCanvas() {
       hoverPickPosRef.current.clear();
     };
   }, [edgeWorkerEnabled]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const unsub = useStore2.subscribe((state, prevState) => {
       const vp = state.viewport;
       const prevVp = prevState.viewport;
@@ -83719,7 +87200,7 @@ function PixiERDCanvas() {
     });
     return () => unsub();
   }, []);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     if (!nodeLayerRef.current) return;
     const layer = nodeLayerRef.current;
     const spatial = spatialRef.current;
@@ -83797,7 +87278,7 @@ function PixiERDCanvas() {
       tablesSyncGenRef.current += 1;
     };
   }, [tables, relationships, pixiReady]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const renderers = nodeRenderers.current;
     if (renderers.size === 0) return;
     const entries = Array.from(renderers.entries());
@@ -83836,7 +87317,7 @@ function PixiERDCanvas() {
       positionsSyncGenRef.current += 1;
     };
   }, [nodePositions]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const prev = prevSelectedNodeIdsRef.current;
     const next = new Set(selectedNodeIds);
     const changedIds = /* @__PURE__ */ new Set([...prev, ...next]);
@@ -83849,7 +87330,7 @@ function PixiERDCanvas() {
     }
     prevSelectedNodeIdsRef.current = next;
   }, [selectedNodeIds]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const allEdges = buildEdgeData(
       useStore2.getState().relationships,
       useStore2.getState().selectedEdgeIds,
@@ -83875,17 +87356,17 @@ function PixiERDCanvas() {
     edgeDirty.current = true;
     wakeRenderLoop();
   }, [relationships, selectedEdgeIds, selectedNodeIds, tables]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     camDirty.current = true;
     wakeRenderLoop();
   }, [showGrid]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     for (const [id, r4] of nodeRenderers.current) {
       r4.setHoveredRow(hoveredRow && hoveredRow.tableId === id ? hoveredRow.index : null);
     }
     wakeRenderLoop();
   }, [hoveredRow]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const el = containerRef.current;
     if (!el) return;
     const setState = useStore2.setState;
@@ -84383,7 +87864,7 @@ function PixiERDCanvas() {
       if (vpSyncTimer) clearTimeout(vpSyncTimer);
     };
   }, []);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const doFitView = () => {
       const all = nodeRenderers.current;
       if (all.size === 0) return;
@@ -84484,7 +87965,7 @@ function PixiERDCanvas() {
       s3.setRenderStatsFn(null);
     };
   }, [cancelCameraTween]);
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     if (autoLayoutTrigger === 0) return;
     const store = useStore2.getState();
     const currentTables = store.tables;
@@ -84553,15 +88034,15 @@ function PixiERDCanvas() {
     }
     setRenameUi(null);
   };
-  (0, import_react24.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     const input = renameInputRef.current;
     if (!renameUi || !input) return;
     const onChange = () => commitRenameRef.current();
     input.addEventListener("change", onChange);
     return () => input.removeEventListener("change", onChange);
   }, [renameUi]);
-  return /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(PixiCanvasProvider, { value: canvasApi, children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CanvasContextMenu, { children: /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "relative h-full w-full", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PixiCanvasProvider, { value: canvasApi, children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(CanvasContextMenu, { children: /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("div", { className: "relative h-full w-full", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
       "div",
       {
         ref: containerRef,
@@ -84571,8 +88052,8 @@ function PixiERDCanvas() {
         style: { outline: "none", background: "var(--bg, #09090b)" }
       }
     ),
-    connectPreview && /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("svg", { className: "pointer-events-none absolute inset-0 z-[70] h-full w-full", "data-node": "connect-preview", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+    connectPreview && /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("svg", { className: "pointer-events-none absolute inset-0 z-[70] h-full w-full", "data-node": "connect-preview", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
         "line",
         {
           x1: connectPreview.x1,
@@ -84584,24 +88065,24 @@ function PixiERDCanvas() {
           strokeDasharray: "6 4"
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("circle", { cx: connectPreview.x2, cy: connectPreview.y2, r: 4, fill: "#60a5fa" })
+      /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("circle", { cx: connectPreview.x2, cy: connectPreview.y2, r: 4, fill: "#60a5fa" })
     ] }),
-    relationshipCreateMode && /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(
+    relationshipCreateMode && /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)(
       "div",
       {
         className: "pointer-events-none absolute left-1/2 top-3 z-[85] flex -translate-x-1/2 items-center gap-2 rounded-full border border-blue-400/60 bg-blue-500/95 px-3 py-1 text-[11px] font-medium text-white shadow-lg",
         "data-node": "relmode-banner",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("span", { className: "font-semibold", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)("span", { className: "font-semibold", children: [
             "\uAD00\uACC4 ",
             relationshipCreateMode
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("span", { className: "opacity-90", children: relationshipCreateSourceTableId ? `\uB300\uC0C1 \uD14C\uC774\uBE14 \uD074\uB9AD (\uC18C\uC2A4: ${tables[relationshipCreateSourceTableId]?.name ?? "?"})` : "\uC18C\uC2A4 \uD14C\uC774\uBE14\uC744 \uD074\uB9AD\uD558\uC138\uC694" }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("span", { className: "opacity-70", children: "\xB7 Esc \uCDE8\uC18C" })
+          /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: "opacity-90", children: relationshipCreateSourceTableId ? `\uB300\uC0C1 \uD14C\uC774\uBE14 \uD074\uB9AD (\uC18C\uC2A4: ${tables[relationshipCreateSourceTableId]?.name ?? "?"})` : "\uC18C\uC2A4 \uD14C\uC774\uBE14\uC744 \uD074\uB9AD\uD558\uC138\uC694" }),
+          /* @__PURE__ */ (0, import_jsx_runtime65.jsx)("span", { className: "opacity-70", children: "\xB7 Esc \uCDE8\uC18C" })
         ]
       }
     ),
-    renameUi && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+    renameUi && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
       "input",
       {
         ref: renameInputRef,
@@ -84631,7 +88112,7 @@ function PixiERDCanvas() {
         onFocus: (e4) => e4.currentTarget.select()
       }
     ),
-    hoverEdgeUi && relationships[hoverEdgeUi.edgeId] && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+    hoverEdgeUi && relationships[hoverEdgeUi.edgeId] && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
       "div",
       {
         className: "pointer-events-none absolute z-[80] max-w-[420px] rounded border border-gray-300 bg-white/95 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-100 px-2 py-1 text-[11px] shadow-lg",
@@ -84655,8 +88136,8 @@ function PixiERDCanvas() {
 }
 
 // src/components/dialogs/CreateTableDialog.tsx
-var import_react25 = __toESM(require_react(), 1);
-var import_jsx_runtime56 = __toESM(require_jsx_runtime(), 1);
+var import_react31 = __toESM(require_react(), 1);
+var import_jsx_runtime66 = __toESM(require_jsx_runtime(), 1);
 function createInitialColumns() {
   return [
     {
@@ -84676,23 +88157,23 @@ function CreateTableDialog() {
   const setNodePosition = useStore2((s3) => s3.setNodePosition);
   const dialect = useStore2((s3) => s3.dialect);
   const dataTypes = DATA_TYPES[dialect] ?? DATA_TYPES["mysql"];
-  const [tableName, setTableName] = (0, import_react25.useState)("");
-  const [schema, setSchema] = (0, import_react25.useState)("public");
-  const [columns, setColumns] = (0, import_react25.useState)(createInitialColumns);
-  const creatingRef = (0, import_react25.useRef)(false);
-  const resetForm = (0, import_react25.useCallback)(() => {
+  const [tableName, setTableName] = (0, import_react31.useState)("");
+  const [schema, setSchema] = (0, import_react31.useState)("public");
+  const [columns, setColumns] = (0, import_react31.useState)(createInitialColumns);
+  const creatingRef = (0, import_react31.useRef)(false);
+  const resetForm = (0, import_react31.useCallback)(() => {
     setTableName("");
     setSchema("public");
     setColumns(createInitialColumns());
   }, []);
-  const handleOpenChange = (0, import_react25.useCallback)(
+  const handleOpenChange = (0, import_react31.useCallback)(
     (nextOpen) => {
       setOpen(nextOpen);
       if (!nextOpen) resetForm();
     },
     [setOpen, resetForm]
   );
-  const addColumnRow = (0, import_react25.useCallback)(() => {
+  const addColumnRow = (0, import_react31.useCallback)(() => {
     setColumns((prev) => [
       ...prev,
       {
@@ -84705,13 +88186,13 @@ function CreateTableDialog() {
       }
     ]);
   }, []);
-  const updateColumnRow = (0, import_react25.useCallback)((id, updates) => {
+  const updateColumnRow = (0, import_react31.useCallback)((id, updates) => {
     setColumns((prev) => prev.map((c3) => c3.id === id ? { ...c3, ...updates } : c3));
   }, []);
-  const removeColumnRow = (0, import_react25.useCallback)((id) => {
+  const removeColumnRow = (0, import_react31.useCallback)((id) => {
     setColumns((prev) => prev.filter((c3) => c3.id !== id));
   }, []);
-  const handleCreate = (0, import_react25.useCallback)(() => {
+  const handleCreate = (0, import_react31.useCallback)(() => {
     if (creatingRef.current) return;
     const name = tableName.trim();
     if (!name) return;
@@ -84740,7 +88221,7 @@ function CreateTableDialog() {
       creatingRef.current = false;
     });
   }, [tableName, columns, dialect, schema, addTable, setNodePosition, setOpen, resetForm]);
-  const handleKeyDown = (0, import_react25.useCallback)(
+  const handleKeyDown = (0, import_react31.useCallback)(
     (e4, columnIndex) => {
       if (e4.key === "Enter" && columnIndex === columns.length - 1) {
         e4.preventDefault();
@@ -84749,15 +88230,15 @@ function CreateTableDialog() {
     },
     [columns.length, addColumnRow]
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogHeader, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(DialogTitle2, { children: "Create New Table" }),
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(DialogDescription2, { children: "Define the table name and initial columns." })
+  return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogHeader, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(DialogTitle2, { children: "Create New Table" }),
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(DialogDescription2, { children: "Define the table name and initial columns." })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("label", { className: "text-sm font-medium", children: "Table Name" }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("label", { className: "text-sm font-medium", children: "Table Name" }),
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
           Input,
           {
             value: tableName,
@@ -84777,9 +88258,9 @@ function CreateTableDialog() {
           }
         )
       ] }),
-      dialect === "postgresql" && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "space-y-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("label", { className: "text-sm font-medium", children: "Schema" }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+      dialect === "postgresql" && /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("label", { className: "text-sm font-medium", children: "Schema" }),
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
           Input,
           {
             value: schema,
@@ -84788,11 +88269,11 @@ function CreateTableDialog() {
           }
         )
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Separator4, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "space-y-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("label", { className: "text-sm font-medium", children: "Columns" }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "space-y-2", children: columns.map((col, index2) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Separator4, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: "space-y-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("label", { className: "text-sm font-medium", children: "Columns" }),
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", { className: "space-y-2", children: columns.map((col, index2) => /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
             Input,
             {
               value: col.name,
@@ -84802,19 +88283,19 @@ function CreateTableDialog() {
               onKeyDown: (e4) => handleKeyDown(e4, index2)
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(
             Select2,
             {
               value: col.dataType,
               onValueChange: (value) => updateColumnRow(col.id, { dataType: value }),
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-xs w-28", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(SelectValue2, {}) }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(SelectContent2, { children: dataTypes.map((type) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(SelectItem2, { value: type, className: "text-xs", children: type }, type)) })
+                /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(SelectTrigger2, { size: "sm", className: "h-8 text-xs w-28", children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(SelectValue2, {}) }),
+                /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(SelectContent2, { children: dataTypes.map((type) => /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(SelectItem2, { value: type, className: "text-xs", children: type }, type)) })
               ]
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
               Checkbox2,
               {
                 checked: col.isPrimaryKey,
@@ -84822,10 +88303,10 @@ function CreateTableDialog() {
                 className: "size-3.5"
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "PK" })
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "PK" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
               Checkbox2,
               {
                 checked: !col.nullable,
@@ -84833,10 +88314,10 @@ function CreateTableDialog() {
                 className: "size-3.5"
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "NN" })
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "NN" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)("label", { className: "flex items-center gap-0.5 shrink-0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
               Checkbox2,
               {
                 checked: col.autoIncrement,
@@ -84844,26 +88325,26 @@ function CreateTableDialog() {
                 className: "size-3.5"
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "AI" })
+            /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("span", { className: "text-[10px] text-muted-foreground", children: "AI" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
             "button",
             {
               onClick: () => removeColumnRow(col.id),
               className: "text-muted-foreground hover:text-red-500 transition-colors shrink-0",
-              children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X2, { className: "size-3.5" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(X2, { className: "size-3.5" })
             }
           )
         ] }, col.id)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Button, { variant: "ghost", size: "xs", onClick: addColumnRow, className: "w-full", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Plus, { className: "size-3.5" }),
+        /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(Button, { variant: "ghost", size: "xs", onClick: addColumnRow, className: "w-full", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Plus, { className: "size-3.5" }),
           "Add Column"
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogFooter, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
-      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogFooter, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(
         Button,
         {
           onClick: handleCreate,
@@ -84877,7 +88358,7 @@ function CreateTableDialog() {
 }
 
 // src/components/dialogs/ImportSQLDialog.tsx
-var import_react26 = __toESM(require_react(), 1);
+var import_react32 = __toESM(require_react(), 1);
 
 // src/lib/perf.ts
 var PERF_KEY = "__ERD_PERF";
@@ -85083,7 +88564,7 @@ function getPrefixKey(name) {
 }
 
 // src/components/dialogs/ImportSQLDialog.tsx
-var import_jsx_runtime57 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime67 = __toESM(require_jsx_runtime(), 1);
 function createImportWorker() {
   return blobWorker('(()=>{var y="useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";var R=(n=21)=>{let e="",c=crypto.getRandomValues(new Uint8Array(n|=0));for(;n--;)e+=y[c[n]&63];return e};function f(){return R(12)}function S(n){let e={tables:{},relationships:{},layers:{}},c=n.replace(/--[^\\n]*/g,"").replace(/\\/\\*[\\s\\S]*?\\*\\//g,""),t=U(c);for(let o of t){let i=f(),s={id:i,name:o.tableName,schema:o.schema||void 0,columns:[],indexes:[]},m=[],u=[],r=w(o.body);for(let p of r){let l=p.trim();if(!l)continue;let d=l.match(/^\\s*PRIMARY\\s+KEY\\s*\\(([^)]+)\\)/i);if(d){let g=d[1].split(",").map(I=>I.trim().replace(/`/g,""));u.push(...g);continue}if(l.match(/^\\s*(?:CONSTRAINT\\s+`?\\w+`?\\s+)?UNIQUE\\s+(?:KEY\\s+)?(?:`?\\w+`?\\s+)?\\(([^)]+)\\)/i)||/^\\s*(?:INDEX|KEY)\\s/i.test(l))continue;let T=l.match(/^\\s*(?:CONSTRAINT\\s+`?(\\w+)`?\\s+)?FOREIGN\\s+KEY\\s*\\(([^)]+)\\)\\s*REFERENCES\\s+`?(\\w+)`?\\s*\\(([^)]+)\\)(?:\\s+ON\\s+DELETE\\s+(CASCADE|SET\\s+NULL|SET\\s+DEFAULT|RESTRICT|NO\\s+ACTION))?(?:\\s+ON\\s+UPDATE\\s+(CASCADE|SET\\s+NULL|SET\\s+DEFAULT|RESTRICT|NO\\s+ACTION))?/i);if(T){m.push({constraintName:T[1],columns:T[2].split(",").map(g=>g.trim().replace(/`/g,"")),refTable:T[3],refColumns:T[4].split(",").map(g=>g.trim().replace(/`/g,"")),onDelete:A(T[5]),onUpdate:A(T[6])});continue}let E=l.match(/^\\s*`?(\\w+)`?\\s+(\\w+(?:\\s*\\([^)]*\\))?(?:\\s+(?:UNSIGNED|SIGNED|ZEROFILL))*)/i);if(E){let g=E[1],I=E[2].toUpperCase(),C=l.slice(E[0].length).toUpperCase(),N={id:f(),name:g,dataType:O(I),nullable:!C.includes("NOT NULL"),autoIncrement:C.includes("AUTO_INCREMENT")||C.includes("SERIAL"),isPrimaryKey:C.includes("PRIMARY KEY"),isUnique:C.includes("UNIQUE")},b=C.match(/DEFAULT\\s+(\'(?:[^\'\\\\]|\\\\.)*\'|\\S+)/i);b&&(N.defaultValue=b[1].replace(/^\'|\'$/g,"")),s.columns.push(N)}}for(let p of u){let l=s.columns.find(d=>d.name.toLowerCase()===p.toLowerCase());l&&(l.isPrimaryKey=!0)}e.tables[i]=s;for(let p of m){let l=f();e._pendingFKs??=[],e._pendingFKs.push({...p,sourceTableId:i,relId:l})}}let a=e._pendingFKs;if(a){for(let o of a){let i=Object.values(e.tables).find(r=>r.name.toLowerCase()===o.refTable.toLowerCase());if(!i)continue;let s=e.tables[o.sourceTableId];if(!s)continue;let m=o.refColumns.map(r=>i.columns.find(p=>p.name.toLowerCase()===r.toLowerCase())?.id).filter(r=>!!r),u=o.columns.map(r=>s.columns.find(p=>p.name.toLowerCase()===r.toLowerCase())?.id).filter(r=>!!r);e.relationships[o.relId]={id:o.relId,name:o.constraintName,sourceTableId:i.id,targetTableId:s.id,type:"1:N",sourceColumnIds:m,targetColumnIds:u,onDelete:o.onDelete??"NO ACTION",onUpdate:o.onUpdate??"NO ACTION"}}delete e._pendingFKs}return e}function U(n){let e=[],c=/CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:`?(\\w+)`?\\.)?`?(\\w+)`?\\s*\\(/gi,t;for(;(t=c.exec(n))!==null;){let a=t[1]||null,o=t[2],i=t.index+t[0].length,s=1,m=i;for(;m<n.length&&s>0;){let r=n[m];r==="("?s++:r===")"&&s--,m++}if(s!==0)continue;let u=n.slice(i,m-1);e.push({schema:a,tableName:o,body:u})}return e}function w(n){let e=[],c=0,t="";for(let a of n){if(a==="(")c++;else if(a===")")c--;else if(a===","&&c===0){e.push(t),t="";continue}t+=a}return t.trim()&&e.push(t),e}function A(n){if(!n)return"NO ACTION";switch(n.toUpperCase().replace(/\\s+/g," ").trim()){case"CASCADE":return"CASCADE";case"SET NULL":return"SET NULL";case"SET DEFAULT":return"SET DEFAULT";case"RESTRICT":return"RESTRICT";case"NO ACTION":return"NO ACTION";default:return"NO ACTION"}}function O(n){return n.replace(/\\s+/g," ").trim()}function D(n){let e={tables:{},relationships:{},layers:{}},c=n.split(`\n`).map(a=>a.trim()).filter(a=>a&&!a.startsWith("erDiagram")&&!a.startsWith("%%")),t=null;for(let a of c){let o=a.match(/^(\\w+)\\s*\\{$/);if(o){let s=f();t={id:s,name:o[1],columns:[],indexes:[]},e.tables[s]=t;continue}if(a==="}"){t=null;continue}if(t){let s=a.match(/^(\\w+)\\s+(\\w+)(.*)$/);if(s){let m=s[1].toUpperCase(),u=s[2],r=s[3].toUpperCase();t.columns.push({id:f(),name:u,dataType:m,nullable:!r.includes("NOT NULL")&&!r.includes("PK"),autoIncrement:!1,isPrimaryKey:r.includes("PK"),isUnique:r.includes("UK")})}continue}let i=a.match(/^(\\w+)\\s+(\\|{1,2}|[{}]o?)(--)(\\|{1,2}|o?[{}])\\s+(\\w+)\\s*:\\s*"?([^"]*)"?$/);if(i){let s=i[1],m=i[2],u=i[4],r=i[5],p="1:N";u.includes("{")||m.includes("{")?u.includes("{")&&m.includes("}")?p="N:M":p="1:N":p="1:1";let l=Object.values(e.tables).find(h=>h.name===s),d=Object.values(e.tables).find(h=>h.name===r);if(l&&d){let h=f();e.relationships[h]={id:h,name:i[6]?.trim()||void 0,sourceTableId:l.id,targetTableId:d.id,type:p,sourceColumnIds:[],targetColumnIds:[],onDelete:"NO ACTION",onUpdate:"NO ACTION"}}}}return e}self.onmessage=n=>{let{type:e,payload:c}=n.data;try{if(e==="parseSQL"){let t=S(c.sql);self.postMessage({type:"parseResult",schema:t})}else if(e==="parseMermaid"){let t=D(c.text);self.postMessage({type:"parseResult",schema:t})}}catch(t){self.postMessage({type:"error",message:t instanceof Error?t.message:"Unknown parsing error"})}};})();\n');
 }
@@ -85094,16 +88575,16 @@ function ImportSQLDialog() {
   const clearSchema = useStore2((s3) => s3.clearSchema);
   const setNodePositions = useStore2((s3) => s3.setNodePositions);
   const dialect = useStore2((s3) => s3.dialect);
-  const [sqlText, setSqlText] = (0, import_react26.useState)("");
-  const [selectedDialect, setSelectedDialect] = (0, import_react26.useState)(dialect);
-  const [mode, setMode] = (0, import_react26.useState)("replace");
-  const [error, setError] = (0, import_react26.useState)(null);
-  const [importing, setImporting] = (0, import_react26.useState)(false);
-  const [preview, setPreview] = (0, import_react26.useState)(null);
-  const fileInputRef = (0, import_react26.useRef)(null);
-  const previewWorkerRef = (0, import_react26.useRef)(null);
-  const previewTimerRef = (0, import_react26.useRef)(null);
-  (0, import_react26.useEffect)(() => {
+  const [sqlText, setSqlText] = (0, import_react32.useState)("");
+  const [selectedDialect, setSelectedDialect] = (0, import_react32.useState)(dialect);
+  const [mode, setMode] = (0, import_react32.useState)("replace");
+  const [error, setError] = (0, import_react32.useState)(null);
+  const [importing, setImporting] = (0, import_react32.useState)(false);
+  const [preview, setPreview] = (0, import_react32.useState)(null);
+  const fileInputRef = (0, import_react32.useRef)(null);
+  const previewWorkerRef = (0, import_react32.useRef)(null);
+  const previewTimerRef = (0, import_react32.useRef)(null);
+  (0, import_react32.useEffect)(() => {
     if (!sqlText.trim()) {
       return;
     }
@@ -85135,13 +88616,13 @@ function ImportSQLDialog() {
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     };
   }, [sqlText]);
-  (0, import_react26.useEffect)(() => {
+  (0, import_react32.useEffect)(() => {
     return () => {
       previewWorkerRef.current?.terminate();
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     };
   }, []);
-  const handleFileUpload = (0, import_react26.useCallback)((e4) => {
+  const handleFileUpload = (0, import_react32.useCallback)((e4) => {
     const file = e4.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -85152,13 +88633,13 @@ function ImportSQLDialog() {
     };
     reader.readAsText(file);
   }, []);
-  const resetForm = (0, import_react26.useCallback)(() => {
+  const resetForm = (0, import_react32.useCallback)(() => {
     setSqlText("");
     setError(null);
     setPreview(null);
     setMode("replace");
   }, []);
-  const handleImport = (0, import_react26.useCallback)(() => {
+  const handleImport = (0, import_react32.useCallback)(() => {
     if (importing) return;
     setImporting(true);
     setError(null);
@@ -85225,54 +88706,54 @@ function ImportSQLDialog() {
       payload: { sql: sqlText }
     });
   }, [sqlText, mode, selectedDialect, clearSchema, loadSchema, setNodePositions, setOpen, importing, resetForm]);
-  const handleOpenChange = (0, import_react26.useCallback)((nextOpen) => {
+  const handleOpenChange = (0, import_react32.useCallback)((nextOpen) => {
     setOpen(nextOpen);
     if (!nextOpen) resetForm();
   }, [setOpen, resetForm]);
-  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogContent2, { className: "sm:max-w-lg", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogHeader, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(DialogTitle2, { children: "Import SQL" }),
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(DialogDescription2, { children: "Paste SQL DDL or upload a .sql file to import tables." })
+  return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(DialogContent2, { className: "sm:max-w-lg", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(DialogHeader, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(DialogTitle2, { children: "Import SQL" }),
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(DialogDescription2, { children: "Paste SQL DDL or upload a .sql file to import tables." })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex items-center gap-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex-1", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("label", { className: "text-sm font-medium", children: "Dialect" }),
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(Select2, { value: selectedDialect, onValueChange: (v4) => setSelectedDialect(v4), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectTrigger2, { size: "sm", className: "mt-1", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectValue2, {}) }),
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(SelectContent2, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItem2, { value: "mysql", children: "MySQL" }),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItem2, { value: "postgresql", children: "PostgreSQL" })
+    /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { className: "flex-1", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("label", { className: "text-sm font-medium", children: "Dialect" }),
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(Select2, { value: selectedDialect, onValueChange: (v4) => setSelectedDialect(v4), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectTrigger2, { size: "sm", className: "mt-1", children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectValue2, {}) }),
+            /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(SelectContent2, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectItem2, { value: "mysql", children: "MySQL" }),
+              /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectItem2, { value: "postgresql", children: "PostgreSQL" })
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex-1", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectTrigger2, { size: "sm", className: "mt-1", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectValue2, {}) }),
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(SelectContent2, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItem2, { value: "merge", children: "Merge" })
+        /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { className: "flex-1", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectTrigger2, { size: "sm", className: "mt-1", children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectValue2, {}) }),
+            /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(SelectContent2, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
+              /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(SelectItem2, { value: "merge", children: "Merge" })
             ] })
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex items-center justify-between mb-1", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("label", { className: "text-sm font-medium", children: "SQL" }),
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("div", { className: "flex items-center justify-between mb-1", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("label", { className: "text-sm font-medium", children: "SQL" }),
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(
             Button,
             {
               variant: "ghost",
               size: "xs",
               onClick: () => fileInputRef.current?.click(),
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Upload, { className: "size-3 mr-1" }),
+                /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Upload, { className: "size-3 mr-1" }),
                 "Upload .sql"
               ]
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
             "input",
             {
               ref: fileInputRef,
@@ -85283,7 +88764,7 @@ function ImportSQLDialog() {
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
           Textarea,
           {
             value: sqlText,
@@ -85297,25 +88778,25 @@ function ImportSQLDialog() {
           }
         )
       ] }),
-      preview && preview.tableCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
+      preview && preview.tableCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
         "Detected ",
         preview.tableCount,
         " table",
         preview.tableCount > 1 ? "s" : "",
         preview.relCount > 0 && `, ${preview.relCount} relationship${preview.relCount > 1 ? "s" : ""}`
       ] }),
-      error && /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("p", { className: "text-xs text-red-500", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("p", { className: "text-xs text-red-500", children: error })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogFooter, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
-      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(DialogFooter, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
         Button,
         {
           onClick: handleImport,
           disabled: !sqlText.trim() || importing,
           className: "bg-blue-600 hover:bg-blue-700 text-white",
-          children: importing ? /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(import_jsx_runtime57.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
+          children: importing ? /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(import_jsx_runtime67.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
             "Parsing..."
           ] }) : "Import"
         }
@@ -85325,8 +88806,8 @@ function ImportSQLDialog() {
 }
 
 // src/components/dialogs/ImportMermaidDialog.tsx
-var import_react27 = __toESM(require_react(), 1);
-var import_jsx_runtime58 = __toESM(require_jsx_runtime(), 1);
+var import_react33 = __toESM(require_react(), 1);
+var import_jsx_runtime68 = __toESM(require_jsx_runtime(), 1);
 function createImportWorker2() {
   return blobWorker('(()=>{var y="useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";var R=(n=21)=>{let e="",c=crypto.getRandomValues(new Uint8Array(n|=0));for(;n--;)e+=y[c[n]&63];return e};function f(){return R(12)}function S(n){let e={tables:{},relationships:{},layers:{}},c=n.replace(/--[^\\n]*/g,"").replace(/\\/\\*[\\s\\S]*?\\*\\//g,""),t=U(c);for(let o of t){let i=f(),s={id:i,name:o.tableName,schema:o.schema||void 0,columns:[],indexes:[]},m=[],u=[],r=w(o.body);for(let p of r){let l=p.trim();if(!l)continue;let d=l.match(/^\\s*PRIMARY\\s+KEY\\s*\\(([^)]+)\\)/i);if(d){let g=d[1].split(",").map(I=>I.trim().replace(/`/g,""));u.push(...g);continue}if(l.match(/^\\s*(?:CONSTRAINT\\s+`?\\w+`?\\s+)?UNIQUE\\s+(?:KEY\\s+)?(?:`?\\w+`?\\s+)?\\(([^)]+)\\)/i)||/^\\s*(?:INDEX|KEY)\\s/i.test(l))continue;let T=l.match(/^\\s*(?:CONSTRAINT\\s+`?(\\w+)`?\\s+)?FOREIGN\\s+KEY\\s*\\(([^)]+)\\)\\s*REFERENCES\\s+`?(\\w+)`?\\s*\\(([^)]+)\\)(?:\\s+ON\\s+DELETE\\s+(CASCADE|SET\\s+NULL|SET\\s+DEFAULT|RESTRICT|NO\\s+ACTION))?(?:\\s+ON\\s+UPDATE\\s+(CASCADE|SET\\s+NULL|SET\\s+DEFAULT|RESTRICT|NO\\s+ACTION))?/i);if(T){m.push({constraintName:T[1],columns:T[2].split(",").map(g=>g.trim().replace(/`/g,"")),refTable:T[3],refColumns:T[4].split(",").map(g=>g.trim().replace(/`/g,"")),onDelete:A(T[5]),onUpdate:A(T[6])});continue}let E=l.match(/^\\s*`?(\\w+)`?\\s+(\\w+(?:\\s*\\([^)]*\\))?(?:\\s+(?:UNSIGNED|SIGNED|ZEROFILL))*)/i);if(E){let g=E[1],I=E[2].toUpperCase(),C=l.slice(E[0].length).toUpperCase(),N={id:f(),name:g,dataType:O(I),nullable:!C.includes("NOT NULL"),autoIncrement:C.includes("AUTO_INCREMENT")||C.includes("SERIAL"),isPrimaryKey:C.includes("PRIMARY KEY"),isUnique:C.includes("UNIQUE")},b=C.match(/DEFAULT\\s+(\'(?:[^\'\\\\]|\\\\.)*\'|\\S+)/i);b&&(N.defaultValue=b[1].replace(/^\'|\'$/g,"")),s.columns.push(N)}}for(let p of u){let l=s.columns.find(d=>d.name.toLowerCase()===p.toLowerCase());l&&(l.isPrimaryKey=!0)}e.tables[i]=s;for(let p of m){let l=f();e._pendingFKs??=[],e._pendingFKs.push({...p,sourceTableId:i,relId:l})}}let a=e._pendingFKs;if(a){for(let o of a){let i=Object.values(e.tables).find(r=>r.name.toLowerCase()===o.refTable.toLowerCase());if(!i)continue;let s=e.tables[o.sourceTableId];if(!s)continue;let m=o.refColumns.map(r=>i.columns.find(p=>p.name.toLowerCase()===r.toLowerCase())?.id).filter(r=>!!r),u=o.columns.map(r=>s.columns.find(p=>p.name.toLowerCase()===r.toLowerCase())?.id).filter(r=>!!r);e.relationships[o.relId]={id:o.relId,name:o.constraintName,sourceTableId:i.id,targetTableId:s.id,type:"1:N",sourceColumnIds:m,targetColumnIds:u,onDelete:o.onDelete??"NO ACTION",onUpdate:o.onUpdate??"NO ACTION"}}delete e._pendingFKs}return e}function U(n){let e=[],c=/CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:`?(\\w+)`?\\.)?`?(\\w+)`?\\s*\\(/gi,t;for(;(t=c.exec(n))!==null;){let a=t[1]||null,o=t[2],i=t.index+t[0].length,s=1,m=i;for(;m<n.length&&s>0;){let r=n[m];r==="("?s++:r===")"&&s--,m++}if(s!==0)continue;let u=n.slice(i,m-1);e.push({schema:a,tableName:o,body:u})}return e}function w(n){let e=[],c=0,t="";for(let a of n){if(a==="(")c++;else if(a===")")c--;else if(a===","&&c===0){e.push(t),t="";continue}t+=a}return t.trim()&&e.push(t),e}function A(n){if(!n)return"NO ACTION";switch(n.toUpperCase().replace(/\\s+/g," ").trim()){case"CASCADE":return"CASCADE";case"SET NULL":return"SET NULL";case"SET DEFAULT":return"SET DEFAULT";case"RESTRICT":return"RESTRICT";case"NO ACTION":return"NO ACTION";default:return"NO ACTION"}}function O(n){return n.replace(/\\s+/g," ").trim()}function D(n){let e={tables:{},relationships:{},layers:{}},c=n.split(`\n`).map(a=>a.trim()).filter(a=>a&&!a.startsWith("erDiagram")&&!a.startsWith("%%")),t=null;for(let a of c){let o=a.match(/^(\\w+)\\s*\\{$/);if(o){let s=f();t={id:s,name:o[1],columns:[],indexes:[]},e.tables[s]=t;continue}if(a==="}"){t=null;continue}if(t){let s=a.match(/^(\\w+)\\s+(\\w+)(.*)$/);if(s){let m=s[1].toUpperCase(),u=s[2],r=s[3].toUpperCase();t.columns.push({id:f(),name:u,dataType:m,nullable:!r.includes("NOT NULL")&&!r.includes("PK"),autoIncrement:!1,isPrimaryKey:r.includes("PK"),isUnique:r.includes("UK")})}continue}let i=a.match(/^(\\w+)\\s+(\\|{1,2}|[{}]o?)(--)(\\|{1,2}|o?[{}])\\s+(\\w+)\\s*:\\s*"?([^"]*)"?$/);if(i){let s=i[1],m=i[2],u=i[4],r=i[5],p="1:N";u.includes("{")||m.includes("{")?u.includes("{")&&m.includes("}")?p="N:M":p="1:N":p="1:1";let l=Object.values(e.tables).find(h=>h.name===s),d=Object.values(e.tables).find(h=>h.name===r);if(l&&d){let h=f();e.relationships[h]={id:h,name:i[6]?.trim()||void 0,sourceTableId:l.id,targetTableId:d.id,type:p,sourceColumnIds:[],targetColumnIds:[],onDelete:"NO ACTION",onUpdate:"NO ACTION"}}}}return e}self.onmessage=n=>{let{type:e,payload:c}=n.data;try{if(e==="parseSQL"){let t=S(c.sql);self.postMessage({type:"parseResult",schema:t})}else if(e==="parseMermaid"){let t=D(c.text);self.postMessage({type:"parseResult",schema:t})}}catch(t){self.postMessage({type:"error",message:t instanceof Error?t.message:"Unknown parsing error"})}};})();\n');
 }
@@ -85336,14 +88817,14 @@ function ImportMermaidDialog() {
   const loadSchema = useStore2((s3) => s3.loadSchema);
   const clearSchema = useStore2((s3) => s3.clearSchema);
   const setNodePositions = useStore2((s3) => s3.setNodePositions);
-  const [mermaidText, setMermaidText] = (0, import_react27.useState)("");
-  const [mode, setMode] = (0, import_react27.useState)("replace");
-  const [error, setError] = (0, import_react27.useState)(null);
-  const [importing, setImporting] = (0, import_react27.useState)(false);
-  const [preview, setPreview] = (0, import_react27.useState)(null);
-  const previewWorkerRef = (0, import_react27.useRef)(null);
-  const previewTimerRef = (0, import_react27.useRef)(null);
-  (0, import_react27.useEffect)(() => {
+  const [mermaidText, setMermaidText] = (0, import_react33.useState)("");
+  const [mode, setMode] = (0, import_react33.useState)("replace");
+  const [error, setError] = (0, import_react33.useState)(null);
+  const [importing, setImporting] = (0, import_react33.useState)(false);
+  const [preview, setPreview] = (0, import_react33.useState)(null);
+  const previewWorkerRef = (0, import_react33.useRef)(null);
+  const previewTimerRef = (0, import_react33.useRef)(null);
+  (0, import_react33.useEffect)(() => {
     if (!mermaidText.trim()) {
       return;
     }
@@ -85374,19 +88855,19 @@ function ImportMermaidDialog() {
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     };
   }, [mermaidText]);
-  (0, import_react27.useEffect)(() => {
+  (0, import_react33.useEffect)(() => {
     return () => {
       previewWorkerRef.current?.terminate();
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     };
   }, []);
-  const resetForm = (0, import_react27.useCallback)(() => {
+  const resetForm = (0, import_react33.useCallback)(() => {
     setMermaidText("");
     setError(null);
     setPreview(null);
     setMode("replace");
   }, []);
-  const handleImport = (0, import_react27.useCallback)(() => {
+  const handleImport = (0, import_react33.useCallback)(() => {
     if (importing) return;
     setImporting(true);
     setError(null);
@@ -85452,29 +88933,29 @@ function ImportMermaidDialog() {
       payload: { text: mermaidText }
     });
   }, [mermaidText, mode, clearSchema, loadSchema, setNodePositions, setOpen, importing, resetForm]);
-  const handleOpenChange = (0, import_react27.useCallback)((nextOpen) => {
+  const handleOpenChange = (0, import_react33.useCallback)((nextOpen) => {
     setOpen(nextOpen);
     if (!nextOpen) resetForm();
   }, [setOpen, resetForm]);
-  return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogContent2, { className: "sm:max-w-lg", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogHeader, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(DialogTitle2, { children: "Import Mermaid" }),
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(DialogDescription2, { children: "Paste a Mermaid erDiagram to import tables and relationships." })
+  return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(DialogContent2, { className: "sm:max-w-lg", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(DialogHeader, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(DialogTitle2, { children: "Import Mermaid" }),
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(DialogDescription2, { children: "Paste a Mermaid erDiagram to import tables and relationships." })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
-        /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(SelectTrigger2, { size: "sm", className: "mt-1 w-40", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(SelectValue2, {}) }),
-          /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(SelectContent2, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
-            /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(SelectItem2, { value: "merge", children: "Merge" })
+    /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(SelectTrigger2, { size: "sm", className: "mt-1 w-40", children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(SelectValue2, {}) }),
+          /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(SelectContent2, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
+            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(SelectItem2, { value: "merge", children: "Merge" })
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("label", { className: "text-sm font-medium mb-1 block", children: "Mermaid erDiagram" }),
-        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("label", { className: "text-sm font-medium mb-1 block", children: "Mermaid erDiagram" }),
+        /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
           Textarea,
           {
             value: mermaidText,
@@ -85488,25 +88969,25 @@ function ImportMermaidDialog() {
           }
         )
       ] }),
-      preview && preview.tableCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
+      preview && preview.tableCount > 0 && /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
         "Detected ",
         preview.tableCount,
         " table",
         preview.tableCount > 1 ? "s" : "",
         preview.relCount > 0 && `, ${preview.relCount} relationship${preview.relCount > 1 ? "s" : ""}`
       ] }),
-      error && /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("p", { className: "text-xs text-red-500", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("p", { className: "text-xs text-red-500", children: error })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogFooter, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
-      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(DialogFooter, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
         Button,
         {
           onClick: handleImport,
           disabled: !mermaidText.trim() || importing,
           className: "bg-blue-600 hover:bg-blue-700 text-white",
-          children: importing ? /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(import_jsx_runtime58.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
+          children: importing ? /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(import_jsx_runtime68.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
             "Parsing..."
           ] }) : "Import"
         }
@@ -85516,8 +88997,8 @@ function ImportMermaidDialog() {
 }
 
 // src/components/dialogs/ImportMWBDialog.tsx
-var import_react28 = __toESM(require_react(), 1);
-var import_jsx_runtime59 = __toESM(require_jsx_runtime(), 1);
+var import_react34 = __toESM(require_react(), 1);
+var import_jsx_runtime69 = __toESM(require_jsx_runtime(), 1);
 function createMWBWorker() {
   return blobWorker('(()=>{var Tr=Object.create;var Se=Object.defineProperty;var Cr=Object.getOwnPropertyDescriptor;var Nr=Object.getOwnPropertyNames;var Ir=Object.getPrototypeOf,Rr=Object.prototype.hasOwnProperty;var Bt=(r=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(r,{get:(t,e)=>(typeof require<"u"?require:t)[e]}):r)(function(r){if(typeof require<"u")return require.apply(this,arguments);throw Error(\'Dynamic require of "\'+r+\'" is not supported\')});var Or=(r,t)=>()=>(t||r((t={exports:{}}).exports,t),t.exports);var Lr=(r,t,e,i)=>{if(t&&typeof t=="object"||typeof t=="function")for(let s of Nr(t))!Rr.call(r,s)&&s!==e&&Se(r,s,{get:()=>t[s],enumerable:!(i=Cr(t,s))||i.enumerable});return r};var Fr=(r,t,e)=>(e=r!=null?Tr(Ir(r)):{},Lr(t||!r||!r.__esModule?Se(e,"default",{value:r,enumerable:!0}):e,r));var Te=Or((Ae,oe)=>{(function(r){typeof Ae=="object"&&typeof oe<"u"?oe.exports=r():typeof define=="function"&&define.amd?define([],r):(typeof window<"u"?window:typeof global<"u"?global:typeof self<"u"?self:this).JSZip=r()})(function(){return function r(t,e,i){function s(u,m){if(!e[u]){if(!t[u]){var h=typeof Bt=="function"&&Bt;if(!m&&h)return h(u,!0);if(n)return n(u,!0);var p=new Error("Cannot find module \'"+u+"\'");throw p.code="MODULE_NOT_FOUND",p}var o=e[u]={exports:{}};t[u][0].call(o.exports,function(g){var d=t[u][1][g];return s(d||g)},o,o.exports,r,t,e,i)}return e[u].exports}for(var n=typeof Bt=="function"&&Bt,l=0;l<i.length;l++)s(i[l]);return s}({1:[function(r,t,e){"use strict";var i=r("./utils"),s=r("./support"),n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";e.encode=function(l){for(var u,m,h,p,o,g,d,b=[],f=0,y=l.length,v=y,E=i.getTypeOf(l)!=="string";f<l.length;)v=y-f,h=E?(u=l[f++],m=f<y?l[f++]:0,f<y?l[f++]:0):(u=l.charCodeAt(f++),m=f<y?l.charCodeAt(f++):0,f<y?l.charCodeAt(f++):0),p=u>>2,o=(3&u)<<4|m>>4,g=1<v?(15&m)<<2|h>>6:64,d=2<v?63&h:64,b.push(n.charAt(p)+n.charAt(o)+n.charAt(g)+n.charAt(d));return b.join("")},e.decode=function(l){var u,m,h,p,o,g,d=0,b=0,f="data:";if(l.substr(0,f.length)===f)throw new Error("Invalid base64 input, it looks like a data url.");var y,v=3*(l=l.replace(/[^A-Za-z0-9+/=]/g,"")).length/4;if(l.charAt(l.length-1)===n.charAt(64)&&v--,l.charAt(l.length-2)===n.charAt(64)&&v--,v%1!=0)throw new Error("Invalid base64 input, bad content length.");for(y=s.uint8array?new Uint8Array(0|v):new Array(0|v);d<l.length;)u=n.indexOf(l.charAt(d++))<<2|(p=n.indexOf(l.charAt(d++)))>>4,m=(15&p)<<4|(o=n.indexOf(l.charAt(d++)))>>2,h=(3&o)<<6|(g=n.indexOf(l.charAt(d++))),y[b++]=u,o!==64&&(y[b++]=m),g!==64&&(y[b++]=h);return y}},{"./support":30,"./utils":32}],2:[function(r,t,e){"use strict";var i=r("./external"),s=r("./stream/DataWorker"),n=r("./stream/Crc32Probe"),l=r("./stream/DataLengthProbe");function u(m,h,p,o,g){this.compressedSize=m,this.uncompressedSize=h,this.crc32=p,this.compression=o,this.compressedContent=g}u.prototype={getContentWorker:function(){var m=new s(i.Promise.resolve(this.compressedContent)).pipe(this.compression.uncompressWorker()).pipe(new l("data_length")),h=this;return m.on("end",function(){if(this.streamInfo.data_length!==h.uncompressedSize)throw new Error("Bug : uncompressed data size mismatch")}),m},getCompressedWorker:function(){return new s(i.Promise.resolve(this.compressedContent)).withStreamInfo("compressedSize",this.compressedSize).withStreamInfo("uncompressedSize",this.uncompressedSize).withStreamInfo("crc32",this.crc32).withStreamInfo("compression",this.compression)}},u.createWorkerFrom=function(m,h,p){return m.pipe(new n).pipe(new l("uncompressedSize")).pipe(h.compressWorker(p)).pipe(new l("compressedSize")).withStreamInfo("compression",h)},t.exports=u},{"./external":6,"./stream/Crc32Probe":25,"./stream/DataLengthProbe":26,"./stream/DataWorker":27}],3:[function(r,t,e){"use strict";var i=r("./stream/GenericWorker");e.STORE={magic:"\\0\\0",compressWorker:function(){return new i("STORE compression")},uncompressWorker:function(){return new i("STORE decompression")}},e.DEFLATE=r("./flate")},{"./flate":7,"./stream/GenericWorker":28}],4:[function(r,t,e){"use strict";var i=r("./utils"),s=function(){for(var n,l=[],u=0;u<256;u++){n=u;for(var m=0;m<8;m++)n=1&n?3988292384^n>>>1:n>>>1;l[u]=n}return l}();t.exports=function(n,l){return n!==void 0&&n.length?i.getTypeOf(n)!=="string"?function(u,m,h,p){var o=s,g=p+h;u^=-1;for(var d=p;d<g;d++)u=u>>>8^o[255&(u^m[d])];return-1^u}(0|l,n,n.length,0):function(u,m,h,p){var o=s,g=p+h;u^=-1;for(var d=p;d<g;d++)u=u>>>8^o[255&(u^m.charCodeAt(d))];return-1^u}(0|l,n,n.length,0):0}},{"./utils":32}],5:[function(r,t,e){"use strict";e.base64=!1,e.binary=!1,e.dir=!1,e.createFolders=!0,e.date=null,e.compression=null,e.compressionOptions=null,e.comment=null,e.unixPermissions=null,e.dosPermissions=null},{}],6:[function(r,t,e){"use strict";var i=null;i=typeof Promise<"u"?Promise:r("lie"),t.exports={Promise:i}},{lie:37}],7:[function(r,t,e){"use strict";var i=typeof Uint8Array<"u"&&typeof Uint16Array<"u"&&typeof Uint32Array<"u",s=r("pako"),n=r("./utils"),l=r("./stream/GenericWorker"),u=i?"uint8array":"array";function m(h,p){l.call(this,"FlateWorker/"+h),this._pako=null,this._pakoAction=h,this._pakoOptions=p,this.meta={}}e.magic="\\b\\0",n.inherits(m,l),m.prototype.processChunk=function(h){this.meta=h.meta,this._pako===null&&this._createPako(),this._pako.push(n.transformTo(u,h.data),!1)},m.prototype.flush=function(){l.prototype.flush.call(this),this._pako===null&&this._createPako(),this._pako.push([],!0)},m.prototype.cleanUp=function(){l.prototype.cleanUp.call(this),this._pako=null},m.prototype._createPako=function(){this._pako=new s[this._pakoAction]({raw:!0,level:this._pakoOptions.level||-1});var h=this;this._pako.onData=function(p){h.push({data:p,meta:h.meta})}},e.compressWorker=function(h){return new m("Deflate",h)},e.uncompressWorker=function(){return new m("Inflate",{})}},{"./stream/GenericWorker":28,"./utils":32,pako:38}],8:[function(r,t,e){"use strict";function i(o,g){var d,b="";for(d=0;d<g;d++)b+=String.fromCharCode(255&o),o>>>=8;return b}function s(o,g,d,b,f,y){var v,E,S=o.file,F=o.compression,R=y!==u.utf8encode,O=n.transformTo("string",y(S.name)),N=n.transformTo("string",u.utf8encode(S.name)),j=S.comment,Z=n.transformTo("string",y(j)),x=n.transformTo("string",u.utf8encode(j)),L=N.length!==S.name.length,c=x.length!==j.length,z="",K="",U="",J=S.dir,D=S.date,X={crc32:0,compressedSize:0,uncompressedSize:0};g&&!d||(X.crc32=o.crc32,X.compressedSize=o.compressedSize,X.uncompressedSize=o.uncompressedSize);var C=0;g&&(C|=8),R||!L&&!c||(C|=2048);var T=0,Y=0;J&&(T|=16),f==="UNIX"?(Y=798,T|=function(q,nt){var lt=q;return q||(lt=nt?16893:33204),(65535&lt)<<16}(S.unixPermissions,J)):(Y=20,T|=function(q){return 63&(q||0)}(S.dosPermissions)),v=D.getUTCHours(),v<<=6,v|=D.getUTCMinutes(),v<<=5,v|=D.getUTCSeconds()/2,E=D.getUTCFullYear()-1980,E<<=4,E|=D.getUTCMonth()+1,E<<=5,E|=D.getUTCDate(),L&&(K=i(1,1)+i(m(O),4)+N,z+="up"+i(K.length,2)+K),c&&(U=i(1,1)+i(m(Z),4)+x,z+="uc"+i(U.length,2)+U);var W="";return W+=`\n\\0`,W+=i(C,2),W+=F.magic,W+=i(v,2),W+=i(E,2),W+=i(X.crc32,4),W+=i(X.compressedSize,4),W+=i(X.uncompressedSize,4),W+=i(O.length,2),W+=i(z.length,2),{fileRecord:h.LOCAL_FILE_HEADER+W+O+z,dirRecord:h.CENTRAL_FILE_HEADER+i(Y,2)+W+i(Z.length,2)+"\\0\\0\\0\\0"+i(T,4)+i(b,4)+O+z+Z}}var n=r("../utils"),l=r("../stream/GenericWorker"),u=r("../utf8"),m=r("../crc32"),h=r("../signature");function p(o,g,d,b){l.call(this,"ZipFileWorker"),this.bytesWritten=0,this.zipComment=g,this.zipPlatform=d,this.encodeFileName=b,this.streamFiles=o,this.accumulate=!1,this.contentBuffer=[],this.dirRecords=[],this.currentSourceOffset=0,this.entriesCount=0,this.currentFile=null,this._sources=[]}n.inherits(p,l),p.prototype.push=function(o){var g=o.meta.percent||0,d=this.entriesCount,b=this._sources.length;this.accumulate?this.contentBuffer.push(o):(this.bytesWritten+=o.data.length,l.prototype.push.call(this,{data:o.data,meta:{currentFile:this.currentFile,percent:d?(g+100*(d-b-1))/d:100}}))},p.prototype.openedSource=function(o){this.currentSourceOffset=this.bytesWritten,this.currentFile=o.file.name;var g=this.streamFiles&&!o.file.dir;if(g){var d=s(o,g,!1,this.currentSourceOffset,this.zipPlatform,this.encodeFileName);this.push({data:d.fileRecord,meta:{percent:0}})}else this.accumulate=!0},p.prototype.closedSource=function(o){this.accumulate=!1;var g=this.streamFiles&&!o.file.dir,d=s(o,g,!0,this.currentSourceOffset,this.zipPlatform,this.encodeFileName);if(this.dirRecords.push(d.dirRecord),g)this.push({data:function(b){return h.DATA_DESCRIPTOR+i(b.crc32,4)+i(b.compressedSize,4)+i(b.uncompressedSize,4)}(o),meta:{percent:100}});else for(this.push({data:d.fileRecord,meta:{percent:0}});this.contentBuffer.length;)this.push(this.contentBuffer.shift());this.currentFile=null},p.prototype.flush=function(){for(var o=this.bytesWritten,g=0;g<this.dirRecords.length;g++)this.push({data:this.dirRecords[g],meta:{percent:100}});var d=this.bytesWritten-o,b=function(f,y,v,E,S){var F=n.transformTo("string",S(E));return h.CENTRAL_DIRECTORY_END+"\\0\\0\\0\\0"+i(f,2)+i(f,2)+i(y,4)+i(v,4)+i(F.length,2)+F}(this.dirRecords.length,d,o,this.zipComment,this.encodeFileName);this.push({data:b,meta:{percent:100}})},p.prototype.prepareNextSource=function(){this.previous=this._sources.shift(),this.openedSource(this.previous.streamInfo),this.isPaused?this.previous.pause():this.previous.resume()},p.prototype.registerPrevious=function(o){this._sources.push(o);var g=this;return o.on("data",function(d){g.processChunk(d)}),o.on("end",function(){g.closedSource(g.previous.streamInfo),g._sources.length?g.prepareNextSource():g.end()}),o.on("error",function(d){g.error(d)}),this},p.prototype.resume=function(){return!!l.prototype.resume.call(this)&&(!this.previous&&this._sources.length?(this.prepareNextSource(),!0):this.previous||this._sources.length||this.generatedError?void 0:(this.end(),!0))},p.prototype.error=function(o){var g=this._sources;if(!l.prototype.error.call(this,o))return!1;for(var d=0;d<g.length;d++)try{g[d].error(o)}catch{}return!0},p.prototype.lock=function(){l.prototype.lock.call(this);for(var o=this._sources,g=0;g<o.length;g++)o[g].lock()},t.exports=p},{"../crc32":4,"../signature":23,"../stream/GenericWorker":28,"../utf8":31,"../utils":32}],9:[function(r,t,e){"use strict";var i=r("../compressions"),s=r("./ZipFileWorker");e.generateWorker=function(n,l,u){var m=new s(l.streamFiles,u,l.platform,l.encodeFileName),h=0;try{n.forEach(function(p,o){h++;var g=function(y,v){var E=y||v,S=i[E];if(!S)throw new Error(E+" is not a valid compression method !");return S}(o.options.compression,l.compression),d=o.options.compressionOptions||l.compressionOptions||{},b=o.dir,f=o.date;o._compressWorker(g,d).withStreamInfo("file",{name:p,dir:b,date:f,comment:o.comment||"",unixPermissions:o.unixPermissions,dosPermissions:o.dosPermissions}).pipe(m)}),m.entriesCount=h}catch(p){m.error(p)}return m}},{"../compressions":3,"./ZipFileWorker":8}],10:[function(r,t,e){"use strict";function i(){if(!(this instanceof i))return new i;if(arguments.length)throw new Error("The constructor with parameters has been removed in JSZip 3.0, please check the upgrade guide.");this.files=Object.create(null),this.comment=null,this.root="",this.clone=function(){var s=new i;for(var n in this)typeof this[n]!="function"&&(s[n]=this[n]);return s}}(i.prototype=r("./object")).loadAsync=r("./load"),i.support=r("./support"),i.defaults=r("./defaults"),i.version="3.10.1",i.loadAsync=function(s,n){return new i().loadAsync(s,n)},i.external=r("./external"),t.exports=i},{"./defaults":5,"./external":6,"./load":11,"./object":15,"./support":30}],11:[function(r,t,e){"use strict";var i=r("./utils"),s=r("./external"),n=r("./utf8"),l=r("./zipEntries"),u=r("./stream/Crc32Probe"),m=r("./nodejsUtils");function h(p){return new s.Promise(function(o,g){var d=p.decompressed.getContentWorker().pipe(new u);d.on("error",function(b){g(b)}).on("end",function(){d.streamInfo.crc32!==p.decompressed.crc32?g(new Error("Corrupted zip : CRC32 mismatch")):o()}).resume()})}t.exports=function(p,o){var g=this;return o=i.extend(o||{},{base64:!1,checkCRC32:!1,optimizedBinaryString:!1,createFolders:!1,decodeFileName:n.utf8decode}),m.isNode&&m.isStream(p)?s.Promise.reject(new Error("JSZip can\'t accept a stream when loading a zip file.")):i.prepareContent("the loaded zip file",p,!0,o.optimizedBinaryString,o.base64).then(function(d){var b=new l(o);return b.load(d),b}).then(function(d){var b=[s.Promise.resolve(d)],f=d.files;if(o.checkCRC32)for(var y=0;y<f.length;y++)b.push(h(f[y]));return s.Promise.all(b)}).then(function(d){for(var b=d.shift(),f=b.files,y=0;y<f.length;y++){var v=f[y],E=v.fileNameStr,S=i.resolve(v.fileNameStr);g.file(S,v.decompressed,{binary:!0,optimizedBinaryString:!0,date:v.date,dir:v.dir,comment:v.fileCommentStr.length?v.fileCommentStr:null,unixPermissions:v.unixPermissions,dosPermissions:v.dosPermissions,createFolders:o.createFolders}),v.dir||(g.file(S).unsafeOriginalName=E)}return b.zipComment.length&&(g.comment=b.zipComment),g})}},{"./external":6,"./nodejsUtils":14,"./stream/Crc32Probe":25,"./utf8":31,"./utils":32,"./zipEntries":33}],12:[function(r,t,e){"use strict";var i=r("../utils"),s=r("../stream/GenericWorker");function n(l,u){s.call(this,"Nodejs stream input adapter for "+l),this._upstreamEnded=!1,this._bindStream(u)}i.inherits(n,s),n.prototype._bindStream=function(l){var u=this;(this._stream=l).pause(),l.on("data",function(m){u.push({data:m,meta:{percent:0}})}).on("error",function(m){u.isPaused?this.generatedError=m:u.error(m)}).on("end",function(){u.isPaused?u._upstreamEnded=!0:u.end()})},n.prototype.pause=function(){return!!s.prototype.pause.call(this)&&(this._stream.pause(),!0)},n.prototype.resume=function(){return!!s.prototype.resume.call(this)&&(this._upstreamEnded?this.end():this._stream.resume(),!0)},t.exports=n},{"../stream/GenericWorker":28,"../utils":32}],13:[function(r,t,e){"use strict";var i=r("readable-stream").Readable;function s(n,l,u){i.call(this,l),this._helper=n;var m=this;n.on("data",function(h,p){m.push(h)||m._helper.pause(),u&&u(p)}).on("error",function(h){m.emit("error",h)}).on("end",function(){m.push(null)})}r("../utils").inherits(s,i),s.prototype._read=function(){this._helper.resume()},t.exports=s},{"../utils":32,"readable-stream":16}],14:[function(r,t,e){"use strict";t.exports={isNode:typeof Buffer<"u",newBufferFrom:function(i,s){if(Buffer.from&&Buffer.from!==Uint8Array.from)return Buffer.from(i,s);if(typeof i=="number")throw new Error(\'The "data" argument must not be a number\');return new Buffer(i,s)},allocBuffer:function(i){if(Buffer.alloc)return Buffer.alloc(i);var s=new Buffer(i);return s.fill(0),s},isBuffer:function(i){return Buffer.isBuffer(i)},isStream:function(i){return i&&typeof i.on=="function"&&typeof i.pause=="function"&&typeof i.resume=="function"}}},{}],15:[function(r,t,e){"use strict";function i(S,F,R){var O,N=n.getTypeOf(F),j=n.extend(R||{},m);j.date=j.date||new Date,j.compression!==null&&(j.compression=j.compression.toUpperCase()),typeof j.unixPermissions=="string"&&(j.unixPermissions=parseInt(j.unixPermissions,8)),j.unixPermissions&&16384&j.unixPermissions&&(j.dir=!0),j.dosPermissions&&16&j.dosPermissions&&(j.dir=!0),j.dir&&(S=f(S)),j.createFolders&&(O=b(S))&&y.call(this,O,!0);var Z=N==="string"&&j.binary===!1&&j.base64===!1;R&&R.binary!==void 0||(j.binary=!Z),(F instanceof h&&F.uncompressedSize===0||j.dir||!F||F.length===0)&&(j.base64=!1,j.binary=!0,F="",j.compression="STORE",N="string");var x=null;x=F instanceof h||F instanceof l?F:g.isNode&&g.isStream(F)?new d(S,F):n.prepareContent(S,F,j.binary,j.optimizedBinaryString,j.base64);var L=new p(S,x,j);this.files[S]=L}var s=r("./utf8"),n=r("./utils"),l=r("./stream/GenericWorker"),u=r("./stream/StreamHelper"),m=r("./defaults"),h=r("./compressedObject"),p=r("./zipObject"),o=r("./generate"),g=r("./nodejsUtils"),d=r("./nodejs/NodejsStreamInputAdapter"),b=function(S){S.slice(-1)==="/"&&(S=S.substring(0,S.length-1));var F=S.lastIndexOf("/");return 0<F?S.substring(0,F):""},f=function(S){return S.slice(-1)!=="/"&&(S+="/"),S},y=function(S,F){return F=F!==void 0?F:m.createFolders,S=f(S),this.files[S]||i.call(this,S,null,{dir:!0,createFolders:F}),this.files[S]};function v(S){return Object.prototype.toString.call(S)==="[object RegExp]"}var E={load:function(){throw new Error("This method has been removed in JSZip 3.0, please check the upgrade guide.")},forEach:function(S){var F,R,O;for(F in this.files)O=this.files[F],(R=F.slice(this.root.length,F.length))&&F.slice(0,this.root.length)===this.root&&S(R,O)},filter:function(S){var F=[];return this.forEach(function(R,O){S(R,O)&&F.push(O)}),F},file:function(S,F,R){if(arguments.length!==1)return S=this.root+S,i.call(this,S,F,R),this;if(v(S)){var O=S;return this.filter(function(j,Z){return!Z.dir&&O.test(j)})}var N=this.files[this.root+S];return N&&!N.dir?N:null},folder:function(S){if(!S)return this;if(v(S))return this.filter(function(N,j){return j.dir&&S.test(N)});var F=this.root+S,R=y.call(this,F),O=this.clone();return O.root=R.name,O},remove:function(S){S=this.root+S;var F=this.files[S];if(F||(S.slice(-1)!=="/"&&(S+="/"),F=this.files[S]),F&&!F.dir)delete this.files[S];else for(var R=this.filter(function(N,j){return j.name.slice(0,S.length)===S}),O=0;O<R.length;O++)delete this.files[R[O].name];return this},generate:function(){throw new Error("This method has been removed in JSZip 3.0, please check the upgrade guide.")},generateInternalStream:function(S){var F,R={};try{if((R=n.extend(S||{},{streamFiles:!1,compression:"STORE",compressionOptions:null,type:"",platform:"DOS",comment:null,mimeType:"application/zip",encodeFileName:s.utf8encode})).type=R.type.toLowerCase(),R.compression=R.compression.toUpperCase(),R.type==="binarystring"&&(R.type="string"),!R.type)throw new Error("No output type specified.");n.checkSupport(R.type),R.platform!=="darwin"&&R.platform!=="freebsd"&&R.platform!=="linux"&&R.platform!=="sunos"||(R.platform="UNIX"),R.platform==="win32"&&(R.platform="DOS");var O=R.comment||this.comment||"";F=o.generateWorker(this,R,O)}catch(N){(F=new l("error")).error(N)}return new u(F,R.type||"string",R.mimeType)},generateAsync:function(S,F){return this.generateInternalStream(S).accumulate(F)},generateNodeStream:function(S,F){return(S=S||{}).type||(S.type="nodebuffer"),this.generateInternalStream(S).toNodejsStream(F)}};t.exports=E},{"./compressedObject":2,"./defaults":5,"./generate":9,"./nodejs/NodejsStreamInputAdapter":12,"./nodejsUtils":14,"./stream/GenericWorker":28,"./stream/StreamHelper":29,"./utf8":31,"./utils":32,"./zipObject":35}],16:[function(r,t,e){"use strict";t.exports=r("stream")},{stream:void 0}],17:[function(r,t,e){"use strict";var i=r("./DataReader");function s(n){i.call(this,n);for(var l=0;l<this.data.length;l++)n[l]=255&n[l]}r("../utils").inherits(s,i),s.prototype.byteAt=function(n){return this.data[this.zero+n]},s.prototype.lastIndexOfSignature=function(n){for(var l=n.charCodeAt(0),u=n.charCodeAt(1),m=n.charCodeAt(2),h=n.charCodeAt(3),p=this.length-4;0<=p;--p)if(this.data[p]===l&&this.data[p+1]===u&&this.data[p+2]===m&&this.data[p+3]===h)return p-this.zero;return-1},s.prototype.readAndCheckSignature=function(n){var l=n.charCodeAt(0),u=n.charCodeAt(1),m=n.charCodeAt(2),h=n.charCodeAt(3),p=this.readData(4);return l===p[0]&&u===p[1]&&m===p[2]&&h===p[3]},s.prototype.readData=function(n){if(this.checkOffset(n),n===0)return[];var l=this.data.slice(this.zero+this.index,this.zero+this.index+n);return this.index+=n,l},t.exports=s},{"../utils":32,"./DataReader":18}],18:[function(r,t,e){"use strict";var i=r("../utils");function s(n){this.data=n,this.length=n.length,this.index=0,this.zero=0}s.prototype={checkOffset:function(n){this.checkIndex(this.index+n)},checkIndex:function(n){if(this.length<this.zero+n||n<0)throw new Error("End of data reached (data length = "+this.length+", asked index = "+n+"). Corrupted zip ?")},setIndex:function(n){this.checkIndex(n),this.index=n},skip:function(n){this.setIndex(this.index+n)},byteAt:function(){},readInt:function(n){var l,u=0;for(this.checkOffset(n),l=this.index+n-1;l>=this.index;l--)u=(u<<8)+this.byteAt(l);return this.index+=n,u},readString:function(n){return i.transformTo("string",this.readData(n))},readData:function(){},lastIndexOfSignature:function(){},readAndCheckSignature:function(){},readDate:function(){var n=this.readInt(4);return new Date(Date.UTC(1980+(n>>25&127),(n>>21&15)-1,n>>16&31,n>>11&31,n>>5&63,(31&n)<<1))}},t.exports=s},{"../utils":32}],19:[function(r,t,e){"use strict";var i=r("./Uint8ArrayReader");function s(n){i.call(this,n)}r("../utils").inherits(s,i),s.prototype.readData=function(n){this.checkOffset(n);var l=this.data.slice(this.zero+this.index,this.zero+this.index+n);return this.index+=n,l},t.exports=s},{"../utils":32,"./Uint8ArrayReader":21}],20:[function(r,t,e){"use strict";var i=r("./DataReader");function s(n){i.call(this,n)}r("../utils").inherits(s,i),s.prototype.byteAt=function(n){return this.data.charCodeAt(this.zero+n)},s.prototype.lastIndexOfSignature=function(n){return this.data.lastIndexOf(n)-this.zero},s.prototype.readAndCheckSignature=function(n){return n===this.readData(4)},s.prototype.readData=function(n){this.checkOffset(n);var l=this.data.slice(this.zero+this.index,this.zero+this.index+n);return this.index+=n,l},t.exports=s},{"../utils":32,"./DataReader":18}],21:[function(r,t,e){"use strict";var i=r("./ArrayReader");function s(n){i.call(this,n)}r("../utils").inherits(s,i),s.prototype.readData=function(n){if(this.checkOffset(n),n===0)return new Uint8Array(0);var l=this.data.subarray(this.zero+this.index,this.zero+this.index+n);return this.index+=n,l},t.exports=s},{"../utils":32,"./ArrayReader":17}],22:[function(r,t,e){"use strict";var i=r("../utils"),s=r("../support"),n=r("./ArrayReader"),l=r("./StringReader"),u=r("./NodeBufferReader"),m=r("./Uint8ArrayReader");t.exports=function(h){var p=i.getTypeOf(h);return i.checkSupport(p),p!=="string"||s.uint8array?p==="nodebuffer"?new u(h):s.uint8array?new m(i.transformTo("uint8array",h)):new n(i.transformTo("array",h)):new l(h)}},{"../support":30,"../utils":32,"./ArrayReader":17,"./NodeBufferReader":19,"./StringReader":20,"./Uint8ArrayReader":21}],23:[function(r,t,e){"use strict";e.LOCAL_FILE_HEADER="PK",e.CENTRAL_FILE_HEADER="PK",e.CENTRAL_DIRECTORY_END="PK",e.ZIP64_CENTRAL_DIRECTORY_LOCATOR="PK\\x07",e.ZIP64_CENTRAL_DIRECTORY_END="PK",e.DATA_DESCRIPTOR="PK\\x07\\b"},{}],24:[function(r,t,e){"use strict";var i=r("./GenericWorker"),s=r("../utils");function n(l){i.call(this,"ConvertWorker to "+l),this.destType=l}s.inherits(n,i),n.prototype.processChunk=function(l){this.push({data:s.transformTo(this.destType,l.data),meta:l.meta})},t.exports=n},{"../utils":32,"./GenericWorker":28}],25:[function(r,t,e){"use strict";var i=r("./GenericWorker"),s=r("../crc32");function n(){i.call(this,"Crc32Probe"),this.withStreamInfo("crc32",0)}r("../utils").inherits(n,i),n.prototype.processChunk=function(l){this.streamInfo.crc32=s(l.data,this.streamInfo.crc32||0),this.push(l)},t.exports=n},{"../crc32":4,"../utils":32,"./GenericWorker":28}],26:[function(r,t,e){"use strict";var i=r("../utils"),s=r("./GenericWorker");function n(l){s.call(this,"DataLengthProbe for "+l),this.propName=l,this.withStreamInfo(l,0)}i.inherits(n,s),n.prototype.processChunk=function(l){if(l){var u=this.streamInfo[this.propName]||0;this.streamInfo[this.propName]=u+l.data.length}s.prototype.processChunk.call(this,l)},t.exports=n},{"../utils":32,"./GenericWorker":28}],27:[function(r,t,e){"use strict";var i=r("../utils"),s=r("./GenericWorker");function n(l){s.call(this,"DataWorker");var u=this;this.dataIsReady=!1,this.index=0,this.max=0,this.data=null,this.type="",this._tickScheduled=!1,l.then(function(m){u.dataIsReady=!0,u.data=m,u.max=m&&m.length||0,u.type=i.getTypeOf(m),u.isPaused||u._tickAndRepeat()},function(m){u.error(m)})}i.inherits(n,s),n.prototype.cleanUp=function(){s.prototype.cleanUp.call(this),this.data=null},n.prototype.resume=function(){return!!s.prototype.resume.call(this)&&(!this._tickScheduled&&this.dataIsReady&&(this._tickScheduled=!0,i.delay(this._tickAndRepeat,[],this)),!0)},n.prototype._tickAndRepeat=function(){this._tickScheduled=!1,this.isPaused||this.isFinished||(this._tick(),this.isFinished||(i.delay(this._tickAndRepeat,[],this),this._tickScheduled=!0))},n.prototype._tick=function(){if(this.isPaused||this.isFinished)return!1;var l=null,u=Math.min(this.max,this.index+16384);if(this.index>=this.max)return this.end();switch(this.type){case"string":l=this.data.substring(this.index,u);break;case"uint8array":l=this.data.subarray(this.index,u);break;case"array":case"nodebuffer":l=this.data.slice(this.index,u)}return this.index=u,this.push({data:l,meta:{percent:this.max?this.index/this.max*100:0}})},t.exports=n},{"../utils":32,"./GenericWorker":28}],28:[function(r,t,e){"use strict";function i(s){this.name=s||"default",this.streamInfo={},this.generatedError=null,this.extraStreamInfo={},this.isPaused=!0,this.isFinished=!1,this.isLocked=!1,this._listeners={data:[],end:[],error:[]},this.previous=null}i.prototype={push:function(s){this.emit("data",s)},end:function(){if(this.isFinished)return!1;this.flush();try{this.emit("end"),this.cleanUp(),this.isFinished=!0}catch(s){this.emit("error",s)}return!0},error:function(s){return!this.isFinished&&(this.isPaused?this.generatedError=s:(this.isFinished=!0,this.emit("error",s),this.previous&&this.previous.error(s),this.cleanUp()),!0)},on:function(s,n){return this._listeners[s].push(n),this},cleanUp:function(){this.streamInfo=this.generatedError=this.extraStreamInfo=null,this._listeners=[]},emit:function(s,n){if(this._listeners[s])for(var l=0;l<this._listeners[s].length;l++)this._listeners[s][l].call(this,n)},pipe:function(s){return s.registerPrevious(this)},registerPrevious:function(s){if(this.isLocked)throw new Error("The stream \'"+this+"\' has already been used.");this.streamInfo=s.streamInfo,this.mergeStreamInfo(),this.previous=s;var n=this;return s.on("data",function(l){n.processChunk(l)}),s.on("end",function(){n.end()}),s.on("error",function(l){n.error(l)}),this},pause:function(){return!this.isPaused&&!this.isFinished&&(this.isPaused=!0,this.previous&&this.previous.pause(),!0)},resume:function(){if(!this.isPaused||this.isFinished)return!1;var s=this.isPaused=!1;return this.generatedError&&(this.error(this.generatedError),s=!0),this.previous&&this.previous.resume(),!s},flush:function(){},processChunk:function(s){this.push(s)},withStreamInfo:function(s,n){return this.extraStreamInfo[s]=n,this.mergeStreamInfo(),this},mergeStreamInfo:function(){for(var s in this.extraStreamInfo)Object.prototype.hasOwnProperty.call(this.extraStreamInfo,s)&&(this.streamInfo[s]=this.extraStreamInfo[s])},lock:function(){if(this.isLocked)throw new Error("The stream \'"+this+"\' has already been used.");this.isLocked=!0,this.previous&&this.previous.lock()},toString:function(){var s="Worker "+this.name;return this.previous?this.previous+" -> "+s:s}},t.exports=i},{}],29:[function(r,t,e){"use strict";var i=r("../utils"),s=r("./ConvertWorker"),n=r("./GenericWorker"),l=r("../base64"),u=r("../support"),m=r("../external"),h=null;if(u.nodestream)try{h=r("../nodejs/NodejsStreamOutputAdapter")}catch{}function p(g,d){return new m.Promise(function(b,f){var y=[],v=g._internalType,E=g._outputType,S=g._mimeType;g.on("data",function(F,R){y.push(F),d&&d(R)}).on("error",function(F){y=[],f(F)}).on("end",function(){try{var F=function(R,O,N){switch(R){case"blob":return i.newBlob(i.transformTo("arraybuffer",O),N);case"base64":return l.encode(O);default:return i.transformTo(R,O)}}(E,function(R,O){var N,j=0,Z=null,x=0;for(N=0;N<O.length;N++)x+=O[N].length;switch(R){case"string":return O.join("");case"array":return Array.prototype.concat.apply([],O);case"uint8array":for(Z=new Uint8Array(x),N=0;N<O.length;N++)Z.set(O[N],j),j+=O[N].length;return Z;case"nodebuffer":return Buffer.concat(O);default:throw new Error("concat : unsupported type \'"+R+"\'")}}(v,y),S);b(F)}catch(R){f(R)}y=[]}).resume()})}function o(g,d,b){var f=d;switch(d){case"blob":case"arraybuffer":f="uint8array";break;case"base64":f="string"}try{this._internalType=f,this._outputType=d,this._mimeType=b,i.checkSupport(f),this._worker=g.pipe(new s(f)),g.lock()}catch(y){this._worker=new n("error"),this._worker.error(y)}}o.prototype={accumulate:function(g){return p(this,g)},on:function(g,d){var b=this;return g==="data"?this._worker.on(g,function(f){d.call(b,f.data,f.meta)}):this._worker.on(g,function(){i.delay(d,arguments,b)}),this},resume:function(){return i.delay(this._worker.resume,[],this._worker),this},pause:function(){return this._worker.pause(),this},toNodejsStream:function(g){if(i.checkSupport("nodestream"),this._outputType!=="nodebuffer")throw new Error(this._outputType+" is not supported by this method");return new h(this,{objectMode:this._outputType!=="nodebuffer"},g)}},t.exports=o},{"../base64":1,"../external":6,"../nodejs/NodejsStreamOutputAdapter":13,"../support":30,"../utils":32,"./ConvertWorker":24,"./GenericWorker":28}],30:[function(r,t,e){"use strict";if(e.base64=!0,e.array=!0,e.string=!0,e.arraybuffer=typeof ArrayBuffer<"u"&&typeof Uint8Array<"u",e.nodebuffer=typeof Buffer<"u",e.uint8array=typeof Uint8Array<"u",typeof ArrayBuffer>"u")e.blob=!1;else{var i=new ArrayBuffer(0);try{e.blob=new Blob([i],{type:"application/zip"}).size===0}catch{try{var s=new(self.BlobBuilder||self.WebKitBlobBuilder||self.MozBlobBuilder||self.MSBlobBuilder);s.append(i),e.blob=s.getBlob("application/zip").size===0}catch{e.blob=!1}}}try{e.nodestream=!!r("readable-stream").Readable}catch{e.nodestream=!1}},{"readable-stream":16}],31:[function(r,t,e){"use strict";for(var i=r("./utils"),s=r("./support"),n=r("./nodejsUtils"),l=r("./stream/GenericWorker"),u=new Array(256),m=0;m<256;m++)u[m]=252<=m?6:248<=m?5:240<=m?4:224<=m?3:192<=m?2:1;u[254]=u[254]=1;function h(){l.call(this,"utf-8 decode"),this.leftOver=null}function p(){l.call(this,"utf-8 encode")}e.utf8encode=function(o){return s.nodebuffer?n.newBufferFrom(o,"utf-8"):function(g){var d,b,f,y,v,E=g.length,S=0;for(y=0;y<E;y++)(64512&(b=g.charCodeAt(y)))==55296&&y+1<E&&(64512&(f=g.charCodeAt(y+1)))==56320&&(b=65536+(b-55296<<10)+(f-56320),y++),S+=b<128?1:b<2048?2:b<65536?3:4;for(d=s.uint8array?new Uint8Array(S):new Array(S),y=v=0;v<S;y++)(64512&(b=g.charCodeAt(y)))==55296&&y+1<E&&(64512&(f=g.charCodeAt(y+1)))==56320&&(b=65536+(b-55296<<10)+(f-56320),y++),b<128?d[v++]=b:(b<2048?d[v++]=192|b>>>6:(b<65536?d[v++]=224|b>>>12:(d[v++]=240|b>>>18,d[v++]=128|b>>>12&63),d[v++]=128|b>>>6&63),d[v++]=128|63&b);return d}(o)},e.utf8decode=function(o){return s.nodebuffer?i.transformTo("nodebuffer",o).toString("utf-8"):function(g){var d,b,f,y,v=g.length,E=new Array(2*v);for(d=b=0;d<v;)if((f=g[d++])<128)E[b++]=f;else if(4<(y=u[f]))E[b++]=65533,d+=y-1;else{for(f&=y===2?31:y===3?15:7;1<y&&d<v;)f=f<<6|63&g[d++],y--;1<y?E[b++]=65533:f<65536?E[b++]=f:(f-=65536,E[b++]=55296|f>>10&1023,E[b++]=56320|1023&f)}return E.length!==b&&(E.subarray?E=E.subarray(0,b):E.length=b),i.applyFromCharCode(E)}(o=i.transformTo(s.uint8array?"uint8array":"array",o))},i.inherits(h,l),h.prototype.processChunk=function(o){var g=i.transformTo(s.uint8array?"uint8array":"array",o.data);if(this.leftOver&&this.leftOver.length){if(s.uint8array){var d=g;(g=new Uint8Array(d.length+this.leftOver.length)).set(this.leftOver,0),g.set(d,this.leftOver.length)}else g=this.leftOver.concat(g);this.leftOver=null}var b=function(y,v){var E;for((v=v||y.length)>y.length&&(v=y.length),E=v-1;0<=E&&(192&y[E])==128;)E--;return E<0||E===0?v:E+u[y[E]]>v?E:v}(g),f=g;b!==g.length&&(s.uint8array?(f=g.subarray(0,b),this.leftOver=g.subarray(b,g.length)):(f=g.slice(0,b),this.leftOver=g.slice(b,g.length))),this.push({data:e.utf8decode(f),meta:o.meta})},h.prototype.flush=function(){this.leftOver&&this.leftOver.length&&(this.push({data:e.utf8decode(this.leftOver),meta:{}}),this.leftOver=null)},e.Utf8DecodeWorker=h,i.inherits(p,l),p.prototype.processChunk=function(o){this.push({data:e.utf8encode(o.data),meta:o.meta})},e.Utf8EncodeWorker=p},{"./nodejsUtils":14,"./stream/GenericWorker":28,"./support":30,"./utils":32}],32:[function(r,t,e){"use strict";var i=r("./support"),s=r("./base64"),n=r("./nodejsUtils"),l=r("./external");function u(d){return d}function m(d,b){for(var f=0;f<d.length;++f)b[f]=255&d.charCodeAt(f);return b}r("setimmediate"),e.newBlob=function(d,b){e.checkSupport("blob");try{return new Blob([d],{type:b})}catch{try{var f=new(self.BlobBuilder||self.WebKitBlobBuilder||self.MozBlobBuilder||self.MSBlobBuilder);return f.append(d),f.getBlob(b)}catch{throw new Error("Bug : can\'t construct the Blob.")}}};var h={stringifyByChunk:function(d,b,f){var y=[],v=0,E=d.length;if(E<=f)return String.fromCharCode.apply(null,d);for(;v<E;)b==="array"||b==="nodebuffer"?y.push(String.fromCharCode.apply(null,d.slice(v,Math.min(v+f,E)))):y.push(String.fromCharCode.apply(null,d.subarray(v,Math.min(v+f,E)))),v+=f;return y.join("")},stringifyByChar:function(d){for(var b="",f=0;f<d.length;f++)b+=String.fromCharCode(d[f]);return b},applyCanBeUsed:{uint8array:function(){try{return i.uint8array&&String.fromCharCode.apply(null,new Uint8Array(1)).length===1}catch{return!1}}(),nodebuffer:function(){try{return i.nodebuffer&&String.fromCharCode.apply(null,n.allocBuffer(1)).length===1}catch{return!1}}()}};function p(d){var b=65536,f=e.getTypeOf(d),y=!0;if(f==="uint8array"?y=h.applyCanBeUsed.uint8array:f==="nodebuffer"&&(y=h.applyCanBeUsed.nodebuffer),y)for(;1<b;)try{return h.stringifyByChunk(d,f,b)}catch{b=Math.floor(b/2)}return h.stringifyByChar(d)}function o(d,b){for(var f=0;f<d.length;f++)b[f]=d[f];return b}e.applyFromCharCode=p;var g={};g.string={string:u,array:function(d){return m(d,new Array(d.length))},arraybuffer:function(d){return g.string.uint8array(d).buffer},uint8array:function(d){return m(d,new Uint8Array(d.length))},nodebuffer:function(d){return m(d,n.allocBuffer(d.length))}},g.array={string:p,array:u,arraybuffer:function(d){return new Uint8Array(d).buffer},uint8array:function(d){return new Uint8Array(d)},nodebuffer:function(d){return n.newBufferFrom(d)}},g.arraybuffer={string:function(d){return p(new Uint8Array(d))},array:function(d){return o(new Uint8Array(d),new Array(d.byteLength))},arraybuffer:u,uint8array:function(d){return new Uint8Array(d)},nodebuffer:function(d){return n.newBufferFrom(new Uint8Array(d))}},g.uint8array={string:p,array:function(d){return o(d,new Array(d.length))},arraybuffer:function(d){return d.buffer},uint8array:u,nodebuffer:function(d){return n.newBufferFrom(d)}},g.nodebuffer={string:p,array:function(d){return o(d,new Array(d.length))},arraybuffer:function(d){return g.nodebuffer.uint8array(d).buffer},uint8array:function(d){return o(d,new Uint8Array(d.length))},nodebuffer:u},e.transformTo=function(d,b){if(b=b||"",!d)return b;e.checkSupport(d);var f=e.getTypeOf(b);return g[f][d](b)},e.resolve=function(d){for(var b=d.split("/"),f=[],y=0;y<b.length;y++){var v=b[y];v==="."||v===""&&y!==0&&y!==b.length-1||(v===".."?f.pop():f.push(v))}return f.join("/")},e.getTypeOf=function(d){return typeof d=="string"?"string":Object.prototype.toString.call(d)==="[object Array]"?"array":i.nodebuffer&&n.isBuffer(d)?"nodebuffer":i.uint8array&&d instanceof Uint8Array?"uint8array":i.arraybuffer&&d instanceof ArrayBuffer?"arraybuffer":void 0},e.checkSupport=function(d){if(!i[d.toLowerCase()])throw new Error(d+" is not supported by this platform")},e.MAX_VALUE_16BITS=65535,e.MAX_VALUE_32BITS=-1,e.pretty=function(d){var b,f,y="";for(f=0;f<(d||"").length;f++)y+="\\\\x"+((b=d.charCodeAt(f))<16?"0":"")+b.toString(16).toUpperCase();return y},e.delay=function(d,b,f){setImmediate(function(){d.apply(f||null,b||[])})},e.inherits=function(d,b){function f(){}f.prototype=b.prototype,d.prototype=new f},e.extend=function(){var d,b,f={};for(d=0;d<arguments.length;d++)for(b in arguments[d])Object.prototype.hasOwnProperty.call(arguments[d],b)&&f[b]===void 0&&(f[b]=arguments[d][b]);return f},e.prepareContent=function(d,b,f,y,v){return l.Promise.resolve(b).then(function(E){return i.blob&&(E instanceof Blob||["[object File]","[object Blob]"].indexOf(Object.prototype.toString.call(E))!==-1)&&typeof FileReader<"u"?new l.Promise(function(S,F){var R=new FileReader;R.onload=function(O){S(O.target.result)},R.onerror=function(O){F(O.target.error)},R.readAsArrayBuffer(E)}):E}).then(function(E){var S=e.getTypeOf(E);return S?(S==="arraybuffer"?E=e.transformTo("uint8array",E):S==="string"&&(v?E=s.decode(E):f&&y!==!0&&(E=function(F){return m(F,i.uint8array?new Uint8Array(F.length):new Array(F.length))}(E))),E):l.Promise.reject(new Error("Can\'t read the data of \'"+d+"\'. Is it in a supported JavaScript type (String, Blob, ArrayBuffer, etc) ?"))})}},{"./base64":1,"./external":6,"./nodejsUtils":14,"./support":30,setimmediate:54}],33:[function(r,t,e){"use strict";var i=r("./reader/readerFor"),s=r("./utils"),n=r("./signature"),l=r("./zipEntry"),u=r("./support");function m(h){this.files=[],this.loadOptions=h}m.prototype={checkSignature:function(h){if(!this.reader.readAndCheckSignature(h)){this.reader.index-=4;var p=this.reader.readString(4);throw new Error("Corrupted zip or bug: unexpected signature ("+s.pretty(p)+", expected "+s.pretty(h)+")")}},isSignature:function(h,p){var o=this.reader.index;this.reader.setIndex(h);var g=this.reader.readString(4)===p;return this.reader.setIndex(o),g},readBlockEndOfCentral:function(){this.diskNumber=this.reader.readInt(2),this.diskWithCentralDirStart=this.reader.readInt(2),this.centralDirRecordsOnThisDisk=this.reader.readInt(2),this.centralDirRecords=this.reader.readInt(2),this.centralDirSize=this.reader.readInt(4),this.centralDirOffset=this.reader.readInt(4),this.zipCommentLength=this.reader.readInt(2);var h=this.reader.readData(this.zipCommentLength),p=u.uint8array?"uint8array":"array",o=s.transformTo(p,h);this.zipComment=this.loadOptions.decodeFileName(o)},readBlockZip64EndOfCentral:function(){this.zip64EndOfCentralSize=this.reader.readInt(8),this.reader.skip(4),this.diskNumber=this.reader.readInt(4),this.diskWithCentralDirStart=this.reader.readInt(4),this.centralDirRecordsOnThisDisk=this.reader.readInt(8),this.centralDirRecords=this.reader.readInt(8),this.centralDirSize=this.reader.readInt(8),this.centralDirOffset=this.reader.readInt(8),this.zip64ExtensibleData={};for(var h,p,o,g=this.zip64EndOfCentralSize-44;0<g;)h=this.reader.readInt(2),p=this.reader.readInt(4),o=this.reader.readData(p),this.zip64ExtensibleData[h]={id:h,length:p,value:o}},readBlockZip64EndOfCentralLocator:function(){if(this.diskWithZip64CentralDirStart=this.reader.readInt(4),this.relativeOffsetEndOfZip64CentralDir=this.reader.readInt(8),this.disksCount=this.reader.readInt(4),1<this.disksCount)throw new Error("Multi-volumes zip are not supported")},readLocalFiles:function(){var h,p;for(h=0;h<this.files.length;h++)p=this.files[h],this.reader.setIndex(p.localHeaderOffset),this.checkSignature(n.LOCAL_FILE_HEADER),p.readLocalPart(this.reader),p.handleUTF8(),p.processAttributes()},readCentralDir:function(){var h;for(this.reader.setIndex(this.centralDirOffset);this.reader.readAndCheckSignature(n.CENTRAL_FILE_HEADER);)(h=new l({zip64:this.zip64},this.loadOptions)).readCentralPart(this.reader),this.files.push(h);if(this.centralDirRecords!==this.files.length&&this.centralDirRecords!==0&&this.files.length===0)throw new Error("Corrupted zip or bug: expected "+this.centralDirRecords+" records in central dir, got "+this.files.length)},readEndOfCentral:function(){var h=this.reader.lastIndexOfSignature(n.CENTRAL_DIRECTORY_END);if(h<0)throw this.isSignature(0,n.LOCAL_FILE_HEADER)?new Error("Corrupted zip: can\'t find end of central directory"):new Error("Can\'t find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html");this.reader.setIndex(h);var p=h;if(this.checkSignature(n.CENTRAL_DIRECTORY_END),this.readBlockEndOfCentral(),this.diskNumber===s.MAX_VALUE_16BITS||this.diskWithCentralDirStart===s.MAX_VALUE_16BITS||this.centralDirRecordsOnThisDisk===s.MAX_VALUE_16BITS||this.centralDirRecords===s.MAX_VALUE_16BITS||this.centralDirSize===s.MAX_VALUE_32BITS||this.centralDirOffset===s.MAX_VALUE_32BITS){if(this.zip64=!0,(h=this.reader.lastIndexOfSignature(n.ZIP64_CENTRAL_DIRECTORY_LOCATOR))<0)throw new Error("Corrupted zip: can\'t find the ZIP64 end of central directory locator");if(this.reader.setIndex(h),this.checkSignature(n.ZIP64_CENTRAL_DIRECTORY_LOCATOR),this.readBlockZip64EndOfCentralLocator(),!this.isSignature(this.relativeOffsetEndOfZip64CentralDir,n.ZIP64_CENTRAL_DIRECTORY_END)&&(this.relativeOffsetEndOfZip64CentralDir=this.reader.lastIndexOfSignature(n.ZIP64_CENTRAL_DIRECTORY_END),this.relativeOffsetEndOfZip64CentralDir<0))throw new Error("Corrupted zip: can\'t find the ZIP64 end of central directory");this.reader.setIndex(this.relativeOffsetEndOfZip64CentralDir),this.checkSignature(n.ZIP64_CENTRAL_DIRECTORY_END),this.readBlockZip64EndOfCentral()}var o=this.centralDirOffset+this.centralDirSize;this.zip64&&(o+=20,o+=12+this.zip64EndOfCentralSize);var g=p-o;if(0<g)this.isSignature(p,n.CENTRAL_FILE_HEADER)||(this.reader.zero=g);else if(g<0)throw new Error("Corrupted zip: missing "+Math.abs(g)+" bytes.")},prepareReader:function(h){this.reader=i(h)},load:function(h){this.prepareReader(h),this.readEndOfCentral(),this.readCentralDir(),this.readLocalFiles()}},t.exports=m},{"./reader/readerFor":22,"./signature":23,"./support":30,"./utils":32,"./zipEntry":34}],34:[function(r,t,e){"use strict";var i=r("./reader/readerFor"),s=r("./utils"),n=r("./compressedObject"),l=r("./crc32"),u=r("./utf8"),m=r("./compressions"),h=r("./support");function p(o,g){this.options=o,this.loadOptions=g}p.prototype={isEncrypted:function(){return(1&this.bitFlag)==1},useUTF8:function(){return(2048&this.bitFlag)==2048},readLocalPart:function(o){var g,d;if(o.skip(22),this.fileNameLength=o.readInt(2),d=o.readInt(2),this.fileName=o.readData(this.fileNameLength),o.skip(d),this.compressedSize===-1||this.uncompressedSize===-1)throw new Error("Bug or corrupted zip : didn\'t get enough information from the central directory (compressedSize === -1 || uncompressedSize === -1)");if((g=function(b){for(var f in m)if(Object.prototype.hasOwnProperty.call(m,f)&&m[f].magic===b)return m[f];return null}(this.compressionMethod))===null)throw new Error("Corrupted zip : compression "+s.pretty(this.compressionMethod)+" unknown (inner file : "+s.transformTo("string",this.fileName)+")");this.decompressed=new n(this.compressedSize,this.uncompressedSize,this.crc32,g,o.readData(this.compressedSize))},readCentralPart:function(o){this.versionMadeBy=o.readInt(2),o.skip(2),this.bitFlag=o.readInt(2),this.compressionMethod=o.readString(2),this.date=o.readDate(),this.crc32=o.readInt(4),this.compressedSize=o.readInt(4),this.uncompressedSize=o.readInt(4);var g=o.readInt(2);if(this.extraFieldsLength=o.readInt(2),this.fileCommentLength=o.readInt(2),this.diskNumberStart=o.readInt(2),this.internalFileAttributes=o.readInt(2),this.externalFileAttributes=o.readInt(4),this.localHeaderOffset=o.readInt(4),this.isEncrypted())throw new Error("Encrypted zip are not supported");o.skip(g),this.readExtraFields(o),this.parseZIP64ExtraField(o),this.fileComment=o.readData(this.fileCommentLength)},processAttributes:function(){this.unixPermissions=null,this.dosPermissions=null;var o=this.versionMadeBy>>8;this.dir=!!(16&this.externalFileAttributes),o==0&&(this.dosPermissions=63&this.externalFileAttributes),o==3&&(this.unixPermissions=this.externalFileAttributes>>16&65535),this.dir||this.fileNameStr.slice(-1)!=="/"||(this.dir=!0)},parseZIP64ExtraField:function(){if(this.extraFields[1]){var o=i(this.extraFields[1].value);this.uncompressedSize===s.MAX_VALUE_32BITS&&(this.uncompressedSize=o.readInt(8)),this.compressedSize===s.MAX_VALUE_32BITS&&(this.compressedSize=o.readInt(8)),this.localHeaderOffset===s.MAX_VALUE_32BITS&&(this.localHeaderOffset=o.readInt(8)),this.diskNumberStart===s.MAX_VALUE_32BITS&&(this.diskNumberStart=o.readInt(4))}},readExtraFields:function(o){var g,d,b,f=o.index+this.extraFieldsLength;for(this.extraFields||(this.extraFields={});o.index+4<f;)g=o.readInt(2),d=o.readInt(2),b=o.readData(d),this.extraFields[g]={id:g,length:d,value:b};o.setIndex(f)},handleUTF8:function(){var o=h.uint8array?"uint8array":"array";if(this.useUTF8())this.fileNameStr=u.utf8decode(this.fileName),this.fileCommentStr=u.utf8decode(this.fileComment);else{var g=this.findExtraFieldUnicodePath();if(g!==null)this.fileNameStr=g;else{var d=s.transformTo(o,this.fileName);this.fileNameStr=this.loadOptions.decodeFileName(d)}var b=this.findExtraFieldUnicodeComment();if(b!==null)this.fileCommentStr=b;else{var f=s.transformTo(o,this.fileComment);this.fileCommentStr=this.loadOptions.decodeFileName(f)}}},findExtraFieldUnicodePath:function(){var o=this.extraFields[28789];if(o){var g=i(o.value);return g.readInt(1)!==1||l(this.fileName)!==g.readInt(4)?null:u.utf8decode(g.readData(o.length-5))}return null},findExtraFieldUnicodeComment:function(){var o=this.extraFields[25461];if(o){var g=i(o.value);return g.readInt(1)!==1||l(this.fileComment)!==g.readInt(4)?null:u.utf8decode(g.readData(o.length-5))}return null}},t.exports=p},{"./compressedObject":2,"./compressions":3,"./crc32":4,"./reader/readerFor":22,"./support":30,"./utf8":31,"./utils":32}],35:[function(r,t,e){"use strict";function i(g,d,b){this.name=g,this.dir=b.dir,this.date=b.date,this.comment=b.comment,this.unixPermissions=b.unixPermissions,this.dosPermissions=b.dosPermissions,this._data=d,this._dataBinary=b.binary,this.options={compression:b.compression,compressionOptions:b.compressionOptions}}var s=r("./stream/StreamHelper"),n=r("./stream/DataWorker"),l=r("./utf8"),u=r("./compressedObject"),m=r("./stream/GenericWorker");i.prototype={internalStream:function(g){var d=null,b="string";try{if(!g)throw new Error("No output type specified.");var f=(b=g.toLowerCase())==="string"||b==="text";b!=="binarystring"&&b!=="text"||(b="string"),d=this._decompressWorker();var y=!this._dataBinary;y&&!f&&(d=d.pipe(new l.Utf8EncodeWorker)),!y&&f&&(d=d.pipe(new l.Utf8DecodeWorker))}catch(v){(d=new m("error")).error(v)}return new s(d,b,"")},async:function(g,d){return this.internalStream(g).accumulate(d)},nodeStream:function(g,d){return this.internalStream(g||"nodebuffer").toNodejsStream(d)},_compressWorker:function(g,d){if(this._data instanceof u&&this._data.compression.magic===g.magic)return this._data.getCompressedWorker();var b=this._decompressWorker();return this._dataBinary||(b=b.pipe(new l.Utf8EncodeWorker)),u.createWorkerFrom(b,g,d)},_decompressWorker:function(){return this._data instanceof u?this._data.getContentWorker():this._data instanceof m?this._data:new n(this._data)}};for(var h=["asText","asBinary","asNodeBuffer","asUint8Array","asArrayBuffer"],p=function(){throw new Error("This method has been removed in JSZip 3.0, please check the upgrade guide.")},o=0;o<h.length;o++)i.prototype[h[o]]=p;t.exports=i},{"./compressedObject":2,"./stream/DataWorker":27,"./stream/GenericWorker":28,"./stream/StreamHelper":29,"./utf8":31}],36:[function(r,t,e){(function(i){"use strict";var s,n,l=i.MutationObserver||i.WebKitMutationObserver;if(l){var u=0,m=new l(g),h=i.document.createTextNode("");m.observe(h,{characterData:!0}),s=function(){h.data=u=++u%2}}else if(i.setImmediate||i.MessageChannel===void 0)s="document"in i&&"onreadystatechange"in i.document.createElement("script")?function(){var d=i.document.createElement("script");d.onreadystatechange=function(){g(),d.onreadystatechange=null,d.parentNode.removeChild(d),d=null},i.document.documentElement.appendChild(d)}:function(){setTimeout(g,0)};else{var p=new i.MessageChannel;p.port1.onmessage=g,s=function(){p.port2.postMessage(0)}}var o=[];function g(){var d,b;n=!0;for(var f=o.length;f;){for(b=o,o=[],d=-1;++d<f;)b[d]();f=o.length}n=!1}t.exports=function(d){o.push(d)!==1||n||s()}}).call(this,typeof global<"u"?global:typeof self<"u"?self:typeof window<"u"?window:{})},{}],37:[function(r,t,e){"use strict";var i=r("immediate");function s(){}var n={},l=["REJECTED"],u=["FULFILLED"],m=["PENDING"];function h(f){if(typeof f!="function")throw new TypeError("resolver must be a function");this.state=m,this.queue=[],this.outcome=void 0,f!==s&&d(this,f)}function p(f,y,v){this.promise=f,typeof y=="function"&&(this.onFulfilled=y,this.callFulfilled=this.otherCallFulfilled),typeof v=="function"&&(this.onRejected=v,this.callRejected=this.otherCallRejected)}function o(f,y,v){i(function(){var E;try{E=y(v)}catch(S){return n.reject(f,S)}E===f?n.reject(f,new TypeError("Cannot resolve promise with itself")):n.resolve(f,E)})}function g(f){var y=f&&f.then;if(f&&(typeof f=="object"||typeof f=="function")&&typeof y=="function")return function(){y.apply(f,arguments)}}function d(f,y){var v=!1;function E(R){v||(v=!0,n.reject(f,R))}function S(R){v||(v=!0,n.resolve(f,R))}var F=b(function(){y(S,E)});F.status==="error"&&E(F.value)}function b(f,y){var v={};try{v.value=f(y),v.status="success"}catch(E){v.status="error",v.value=E}return v}(t.exports=h).prototype.finally=function(f){if(typeof f!="function")return this;var y=this.constructor;return this.then(function(v){return y.resolve(f()).then(function(){return v})},function(v){return y.resolve(f()).then(function(){throw v})})},h.prototype.catch=function(f){return this.then(null,f)},h.prototype.then=function(f,y){if(typeof f!="function"&&this.state===u||typeof y!="function"&&this.state===l)return this;var v=new this.constructor(s);return this.state!==m?o(v,this.state===u?f:y,this.outcome):this.queue.push(new p(v,f,y)),v},p.prototype.callFulfilled=function(f){n.resolve(this.promise,f)},p.prototype.otherCallFulfilled=function(f){o(this.promise,this.onFulfilled,f)},p.prototype.callRejected=function(f){n.reject(this.promise,f)},p.prototype.otherCallRejected=function(f){o(this.promise,this.onRejected,f)},n.resolve=function(f,y){var v=b(g,y);if(v.status==="error")return n.reject(f,v.value);var E=v.value;if(E)d(f,E);else{f.state=u,f.outcome=y;for(var S=-1,F=f.queue.length;++S<F;)f.queue[S].callFulfilled(y)}return f},n.reject=function(f,y){f.state=l,f.outcome=y;for(var v=-1,E=f.queue.length;++v<E;)f.queue[v].callRejected(y);return f},h.resolve=function(f){return f instanceof this?f:n.resolve(new this(s),f)},h.reject=function(f){var y=new this(s);return n.reject(y,f)},h.all=function(f){var y=this;if(Object.prototype.toString.call(f)!=="[object Array]")return this.reject(new TypeError("must be an array"));var v=f.length,E=!1;if(!v)return this.resolve([]);for(var S=new Array(v),F=0,R=-1,O=new this(s);++R<v;)N(f[R],R);return O;function N(j,Z){y.resolve(j).then(function(x){S[Z]=x,++F!==v||E||(E=!0,n.resolve(O,S))},function(x){E||(E=!0,n.reject(O,x))})}},h.race=function(f){var y=this;if(Object.prototype.toString.call(f)!=="[object Array]")return this.reject(new TypeError("must be an array"));var v=f.length,E=!1;if(!v)return this.resolve([]);for(var S=-1,F=new this(s);++S<v;)R=f[S],y.resolve(R).then(function(O){E||(E=!0,n.resolve(F,O))},function(O){E||(E=!0,n.reject(F,O))});var R;return F}},{immediate:36}],38:[function(r,t,e){"use strict";var i={};(0,r("./lib/utils/common").assign)(i,r("./lib/deflate"),r("./lib/inflate"),r("./lib/zlib/constants")),t.exports=i},{"./lib/deflate":39,"./lib/inflate":40,"./lib/utils/common":41,"./lib/zlib/constants":44}],39:[function(r,t,e){"use strict";var i=r("./zlib/deflate"),s=r("./utils/common"),n=r("./utils/strings"),l=r("./zlib/messages"),u=r("./zlib/zstream"),m=Object.prototype.toString,h=0,p=-1,o=0,g=8;function d(f){if(!(this instanceof d))return new d(f);this.options=s.assign({level:p,method:g,chunkSize:16384,windowBits:15,memLevel:8,strategy:o,to:""},f||{});var y=this.options;y.raw&&0<y.windowBits?y.windowBits=-y.windowBits:y.gzip&&0<y.windowBits&&y.windowBits<16&&(y.windowBits+=16),this.err=0,this.msg="",this.ended=!1,this.chunks=[],this.strm=new u,this.strm.avail_out=0;var v=i.deflateInit2(this.strm,y.level,y.method,y.windowBits,y.memLevel,y.strategy);if(v!==h)throw new Error(l[v]);if(y.header&&i.deflateSetHeader(this.strm,y.header),y.dictionary){var E;if(E=typeof y.dictionary=="string"?n.string2buf(y.dictionary):m.call(y.dictionary)==="[object ArrayBuffer]"?new Uint8Array(y.dictionary):y.dictionary,(v=i.deflateSetDictionary(this.strm,E))!==h)throw new Error(l[v]);this._dict_set=!0}}function b(f,y){var v=new d(y);if(v.push(f,!0),v.err)throw v.msg||l[v.err];return v.result}d.prototype.push=function(f,y){var v,E,S=this.strm,F=this.options.chunkSize;if(this.ended)return!1;E=y===~~y?y:y===!0?4:0,typeof f=="string"?S.input=n.string2buf(f):m.call(f)==="[object ArrayBuffer]"?S.input=new Uint8Array(f):S.input=f,S.next_in=0,S.avail_in=S.input.length;do{if(S.avail_out===0&&(S.output=new s.Buf8(F),S.next_out=0,S.avail_out=F),(v=i.deflate(S,E))!==1&&v!==h)return this.onEnd(v),!(this.ended=!0);S.avail_out!==0&&(S.avail_in!==0||E!==4&&E!==2)||(this.options.to==="string"?this.onData(n.buf2binstring(s.shrinkBuf(S.output,S.next_out))):this.onData(s.shrinkBuf(S.output,S.next_out)))}while((0<S.avail_in||S.avail_out===0)&&v!==1);return E===4?(v=i.deflateEnd(this.strm),this.onEnd(v),this.ended=!0,v===h):E!==2||(this.onEnd(h),!(S.avail_out=0))},d.prototype.onData=function(f){this.chunks.push(f)},d.prototype.onEnd=function(f){f===h&&(this.options.to==="string"?this.result=this.chunks.join(""):this.result=s.flattenChunks(this.chunks)),this.chunks=[],this.err=f,this.msg=this.strm.msg},e.Deflate=d,e.deflate=b,e.deflateRaw=function(f,y){return(y=y||{}).raw=!0,b(f,y)},e.gzip=function(f,y){return(y=y||{}).gzip=!0,b(f,y)}},{"./utils/common":41,"./utils/strings":42,"./zlib/deflate":46,"./zlib/messages":51,"./zlib/zstream":53}],40:[function(r,t,e){"use strict";var i=r("./zlib/inflate"),s=r("./utils/common"),n=r("./utils/strings"),l=r("./zlib/constants"),u=r("./zlib/messages"),m=r("./zlib/zstream"),h=r("./zlib/gzheader"),p=Object.prototype.toString;function o(d){if(!(this instanceof o))return new o(d);this.options=s.assign({chunkSize:16384,windowBits:0,to:""},d||{});var b=this.options;b.raw&&0<=b.windowBits&&b.windowBits<16&&(b.windowBits=-b.windowBits,b.windowBits===0&&(b.windowBits=-15)),!(0<=b.windowBits&&b.windowBits<16)||d&&d.windowBits||(b.windowBits+=32),15<b.windowBits&&b.windowBits<48&&!(15&b.windowBits)&&(b.windowBits|=15),this.err=0,this.msg="",this.ended=!1,this.chunks=[],this.strm=new m,this.strm.avail_out=0;var f=i.inflateInit2(this.strm,b.windowBits);if(f!==l.Z_OK)throw new Error(u[f]);this.header=new h,i.inflateGetHeader(this.strm,this.header)}function g(d,b){var f=new o(b);if(f.push(d,!0),f.err)throw f.msg||u[f.err];return f.result}o.prototype.push=function(d,b){var f,y,v,E,S,F,R=this.strm,O=this.options.chunkSize,N=this.options.dictionary,j=!1;if(this.ended)return!1;y=b===~~b?b:b===!0?l.Z_FINISH:l.Z_NO_FLUSH,typeof d=="string"?R.input=n.binstring2buf(d):p.call(d)==="[object ArrayBuffer]"?R.input=new Uint8Array(d):R.input=d,R.next_in=0,R.avail_in=R.input.length;do{if(R.avail_out===0&&(R.output=new s.Buf8(O),R.next_out=0,R.avail_out=O),(f=i.inflate(R,l.Z_NO_FLUSH))===l.Z_NEED_DICT&&N&&(F=typeof N=="string"?n.string2buf(N):p.call(N)==="[object ArrayBuffer]"?new Uint8Array(N):N,f=i.inflateSetDictionary(this.strm,F)),f===l.Z_BUF_ERROR&&j===!0&&(f=l.Z_OK,j=!1),f!==l.Z_STREAM_END&&f!==l.Z_OK)return this.onEnd(f),!(this.ended=!0);R.next_out&&(R.avail_out!==0&&f!==l.Z_STREAM_END&&(R.avail_in!==0||y!==l.Z_FINISH&&y!==l.Z_SYNC_FLUSH)||(this.options.to==="string"?(v=n.utf8border(R.output,R.next_out),E=R.next_out-v,S=n.buf2string(R.output,v),R.next_out=E,R.avail_out=O-E,E&&s.arraySet(R.output,R.output,v,E,0),this.onData(S)):this.onData(s.shrinkBuf(R.output,R.next_out)))),R.avail_in===0&&R.avail_out===0&&(j=!0)}while((0<R.avail_in||R.avail_out===0)&&f!==l.Z_STREAM_END);return f===l.Z_STREAM_END&&(y=l.Z_FINISH),y===l.Z_FINISH?(f=i.inflateEnd(this.strm),this.onEnd(f),this.ended=!0,f===l.Z_OK):y!==l.Z_SYNC_FLUSH||(this.onEnd(l.Z_OK),!(R.avail_out=0))},o.prototype.onData=function(d){this.chunks.push(d)},o.prototype.onEnd=function(d){d===l.Z_OK&&(this.options.to==="string"?this.result=this.chunks.join(""):this.result=s.flattenChunks(this.chunks)),this.chunks=[],this.err=d,this.msg=this.strm.msg},e.Inflate=o,e.inflate=g,e.inflateRaw=function(d,b){return(b=b||{}).raw=!0,g(d,b)},e.ungzip=g},{"./utils/common":41,"./utils/strings":42,"./zlib/constants":44,"./zlib/gzheader":47,"./zlib/inflate":49,"./zlib/messages":51,"./zlib/zstream":53}],41:[function(r,t,e){"use strict";var i=typeof Uint8Array<"u"&&typeof Uint16Array<"u"&&typeof Int32Array<"u";e.assign=function(l){for(var u=Array.prototype.slice.call(arguments,1);u.length;){var m=u.shift();if(m){if(typeof m!="object")throw new TypeError(m+"must be non-object");for(var h in m)m.hasOwnProperty(h)&&(l[h]=m[h])}}return l},e.shrinkBuf=function(l,u){return l.length===u?l:l.subarray?l.subarray(0,u):(l.length=u,l)};var s={arraySet:function(l,u,m,h,p){if(u.subarray&&l.subarray)l.set(u.subarray(m,m+h),p);else for(var o=0;o<h;o++)l[p+o]=u[m+o]},flattenChunks:function(l){var u,m,h,p,o,g;for(u=h=0,m=l.length;u<m;u++)h+=l[u].length;for(g=new Uint8Array(h),u=p=0,m=l.length;u<m;u++)o=l[u],g.set(o,p),p+=o.length;return g}},n={arraySet:function(l,u,m,h,p){for(var o=0;o<h;o++)l[p+o]=u[m+o]},flattenChunks:function(l){return[].concat.apply([],l)}};e.setTyped=function(l){l?(e.Buf8=Uint8Array,e.Buf16=Uint16Array,e.Buf32=Int32Array,e.assign(e,s)):(e.Buf8=Array,e.Buf16=Array,e.Buf32=Array,e.assign(e,n))},e.setTyped(i)},{}],42:[function(r,t,e){"use strict";var i=r("./common"),s=!0,n=!0;try{String.fromCharCode.apply(null,[0])}catch{s=!1}try{String.fromCharCode.apply(null,new Uint8Array(1))}catch{n=!1}for(var l=new i.Buf8(256),u=0;u<256;u++)l[u]=252<=u?6:248<=u?5:240<=u?4:224<=u?3:192<=u?2:1;function m(h,p){if(p<65537&&(h.subarray&&n||!h.subarray&&s))return String.fromCharCode.apply(null,i.shrinkBuf(h,p));for(var o="",g=0;g<p;g++)o+=String.fromCharCode(h[g]);return o}l[254]=l[254]=1,e.string2buf=function(h){var p,o,g,d,b,f=h.length,y=0;for(d=0;d<f;d++)(64512&(o=h.charCodeAt(d)))==55296&&d+1<f&&(64512&(g=h.charCodeAt(d+1)))==56320&&(o=65536+(o-55296<<10)+(g-56320),d++),y+=o<128?1:o<2048?2:o<65536?3:4;for(p=new i.Buf8(y),d=b=0;b<y;d++)(64512&(o=h.charCodeAt(d)))==55296&&d+1<f&&(64512&(g=h.charCodeAt(d+1)))==56320&&(o=65536+(o-55296<<10)+(g-56320),d++),o<128?p[b++]=o:(o<2048?p[b++]=192|o>>>6:(o<65536?p[b++]=224|o>>>12:(p[b++]=240|o>>>18,p[b++]=128|o>>>12&63),p[b++]=128|o>>>6&63),p[b++]=128|63&o);return p},e.buf2binstring=function(h){return m(h,h.length)},e.binstring2buf=function(h){for(var p=new i.Buf8(h.length),o=0,g=p.length;o<g;o++)p[o]=h.charCodeAt(o);return p},e.buf2string=function(h,p){var o,g,d,b,f=p||h.length,y=new Array(2*f);for(o=g=0;o<f;)if((d=h[o++])<128)y[g++]=d;else if(4<(b=l[d]))y[g++]=65533,o+=b-1;else{for(d&=b===2?31:b===3?15:7;1<b&&o<f;)d=d<<6|63&h[o++],b--;1<b?y[g++]=65533:d<65536?y[g++]=d:(d-=65536,y[g++]=55296|d>>10&1023,y[g++]=56320|1023&d)}return m(y,g)},e.utf8border=function(h,p){var o;for((p=p||h.length)>h.length&&(p=h.length),o=p-1;0<=o&&(192&h[o])==128;)o--;return o<0||o===0?p:o+l[h[o]]>p?o:p}},{"./common":41}],43:[function(r,t,e){"use strict";t.exports=function(i,s,n,l){for(var u=65535&i|0,m=i>>>16&65535|0,h=0;n!==0;){for(n-=h=2e3<n?2e3:n;m=m+(u=u+s[l++]|0)|0,--h;);u%=65521,m%=65521}return u|m<<16|0}},{}],44:[function(r,t,e){"use strict";t.exports={Z_NO_FLUSH:0,Z_PARTIAL_FLUSH:1,Z_SYNC_FLUSH:2,Z_FULL_FLUSH:3,Z_FINISH:4,Z_BLOCK:5,Z_TREES:6,Z_OK:0,Z_STREAM_END:1,Z_NEED_DICT:2,Z_ERRNO:-1,Z_STREAM_ERROR:-2,Z_DATA_ERROR:-3,Z_BUF_ERROR:-5,Z_NO_COMPRESSION:0,Z_BEST_SPEED:1,Z_BEST_COMPRESSION:9,Z_DEFAULT_COMPRESSION:-1,Z_FILTERED:1,Z_HUFFMAN_ONLY:2,Z_RLE:3,Z_FIXED:4,Z_DEFAULT_STRATEGY:0,Z_BINARY:0,Z_TEXT:1,Z_UNKNOWN:2,Z_DEFLATED:8}},{}],45:[function(r,t,e){"use strict";var i=function(){for(var s,n=[],l=0;l<256;l++){s=l;for(var u=0;u<8;u++)s=1&s?3988292384^s>>>1:s>>>1;n[l]=s}return n}();t.exports=function(s,n,l,u){var m=i,h=u+l;s^=-1;for(var p=u;p<h;p++)s=s>>>8^m[255&(s^n[p])];return-1^s}},{}],46:[function(r,t,e){"use strict";var i,s=r("../utils/common"),n=r("./trees"),l=r("./adler32"),u=r("./crc32"),m=r("./messages"),h=0,p=4,o=0,g=-2,d=-1,b=4,f=2,y=8,v=9,E=286,S=30,F=19,R=2*E+1,O=15,N=3,j=258,Z=j+N+1,x=42,L=113,c=1,z=2,K=3,U=4;function J(a,P){return a.msg=m[P],P}function D(a){return(a<<1)-(4<a?9:0)}function X(a){for(var P=a.length;0<=--P;)a[P]=0}function C(a){var P=a.state,I=P.pending;I>a.avail_out&&(I=a.avail_out),I!==0&&(s.arraySet(a.output,P.pending_buf,P.pending_out,I,a.next_out),a.next_out+=I,P.pending_out+=I,a.total_out+=I,a.avail_out-=I,P.pending-=I,P.pending===0&&(P.pending_out=0))}function T(a,P){n._tr_flush_block(a,0<=a.block_start?a.block_start:-1,a.strstart-a.block_start,P),a.block_start=a.strstart,C(a.strm)}function Y(a,P){a.pending_buf[a.pending++]=P}function W(a,P){a.pending_buf[a.pending++]=P>>>8&255,a.pending_buf[a.pending++]=255&P}function q(a,P){var I,w,_=a.max_chain_length,k=a.strstart,B=a.prev_length,M=a.nice_match,A=a.strstart>a.w_size-Z?a.strstart-(a.w_size-Z):0,V=a.window,H=a.w_mask,$=a.prev,G=a.strstart+j,rt=V[k+B-1],tt=V[k+B];a.prev_length>=a.good_match&&(_>>=2),M>a.lookahead&&(M=a.lookahead);do if(V[(I=P)+B]===tt&&V[I+B-1]===rt&&V[I]===V[k]&&V[++I]===V[k+1]){k+=2,I++;do;while(V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&V[++k]===V[++I]&&k<G);if(w=j-(G-k),k=G-j,B<w){if(a.match_start=P,M<=(B=w))break;rt=V[k+B-1],tt=V[k+B]}}while((P=$[P&H])>A&&--_!=0);return B<=a.lookahead?B:a.lookahead}function nt(a){var P,I,w,_,k,B,M,A,V,H,$=a.w_size;do{if(_=a.window_size-a.lookahead-a.strstart,a.strstart>=$+($-Z)){for(s.arraySet(a.window,a.window,$,$,0),a.match_start-=$,a.strstart-=$,a.block_start-=$,P=I=a.hash_size;w=a.head[--P],a.head[P]=$<=w?w-$:0,--I;);for(P=I=$;w=a.prev[--P],a.prev[P]=$<=w?w-$:0,--I;);_+=$}if(a.strm.avail_in===0)break;if(B=a.strm,M=a.window,A=a.strstart+a.lookahead,V=_,H=void 0,H=B.avail_in,V<H&&(H=V),I=H===0?0:(B.avail_in-=H,s.arraySet(M,B.input,B.next_in,H,A),B.state.wrap===1?B.adler=l(B.adler,M,H,A):B.state.wrap===2&&(B.adler=u(B.adler,M,H,A)),B.next_in+=H,B.total_in+=H,H),a.lookahead+=I,a.lookahead+a.insert>=N)for(k=a.strstart-a.insert,a.ins_h=a.window[k],a.ins_h=(a.ins_h<<a.hash_shift^a.window[k+1])&a.hash_mask;a.insert&&(a.ins_h=(a.ins_h<<a.hash_shift^a.window[k+N-1])&a.hash_mask,a.prev[k&a.w_mask]=a.head[a.ins_h],a.head[a.ins_h]=k,k++,a.insert--,!(a.lookahead+a.insert<N)););}while(a.lookahead<Z&&a.strm.avail_in!==0)}function lt(a,P){for(var I,w;;){if(a.lookahead<Z){if(nt(a),a.lookahead<Z&&P===h)return c;if(a.lookahead===0)break}if(I=0,a.lookahead>=N&&(a.ins_h=(a.ins_h<<a.hash_shift^a.window[a.strstart+N-1])&a.hash_mask,I=a.prev[a.strstart&a.w_mask]=a.head[a.ins_h],a.head[a.ins_h]=a.strstart),I!==0&&a.strstart-I<=a.w_size-Z&&(a.match_length=q(a,I)),a.match_length>=N)if(w=n._tr_tally(a,a.strstart-a.match_start,a.match_length-N),a.lookahead-=a.match_length,a.match_length<=a.max_lazy_match&&a.lookahead>=N){for(a.match_length--;a.strstart++,a.ins_h=(a.ins_h<<a.hash_shift^a.window[a.strstart+N-1])&a.hash_mask,I=a.prev[a.strstart&a.w_mask]=a.head[a.ins_h],a.head[a.ins_h]=a.strstart,--a.match_length!=0;);a.strstart++}else a.strstart+=a.match_length,a.match_length=0,a.ins_h=a.window[a.strstart],a.ins_h=(a.ins_h<<a.hash_shift^a.window[a.strstart+1])&a.hash_mask;else w=n._tr_tally(a,0,a.window[a.strstart]),a.lookahead--,a.strstart++;if(w&&(T(a,!1),a.strm.avail_out===0))return c}return a.insert=a.strstart<N-1?a.strstart:N-1,P===p?(T(a,!0),a.strm.avail_out===0?K:U):a.last_lit&&(T(a,!1),a.strm.avail_out===0)?c:z}function Q(a,P){for(var I,w,_;;){if(a.lookahead<Z){if(nt(a),a.lookahead<Z&&P===h)return c;if(a.lookahead===0)break}if(I=0,a.lookahead>=N&&(a.ins_h=(a.ins_h<<a.hash_shift^a.window[a.strstart+N-1])&a.hash_mask,I=a.prev[a.strstart&a.w_mask]=a.head[a.ins_h],a.head[a.ins_h]=a.strstart),a.prev_length=a.match_length,a.prev_match=a.match_start,a.match_length=N-1,I!==0&&a.prev_length<a.max_lazy_match&&a.strstart-I<=a.w_size-Z&&(a.match_length=q(a,I),a.match_length<=5&&(a.strategy===1||a.match_length===N&&4096<a.strstart-a.match_start)&&(a.match_length=N-1)),a.prev_length>=N&&a.match_length<=a.prev_length){for(_=a.strstart+a.lookahead-N,w=n._tr_tally(a,a.strstart-1-a.prev_match,a.prev_length-N),a.lookahead-=a.prev_length-1,a.prev_length-=2;++a.strstart<=_&&(a.ins_h=(a.ins_h<<a.hash_shift^a.window[a.strstart+N-1])&a.hash_mask,I=a.prev[a.strstart&a.w_mask]=a.head[a.ins_h],a.head[a.ins_h]=a.strstart),--a.prev_length!=0;);if(a.match_available=0,a.match_length=N-1,a.strstart++,w&&(T(a,!1),a.strm.avail_out===0))return c}else if(a.match_available){if((w=n._tr_tally(a,0,a.window[a.strstart-1]))&&T(a,!1),a.strstart++,a.lookahead--,a.strm.avail_out===0)return c}else a.match_available=1,a.strstart++,a.lookahead--}return a.match_available&&(w=n._tr_tally(a,0,a.window[a.strstart-1]),a.match_available=0),a.insert=a.strstart<N-1?a.strstart:N-1,P===p?(T(a,!0),a.strm.avail_out===0?K:U):a.last_lit&&(T(a,!1),a.strm.avail_out===0)?c:z}function et(a,P,I,w,_){this.good_length=a,this.max_lazy=P,this.nice_length=I,this.max_chain=w,this.func=_}function ot(){this.strm=null,this.status=0,this.pending_buf=null,this.pending_buf_size=0,this.pending_out=0,this.pending=0,this.wrap=0,this.gzhead=null,this.gzindex=0,this.method=y,this.last_flush=-1,this.w_size=0,this.w_bits=0,this.w_mask=0,this.window=null,this.window_size=0,this.prev=null,this.head=null,this.ins_h=0,this.hash_size=0,this.hash_bits=0,this.hash_mask=0,this.hash_shift=0,this.block_start=0,this.match_length=0,this.prev_match=0,this.match_available=0,this.strstart=0,this.match_start=0,this.lookahead=0,this.prev_length=0,this.max_chain_length=0,this.max_lazy_match=0,this.level=0,this.strategy=0,this.good_match=0,this.nice_match=0,this.dyn_ltree=new s.Buf16(2*R),this.dyn_dtree=new s.Buf16(2*(2*S+1)),this.bl_tree=new s.Buf16(2*(2*F+1)),X(this.dyn_ltree),X(this.dyn_dtree),X(this.bl_tree),this.l_desc=null,this.d_desc=null,this.bl_desc=null,this.bl_count=new s.Buf16(O+1),this.heap=new s.Buf16(2*E+1),X(this.heap),this.heap_len=0,this.heap_max=0,this.depth=new s.Buf16(2*E+1),X(this.depth),this.l_buf=0,this.lit_bufsize=0,this.last_lit=0,this.d_buf=0,this.opt_len=0,this.static_len=0,this.matches=0,this.insert=0,this.bi_buf=0,this.bi_valid=0}function it(a){var P;return a&&a.state?(a.total_in=a.total_out=0,a.data_type=f,(P=a.state).pending=0,P.pending_out=0,P.wrap<0&&(P.wrap=-P.wrap),P.status=P.wrap?x:L,a.adler=P.wrap===2?0:1,P.last_flush=h,n._tr_init(P),o):J(a,g)}function _t(a){var P=it(a);return P===o&&function(I){I.window_size=2*I.w_size,X(I.head),I.max_lazy_match=i[I.level].max_lazy,I.good_match=i[I.level].good_length,I.nice_match=i[I.level].nice_length,I.max_chain_length=i[I.level].max_chain,I.strstart=0,I.block_start=0,I.lookahead=0,I.insert=0,I.match_length=I.prev_length=N-1,I.match_available=0,I.ins_h=0}(a.state),P}function bt(a,P,I,w,_,k){if(!a)return g;var B=1;if(P===d&&(P=6),w<0?(B=0,w=-w):15<w&&(B=2,w-=16),_<1||v<_||I!==y||w<8||15<w||P<0||9<P||k<0||b<k)return J(a,g);w===8&&(w=9);var M=new ot;return(a.state=M).strm=a,M.wrap=B,M.gzhead=null,M.w_bits=w,M.w_size=1<<M.w_bits,M.w_mask=M.w_size-1,M.hash_bits=_+7,M.hash_size=1<<M.hash_bits,M.hash_mask=M.hash_size-1,M.hash_shift=~~((M.hash_bits+N-1)/N),M.window=new s.Buf8(2*M.w_size),M.head=new s.Buf16(M.hash_size),M.prev=new s.Buf16(M.w_size),M.lit_bufsize=1<<_+6,M.pending_buf_size=4*M.lit_bufsize,M.pending_buf=new s.Buf8(M.pending_buf_size),M.d_buf=1*M.lit_bufsize,M.l_buf=3*M.lit_bufsize,M.level=P,M.strategy=k,M.method=I,_t(a)}i=[new et(0,0,0,0,function(a,P){var I=65535;for(I>a.pending_buf_size-5&&(I=a.pending_buf_size-5);;){if(a.lookahead<=1){if(nt(a),a.lookahead===0&&P===h)return c;if(a.lookahead===0)break}a.strstart+=a.lookahead,a.lookahead=0;var w=a.block_start+I;if((a.strstart===0||a.strstart>=w)&&(a.lookahead=a.strstart-w,a.strstart=w,T(a,!1),a.strm.avail_out===0)||a.strstart-a.block_start>=a.w_size-Z&&(T(a,!1),a.strm.avail_out===0))return c}return a.insert=0,P===p?(T(a,!0),a.strm.avail_out===0?K:U):(a.strstart>a.block_start&&(T(a,!1),a.strm.avail_out),c)}),new et(4,4,8,4,lt),new et(4,5,16,8,lt),new et(4,6,32,32,lt),new et(4,4,16,16,Q),new et(8,16,32,32,Q),new et(8,16,128,128,Q),new et(8,32,128,256,Q),new et(32,128,258,1024,Q),new et(32,258,258,4096,Q)],e.deflateInit=function(a,P){return bt(a,P,y,15,8,0)},e.deflateInit2=bt,e.deflateReset=_t,e.deflateResetKeep=it,e.deflateSetHeader=function(a,P){return a&&a.state?a.state.wrap!==2?g:(a.state.gzhead=P,o):g},e.deflate=function(a,P){var I,w,_,k;if(!a||!a.state||5<P||P<0)return a?J(a,g):g;if(w=a.state,!a.output||!a.input&&a.avail_in!==0||w.status===666&&P!==p)return J(a,a.avail_out===0?-5:g);if(w.strm=a,I=w.last_flush,w.last_flush=P,w.status===x)if(w.wrap===2)a.adler=0,Y(w,31),Y(w,139),Y(w,8),w.gzhead?(Y(w,(w.gzhead.text?1:0)+(w.gzhead.hcrc?2:0)+(w.gzhead.extra?4:0)+(w.gzhead.name?8:0)+(w.gzhead.comment?16:0)),Y(w,255&w.gzhead.time),Y(w,w.gzhead.time>>8&255),Y(w,w.gzhead.time>>16&255),Y(w,w.gzhead.time>>24&255),Y(w,w.level===9?2:2<=w.strategy||w.level<2?4:0),Y(w,255&w.gzhead.os),w.gzhead.extra&&w.gzhead.extra.length&&(Y(w,255&w.gzhead.extra.length),Y(w,w.gzhead.extra.length>>8&255)),w.gzhead.hcrc&&(a.adler=u(a.adler,w.pending_buf,w.pending,0)),w.gzindex=0,w.status=69):(Y(w,0),Y(w,0),Y(w,0),Y(w,0),Y(w,0),Y(w,w.level===9?2:2<=w.strategy||w.level<2?4:0),Y(w,3),w.status=L);else{var B=y+(w.w_bits-8<<4)<<8;B|=(2<=w.strategy||w.level<2?0:w.level<6?1:w.level===6?2:3)<<6,w.strstart!==0&&(B|=32),B+=31-B%31,w.status=L,W(w,B),w.strstart!==0&&(W(w,a.adler>>>16),W(w,65535&a.adler)),a.adler=1}if(w.status===69)if(w.gzhead.extra){for(_=w.pending;w.gzindex<(65535&w.gzhead.extra.length)&&(w.pending!==w.pending_buf_size||(w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),C(a),_=w.pending,w.pending!==w.pending_buf_size));)Y(w,255&w.gzhead.extra[w.gzindex]),w.gzindex++;w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),w.gzindex===w.gzhead.extra.length&&(w.gzindex=0,w.status=73)}else w.status=73;if(w.status===73)if(w.gzhead.name){_=w.pending;do{if(w.pending===w.pending_buf_size&&(w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),C(a),_=w.pending,w.pending===w.pending_buf_size)){k=1;break}k=w.gzindex<w.gzhead.name.length?255&w.gzhead.name.charCodeAt(w.gzindex++):0,Y(w,k)}while(k!==0);w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),k===0&&(w.gzindex=0,w.status=91)}else w.status=91;if(w.status===91)if(w.gzhead.comment){_=w.pending;do{if(w.pending===w.pending_buf_size&&(w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),C(a),_=w.pending,w.pending===w.pending_buf_size)){k=1;break}k=w.gzindex<w.gzhead.comment.length?255&w.gzhead.comment.charCodeAt(w.gzindex++):0,Y(w,k)}while(k!==0);w.gzhead.hcrc&&w.pending>_&&(a.adler=u(a.adler,w.pending_buf,w.pending-_,_)),k===0&&(w.status=103)}else w.status=103;if(w.status===103&&(w.gzhead.hcrc?(w.pending+2>w.pending_buf_size&&C(a),w.pending+2<=w.pending_buf_size&&(Y(w,255&a.adler),Y(w,a.adler>>8&255),a.adler=0,w.status=L)):w.status=L),w.pending!==0){if(C(a),a.avail_out===0)return w.last_flush=-1,o}else if(a.avail_in===0&&D(P)<=D(I)&&P!==p)return J(a,-5);if(w.status===666&&a.avail_in!==0)return J(a,-5);if(a.avail_in!==0||w.lookahead!==0||P!==h&&w.status!==666){var M=w.strategy===2?function(A,V){for(var H;;){if(A.lookahead===0&&(nt(A),A.lookahead===0)){if(V===h)return c;break}if(A.match_length=0,H=n._tr_tally(A,0,A.window[A.strstart]),A.lookahead--,A.strstart++,H&&(T(A,!1),A.strm.avail_out===0))return c}return A.insert=0,V===p?(T(A,!0),A.strm.avail_out===0?K:U):A.last_lit&&(T(A,!1),A.strm.avail_out===0)?c:z}(w,P):w.strategy===3?function(A,V){for(var H,$,G,rt,tt=A.window;;){if(A.lookahead<=j){if(nt(A),A.lookahead<=j&&V===h)return c;if(A.lookahead===0)break}if(A.match_length=0,A.lookahead>=N&&0<A.strstart&&($=tt[G=A.strstart-1])===tt[++G]&&$===tt[++G]&&$===tt[++G]){rt=A.strstart+j;do;while($===tt[++G]&&$===tt[++G]&&$===tt[++G]&&$===tt[++G]&&$===tt[++G]&&$===tt[++G]&&$===tt[++G]&&$===tt[++G]&&G<rt);A.match_length=j-(rt-G),A.match_length>A.lookahead&&(A.match_length=A.lookahead)}if(A.match_length>=N?(H=n._tr_tally(A,1,A.match_length-N),A.lookahead-=A.match_length,A.strstart+=A.match_length,A.match_length=0):(H=n._tr_tally(A,0,A.window[A.strstart]),A.lookahead--,A.strstart++),H&&(T(A,!1),A.strm.avail_out===0))return c}return A.insert=0,V===p?(T(A,!0),A.strm.avail_out===0?K:U):A.last_lit&&(T(A,!1),A.strm.avail_out===0)?c:z}(w,P):i[w.level].func(w,P);if(M!==K&&M!==U||(w.status=666),M===c||M===K)return a.avail_out===0&&(w.last_flush=-1),o;if(M===z&&(P===1?n._tr_align(w):P!==5&&(n._tr_stored_block(w,0,0,!1),P===3&&(X(w.head),w.lookahead===0&&(w.strstart=0,w.block_start=0,w.insert=0))),C(a),a.avail_out===0))return w.last_flush=-1,o}return P!==p?o:w.wrap<=0?1:(w.wrap===2?(Y(w,255&a.adler),Y(w,a.adler>>8&255),Y(w,a.adler>>16&255),Y(w,a.adler>>24&255),Y(w,255&a.total_in),Y(w,a.total_in>>8&255),Y(w,a.total_in>>16&255),Y(w,a.total_in>>24&255)):(W(w,a.adler>>>16),W(w,65535&a.adler)),C(a),0<w.wrap&&(w.wrap=-w.wrap),w.pending!==0?o:1)},e.deflateEnd=function(a){var P;return a&&a.state?(P=a.state.status)!==x&&P!==69&&P!==73&&P!==91&&P!==103&&P!==L&&P!==666?J(a,g):(a.state=null,P===L?J(a,-3):o):g},e.deflateSetDictionary=function(a,P){var I,w,_,k,B,M,A,V,H=P.length;if(!a||!a.state||(k=(I=a.state).wrap)===2||k===1&&I.status!==x||I.lookahead)return g;for(k===1&&(a.adler=l(a.adler,P,H,0)),I.wrap=0,H>=I.w_size&&(k===0&&(X(I.head),I.strstart=0,I.block_start=0,I.insert=0),V=new s.Buf8(I.w_size),s.arraySet(V,P,H-I.w_size,I.w_size,0),P=V,H=I.w_size),B=a.avail_in,M=a.next_in,A=a.input,a.avail_in=H,a.next_in=0,a.input=P,nt(I);I.lookahead>=N;){for(w=I.strstart,_=I.lookahead-(N-1);I.ins_h=(I.ins_h<<I.hash_shift^I.window[w+N-1])&I.hash_mask,I.prev[w&I.w_mask]=I.head[I.ins_h],I.head[I.ins_h]=w,w++,--_;);I.strstart=w,I.lookahead=N-1,nt(I)}return I.strstart+=I.lookahead,I.block_start=I.strstart,I.insert=I.lookahead,I.lookahead=0,I.match_length=I.prev_length=N-1,I.match_available=0,a.next_in=M,a.input=A,a.avail_in=B,I.wrap=k,o},e.deflateInfo="pako deflate (from Nodeca project)"},{"../utils/common":41,"./adler32":43,"./crc32":45,"./messages":51,"./trees":52}],47:[function(r,t,e){"use strict";t.exports=function(){this.text=0,this.time=0,this.xflags=0,this.os=0,this.extra=null,this.extra_len=0,this.name="",this.comment="",this.hcrc=0,this.done=!1}},{}],48:[function(r,t,e){"use strict";t.exports=function(i,s){var n,l,u,m,h,p,o,g,d,b,f,y,v,E,S,F,R,O,N,j,Z,x,L,c,z;n=i.state,l=i.next_in,c=i.input,u=l+(i.avail_in-5),m=i.next_out,z=i.output,h=m-(s-i.avail_out),p=m+(i.avail_out-257),o=n.dmax,g=n.wsize,d=n.whave,b=n.wnext,f=n.window,y=n.hold,v=n.bits,E=n.lencode,S=n.distcode,F=(1<<n.lenbits)-1,R=(1<<n.distbits)-1;t:do{v<15&&(y+=c[l++]<<v,v+=8,y+=c[l++]<<v,v+=8),O=E[y&F];e:for(;;){if(y>>>=N=O>>>24,v-=N,(N=O>>>16&255)===0)z[m++]=65535&O;else{if(!(16&N)){if(!(64&N)){O=E[(65535&O)+(y&(1<<N)-1)];continue e}if(32&N){n.mode=12;break t}i.msg="invalid literal/length code",n.mode=30;break t}j=65535&O,(N&=15)&&(v<N&&(y+=c[l++]<<v,v+=8),j+=y&(1<<N)-1,y>>>=N,v-=N),v<15&&(y+=c[l++]<<v,v+=8,y+=c[l++]<<v,v+=8),O=S[y&R];r:for(;;){if(y>>>=N=O>>>24,v-=N,!(16&(N=O>>>16&255))){if(!(64&N)){O=S[(65535&O)+(y&(1<<N)-1)];continue r}i.msg="invalid distance code",n.mode=30;break t}if(Z=65535&O,v<(N&=15)&&(y+=c[l++]<<v,(v+=8)<N&&(y+=c[l++]<<v,v+=8)),o<(Z+=y&(1<<N)-1)){i.msg="invalid distance too far back",n.mode=30;break t}if(y>>>=N,v-=N,(N=m-h)<Z){if(d<(N=Z-N)&&n.sane){i.msg="invalid distance too far back",n.mode=30;break t}if(L=f,(x=0)===b){if(x+=g-N,N<j){for(j-=N;z[m++]=f[x++],--N;);x=m-Z,L=z}}else if(b<N){if(x+=g+b-N,(N-=b)<j){for(j-=N;z[m++]=f[x++],--N;);if(x=0,b<j){for(j-=N=b;z[m++]=f[x++],--N;);x=m-Z,L=z}}}else if(x+=b-N,N<j){for(j-=N;z[m++]=f[x++],--N;);x=m-Z,L=z}for(;2<j;)z[m++]=L[x++],z[m++]=L[x++],z[m++]=L[x++],j-=3;j&&(z[m++]=L[x++],1<j&&(z[m++]=L[x++]))}else{for(x=m-Z;z[m++]=z[x++],z[m++]=z[x++],z[m++]=z[x++],2<(j-=3););j&&(z[m++]=z[x++],1<j&&(z[m++]=z[x++]))}break}}break}}while(l<u&&m<p);l-=j=v>>3,y&=(1<<(v-=j<<3))-1,i.next_in=l,i.next_out=m,i.avail_in=l<u?u-l+5:5-(l-u),i.avail_out=m<p?p-m+257:257-(m-p),n.hold=y,n.bits=v}},{}],49:[function(r,t,e){"use strict";var i=r("../utils/common"),s=r("./adler32"),n=r("./crc32"),l=r("./inffast"),u=r("./inftrees"),m=1,h=2,p=0,o=-2,g=1,d=852,b=592;function f(x){return(x>>>24&255)+(x>>>8&65280)+((65280&x)<<8)+((255&x)<<24)}function y(){this.mode=0,this.last=!1,this.wrap=0,this.havedict=!1,this.flags=0,this.dmax=0,this.check=0,this.total=0,this.head=null,this.wbits=0,this.wsize=0,this.whave=0,this.wnext=0,this.window=null,this.hold=0,this.bits=0,this.length=0,this.offset=0,this.extra=0,this.lencode=null,this.distcode=null,this.lenbits=0,this.distbits=0,this.ncode=0,this.nlen=0,this.ndist=0,this.have=0,this.next=null,this.lens=new i.Buf16(320),this.work=new i.Buf16(288),this.lendyn=null,this.distdyn=null,this.sane=0,this.back=0,this.was=0}function v(x){var L;return x&&x.state?(L=x.state,x.total_in=x.total_out=L.total=0,x.msg="",L.wrap&&(x.adler=1&L.wrap),L.mode=g,L.last=0,L.havedict=0,L.dmax=32768,L.head=null,L.hold=0,L.bits=0,L.lencode=L.lendyn=new i.Buf32(d),L.distcode=L.distdyn=new i.Buf32(b),L.sane=1,L.back=-1,p):o}function E(x){var L;return x&&x.state?((L=x.state).wsize=0,L.whave=0,L.wnext=0,v(x)):o}function S(x,L){var c,z;return x&&x.state?(z=x.state,L<0?(c=0,L=-L):(c=1+(L>>4),L<48&&(L&=15)),L&&(L<8||15<L)?o:(z.window!==null&&z.wbits!==L&&(z.window=null),z.wrap=c,z.wbits=L,E(x))):o}function F(x,L){var c,z;return x?(z=new y,(x.state=z).window=null,(c=S(x,L))!==p&&(x.state=null),c):o}var R,O,N=!0;function j(x){if(N){var L;for(R=new i.Buf32(512),O=new i.Buf32(32),L=0;L<144;)x.lens[L++]=8;for(;L<256;)x.lens[L++]=9;for(;L<280;)x.lens[L++]=7;for(;L<288;)x.lens[L++]=8;for(u(m,x.lens,0,288,R,0,x.work,{bits:9}),L=0;L<32;)x.lens[L++]=5;u(h,x.lens,0,32,O,0,x.work,{bits:5}),N=!1}x.lencode=R,x.lenbits=9,x.distcode=O,x.distbits=5}function Z(x,L,c,z){var K,U=x.state;return U.window===null&&(U.wsize=1<<U.wbits,U.wnext=0,U.whave=0,U.window=new i.Buf8(U.wsize)),z>=U.wsize?(i.arraySet(U.window,L,c-U.wsize,U.wsize,0),U.wnext=0,U.whave=U.wsize):(z<(K=U.wsize-U.wnext)&&(K=z),i.arraySet(U.window,L,c-z,K,U.wnext),(z-=K)?(i.arraySet(U.window,L,c-z,z,0),U.wnext=z,U.whave=U.wsize):(U.wnext+=K,U.wnext===U.wsize&&(U.wnext=0),U.whave<U.wsize&&(U.whave+=K))),0}e.inflateReset=E,e.inflateReset2=S,e.inflateResetKeep=v,e.inflateInit=function(x){return F(x,15)},e.inflateInit2=F,e.inflate=function(x,L){var c,z,K,U,J,D,X,C,T,Y,W,q,nt,lt,Q,et,ot,it,_t,bt,a,P,I,w,_=0,k=new i.Buf8(4),B=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];if(!x||!x.state||!x.output||!x.input&&x.avail_in!==0)return o;(c=x.state).mode===12&&(c.mode=13),J=x.next_out,K=x.output,X=x.avail_out,U=x.next_in,z=x.input,D=x.avail_in,C=c.hold,T=c.bits,Y=D,W=X,P=p;t:for(;;)switch(c.mode){case g:if(c.wrap===0){c.mode=13;break}for(;T<16;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(2&c.wrap&&C===35615){k[c.check=0]=255&C,k[1]=C>>>8&255,c.check=n(c.check,k,2,0),T=C=0,c.mode=2;break}if(c.flags=0,c.head&&(c.head.done=!1),!(1&c.wrap)||(((255&C)<<8)+(C>>8))%31){x.msg="incorrect header check",c.mode=30;break}if((15&C)!=8){x.msg="unknown compression method",c.mode=30;break}if(T-=4,a=8+(15&(C>>>=4)),c.wbits===0)c.wbits=a;else if(a>c.wbits){x.msg="invalid window size",c.mode=30;break}c.dmax=1<<a,x.adler=c.check=1,c.mode=512&C?10:12,T=C=0;break;case 2:for(;T<16;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(c.flags=C,(255&c.flags)!=8){x.msg="unknown compression method",c.mode=30;break}if(57344&c.flags){x.msg="unknown header flags set",c.mode=30;break}c.head&&(c.head.text=C>>8&1),512&c.flags&&(k[0]=255&C,k[1]=C>>>8&255,c.check=n(c.check,k,2,0)),T=C=0,c.mode=3;case 3:for(;T<32;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.head&&(c.head.time=C),512&c.flags&&(k[0]=255&C,k[1]=C>>>8&255,k[2]=C>>>16&255,k[3]=C>>>24&255,c.check=n(c.check,k,4,0)),T=C=0,c.mode=4;case 4:for(;T<16;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.head&&(c.head.xflags=255&C,c.head.os=C>>8),512&c.flags&&(k[0]=255&C,k[1]=C>>>8&255,c.check=n(c.check,k,2,0)),T=C=0,c.mode=5;case 5:if(1024&c.flags){for(;T<16;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.length=C,c.head&&(c.head.extra_len=C),512&c.flags&&(k[0]=255&C,k[1]=C>>>8&255,c.check=n(c.check,k,2,0)),T=C=0}else c.head&&(c.head.extra=null);c.mode=6;case 6:if(1024&c.flags&&(D<(q=c.length)&&(q=D),q&&(c.head&&(a=c.head.extra_len-c.length,c.head.extra||(c.head.extra=new Array(c.head.extra_len)),i.arraySet(c.head.extra,z,U,q,a)),512&c.flags&&(c.check=n(c.check,z,q,U)),D-=q,U+=q,c.length-=q),c.length))break t;c.length=0,c.mode=7;case 7:if(2048&c.flags){if(D===0)break t;for(q=0;a=z[U+q++],c.head&&a&&c.length<65536&&(c.head.name+=String.fromCharCode(a)),a&&q<D;);if(512&c.flags&&(c.check=n(c.check,z,q,U)),D-=q,U+=q,a)break t}else c.head&&(c.head.name=null);c.length=0,c.mode=8;case 8:if(4096&c.flags){if(D===0)break t;for(q=0;a=z[U+q++],c.head&&a&&c.length<65536&&(c.head.comment+=String.fromCharCode(a)),a&&q<D;);if(512&c.flags&&(c.check=n(c.check,z,q,U)),D-=q,U+=q,a)break t}else c.head&&(c.head.comment=null);c.mode=9;case 9:if(512&c.flags){for(;T<16;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(C!==(65535&c.check)){x.msg="header crc mismatch",c.mode=30;break}T=C=0}c.head&&(c.head.hcrc=c.flags>>9&1,c.head.done=!0),x.adler=c.check=0,c.mode=12;break;case 10:for(;T<32;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}x.adler=c.check=f(C),T=C=0,c.mode=11;case 11:if(c.havedict===0)return x.next_out=J,x.avail_out=X,x.next_in=U,x.avail_in=D,c.hold=C,c.bits=T,2;x.adler=c.check=1,c.mode=12;case 12:if(L===5||L===6)break t;case 13:if(c.last){C>>>=7&T,T-=7&T,c.mode=27;break}for(;T<3;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}switch(c.last=1&C,T-=1,3&(C>>>=1)){case 0:c.mode=14;break;case 1:if(j(c),c.mode=20,L!==6)break;C>>>=2,T-=2;break t;case 2:c.mode=17;break;case 3:x.msg="invalid block type",c.mode=30}C>>>=2,T-=2;break;case 14:for(C>>>=7&T,T-=7&T;T<32;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if((65535&C)!=(C>>>16^65535)){x.msg="invalid stored block lengths",c.mode=30;break}if(c.length=65535&C,T=C=0,c.mode=15,L===6)break t;case 15:c.mode=16;case 16:if(q=c.length){if(D<q&&(q=D),X<q&&(q=X),q===0)break t;i.arraySet(K,z,U,q,J),D-=q,U+=q,X-=q,J+=q,c.length-=q;break}c.mode=12;break;case 17:for(;T<14;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(c.nlen=257+(31&C),C>>>=5,T-=5,c.ndist=1+(31&C),C>>>=5,T-=5,c.ncode=4+(15&C),C>>>=4,T-=4,286<c.nlen||30<c.ndist){x.msg="too many length or distance symbols",c.mode=30;break}c.have=0,c.mode=18;case 18:for(;c.have<c.ncode;){for(;T<3;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.lens[B[c.have++]]=7&C,C>>>=3,T-=3}for(;c.have<19;)c.lens[B[c.have++]]=0;if(c.lencode=c.lendyn,c.lenbits=7,I={bits:c.lenbits},P=u(0,c.lens,0,19,c.lencode,0,c.work,I),c.lenbits=I.bits,P){x.msg="invalid code lengths set",c.mode=30;break}c.have=0,c.mode=19;case 19:for(;c.have<c.nlen+c.ndist;){for(;et=(_=c.lencode[C&(1<<c.lenbits)-1])>>>16&255,ot=65535&_,!((Q=_>>>24)<=T);){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(ot<16)C>>>=Q,T-=Q,c.lens[c.have++]=ot;else{if(ot===16){for(w=Q+2;T<w;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(C>>>=Q,T-=Q,c.have===0){x.msg="invalid bit length repeat",c.mode=30;break}a=c.lens[c.have-1],q=3+(3&C),C>>>=2,T-=2}else if(ot===17){for(w=Q+3;T<w;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}T-=Q,a=0,q=3+(7&(C>>>=Q)),C>>>=3,T-=3}else{for(w=Q+7;T<w;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}T-=Q,a=0,q=11+(127&(C>>>=Q)),C>>>=7,T-=7}if(c.have+q>c.nlen+c.ndist){x.msg="invalid bit length repeat",c.mode=30;break}for(;q--;)c.lens[c.have++]=a}}if(c.mode===30)break;if(c.lens[256]===0){x.msg="invalid code -- missing end-of-block",c.mode=30;break}if(c.lenbits=9,I={bits:c.lenbits},P=u(m,c.lens,0,c.nlen,c.lencode,0,c.work,I),c.lenbits=I.bits,P){x.msg="invalid literal/lengths set",c.mode=30;break}if(c.distbits=6,c.distcode=c.distdyn,I={bits:c.distbits},P=u(h,c.lens,c.nlen,c.ndist,c.distcode,0,c.work,I),c.distbits=I.bits,P){x.msg="invalid distances set",c.mode=30;break}if(c.mode=20,L===6)break t;case 20:c.mode=21;case 21:if(6<=D&&258<=X){x.next_out=J,x.avail_out=X,x.next_in=U,x.avail_in=D,c.hold=C,c.bits=T,l(x,W),J=x.next_out,K=x.output,X=x.avail_out,U=x.next_in,z=x.input,D=x.avail_in,C=c.hold,T=c.bits,c.mode===12&&(c.back=-1);break}for(c.back=0;et=(_=c.lencode[C&(1<<c.lenbits)-1])>>>16&255,ot=65535&_,!((Q=_>>>24)<=T);){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(et&&!(240&et)){for(it=Q,_t=et,bt=ot;et=(_=c.lencode[bt+((C&(1<<it+_t)-1)>>it)])>>>16&255,ot=65535&_,!(it+(Q=_>>>24)<=T);){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}C>>>=it,T-=it,c.back+=it}if(C>>>=Q,T-=Q,c.back+=Q,c.length=ot,et===0){c.mode=26;break}if(32&et){c.back=-1,c.mode=12;break}if(64&et){x.msg="invalid literal/length code",c.mode=30;break}c.extra=15&et,c.mode=22;case 22:if(c.extra){for(w=c.extra;T<w;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.length+=C&(1<<c.extra)-1,C>>>=c.extra,T-=c.extra,c.back+=c.extra}c.was=c.length,c.mode=23;case 23:for(;et=(_=c.distcode[C&(1<<c.distbits)-1])>>>16&255,ot=65535&_,!((Q=_>>>24)<=T);){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(!(240&et)){for(it=Q,_t=et,bt=ot;et=(_=c.distcode[bt+((C&(1<<it+_t)-1)>>it)])>>>16&255,ot=65535&_,!(it+(Q=_>>>24)<=T);){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}C>>>=it,T-=it,c.back+=it}if(C>>>=Q,T-=Q,c.back+=Q,64&et){x.msg="invalid distance code",c.mode=30;break}c.offset=ot,c.extra=15&et,c.mode=24;case 24:if(c.extra){for(w=c.extra;T<w;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}c.offset+=C&(1<<c.extra)-1,C>>>=c.extra,T-=c.extra,c.back+=c.extra}if(c.offset>c.dmax){x.msg="invalid distance too far back",c.mode=30;break}c.mode=25;case 25:if(X===0)break t;if(q=W-X,c.offset>q){if((q=c.offset-q)>c.whave&&c.sane){x.msg="invalid distance too far back",c.mode=30;break}nt=q>c.wnext?(q-=c.wnext,c.wsize-q):c.wnext-q,q>c.length&&(q=c.length),lt=c.window}else lt=K,nt=J-c.offset,q=c.length;for(X<q&&(q=X),X-=q,c.length-=q;K[J++]=lt[nt++],--q;);c.length===0&&(c.mode=21);break;case 26:if(X===0)break t;K[J++]=c.length,X--,c.mode=21;break;case 27:if(c.wrap){for(;T<32;){if(D===0)break t;D--,C|=z[U++]<<T,T+=8}if(W-=X,x.total_out+=W,c.total+=W,W&&(x.adler=c.check=c.flags?n(c.check,K,W,J-W):s(c.check,K,W,J-W)),W=X,(c.flags?C:f(C))!==c.check){x.msg="incorrect data check",c.mode=30;break}T=C=0}c.mode=28;case 28:if(c.wrap&&c.flags){for(;T<32;){if(D===0)break t;D--,C+=z[U++]<<T,T+=8}if(C!==(4294967295&c.total)){x.msg="incorrect length check",c.mode=30;break}T=C=0}c.mode=29;case 29:P=1;break t;case 30:P=-3;break t;case 31:return-4;case 32:default:return o}return x.next_out=J,x.avail_out=X,x.next_in=U,x.avail_in=D,c.hold=C,c.bits=T,(c.wsize||W!==x.avail_out&&c.mode<30&&(c.mode<27||L!==4))&&Z(x,x.output,x.next_out,W-x.avail_out)?(c.mode=31,-4):(Y-=x.avail_in,W-=x.avail_out,x.total_in+=Y,x.total_out+=W,c.total+=W,c.wrap&&W&&(x.adler=c.check=c.flags?n(c.check,K,W,x.next_out-W):s(c.check,K,W,x.next_out-W)),x.data_type=c.bits+(c.last?64:0)+(c.mode===12?128:0)+(c.mode===20||c.mode===15?256:0),(Y==0&&W===0||L===4)&&P===p&&(P=-5),P)},e.inflateEnd=function(x){if(!x||!x.state)return o;var L=x.state;return L.window&&(L.window=null),x.state=null,p},e.inflateGetHeader=function(x,L){var c;return x&&x.state&&2&(c=x.state).wrap?((c.head=L).done=!1,p):o},e.inflateSetDictionary=function(x,L){var c,z=L.length;return x&&x.state?(c=x.state).wrap!==0&&c.mode!==11?o:c.mode===11&&s(1,L,z,0)!==c.check?-3:Z(x,L,z,z)?(c.mode=31,-4):(c.havedict=1,p):o},e.inflateInfo="pako inflate (from Nodeca project)"},{"../utils/common":41,"./adler32":43,"./crc32":45,"./inffast":48,"./inftrees":50}],50:[function(r,t,e){"use strict";var i=r("../utils/common"),s=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258,0,0],n=[16,16,16,16,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,20,20,20,20,21,21,21,21,16,72,78],l=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577,0,0],u=[16,16,16,16,17,17,18,18,19,19,20,20,21,21,22,22,23,23,24,24,25,25,26,26,27,27,28,28,29,29,64,64];t.exports=function(m,h,p,o,g,d,b,f){var y,v,E,S,F,R,O,N,j,Z=f.bits,x=0,L=0,c=0,z=0,K=0,U=0,J=0,D=0,X=0,C=0,T=null,Y=0,W=new i.Buf16(16),q=new i.Buf16(16),nt=null,lt=0;for(x=0;x<=15;x++)W[x]=0;for(L=0;L<o;L++)W[h[p+L]]++;for(K=Z,z=15;1<=z&&W[z]===0;z--);if(z<K&&(K=z),z===0)return g[d++]=20971520,g[d++]=20971520,f.bits=1,0;for(c=1;c<z&&W[c]===0;c++);for(K<c&&(K=c),x=D=1;x<=15;x++)if(D<<=1,(D-=W[x])<0)return-1;if(0<D&&(m===0||z!==1))return-1;for(q[1]=0,x=1;x<15;x++)q[x+1]=q[x]+W[x];for(L=0;L<o;L++)h[p+L]!==0&&(b[q[h[p+L]]++]=L);if(R=m===0?(T=nt=b,19):m===1?(T=s,Y-=257,nt=n,lt-=257,256):(T=l,nt=u,-1),x=c,F=d,J=L=C=0,E=-1,S=(X=1<<(U=K))-1,m===1&&852<X||m===2&&592<X)return 1;for(;;){for(O=x-J,j=b[L]<R?(N=0,b[L]):b[L]>R?(N=nt[lt+b[L]],T[Y+b[L]]):(N=96,0),y=1<<x-J,c=v=1<<U;g[F+(C>>J)+(v-=y)]=O<<24|N<<16|j|0,v!==0;);for(y=1<<x-1;C&y;)y>>=1;if(y!==0?(C&=y-1,C+=y):C=0,L++,--W[x]==0){if(x===z)break;x=h[p+b[L]]}if(K<x&&(C&S)!==E){for(J===0&&(J=K),F+=c,D=1<<(U=x-J);U+J<z&&!((D-=W[U+J])<=0);)U++,D<<=1;if(X+=1<<U,m===1&&852<X||m===2&&592<X)return 1;g[E=C&S]=K<<24|U<<16|F-d|0}}return C!==0&&(g[F+C]=x-J<<24|64<<16|0),f.bits=K,0}},{"../utils/common":41}],51:[function(r,t,e){"use strict";t.exports={2:"need dictionary",1:"stream end",0:"","-1":"file error","-2":"stream error","-3":"data error","-4":"insufficient memory","-5":"buffer error","-6":"incompatible version"}},{}],52:[function(r,t,e){"use strict";var i=r("../utils/common"),s=0,n=1;function l(_){for(var k=_.length;0<=--k;)_[k]=0}var u=0,m=29,h=256,p=h+1+m,o=30,g=19,d=2*p+1,b=15,f=16,y=7,v=256,E=16,S=17,F=18,R=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0],O=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13],N=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7],j=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],Z=new Array(2*(p+2));l(Z);var x=new Array(2*o);l(x);var L=new Array(512);l(L);var c=new Array(256);l(c);var z=new Array(m);l(z);var K,U,J,D=new Array(o);function X(_,k,B,M,A){this.static_tree=_,this.extra_bits=k,this.extra_base=B,this.elems=M,this.max_length=A,this.has_stree=_&&_.length}function C(_,k){this.dyn_tree=_,this.max_code=0,this.stat_desc=k}function T(_){return _<256?L[_]:L[256+(_>>>7)]}function Y(_,k){_.pending_buf[_.pending++]=255&k,_.pending_buf[_.pending++]=k>>>8&255}function W(_,k,B){_.bi_valid>f-B?(_.bi_buf|=k<<_.bi_valid&65535,Y(_,_.bi_buf),_.bi_buf=k>>f-_.bi_valid,_.bi_valid+=B-f):(_.bi_buf|=k<<_.bi_valid&65535,_.bi_valid+=B)}function q(_,k,B){W(_,B[2*k],B[2*k+1])}function nt(_,k){for(var B=0;B|=1&_,_>>>=1,B<<=1,0<--k;);return B>>>1}function lt(_,k,B){var M,A,V=new Array(b+1),H=0;for(M=1;M<=b;M++)V[M]=H=H+B[M-1]<<1;for(A=0;A<=k;A++){var $=_[2*A+1];$!==0&&(_[2*A]=nt(V[$]++,$))}}function Q(_){var k;for(k=0;k<p;k++)_.dyn_ltree[2*k]=0;for(k=0;k<o;k++)_.dyn_dtree[2*k]=0;for(k=0;k<g;k++)_.bl_tree[2*k]=0;_.dyn_ltree[2*v]=1,_.opt_len=_.static_len=0,_.last_lit=_.matches=0}function et(_){8<_.bi_valid?Y(_,_.bi_buf):0<_.bi_valid&&(_.pending_buf[_.pending++]=_.bi_buf),_.bi_buf=0,_.bi_valid=0}function ot(_,k,B,M){var A=2*k,V=2*B;return _[A]<_[V]||_[A]===_[V]&&M[k]<=M[B]}function it(_,k,B){for(var M=_.heap[B],A=B<<1;A<=_.heap_len&&(A<_.heap_len&&ot(k,_.heap[A+1],_.heap[A],_.depth)&&A++,!ot(k,M,_.heap[A],_.depth));)_.heap[B]=_.heap[A],B=A,A<<=1;_.heap[B]=M}function _t(_,k,B){var M,A,V,H,$=0;if(_.last_lit!==0)for(;M=_.pending_buf[_.d_buf+2*$]<<8|_.pending_buf[_.d_buf+2*$+1],A=_.pending_buf[_.l_buf+$],$++,M===0?q(_,A,k):(q(_,(V=c[A])+h+1,k),(H=R[V])!==0&&W(_,A-=z[V],H),q(_,V=T(--M),B),(H=O[V])!==0&&W(_,M-=D[V],H)),$<_.last_lit;);q(_,v,k)}function bt(_,k){var B,M,A,V=k.dyn_tree,H=k.stat_desc.static_tree,$=k.stat_desc.has_stree,G=k.stat_desc.elems,rt=-1;for(_.heap_len=0,_.heap_max=d,B=0;B<G;B++)V[2*B]!==0?(_.heap[++_.heap_len]=rt=B,_.depth[B]=0):V[2*B+1]=0;for(;_.heap_len<2;)V[2*(A=_.heap[++_.heap_len]=rt<2?++rt:0)]=1,_.depth[A]=0,_.opt_len--,$&&(_.static_len-=H[2*A+1]);for(k.max_code=rt,B=_.heap_len>>1;1<=B;B--)it(_,V,B);for(A=G;B=_.heap[1],_.heap[1]=_.heap[_.heap_len--],it(_,V,1),M=_.heap[1],_.heap[--_.heap_max]=B,_.heap[--_.heap_max]=M,V[2*A]=V[2*B]+V[2*M],_.depth[A]=(_.depth[B]>=_.depth[M]?_.depth[B]:_.depth[M])+1,V[2*B+1]=V[2*M+1]=A,_.heap[1]=A++,it(_,V,1),2<=_.heap_len;);_.heap[--_.heap_max]=_.heap[1],function(tt,mt){var Ft,yt,Pt,st,Wt,ae,wt=mt.dyn_tree,Ee=mt.max_code,kr=mt.stat_desc.static_tree,Sr=mt.stat_desc.has_stree,Ar=mt.stat_desc.extra_bits,ke=mt.stat_desc.extra_base,zt=mt.stat_desc.max_length,Ht=0;for(st=0;st<=b;st++)tt.bl_count[st]=0;for(wt[2*tt.heap[tt.heap_max]+1]=0,Ft=tt.heap_max+1;Ft<d;Ft++)zt<(st=wt[2*wt[2*(yt=tt.heap[Ft])+1]+1]+1)&&(st=zt,Ht++),wt[2*yt+1]=st,Ee<yt||(tt.bl_count[st]++,Wt=0,ke<=yt&&(Wt=Ar[yt-ke]),ae=wt[2*yt],tt.opt_len+=ae*(st+Wt),Sr&&(tt.static_len+=ae*(kr[2*yt+1]+Wt)));if(Ht!==0){do{for(st=zt-1;tt.bl_count[st]===0;)st--;tt.bl_count[st]--,tt.bl_count[st+1]+=2,tt.bl_count[zt]--,Ht-=2}while(0<Ht);for(st=zt;st!==0;st--)for(yt=tt.bl_count[st];yt!==0;)Ee<(Pt=tt.heap[--Ft])||(wt[2*Pt+1]!==st&&(tt.opt_len+=(st-wt[2*Pt+1])*wt[2*Pt],wt[2*Pt+1]=st),yt--)}}(_,k),lt(V,rt,_.bl_count)}function a(_,k,B){var M,A,V=-1,H=k[1],$=0,G=7,rt=4;for(H===0&&(G=138,rt=3),k[2*(B+1)+1]=65535,M=0;M<=B;M++)A=H,H=k[2*(M+1)+1],++$<G&&A===H||($<rt?_.bl_tree[2*A]+=$:A!==0?(A!==V&&_.bl_tree[2*A]++,_.bl_tree[2*E]++):$<=10?_.bl_tree[2*S]++:_.bl_tree[2*F]++,V=A,rt=($=0)===H?(G=138,3):A===H?(G=6,3):(G=7,4))}function P(_,k,B){var M,A,V=-1,H=k[1],$=0,G=7,rt=4;for(H===0&&(G=138,rt=3),M=0;M<=B;M++)if(A=H,H=k[2*(M+1)+1],!(++$<G&&A===H)){if($<rt)for(;q(_,A,_.bl_tree),--$!=0;);else A!==0?(A!==V&&(q(_,A,_.bl_tree),$--),q(_,E,_.bl_tree),W(_,$-3,2)):$<=10?(q(_,S,_.bl_tree),W(_,$-3,3)):(q(_,F,_.bl_tree),W(_,$-11,7));V=A,rt=($=0)===H?(G=138,3):A===H?(G=6,3):(G=7,4)}}l(D);var I=!1;function w(_,k,B,M){W(_,(u<<1)+(M?1:0),3),function(A,V,H,$){et(A),$&&(Y(A,H),Y(A,~H)),i.arraySet(A.pending_buf,A.window,V,H,A.pending),A.pending+=H}(_,k,B,!0)}e._tr_init=function(_){I||(function(){var k,B,M,A,V,H=new Array(b+1);for(A=M=0;A<m-1;A++)for(z[A]=M,k=0;k<1<<R[A];k++)c[M++]=A;for(c[M-1]=A,A=V=0;A<16;A++)for(D[A]=V,k=0;k<1<<O[A];k++)L[V++]=A;for(V>>=7;A<o;A++)for(D[A]=V<<7,k=0;k<1<<O[A]-7;k++)L[256+V++]=A;for(B=0;B<=b;B++)H[B]=0;for(k=0;k<=143;)Z[2*k+1]=8,k++,H[8]++;for(;k<=255;)Z[2*k+1]=9,k++,H[9]++;for(;k<=279;)Z[2*k+1]=7,k++,H[7]++;for(;k<=287;)Z[2*k+1]=8,k++,H[8]++;for(lt(Z,p+1,H),k=0;k<o;k++)x[2*k+1]=5,x[2*k]=nt(k,5);K=new X(Z,R,h+1,p,b),U=new X(x,O,0,o,b),J=new X(new Array(0),N,0,g,y)}(),I=!0),_.l_desc=new C(_.dyn_ltree,K),_.d_desc=new C(_.dyn_dtree,U),_.bl_desc=new C(_.bl_tree,J),_.bi_buf=0,_.bi_valid=0,Q(_)},e._tr_stored_block=w,e._tr_flush_block=function(_,k,B,M){var A,V,H=0;0<_.level?(_.strm.data_type===2&&(_.strm.data_type=function($){var G,rt=4093624447;for(G=0;G<=31;G++,rt>>>=1)if(1&rt&&$.dyn_ltree[2*G]!==0)return s;if($.dyn_ltree[18]!==0||$.dyn_ltree[20]!==0||$.dyn_ltree[26]!==0)return n;for(G=32;G<h;G++)if($.dyn_ltree[2*G]!==0)return n;return s}(_)),bt(_,_.l_desc),bt(_,_.d_desc),H=function($){var G;for(a($,$.dyn_ltree,$.l_desc.max_code),a($,$.dyn_dtree,$.d_desc.max_code),bt($,$.bl_desc),G=g-1;3<=G&&$.bl_tree[2*j[G]+1]===0;G--);return $.opt_len+=3*(G+1)+5+5+4,G}(_),A=_.opt_len+3+7>>>3,(V=_.static_len+3+7>>>3)<=A&&(A=V)):A=V=B+5,B+4<=A&&k!==-1?w(_,k,B,M):_.strategy===4||V===A?(W(_,2+(M?1:0),3),_t(_,Z,x)):(W(_,4+(M?1:0),3),function($,G,rt,tt){var mt;for(W($,G-257,5),W($,rt-1,5),W($,tt-4,4),mt=0;mt<tt;mt++)W($,$.bl_tree[2*j[mt]+1],3);P($,$.dyn_ltree,G-1),P($,$.dyn_dtree,rt-1)}(_,_.l_desc.max_code+1,_.d_desc.max_code+1,H+1),_t(_,_.dyn_ltree,_.dyn_dtree)),Q(_),M&&et(_)},e._tr_tally=function(_,k,B){return _.pending_buf[_.d_buf+2*_.last_lit]=k>>>8&255,_.pending_buf[_.d_buf+2*_.last_lit+1]=255&k,_.pending_buf[_.l_buf+_.last_lit]=255&B,_.last_lit++,k===0?_.dyn_ltree[2*B]++:(_.matches++,k--,_.dyn_ltree[2*(c[B]+h+1)]++,_.dyn_dtree[2*T(k)]++),_.last_lit===_.lit_bufsize-1},e._tr_align=function(_){W(_,2,3),q(_,v,Z),function(k){k.bi_valid===16?(Y(k,k.bi_buf),k.bi_buf=0,k.bi_valid=0):8<=k.bi_valid&&(k.pending_buf[k.pending++]=255&k.bi_buf,k.bi_buf>>=8,k.bi_valid-=8)}(_)}},{"../utils/common":41}],53:[function(r,t,e){"use strict";t.exports=function(){this.input=null,this.next_in=0,this.avail_in=0,this.total_in=0,this.output=null,this.next_out=0,this.avail_out=0,this.total_out=0,this.msg="",this.state=null,this.data_type=2,this.adler=0}},{}],54:[function(r,t,e){(function(i){(function(s,n){"use strict";if(!s.setImmediate){var l,u,m,h,p=1,o={},g=!1,d=s.document,b=Object.getPrototypeOf&&Object.getPrototypeOf(s);b=b&&b.setTimeout?b:s,l={}.toString.call(s.process)==="[object process]"?function(E){process.nextTick(function(){y(E)})}:function(){if(s.postMessage&&!s.importScripts){var E=!0,S=s.onmessage;return s.onmessage=function(){E=!1},s.postMessage("","*"),s.onmessage=S,E}}()?(h="setImmediate$"+Math.random()+"$",s.addEventListener?s.addEventListener("message",v,!1):s.attachEvent("onmessage",v),function(E){s.postMessage(h+E,"*")}):s.MessageChannel?((m=new MessageChannel).port1.onmessage=function(E){y(E.data)},function(E){m.port2.postMessage(E)}):d&&"onreadystatechange"in d.createElement("script")?(u=d.documentElement,function(E){var S=d.createElement("script");S.onreadystatechange=function(){y(E),S.onreadystatechange=null,u.removeChild(S),S=null},u.appendChild(S)}):function(E){setTimeout(y,0,E)},b.setImmediate=function(E){typeof E!="function"&&(E=new Function(""+E));for(var S=new Array(arguments.length-1),F=0;F<S.length;F++)S[F]=arguments[F+1];var R={callback:E,args:S};return o[p]=R,l(p),p++},b.clearImmediate=f}function f(E){delete o[E]}function y(E){if(g)setTimeout(y,0,E);else{var S=o[E];if(S){g=!0;try{(function(F){var R=F.callback,O=F.args;switch(O.length){case 0:R();break;case 1:R(O[0]);break;case 2:R(O[0],O[1]);break;case 3:R(O[0],O[1],O[2]);break;default:R.apply(n,O)}})(S)}finally{f(E),g=!1}}}}function v(E){E.source===s&&typeof E.data=="string"&&E.data.indexOf(h)===0&&y(+E.data.slice(h.length))}})(typeof self>"u"?i===void 0?this:i:self)}).call(this,typeof global<"u"?global:typeof self<"u"?self:typeof window<"u"?window:{})},{}]},{},[10])(10)})});var xr=Fr(Te(),1);var Ce=":A-Za-z_\\\\u00C0-\\\\u00D6\\\\u00D8-\\\\u00F6\\\\u00F8-\\\\u02FF\\\\u0370-\\\\u037D\\\\u037F-\\\\u1FFF\\\\u200C-\\\\u200D\\\\u2070-\\\\u218F\\\\u2C00-\\\\u2FEF\\\\u3001-\\\\uD7FF\\\\uF900-\\\\uFDCF\\\\uFDF0-\\\\uFFFD",Pr=Ce+"\\\\-.\\\\d\\\\u00B7\\\\u0300-\\\\u036F\\\\u203F-\\\\u2040",zr="["+Ce+"]["+Pr+"]*",Br=new RegExp("^"+zr+"$");function Zt(r,t){let e=[],i=t.exec(r);for(;i;){let s=[];s.startIndex=t.lastIndex-i[0].length;let n=i.length;for(let l=0;l<n;l++)s.push(i[l]);e.push(s),i=t.exec(r)}return e}var le=function(r){let t=Br.exec(r);return!(t===null||typeof t>"u")};function Ne(r){return typeof r<"u"}var Mt=["hasOwnProperty","toString","valueOf","__defineGetter__","__defineSetter__","__lookupGetter__","__lookupSetter__"],Gt=["__proto__","constructor","prototype"];var Mr={allowBooleanAttributes:!1,unpairedTags:[]};function Fe(r,t){t=Object.assign({},Mr,t);let e=[],i=!1,s=!1;r[0]==="\\uFEFF"&&(r=r.substr(1));for(let n=0;n<r.length;n++)if(r[n]==="<"&&r[n+1]==="?"){if(n+=2,n=Re(r,n),n.err)return n}else if(r[n]==="<"){let l=n;if(n++,r[n]==="!"){n=Oe(r,n);continue}else{let u=!1;r[n]==="/"&&(u=!0,n++);let m="";for(;n<r.length&&r[n]!==">"&&r[n]!==" "&&r[n]!=="	"&&r[n]!==`\n`&&r[n]!=="\\r";n++)m+=r[n];if(m=m.trim(),m[m.length-1]==="/"&&(m=m.substring(0,m.length-1),n--),!Hr(m)){let o;return m.trim().length===0?o="Invalid space after \'<\'.":o="Tag \'"+m+"\' is an invalid name.",at("InvalidTag",o,ct(r,n))}let h=Dr(r,n);if(h===!1)return at("InvalidAttr","Attributes for \'"+m+"\' have open quote.",ct(r,n));let p=h.value;if(n=h.index,p[p.length-1]==="/"){let o=n-p.length;p=p.substring(0,p.length-1);let g=Le(p,t);if(g===!0)i=!0;else return at(g.err.code,g.err.msg,ct(r,o+g.err.line))}else if(u)if(h.tagClosed){if(p.trim().length>0)return at("InvalidTag","Closing tag \'"+m+"\' can\'t have attributes or invalid starting.",ct(r,l));if(e.length===0)return at("InvalidTag","Closing tag \'"+m+"\' has not been opened.",ct(r,l));{let o=e.pop();if(m!==o.tagName){let g=ct(r,o.tagStartPos);return at("InvalidTag","Expected closing tag \'"+o.tagName+"\' (opened in line "+g.line+", col "+g.col+") instead of closing tag \'"+m+"\'.",ct(r,l))}e.length==0&&(s=!0)}}else return at("InvalidTag","Closing tag \'"+m+"\' doesn\'t have proper closing.",ct(r,n));else{let o=Le(p,t);if(o!==!0)return at(o.err.code,o.err.msg,ct(r,n-p.length+o.err.line));if(s===!0)return at("InvalidXml","Multiple possible root nodes found.",ct(r,n));t.unpairedTags.indexOf(m)!==-1||e.push({tagName:m,tagStartPos:l}),i=!0}for(n++;n<r.length;n++)if(r[n]==="<")if(r[n+1]==="!"){n++,n=Oe(r,n);continue}else if(r[n+1]==="?"){if(n=Re(r,++n),n.err)return n}else break;else if(r[n]==="&"){let o=qr(r,n);if(o==-1)return at("InvalidChar","char \'&\' is not expected.",ct(r,n));n=o}else if(s===!0&&!Ie(r[n]))return at("InvalidXml","Extra text at the end",ct(r,n));r[n]==="<"&&n--}}else{if(Ie(r[n]))continue;return at("InvalidChar","char \'"+r[n]+"\' is not expected.",ct(r,n))}if(i){if(e.length==1)return at("InvalidTag","Unclosed tag \'"+e[0].tagName+"\'.",ct(r,e[0].tagStartPos));if(e.length>0)return at("InvalidXml","Invalid \'"+JSON.stringify(e.map(n=>n.tagName),null,4).replace(/\\r?\\n/g,"")+"\' found.",{line:1,col:1})}else return at("InvalidXml","Start tag expected.",1);return!0}function Ie(r){return r===" "||r==="	"||r===`\n`||r==="\\r"}function Re(r,t){let e=t;for(;t<r.length;t++)if(r[t]=="?"||r[t]==" "){let i=r.substr(e,t-e);if(t>5&&i==="xml")return at("InvalidXml","XML declaration allowed only at the start of the document.",ct(r,t));if(r[t]=="?"&&r[t+1]==">"){t++;break}else continue}return t}function Oe(r,t){if(r.length>t+5&&r[t+1]==="-"&&r[t+2]==="-"){for(t+=3;t<r.length;t++)if(r[t]==="-"&&r[t+1]==="-"&&r[t+2]===">"){t+=2;break}}else if(r.length>t+8&&r[t+1]==="D"&&r[t+2]==="O"&&r[t+3]==="C"&&r[t+4]==="T"&&r[t+5]==="Y"&&r[t+6]==="P"&&r[t+7]==="E"){let e=1;for(t+=8;t<r.length;t++)if(r[t]==="<")e++;else if(r[t]===">"&&(e--,e===0))break}else if(r.length>t+9&&r[t+1]==="["&&r[t+2]==="C"&&r[t+3]==="D"&&r[t+4]==="A"&&r[t+5]==="T"&&r[t+6]==="A"&&r[t+7]==="["){for(t+=8;t<r.length;t++)if(r[t]==="]"&&r[t+1]==="]"&&r[t+2]===">"){t+=2;break}}return t}var jr=\'"\',Ur="\'";function Dr(r,t){let e="",i="",s=!1;for(;t<r.length;t++){if(r[t]===jr||r[t]===Ur)i===""?i=r[t]:i!==r[t]||(i="");else if(r[t]===">"&&i===""){s=!0;break}e+=r[t]}return i!==""?!1:{value:e,index:t,tagClosed:s}}var Vr=new RegExp(`(\\\\s*)([^\\\\s=]+)(\\\\s*=)?(\\\\s*([\'"])(([\\\\s\\\\S])*?)\\\\5)?`,"g");function Le(r,t){let e=Zt(r,Vr),i={};for(let s=0;s<e.length;s++){if(e[s][1].length===0)return at("InvalidAttr","Attribute \'"+e[s][2]+"\' has no space in starting.",jt(e[s]));if(e[s][3]!==void 0&&e[s][4]===void 0)return at("InvalidAttr","Attribute \'"+e[s][2]+"\' is without value.",jt(e[s]));if(e[s][3]===void 0&&!t.allowBooleanAttributes)return at("InvalidAttr","boolean attribute \'"+e[s][2]+"\' is not allowed.",jt(e[s]));let n=e[s][2];if(!Wr(n))return at("InvalidAttr","Attribute \'"+n+"\' is an invalid name.",jt(e[s]));if(!Object.prototype.hasOwnProperty.call(i,n))i[n]=1;else return at("InvalidAttr","Attribute \'"+n+"\' is repeated.",jt(e[s]))}return!0}function $r(r,t){let e=/\\d/;for(r[t]==="x"&&(t++,e=/[\\da-fA-F]/);t<r.length;t++){if(r[t]===";")return t;if(!r[t].match(e))break}return-1}function qr(r,t){if(t++,r[t]===";")return-1;if(r[t]==="#")return t++,$r(r,t);let e=0;for(;t<r.length;t++,e++)if(!(r[t].match(/\\w/)&&e<20)){if(r[t]===";")break;return-1}return t}function at(r,t,e){return{err:{code:r,msg:t,line:e.line||e,col:e.col}}}function Wr(r){return le(r)}function Hr(r){return le(r)}function ct(r,t){let e=r.substring(0,t).split(/\\r?\\n/);return{line:e.length,col:e[e.length-1].length+1}}function jt(r){return r.startIndex+r[1].length}var Pe={amp:"&",AMP:"&",lt:"<",LT:"<",gt:">",GT:">",quot:\'"\',QUOT:\'"\',apos:"\'",lsquo:"\\u2018",rsquo:"\\u2019",ldquo:"\\u201C",rdquo:"\\u201D",lsquor:"\\u201A",rsquor:"\\u2019",ldquor:"\\u201E",bdquo:"\\u201E",comma:",",period:".",colon:":",semi:";",excl:"!",quest:"?",num:"#",dollar:"$",percent:"%",ast:"*",commat:"@",lowbar:"_",verbar:"|",vert:"|",sol:"/",bsol:"\\\\",lbrace:"{",rbrace:"}",lbrack:"[",rbrack:"]",lpar:"(",rpar:")",nbsp:"\\xA0",iexcl:"\\xA1",cent:"\\xA2",pound:"\\xA3",curren:"\\xA4",yen:"\\xA5",brvbar:"\\xA6",sect:"\\xA7",uml:"\\xA8",copy:"\\xA9",COPY:"\\xA9",ordf:"\\xAA",laquo:"\\xAB",not:"\\xAC",shy:"\\xAD",reg:"\\xAE",REG:"\\xAE",macr:"\\xAF",deg:"\\xB0",plusmn:"\\xB1",sup2:"\\xB2",sup3:"\\xB3",acute:"\\xB4",micro:"\\xB5",para:"\\xB6",middot:"\\xB7",cedil:"\\xB8",sup1:"\\xB9",ordm:"\\xBA",raquo:"\\xBB",frac14:"\\xBC",frac12:"\\xBD",half:"\\xBD",frac34:"\\xBE",iquest:"\\xBF",times:"\\xD7",div:"\\xF7",divide:"\\xF7"},ze={Agrave:"\\xC0",agrave:"\\xE0",Aacute:"\\xC1",aacute:"\\xE1",Acirc:"\\xC2",acirc:"\\xE2",Atilde:"\\xC3",atilde:"\\xE3",Auml:"\\xC4",auml:"\\xE4",Aring:"\\xC5",aring:"\\xE5",AElig:"\\xC6",aelig:"\\xE6",Ccedil:"\\xC7",ccedil:"\\xE7",Egrave:"\\xC8",egrave:"\\xE8",Eacute:"\\xC9",eacute:"\\xE9",Ecirc:"\\xCA",ecirc:"\\xEA",Euml:"\\xCB",euml:"\\xEB",Igrave:"\\xCC",igrave:"\\xEC",Iacute:"\\xCD",iacute:"\\xED",Icirc:"\\xCE",icirc:"\\xEE",Iuml:"\\xCF",iuml:"\\xEF",ETH:"\\xD0",eth:"\\xF0",Ntilde:"\\xD1",ntilde:"\\xF1",Ograve:"\\xD2",ograve:"\\xF2",Oacute:"\\xD3",oacute:"\\xF3",Ocirc:"\\xD4",ocirc:"\\xF4",Otilde:"\\xD5",otilde:"\\xF5",Ouml:"\\xD6",ouml:"\\xF6",Oslash:"\\xD8",oslash:"\\xF8",Ugrave:"\\xD9",ugrave:"\\xF9",Uacute:"\\xDA",uacute:"\\xFA",Ucirc:"\\xDB",ucirc:"\\xFB",Uuml:"\\xDC",uuml:"\\xFC",Yacute:"\\xDD",yacute:"\\xFD",THORN:"\\xDE",thorn:"\\xFE",szlig:"\\xDF",yuml:"\\xFF",Yuml:"\\u0178"},Be={Amacr:"\\u0100",amacr:"\\u0101",Abreve:"\\u0102",abreve:"\\u0103",Aogon:"\\u0104",aogon:"\\u0105",Cacute:"\\u0106",cacute:"\\u0107",Ccirc:"\\u0108",ccirc:"\\u0109",Cdot:"\\u010A",cdot:"\\u010B",Ccaron:"\\u010C",ccaron:"\\u010D",Dcaron:"\\u010E",dcaron:"\\u010F",Dstrok:"\\u0110",dstrok:"\\u0111",Emacr:"\\u0112",emacr:"\\u0113",Ecaron:"\\u011A",ecaron:"\\u011B",Edot:"\\u0116",edot:"\\u0117",Eogon:"\\u0118",eogon:"\\u0119",Gcirc:"\\u011C",gcirc:"\\u011D",Gbreve:"\\u011E",gbreve:"\\u011F",Gdot:"\\u0120",gdot:"\\u0121",Gcedil:"\\u0122",Hcirc:"\\u0124",hcirc:"\\u0125",Hstrok:"\\u0126",hstrok:"\\u0127",Itilde:"\\u0128",itilde:"\\u0129",Imacr:"\\u012A",imacr:"\\u012B",Iogon:"\\u012E",iogon:"\\u012F",Idot:"\\u0130",IJlig:"\\u0132",ijlig:"\\u0133",Jcirc:"\\u0134",jcirc:"\\u0135",Kcedil:"\\u0136",kcedil:"\\u0137",kgreen:"\\u0138",Lacute:"\\u0139",lacute:"\\u013A",Lcedil:"\\u013B",lcedil:"\\u013C",Lcaron:"\\u013D",lcaron:"\\u013E",Lmidot:"\\u013F",lmidot:"\\u0140",Lstrok:"\\u0141",lstrok:"\\u0142",Nacute:"\\u0143",nacute:"\\u0144",Ncaron:"\\u0147",ncaron:"\\u0148",Ncedil:"\\u0145",ncedil:"\\u0146",ENG:"\\u014A",eng:"\\u014B",Omacr:"\\u014C",omacr:"\\u014D",Odblac:"\\u0150",odblac:"\\u0151",OElig:"\\u0152",oelig:"\\u0153",Racute:"\\u0154",racute:"\\u0155",Rcaron:"\\u0158",rcaron:"\\u0159",Rcedil:"\\u0156",rcedil:"\\u0157",Sacute:"\\u015A",sacute:"\\u015B",Scirc:"\\u015C",scirc:"\\u015D",Scedil:"\\u015E",scedil:"\\u015F",Scaron:"\\u0160",scaron:"\\u0161",Tcedil:"\\u0162",tcedil:"\\u0163",Tcaron:"\\u0164",tcaron:"\\u0165",Tstrok:"\\u0166",tstrok:"\\u0167",Utilde:"\\u0168",utilde:"\\u0169",Umacr:"\\u016A",umacr:"\\u016B",Ubreve:"\\u016C",ubreve:"\\u016D",Uring:"\\u016E",uring:"\\u016F",Udblac:"\\u0170",udblac:"\\u0171",Uogon:"\\u0172",uogon:"\\u0173",Wcirc:"\\u0174",wcirc:"\\u0175",Ycirc:"\\u0176",ycirc:"\\u0177",Zacute:"\\u0179",zacute:"\\u017A",Zdot:"\\u017B",zdot:"\\u017C",Zcaron:"\\u017D",zcaron:"\\u017E"},Me={Alpha:"\\u0391",alpha:"\\u03B1",Beta:"\\u0392",beta:"\\u03B2",Gamma:"\\u0393",gamma:"\\u03B3",Delta:"\\u0394",delta:"\\u03B4",Epsilon:"\\u0395",epsilon:"\\u03B5",epsiv:"\\u03F5",varepsilon:"\\u03F5",Zeta:"\\u0396",zeta:"\\u03B6",Eta:"\\u0397",eta:"\\u03B7",Theta:"\\u0398",theta:"\\u03B8",thetasym:"\\u03D1",vartheta:"\\u03D1",Iota:"\\u0399",iota:"\\u03B9",Kappa:"\\u039A",kappa:"\\u03BA",kappav:"\\u03F0",varkappa:"\\u03F0",Lambda:"\\u039B",lambda:"\\u03BB",Mu:"\\u039C",mu:"\\u03BC",Nu:"\\u039D",nu:"\\u03BD",Xi:"\\u039E",xi:"\\u03BE",Omicron:"\\u039F",omicron:"\\u03BF",Pi:"\\u03A0",pi:"\\u03C0",piv:"\\u03D6",varpi:"\\u03D6",Rho:"\\u03A1",rho:"\\u03C1",rhov:"\\u03F1",varrho:"\\u03F1",Sigma:"\\u03A3",sigma:"\\u03C3",sigmaf:"\\u03C2",sigmav:"\\u03C2",varsigma:"\\u03C2",Tau:"\\u03A4",tau:"\\u03C4",Upsilon:"\\u03A5",upsilon:"\\u03C5",upsi:"\\u03C5",Upsi:"\\u03D2",upsih:"\\u03D2",Phi:"\\u03A6",phi:"\\u03C6",phiv:"\\u03D5",varphi:"\\u03D5",Chi:"\\u03A7",chi:"\\u03C7",Psi:"\\u03A8",psi:"\\u03C8",Omega:"\\u03A9",omega:"\\u03C9",ohm:"\\u03A9",Gammad:"\\u03DC",gammad:"\\u03DD",digamma:"\\u03DD"},je={Afr:"\\u{1D504}",afr:"\\u{1D51E}",Acy:"\\u0410",acy:"\\u0430",Bcy:"\\u0411",bcy:"\\u0431",Vcy:"\\u0412",vcy:"\\u0432",Gcy:"\\u0413",gcy:"\\u0433",Dcy:"\\u0414",dcy:"\\u0434",IEcy:"\\u0415",iecy:"\\u0435",IOcy:"\\u0401",iocy:"\\u0451",ZHcy:"\\u0416",zhcy:"\\u0436",Zcy:"\\u0417",zcy:"\\u0437",Icy:"\\u0418",icy:"\\u0438",Jcy:"\\u0419",jcy:"\\u0439",Kcy:"\\u041A",kcy:"\\u043A",Lcy:"\\u041B",lcy:"\\u043B",Mcy:"\\u041C",mcy:"\\u043C",Ncy:"\\u041D",ncy:"\\u043D",Ocy:"\\u041E",ocy:"\\u043E",Pcy:"\\u041F",pcy:"\\u043F",Rcy:"\\u0420",rcy:"\\u0440",Scy:"\\u0421",scy:"\\u0441",Tcy:"\\u0422",tcy:"\\u0442",Ucy:"\\u0423",ucy:"\\u0443",Fcy:"\\u0424",fcy:"\\u0444",KHcy:"\\u0425",khcy:"\\u0445",TScy:"\\u0426",tscy:"\\u0446",CHcy:"\\u0427",chcy:"\\u0447",SHcy:"\\u0428",shcy:"\\u0448",SHCHcy:"\\u0429",shchcy:"\\u0449",HARDcy:"\\u042A",hardcy:"\\u044A",Ycy:"\\u042B",ycy:"\\u044B",SOFTcy:"\\u042C",softcy:"\\u044C",Ecy:"\\u042D",ecy:"\\u044D",YUcy:"\\u042E",yucy:"\\u044E",YAcy:"\\u042F",yacy:"\\u044F",DJcy:"\\u0402",djcy:"\\u0452",GJcy:"\\u0403",gjcy:"\\u0453",Jukcy:"\\u0404",jukcy:"\\u0454",DScy:"\\u0405",dscy:"\\u0455",Iukcy:"\\u0406",iukcy:"\\u0456",YIcy:"\\u0407",yicy:"\\u0457",Jsercy:"\\u0408",jsercy:"\\u0458",LJcy:"\\u0409",ljcy:"\\u0459",NJcy:"\\u040A",njcy:"\\u045A",TSHcy:"\\u040B",tshcy:"\\u045B",KJcy:"\\u040C",kjcy:"\\u045C",Ubrcy:"\\u040E",ubrcy:"\\u045E",DZcy:"\\u040F",dzcy:"\\u045F"},Ue={plus:"+",pm:"\\xB1",times:"\\xD7",div:"\\xF7",divide:"\\xF7",sdot:"\\u22C5",star:"\\u2606",starf:"\\u2605",bigstar:"\\u2605",lowast:"\\u2217",ast:"*",midast:"*",compfn:"\\u2218",smallcircle:"\\u2218",bullet:"\\u2022",bull:"\\u2022",nbsp:"\\xA0",hellip:"\\u2026",mldr:"\\u2026",prime:"\\u2032",Prime:"\\u2033",tprime:"\\u2034",bprime:"\\u2035",backprime:"\\u2035",minus:"\\u2212",minusd:"\\u2238",dotminus:"\\u2238",plusdo:"\\u2214",dotplus:"\\u2214",plusmn:"\\xB1",minusplus:"\\u2213",mnplus:"\\u2213",mp:"\\u2213",setminus:"\\u2216",smallsetminus:"\\u2216",Backslash:"\\u2216",setmn:"\\u2216",ssetmn:"\\u2216",lowbar:"_",verbar:"|",vert:"|",VerticalLine:"|",colon:":",Colon:"\\u2237",Proportion:"\\u2237",ratio:"\\u2236",equals:"=",ne:"\\u2260",nequiv:"\\u2262",equiv:"\\u2261",Congruent:"\\u2261",sim:"\\u223C",thicksim:"\\u223C",thksim:"\\u223C",sime:"\\u2243",simeq:"\\u2243",TildeEqual:"\\u2243",asymp:"\\u2248",approx:"\\u2248",thickapprox:"\\u2248",thkap:"\\u2248",TildeTilde:"\\u2248",ncong:"\\u2247",cong:"\\u2245",TildeFullEqual:"\\u2245",asympeq:"\\u224D",CupCap:"\\u224D",bump:"\\u224E",Bumpeq:"\\u224E",HumpDownHump:"\\u224E",bumpe:"\\u224F",bumpeq:"\\u224F",HumpEqual:"\\u224F",le:"\\u2264",LessEqual:"\\u2264",ge:"\\u2265",GreaterEqual:"\\u2265",lesseqgtr:"\\u22DA",lesseqqgtr:"\\u2A8B",greater:">",less:"<"},De={alefsym:"\\u2135",aleph:"\\u2135",beth:"\\u2136",gimel:"\\u2137",daleth:"\\u2138",forall:"\\u2200",ForAll:"\\u2200",part:"\\u2202",PartialD:"\\u2202",exist:"\\u2203",Exists:"\\u2203",nexist:"\\u2204",nexists:"\\u2204",empty:"\\u2205",emptyset:"\\u2205",emptyv:"\\u2205",varnothing:"\\u2205",nabla:"\\u2207",Del:"\\u2207",isin:"\\u2208",isinv:"\\u2208",in:"\\u2208",Element:"\\u2208",notin:"\\u2209",notinva:"\\u2209",ni:"\\u220B",niv:"\\u220B",SuchThat:"\\u220B",ReverseElement:"\\u220B",notni:"\\u220C",notniva:"\\u220C",prod:"\\u220F",Product:"\\u220F",coprod:"\\u2210",Coproduct:"\\u2210",sum:"\\u2211",Sum:"\\u2211",minus:"\\u2212",mp:"\\u2213",plusdo:"\\u2214",dotplus:"\\u2214",setminus:"\\u2216",lowast:"\\u2217",radic:"\\u221A",Sqrt:"\\u221A",prop:"\\u221D",propto:"\\u221D",Proportional:"\\u221D",varpropto:"\\u221D",infin:"\\u221E",infintie:"\\u29DD",ang:"\\u2220",angle:"\\u2220",angmsd:"\\u2221",measuredangle:"\\u2221",angsph:"\\u2222",mid:"\\u2223",VerticalBar:"\\u2223",nmid:"\\u2224",nsmid:"\\u2224",npar:"\\u2226",parallel:"\\u2225",spar:"\\u2225",nparallel:"\\u2226",nspar:"\\u2226",and:"\\u2227",wedge:"\\u2227",or:"\\u2228",vee:"\\u2228",cap:"\\u2229",cup:"\\u222A",int:"\\u222B",Integral:"\\u222B",conint:"\\u222E",ContourIntegral:"\\u222E",Conint:"\\u222F",DoubleContourIntegral:"\\u222F",Cconint:"\\u2230",there4:"\\u2234",therefore:"\\u2234",Therefore:"\\u2234",becaus:"\\u2235",because:"\\u2235",Because:"\\u2235",ratio:"\\u2236",Proportion:"\\u2237",minusd:"\\u2238",dotminus:"\\u2238",mDDot:"\\u223A",homtht:"\\u223B",sim:"\\u223C",bsimg:"\\u223D",backsim:"\\u223D",ac:"\\u223E",mstpos:"\\u223E",acd:"\\u223F",VerticalTilde:"\\u2240",wr:"\\u2240",wreath:"\\u2240",nsime:"\\u2244",nsimeq:"\\u2244",ncong:"\\u2247",simne:"\\u2246",ncongdot:"\\u2A6D\\u0338",ngsim:"\\u2275",nsim:"\\u2241",napprox:"\\u2249",nap:"\\u2249",ngeq:"\\u2271",nge:"\\u2271",nleq:"\\u2270",nle:"\\u2270",ngtr:"\\u226F",ngt:"\\u226F",nless:"\\u226E",nlt:"\\u226E",nprec:"\\u2280",npr:"\\u2280",nsucc:"\\u2281",nsc:"\\u2281"},Ve={larr:"\\u2190",leftarrow:"\\u2190",LeftArrow:"\\u2190",uarr:"\\u2191",uparrow:"\\u2191",UpArrow:"\\u2191",rarr:"\\u2192",rightarrow:"\\u2192",RightArrow:"\\u2192",darr:"\\u2193",downarrow:"\\u2193",DownArrow:"\\u2193",harr:"\\u2194",leftrightarrow:"\\u2194",LeftRightArrow:"\\u2194",varr:"\\u2195",updownarrow:"\\u2195",UpDownArrow:"\\u2195",nwarr:"\\u2196",nwarrow:"\\u2196",UpperLeftArrow:"\\u2196",nearr:"\\u2197",nearrow:"\\u2197",UpperRightArrow:"\\u2197",searr:"\\u2198",searrow:"\\u2198",LowerRightArrow:"\\u2198",swarr:"\\u2199",swarrow:"\\u2199",LowerLeftArrow:"\\u2199",lArr:"\\u21D0",Leftarrow:"\\u21D0",uArr:"\\u21D1",Uparrow:"\\u21D1",rArr:"\\u21D2",Rightarrow:"\\u21D2",dArr:"\\u21D3",Downarrow:"\\u21D3",hArr:"\\u21D4",Leftrightarrow:"\\u21D4",iff:"\\u21D4",vArr:"\\u21D5",Updownarrow:"\\u21D5",lAarr:"\\u21DA",Lleftarrow:"\\u21DA",rAarr:"\\u21DB",Rrightarrow:"\\u21DB",lrarr:"\\u21C6",leftrightarrows:"\\u21C6",rlarr:"\\u21C4",rightleftarrows:"\\u21C4",lrhar:"\\u21CB",leftrightharpoons:"\\u21CB",ReverseEquilibrium:"\\u21CB",rlhar:"\\u21CC",rightleftharpoons:"\\u21CC",Equilibrium:"\\u21CC",udarr:"\\u21C5",UpArrowDownArrow:"\\u21C5",duarr:"\\u21F5",DownArrowUpArrow:"\\u21F5",llarr:"\\u21C7",leftleftarrows:"\\u21C7",rrarr:"\\u21C9",rightrightarrows:"\\u21C9",ddarr:"\\u21CA",downdownarrows:"\\u21CA",har:"\\u21BD",lhard:"\\u21BD",leftharpoondown:"\\u21BD",lharu:"\\u21BC",leftharpoonup:"\\u21BC",rhard:"\\u21C1",rightharpoondown:"\\u21C1",rharu:"\\u21C0",rightharpoonup:"\\u21C0",lsh:"\\u21B0",Lsh:"\\u21B0",rsh:"\\u21B1",Rsh:"\\u21B1",ldsh:"\\u21B2",rdsh:"\\u21B3",hookleftarrow:"\\u21A9",hookrightarrow:"\\u21AA",mapstoleft:"\\u21A4",mapstoup:"\\u21A5",map:"\\u21A6",mapsto:"\\u21A6",mapstodown:"\\u21A7",crarr:"\\u21B5",nleftarrow:"\\u219A",nleftrightarrow:"\\u21AE",nrightarrow:"\\u219B",nrarr:"\\u219B",larrtl:"\\u21A2",rarrtl:"\\u21A3",leftarrowtail:"\\u21A2",rightarrowtail:"\\u21A3",twoheadleftarrow:"\\u219E",twoheadrightarrow:"\\u21A0",Larr:"\\u219E",Rarr:"\\u21A0",larrhk:"\\u21A9",rarrhk:"\\u21AA",larrlp:"\\u21AB",looparrowleft:"\\u21AB",rarrlp:"\\u21AC",looparrowright:"\\u21AC",harrw:"\\u21AD",leftrightsquigarrow:"\\u21AD",nrarrw:"\\u219D\\u0338",rarrw:"\\u219D",rightsquigarrow:"\\u219D",larrbfs:"\\u291F",rarrbfs:"\\u2920",nvHarr:"\\u2904",nvlArr:"\\u2902",nvrArr:"\\u2903",larrfs:"\\u291D",rarrfs:"\\u291E",Map:"\\u2905",larrsim:"\\u2973",rarrsim:"\\u2974",harrcir:"\\u2948",Uarrocir:"\\u2949",lurdshar:"\\u294A",ldrdhar:"\\u2967",ldrushar:"\\u294B",rdldhar:"\\u2969",lrhard:"\\u296D",uharr:"\\u21BE",uharl:"\\u21BF",dharr:"\\u21C2",dharl:"\\u21C3",Uarr:"\\u219F",Darr:"\\u21A1",zigrarr:"\\u21DD",nwArr:"\\u21D6",neArr:"\\u21D7",seArr:"\\u21D8",swArr:"\\u21D9",nharr:"\\u21AE",nhArr:"\\u21CE",nlarr:"\\u219A",nlArr:"\\u21CD",nrArr:"\\u21CF",larrb:"\\u21E4",LeftArrowBar:"\\u21E4",rarrb:"\\u21E5",RightArrowBar:"\\u21E5"},$e={square:"\\u25A1",Square:"\\u25A1",squ:"\\u25A1",squf:"\\u25AA",squarf:"\\u25AA",blacksquar:"\\u25AA",blacksquare:"\\u25AA",FilledVerySmallSquare:"\\u25AA",blk34:"\\u2593",blk12:"\\u2592",blk14:"\\u2591",block:"\\u2588",srect:"\\u25AD",rect:"\\u25AD",sdot:"\\u22C5",sdotb:"\\u22A1",dotsquare:"\\u22A1",triangle:"\\u25B5",tri:"\\u25B5",trine:"\\u25B5",utri:"\\u25B5",triangledown:"\\u25BF",dtri:"\\u25BF",tridown:"\\u25BF",triangleleft:"\\u25C3",ltri:"\\u25C3",triangleright:"\\u25B9",rtri:"\\u25B9",blacktriangle:"\\u25B4",utrif:"\\u25B4",blacktriangledown:"\\u25BE",dtrif:"\\u25BE",blacktriangleleft:"\\u25C2",ltrif:"\\u25C2",blacktriangleright:"\\u25B8",rtrif:"\\u25B8",loz:"\\u25CA",lozenge:"\\u25CA",blacklozenge:"\\u29EB",lozf:"\\u29EB",bigcirc:"\\u25EF",xcirc:"\\u25EF",circ:"\\u02C6",Circle:"\\u25CB",cir:"\\u25CB",o:"\\u25CB",bullet:"\\u2022",bull:"\\u2022",hellip:"\\u2026",mldr:"\\u2026",nldr:"\\u2025",boxh:"\\u2500",HorizontalLine:"\\u2500",boxv:"\\u2502",boxdr:"\\u250C",boxdl:"\\u2510",boxur:"\\u2514",boxul:"\\u2518",boxvr:"\\u251C",boxvl:"\\u2524",boxhd:"\\u252C",boxhu:"\\u2534",boxvh:"\\u253C",boxH:"\\u2550",boxV:"\\u2551",boxdR:"\\u2552",boxDr:"\\u2553",boxDR:"\\u2554",boxDl:"\\u2555",boxdL:"\\u2556",boxDL:"\\u2557",boxuR:"\\u2558",boxUr:"\\u2559",boxUR:"\\u255A",boxUl:"\\u255C",boxuL:"\\u255B",boxUL:"\\u255D",boxvR:"\\u255E",boxVr:"\\u255F",boxVR:"\\u2560",boxVl:"\\u2562",boxvL:"\\u2561",boxVL:"\\u2563",boxHd:"\\u2564",boxhD:"\\u2565",boxHD:"\\u2566",boxHu:"\\u2567",boxhU:"\\u2568",boxHU:"\\u2569",boxvH:"\\u256A",boxVh:"\\u256B",boxVH:"\\u256C"},qe={excl:"!",iexcl:"\\xA1",brvbar:"\\xA6",sect:"\\xA7",uml:"\\xA8",copy:"\\xA9",ordf:"\\xAA",laquo:"\\xAB",not:"\\xAC",shy:"\\xAD",reg:"\\xAE",macr:"\\xAF",deg:"\\xB0",plusmn:"\\xB1",sup2:"\\xB2",sup3:"\\xB3",acute:"\\xB4",micro:"\\xB5",para:"\\xB6",middot:"\\xB7",cedil:"\\xB8",sup1:"\\xB9",ordm:"\\xBA",raquo:"\\xBB",frac14:"\\xBC",frac12:"\\xBD",frac34:"\\xBE",iquest:"\\xBF",nbsp:"\\xA0",comma:",",period:".",colon:":",semi:";",vert:"|",Verbar:"\\u2016",verbar:"|",dblac:"\\u02DD",circ:"\\u02C6",caron:"\\u02C7",breve:"\\u02D8",dot:"\\u02D9",ring:"\\u02DA",ogon:"\\u02DB",tilde:"\\u02DC",DiacriticalGrave:"`",DiacriticalAcute:"\\xB4",DiacriticalTilde:"\\u02DC",DiacriticalDot:"\\u02D9",DiacriticalDoubleAcute:"\\u02DD",grave:"`"},Yt={cent:"\\xA2",pound:"\\xA3",curren:"\\xA4",yen:"\\xA5",euro:"\\u20AC",dollar:"$",fnof:"\\u0192",inr:"\\u20B9",af:"\\u060B",birr:"\\u1265\\u122D",peso:"\\u20B1",rub:"\\u20BD",won:"\\u20A9",yuan:"\\xA5",cedil:"\\xB8"},We={frac12:"\\xBD",half:"\\xBD",frac13:"\\u2153",frac14:"\\xBC",frac15:"\\u2155",frac16:"\\u2159",frac18:"\\u215B",frac23:"\\u2154",frac25:"\\u2156",frac34:"\\xBE",frac35:"\\u2157",frac38:"\\u215C",frac45:"\\u2158",frac56:"\\u215A",frac58:"\\u215D",frac78:"\\u215E",frasl:"\\u2044"},He={trade:"\\u2122",TRADE:"\\u2122",telrec:"\\u2315",target:"\\u2316",ulcorn:"\\u231C",ulcorner:"\\u231C",urcorn:"\\u231D",urcorner:"\\u231D",dlcorn:"\\u231E",llcorner:"\\u231E",drcorn:"\\u231F",lrcorner:"\\u231F",intercal:"\\u22BA",intcal:"\\u22BA",oplus:"\\u2295",CirclePlus:"\\u2295",ominus:"\\u2296",CircleMinus:"\\u2296",otimes:"\\u2297",CircleTimes:"\\u2297",osol:"\\u2298",odot:"\\u2299",CircleDot:"\\u2299",oast:"\\u229B",circledast:"\\u229B",odash:"\\u229D",circleddash:"\\u229D",ocirc:"\\u229A",circledcirc:"\\u229A",boxplus:"\\u229E",plusb:"\\u229E",boxminus:"\\u229F",minusb:"\\u229F",boxtimes:"\\u22A0",timesb:"\\u22A0",boxdot:"\\u22A1",sdotb:"\\u22A1",veebar:"\\u22BB",vee:"\\u2228",barvee:"\\u22BD",and:"\\u2227",wedge:"\\u2227",Cap:"\\u22D2",Cup:"\\u22D3",Fork:"\\u22D4",pitchfork:"\\u22D4",epar:"\\u22D5",ltlarr:"\\u2976",nvap:"\\u224D\\u20D2",nvsim:"\\u223C\\u20D2",nvge:"\\u2265\\u20D2",nvle:"\\u2264\\u20D2",nvlt:"<\\u20D2",nvgt:">\\u20D2",nvltrie:"\\u22B4\\u20D2",nvrtrie:"\\u22B5\\u20D2",Vdash:"\\u22A9",dashv:"\\u22A3",vDash:"\\u22A8",Vvdash:"\\u22AA",nvdash:"\\u22AC",nvDash:"\\u22AD",nVdash:"\\u22AE",nVDash:"\\u22AF"},Zr={...Pe,...ze,...Be,...Me,...je,...Ue,...De,...Ve,...$e,...qe,...Yt,...We,...He},Ut={amp:"&",apos:"\'",gt:">",lt:"<",quot:\'"\'},ce={nbsp:"\\xA0",copy:"\\xA9",reg:"\\xAE",trade:"\\u2122",mdash:"\\u2014",ndash:"\\u2013",hellip:"\\u2026",laquo:"\\xAB",raquo:"\\xBB",lsquo:"\\u2018",rsquo:"\\u2019",ldquo:"\\u201C",rdquo:"\\u201D",bull:"\\u2022",para:"\\xB6",sect:"\\xA7",deg:"\\xB0",frac12:"\\xBD",frac14:"\\xBC",frac34:"\\xBE"};var St=Object.freeze({ALLOW:"allow",BLOCK:"block",THROW:"throw"}),Gr=new Set("!?\\\\\\\\/[]$%{}^&*()<>|+");function Ze(r){if(r[0]==="#")throw new Error(`[EntityReplacer] Invalid character \'#\' in entity name: "${r}"`);for(let t of r)if(Gr.has(t))throw new Error(`[EntityReplacer] Invalid character \'${t}\' in entity name: "${r}"`);return r}function Dt(...r){let t=Object.create(null);for(let e of r)if(e)for(let i of Object.keys(e)){let s=e[i];if(typeof s=="string")t[i]=s;else if(s&&typeof s=="object"&&s.val!==void 0){let n=s.val;typeof n=="string"&&(t[i]=n)}}return t}var xt="external",Xt="base",ue="all";function Yr(r){return!r||r===xt?new Set([xt]):r===ue?new Set([ue]):r===Xt?new Set([Xt]):Array.isArray(r)?new Set(r):new Set([xt])}var ut=Object.freeze({allow:0,leave:1,remove:2,throw:3}),Xr=new Set([9,10,13]);function Kr(r){if(!r)return{xmlVersion:1,onLevel:ut.allow,nullLevel:ut.remove};let t=r.xmlVersion===1.1?1.1:1,e=ut[r.onNCR]??ut.allow,i=ut[r.nullNCR]??ut.remove,s=Math.max(i,ut.remove);return{xmlVersion:t,onLevel:e,nullLevel:s}}var At=class{constructor(t={}){this._limit=t.limit||{},this._maxTotalExpansions=this._limit.maxTotalExpansions||0,this._maxExpandedLength=this._limit.maxExpandedLength||0,this._postCheck=typeof t.postCheck=="function"?t.postCheck:i=>i,this._limitTiers=Yr(this._limit.applyLimitsTo??xt),this._numericAllowed=t.numericAllowed??!0,this._baseMap=Dt(Ut,t.namedEntities||null),this._externalMap=Object.create(null),this._inputMap=Object.create(null),this._totalExpansions=0,this._expandedLength=0,this._removeSet=new Set(t.remove&&Array.isArray(t.remove)?t.remove:[]),this._leaveSet=new Set(t.leave&&Array.isArray(t.leave)?t.leave:[]);let e=Kr(t.ncr);this._ncrXmlVersion=e.xmlVersion,this._ncrOnLevel=e.onLevel,this._ncrNullLevel=e.nullLevel,this._onExternalEntity=typeof t.onExternalEntity=="function"?t.onExternalEntity:null,this._onInputEntity=typeof t.onInputEntity=="function"?t.onInputEntity:null}_applyRegistrationHook(t,e,i,s){if(!t)return!0;let n=t(e,i);if(n===St.BLOCK)return!1;if(n===St.THROW)throw new Error(`[EntityDecoder] Registration of ${s} entity "&${e};" was rejected by hook`);return!0}setExternalEntities(t){if(t)for(let s of Object.keys(t))Ze(s);if(!this._onExternalEntity){this._externalMap=Dt(t);return}let e=Dt(t),i=Object.create(null);for(let[s,n]of Object.entries(e))this._applyRegistrationHook(this._onExternalEntity,s,n,"external")&&(i[s]=n);this._externalMap=i}addExternalEntity(t,e){Ze(t),typeof e=="string"&&e.indexOf("&")===-1&&this._applyRegistrationHook(this._onExternalEntity,t,e,"external")&&(this._externalMap[t]=e)}addInputEntities(t){if(this._totalExpansions=0,this._expandedLength=0,!this._onInputEntity){this._inputMap=Dt(t);return}let e=Dt(t),i=Object.create(null);for(let[s,n]of Object.entries(e))this._applyRegistrationHook(this._onInputEntity,s,n,"input")&&(i[s]=n);this._inputMap=i}reset(){return this._inputMap=Object.create(null),this._totalExpansions=0,this._expandedLength=0,this}setXmlVersion(t){this._ncrXmlVersion=t===1.1?1.1:1}decode(t){if(typeof t!="string"||t.length===0||t.indexOf("&")===-1)return t;let e=t,i=[],s=t.length,n=0,l=0,u=this._maxTotalExpansions>0,m=this._maxExpandedLength>0,h=u||m;for(;l<s;){if(t.charCodeAt(l)!==38){l++;continue}let o=l+1;for(;o<s&&t.charCodeAt(o)!==59&&o-l<=32;)o++;if(o>=s||t.charCodeAt(o)!==59){l++;continue}let g=t.slice(l+1,o);if(g.length===0){l++;continue}let d,b;if(this._removeSet.has(g))d="",b===void 0&&(b=xt);else if(this._leaveSet.has(g)){l++;continue}else if(g.charCodeAt(0)===35){let f=this._resolveNCR(g);if(f===void 0){l++;continue}d=f,b=Xt}else{let f=this._resolveName(g);d=f?.value,b=f?.tier}if(d===void 0){l++;continue}if(l>n&&i.push(t.slice(n,l)),i.push(d),n=o+1,l=n,h&&this._tierCounts(b)){if(u&&(this._totalExpansions++,this._totalExpansions>this._maxTotalExpansions))throw new Error(`[EntityReplacer] Entity expansion count limit exceeded: ${this._totalExpansions} > ${this._maxTotalExpansions}`);if(m){let f=d.length-(g.length+2);if(f>0&&(this._expandedLength+=f,this._expandedLength>this._maxExpandedLength))throw new Error(`[EntityReplacer] Expanded content length limit exceeded: ${this._expandedLength} > ${this._maxExpandedLength}`)}}}n<s&&i.push(t.slice(n));let p=i.length===0?t:i.join("");return this._postCheck(p,e)}_tierCounts(t){return this._limitTiers.has(ue)?!0:this._limitTiers.has(t)}_resolveName(t){if(t in this._inputMap)return{value:this._inputMap[t],tier:xt};if(t in this._externalMap)return{value:this._externalMap[t],tier:xt};if(t in this._baseMap)return{value:this._baseMap[t],tier:Xt}}_classifyNCR(t){return t===0?this._ncrNullLevel:t>=55296&&t<=57343||this._ncrXmlVersion===1&&t>=1&&t<=31&&!Xr.has(t)?ut.remove:-1}_applyNCRAction(t,e,i){switch(t){case ut.allow:return String.fromCodePoint(i);case ut.remove:return"";case ut.leave:return;case ut.throw:throw new Error(`[EntityDecoder] Prohibited numeric character reference &${e}; (U+${i.toString(16).toUpperCase().padStart(4,"0")})`);default:return String.fromCodePoint(i)}}_resolveNCR(t){let e=t.charCodeAt(1),i;if(e===120||e===88?i=parseInt(t.slice(2),16):i=parseInt(t.slice(1),10),Number.isNaN(i)||i<0||i>1114111)return;let s=this._classifyNCR(i);if(!this._numericAllowed&&s<ut.remove)return;let n=s===-1?this._ncrOnLevel:Math.max(this._ncrOnLevel,s);return this._applyNCRAction(n,t,i)}};var Ge=r=>Mt.includes(r)?"__"+r:r,Jr={preserveOrder:!1,attributeNamePrefix:"@_",attributesGroupName:!1,textNodeName:"#text",ignoreAttributes:!0,removeNSPrefix:!1,allowBooleanAttributes:!1,parseTagValue:!0,parseAttributeValue:!1,trimValues:!0,cdataPropName:!1,numberParseOptions:{hex:!0,leadingZeros:!0,eNotation:!0,unicode:!1},tagValueProcessor:function(r,t){return t},attributeValueProcessor:function(r,t){return t},stopNodes:[],alwaysCreateTextNode:!1,isArray:()=>!1,commentPropName:!1,unpairedTags:[],processEntities:!0,htmlEntities:!1,entityDecoder:null,ignoreDeclaration:!1,ignorePiTags:!1,transformTagName:!1,transformAttributeName:!1,updateTag:function(r,t,e){return r},captureMetaData:!1,maxNestedTags:100,strictReservedNames:!0,jPath:!0,onDangerousProperty:Ge};function Qr(r,t){if(typeof r!="string")return;let e=r.toLowerCase();if(Mt.some(i=>e===i.toLowerCase()))throw new Error(`[SECURITY] Invalid ${t}: "${r}" is a reserved JavaScript keyword that could cause prototype pollution`);if(Gt.some(i=>e===i.toLowerCase()))throw new Error(`[SECURITY] Invalid ${t}: "${r}" is a reserved JavaScript keyword that could cause prototype pollution`)}function Ye(r,t){return typeof r=="boolean"?{enabled:r,maxEntitySize:1e4,maxExpansionDepth:1e4,maxTotalExpansions:1/0,maxExpandedLength:1e5,maxEntityCount:1e3,allowedTags:null,tagFilter:null,appliesTo:"all"}:typeof r=="object"&&r!==null?{enabled:r.enabled!==!1,maxEntitySize:Math.max(1,r.maxEntitySize??1e4),maxExpansionDepth:Math.max(1,r.maxExpansionDepth??1e4),maxTotalExpansions:Math.max(1,r.maxTotalExpansions??1/0),maxExpandedLength:Math.max(1,r.maxExpandedLength??1e5),maxEntityCount:Math.max(1,r.maxEntityCount??1e3),allowedTags:r.allowedTags??null,tagFilter:r.tagFilter??null,appliesTo:r.appliesTo??"all"}:Ye(!0)}var Xe=function(r){let t=Object.assign({},Jr,r),e=[{value:t.attributeNamePrefix,name:"attributeNamePrefix"},{value:t.attributesGroupName,name:"attributesGroupName"},{value:t.textNodeName,name:"textNodeName"},{value:t.cdataPropName,name:"cdataPropName"},{value:t.commentPropName,name:"commentPropName"}];for(let{value:i,name:s}of e)i&&Qr(i,s);return t.onDangerousProperty===null&&(t.onDangerousProperty=Ge),t.processEntities=Ye(t.processEntities,t.htmlEntities),t.unpairedTagsSet=new Set(t.unpairedTags),t.stopNodes&&Array.isArray(t.stopNodes)&&(t.stopNodes=t.stopNodes.map(i=>typeof i=="string"&&i.startsWith("*.")?".."+i.substring(2):i)),t};var Kt;typeof Symbol!="function"?Kt="@@xmlMetadata":Kt=Symbol("XML Node Metadata");var dt=class{constructor(t){this.tagname=t,this.child=[],this[":@"]=Object.create(null)}add(t,e){t==="__proto__"&&(t="#__proto__"),this.child.push({[t]:e})}addChild(t,e){t.tagname==="__proto__"&&(t.tagname="#__proto__"),t[":@"]&&Object.keys(t[":@"]).length>0?this.child.push({[t.tagname]:t.child,":@":t[":@"]}):this.child.push({[t.tagname]:t.child}),e!==void 0&&(this.child[this.child.length-1][Kt]={startIndex:e})}static getMetaDataSymbol(){return Kt}};var Ke=":A-Za-z_\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\u02FF\\u0370-\\u037D\\u037F-\\u0486\\u0488-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD",tn=Ke+"\\\\-\\\\.\\\\d\\xB7\\u0300-\\u036F\\u203F-\\u2040",Je=":A-Za-z_\\xC0-\\u02FF\\u0370-\\u037D\\u037F-\\u0486\\u0488-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\u{10000}-\\u{EFFFF}",en=Je+"\\\\-\\\\.\\\\d\\xB7\\u0300-\\u036F\\u0487\\u203F-\\u2040",Qe=(r,t,e="")=>{let i=r.replace(":",""),s=t.replace(":",""),n=`[${i}][${s}]*`;return{name:new RegExp(`^[${r}][${t}]*$`,e),ncName:new RegExp(`^${n}$`,e),qName:new RegExp(`^${n}(?::${n})?$`,e),nmToken:new RegExp(`^[${t}]+$`,e),nmTokens:new RegExp(`^[${t}]+(?:\\\\s+[${t}]+)*$`,e)}},rn=Qe(Ke,tn),nn=Qe(Je,en,"u"),sn=(r="1.0")=>r==="1.1"?nn:rn;var de=(r,{xmlVersion:t="1.0"}={})=>sn(t).qName.test(r);var $t=class{constructor(t,e){this.suppressValidationErr=!t,this.options=t,this.xmlVersion=e||1}setXmlVersion(t=1){this.xmlVersion=t}readDocType(t,e){let i=Object.create(null),s=0;if(t[e+3]==="O"&&t[e+4]==="C"&&t[e+5]==="T"&&t[e+6]==="Y"&&t[e+7]==="P"&&t[e+8]==="E"){e=e+9;let n=1,l=!1,u=!1,m="";for(;e<t.length;e++)if(t[e]==="<"&&!u){if(l&&Et(t,"!ENTITY",e)){e+=7;let h,p;if([h,p,e]=this.readEntityExp(t,e+1,this.suppressValidationErr),p.indexOf("&")===-1){if(this.options.enabled!==!1&&this.options.maxEntityCount!=null&&s>=this.options.maxEntityCount)throw new Error(`Entity count (${s+1}) exceeds maximum allowed (${this.options.maxEntityCount})`);i[h]=p,s++}}else if(l&&Et(t,"!ELEMENT",e)){e+=8;let{index:h}=this.readElementExp(t,e+1);e=h}else if(l&&Et(t,"!ATTLIST",e))e+=8;else if(l&&Et(t,"!NOTATION",e)){e+=9;let{index:h}=this.readNotationExp(t,e+1,this.suppressValidationErr);e=h}else if(Et(t,"!--",e))u=!0;else throw new Error("Invalid DOCTYPE");n++,m=""}else if(t[e]===">"){if(u?t[e-1]==="-"&&t[e-2]==="-"&&(u=!1,n--):n--,n===0)break}else t[e]==="["?l=!0:m+=t[e];if(n!==0)throw new Error("Unclosed DOCTYPE")}else throw new Error("Invalid Tag instead of DOCTYPE");return{entities:i,i:e}}readEntityExp(t,e){e=ht(t,e);let i=e;for(;e<t.length&&!/\\s/.test(t[e])&&t[e]!==\'"\'&&t[e]!=="\'";)e++;let s=t.substring(i,e);if(Vt(s,{xmlVersion:this.xmlVersion}),e=ht(t,e),!this.suppressValidationErr){if(t.substring(e,e+6).toUpperCase()==="SYSTEM")throw new Error("External entities are not supported");if(t[e]==="%")throw new Error("Parameter entities are not supported")}let n="";if([e,n]=this.readIdentifierVal(t,e,"entity"),this.options.enabled!==!1&&this.options.maxEntitySize!=null&&n.length>this.options.maxEntitySize)throw new Error(`Entity "${s}" size (${n.length}) exceeds maximum allowed size (${this.options.maxEntitySize})`);return e--,[s,n,e]}readNotationExp(t,e){e=ht(t,e);let i=e;for(;e<t.length&&!/\\s/.test(t[e]);)e++;let s=t.substring(i,e);!this.suppressValidationErr&&Vt(s,{xmlVersion:this.xmlVersion}),e=ht(t,e);let n=t.substring(e,e+6).toUpperCase();if(!this.suppressValidationErr&&n!=="SYSTEM"&&n!=="PUBLIC")throw new Error(`Expected SYSTEM or PUBLIC, found "${n}"`);e+=n.length,e=ht(t,e);let l=null,u=null;if(n==="PUBLIC")[e,l]=this.readIdentifierVal(t,e,"publicIdentifier"),e=ht(t,e),(t[e]===\'"\'||t[e]==="\'")&&([e,u]=this.readIdentifierVal(t,e,"systemIdentifier"));else if(n==="SYSTEM"&&([e,u]=this.readIdentifierVal(t,e,"systemIdentifier"),!this.suppressValidationErr&&!u))throw new Error("Missing mandatory system identifier for SYSTEM notation");return{notationName:s,publicIdentifier:l,systemIdentifier:u,index:--e}}readIdentifierVal(t,e,i){let s="",n=t[e];if(n!==\'"\'&&n!=="\'")throw new Error(`Expected quoted string, found "${n}"`);e++;let l=e;for(;e<t.length&&t[e]!==n;)e++;if(s=t.substring(l,e),t[e]!==n)throw new Error(`Unterminated ${i} value`);return e++,[e,s]}readElementExp(t,e){e=ht(t,e);let i=e;for(;e<t.length&&!/\\s/.test(t[e]);)e++;let s=t.substring(i,e);if(!this.suppressValidationErr&&!de(s,{xmlVersion:this.xmlVersion}))throw new Error(`Invalid element name: "${s}"`);e=ht(t,e);let n="";if(t[e]==="E"&&Et(t,"MPTY",e))e+=4;else if(t[e]==="A"&&Et(t,"NY",e))e+=2;else if(t[e]==="("){e++;let l=e;for(;e<t.length&&t[e]!==")";)e++;if(n=t.substring(l,e),t[e]!==")")throw new Error("Unterminated content model")}else if(!this.suppressValidationErr)throw new Error(`Invalid Element Expression, found "${t[e]}"`);return{elementName:s,contentModel:n.trim(),index:e}}readAttlistExp(t,e){e=ht(t,e);let i=e;for(;e<t.length&&!/\\s/.test(t[e]);)e++;let s=t.substring(i,e);for(Vt(s,{xmlVersion:this.xmlVersion}),e=ht(t,e),i=e;e<t.length&&!/\\s/.test(t[e]);)e++;let n=t.substring(i,e);if(!Vt(n,{xmlVersion:this.xmlVersion}))throw new Error(`Invalid attribute name: "${n}"`);e=ht(t,e);let l="";if(t.substring(e,e+8).toUpperCase()==="NOTATION"){if(l="NOTATION",e+=8,e=ht(t,e),t[e]!=="(")throw new Error(`Expected \'(\', found "${t[e]}"`);e++;let m=[];for(;e<t.length&&t[e]!==")";){let h=e;for(;e<t.length&&t[e]!=="|"&&t[e]!==")";)e++;let p=t.substring(h,e);if(p=p.trim(),!Vt(p,{xmlVersion:this.xmlVersion}))throw new Error(`Invalid notation name: "${p}"`);m.push(p),t[e]==="|"&&(e++,e=ht(t,e))}if(t[e]!==")")throw new Error("Unterminated list of notations");e++,l+=" ("+m.join("|")+")"}else{let m=e;for(;e<t.length&&!/\\s/.test(t[e]);)e++;l+=t.substring(m,e);let h=["CDATA","ID","IDREF","IDREFS","ENTITY","ENTITIES","NMTOKEN","NMTOKENS"];if(!this.suppressValidationErr&&!h.includes(l.toUpperCase()))throw new Error(`Invalid attribute type: "${l}"`)}e=ht(t,e);let u="";return t.substring(e,e+8).toUpperCase()==="#REQUIRED"?(u="#REQUIRED",e+=8):t.substring(e,e+7).toUpperCase()==="#IMPLIED"?(u="#IMPLIED",e+=7):[e,u]=this.readIdentifierVal(t,e,"ATTLIST"),{elementName:s,attributeName:n,attributeType:l,defaultValue:u,index:e}}},ht=(r,t)=>{for(;t<r.length&&/\\s/.test(r[t]);)t++;return t};function Et(r,t,e){for(let i=0;i<t.length;i++)if(t[i]!==r[e+i+1])return!1;return!0}function Vt(r,t){if(de(r,{xmlVersion:t}))return r;throw new Error(`Invalid entity name ${r}`)}var an=[48,1632,1776,2406,2534,2662,2790,2918,3046,3174,3302,3430,3558,3664,3792,3872,4160,4240,6112,6160,6470,6608,6784,6800,6992,7088,7232,7248,65296,120782,120792,120802,120812,120822,66720,68912,69734,69872,69942,70096,70384,70736,70864,71248,71360,71472,71904,72016,72688,72784,73040,73120,73552,92768,92864,93008,123200,123632,124144,125264,130032],Jt=255,Qt=new Map,tr=65535,er=1632,Tt=er,on=tr-er+1,te=new Uint8Array(on).fill(Jt);for(let r of an)for(let t=0;t<10;t++){let e=r+t;e<=tr?te[e-Tt]=t:Qt.set(e,t)}var rr=48,nr=57,ir=45,ee=new Set([8722,65293,65123]);function ln(r){if(typeof r!="string")return r;let t=r.length;if(t===0)return r;let e=-1;for(let s=0;s<t;s++){let n=r.charCodeAt(s);if(!(n>=rr&&n<=nr||n===ir)){if(n<Tt){if(ee.has(n)){e=s;break}continue}if(n>=55296&&n<=56319){if(s+1<t){let l=r.charCodeAt(s+1);if(l>=56320&&l<=57343){let u=65536+(n-55296<<10)+(l-56320);if(Qt.has(u)){e=s;break}}}continue}if(te[n-Tt]!==Jt||ee.has(n)){e=s;break}}}if(e===-1)return r;let i=[];e>0&&i.push(r.slice(0,e));for(let s=e;s<t;s++){let n=r.charCodeAt(s);if(n>=rr&&n<=nr||n===ir){i.push(r[s]);continue}if(n<Tt){i.push(ee.has(n)?"-":r[s]);continue}if(n>=55296&&n<=56319){if(s+1<t){let u=r.charCodeAt(s+1);if(u>=56320&&u<=57343){let m=65536+(n-55296<<10)+(u-56320),h=Qt.get(m);if(h!==void 0){i.push(String.fromCharCode(h+48)),s++;continue}}}i.push(r[s]);continue}if(ee.has(n)){i.push("-");continue}let l=te[n-Tt];i.push(l!==Jt?String.fromCharCode(l+48):r[s])}return i.join("")}var sr=ln;var cn=/^[-+]?0x[a-fA-F0-9]+$/,un=/^0b[01]+$/,dn=/^0o[0-7]+$/,hn=/^([\\-\\+])?(0*)([0-9]*(\\.[0-9]*)?)$/,fn={hex:!0,binary:!1,octal:!1,leadingZeros:!0,decimalPoint:".",eNotation:!0,infinity:"original",unicode:!1};function fe(r,t={}){if(t=Object.assign({},fn,t),!r||typeof r!="string")return r;let e=r.trim();if(e.length===0)return r;if(t.skipLike!==void 0&&t.skipLike.test(e))return r;if(e==="0"||t.unicode&&(e=sr(e),e==="0"))return 0;if(t.hex&&cn.test(e))return he(e,16);if(t.binary&&un.test(e))return he(e,2);if(t.octal&&dn.test(e))return he(e,8);if(isFinite(e)){if(e.includes("e")||e.includes("E"))return mn(r,e,t);{let i=hn.exec(e);if(i){let s=i[1]||"",n=i[2],l=gn(i[3]),u=s?r[n.length+1]===".":r[n.length]===".";if(!t.leadingZeros&&(n.length>1||n.length===1&&!u))return r;{let m=Number(e),h=String(m);if(m===0)return m;if(h.search(/[eE]/)!==-1)return t.eNotation?m:r;if(e.indexOf(".")!==-1)return h==="0"||h===l||h===`${s}${l}`?m:r;let p=n?l:e;return n?p===h||s+p===h?m:r:p===h||p===s+h?m:r}}else return r}}else return bn(r,Number(e),t)}var pn=/^([-+])?(0*)(\\d*(\\.\\d*)?[eE][-\\+]?\\d+)$/;function mn(r,t,e){if(!e.eNotation)return r;let i=t.match(pn);if(i){let s=i[1]||"",n=i[3].indexOf("e")===-1?"E":"e",l=i[2],u=s?r[l.length+1]===n:r[l.length]===n;return l.length>1&&u?r:l.length===1&&(i[3].startsWith(`.${n}`)||i[3][0]===n)?Number(t):l.length>0?e.leadingZeros&&!u?(t=(i[1]||"")+i[3],Number(t)):r:Number(t)}else return r}function gn(r){return r&&r.indexOf(".")!==-1&&(r=r.replace(/0+$/,""),r==="."?r="0":r[0]==="."?r="0"+r:r[r.length-1]==="."&&(r=r.substring(0,r.length-1))),r}function he(r,t){let e=r.trim();if((t===2||t===8)&&(r=e.substring(2)),parseInt)return parseInt(r,t);if(Number.parseInt)return Number.parseInt(r,t);if(window&&window.parseInt)return window.parseInt(r,t);throw new Error("parseInt, Number.parseInt, window.parseInt are not supported")}function bn(r,t,e){let i=t===1/0;switch(e.infinity.toLowerCase()){case"null":return null;case"infinity":return t;case"string":return i?"Infinity":"-Infinity";case"original":default:return r}}function pe(r){return typeof r=="function"?r:Array.isArray(r)?t=>{for(let e of r)if(typeof e=="string"&&t===e||e instanceof RegExp&&e.test(t))return!0}:()=>!1}var kt=class{constructor(t,e={},i){this.pattern=t,this.separator=e.separator||".",this.segments=this._parse(t),this.data=i,this._hasDeepWildcard=this.segments.some(s=>s.type==="deep-wildcard"),this._hasAttributeCondition=this.segments.some(s=>s.attrName!==void 0),this._hasPositionSelector=this.segments.some(s=>s.position!==void 0)}_parse(t){let e=[],i=0,s="";for(;i<t.length;)t[i]===this.separator?i+1<t.length&&t[i+1]===this.separator?(s.trim()&&(e.push(this._parseSegment(s.trim())),s=""),e.push({type:"deep-wildcard"}),i+=2):(s.trim()&&e.push(this._parseSegment(s.trim())),s="",i++):(s+=t[i],i++);return s.trim()&&e.push(this._parseSegment(s.trim())),e}_parseSegment(t){let e={type:"tag"},i=null,s=t,n=t.match(/^([^\\[]+)(\\[[^\\]]*\\])(.*)$/);if(n&&(s=n[1]+n[3],n[2])){let p=n[2].slice(1,-1);p&&(i=p)}let l,u=s;if(s.includes("::")){let p=s.indexOf("::");if(l=s.substring(0,p).trim(),u=s.substring(p+2).trim(),!l)throw new Error(`Invalid namespace in pattern: ${t}`)}let m,h=null;if(u.includes(":")){let p=u.lastIndexOf(":"),o=u.substring(0,p).trim(),g=u.substring(p+1).trim();["first","last","odd","even"].includes(g)||/^nth\\(\\d+\\)$/.test(g)?(m=o,h=g):m=u}else m=u;if(!m)throw new Error(`Invalid segment pattern: ${t}`);if(e.tag=m,l&&(e.namespace=l),i)if(i.includes("=")){let p=i.indexOf("=");e.attrName=i.substring(0,p).trim(),e.attrValue=i.substring(p+1).trim()}else e.attrName=i.trim();if(h){let p=h.match(/^nth\\((\\d+)\\)$/);p?(e.position="nth",e.positionValue=parseInt(p[1],10)):e.position=h}return e}get length(){return this.segments.length}hasDeepWildcard(){return this._hasDeepWildcard}hasAttributeCondition(){return this._hasAttributeCondition}hasPositionSelector(){return this._hasPositionSelector}toString(){return this.pattern}};var Ct=class{constructor(){this._byDepthAndTag=new Map,this._wildcardByDepth=new Map,this._deepWildcards=[],this._patterns=new Set,this._sealed=!1}add(t){if(this._sealed)throw new TypeError("ExpressionSet is sealed. Create a new ExpressionSet to add more expressions.");if(this._patterns.has(t.pattern))return this;if(this._patterns.add(t.pattern),t.hasDeepWildcard())return this._deepWildcards.push(t),this;let e=t.length,s=t.segments[t.segments.length-1]?.tag;if(!s||s==="*")this._wildcardByDepth.has(e)||this._wildcardByDepth.set(e,[]),this._wildcardByDepth.get(e).push(t);else{let n=`${e}:${s}`;this._byDepthAndTag.has(n)||this._byDepthAndTag.set(n,[]),this._byDepthAndTag.get(n).push(t)}return this}addAll(t){for(let e of t)this.add(e);return this}has(t){return this._patterns.has(t.pattern)}get size(){return this._patterns.size}seal(){return this._sealed=!0,this}get isSealed(){return this._sealed}matchesAny(t){return this.findMatch(t)!==null}findMatch(t){let e=t.getDepth(),i=t.getCurrentTag(),s=`${e}:${i}`,n=this._byDepthAndTag.get(s);if(n){for(let u=0;u<n.length;u++)if(t.matches(n[u]))return n[u]}let l=this._wildcardByDepth.get(e);if(l){for(let u=0;u<l.length;u++)if(t.matches(l[u]))return l[u]}for(let u=0;u<this._deepWildcards.length;u++)if(t.matches(this._deepWildcards[u]))return this._deepWildcards[u];return null}};var me=class{constructor(t){this._matcher=t}get separator(){return this._matcher.separator}getCurrentTag(){let t=this._matcher.path;return t.length>0?t[t.length-1].tag:void 0}getCurrentNamespace(){let t=this._matcher.path;return t.length>0?t[t.length-1].namespace:void 0}getAttrValue(t){let e=this._matcher.path;if(e.length!==0)return e[e.length-1].values?.[t]}hasAttr(t){let e=this._matcher.path;if(e.length===0)return!1;let i=e[e.length-1];return i.values!==void 0&&t in i.values}getPosition(){let t=this._matcher.path;return t.length===0?-1:t[t.length-1].position??0}getCounter(){let t=this._matcher.path;return t.length===0?-1:t[t.length-1].counter??0}getIndex(){return this.getPosition()}getDepth(){return this._matcher.path.length}toString(t,e=!0){return this._matcher.toString(t,e)}toArray(){return this._matcher.path.map(t=>t.tag)}matches(t){return this._matcher.matches(t)}matchesAny(t){return t.matchesAny(this._matcher)}},Nt=class{constructor(t={}){this.separator=t.separator||".",this.path=[],this.siblingStacks=[],this._pathStringCache=null,this._view=new me(this)}push(t,e=null,i=null){this._pathStringCache=null,this.path.length>0&&(this.path[this.path.length-1].values=void 0);let s=this.path.length;this.siblingStacks[s]||(this.siblingStacks[s]=new Map);let n=this.siblingStacks[s],l=i?`${i}:${t}`:t,u=n.get(l)||0,m=0;for(let p of n.values())m+=p;n.set(l,u+1);let h={tag:t,position:m,counter:u};i!=null&&(h.namespace=i),e!=null&&(h.values=e),this.path.push(h)}pop(){if(this.path.length===0)return;this._pathStringCache=null;let t=this.path.pop();return this.siblingStacks.length>this.path.length+1&&(this.siblingStacks.length=this.path.length+1),t}updateCurrent(t){if(this.path.length>0){let e=this.path[this.path.length-1];t!=null&&(e.values=t)}}getCurrentTag(){return this.path.length>0?this.path[this.path.length-1].tag:void 0}getCurrentNamespace(){return this.path.length>0?this.path[this.path.length-1].namespace:void 0}getAttrValue(t){if(this.path.length!==0)return this.path[this.path.length-1].values?.[t]}hasAttr(t){if(this.path.length===0)return!1;let e=this.path[this.path.length-1];return e.values!==void 0&&t in e.values}getPosition(){return this.path.length===0?-1:this.path[this.path.length-1].position??0}getCounter(){return this.path.length===0?-1:this.path[this.path.length-1].counter??0}getIndex(){return this.getPosition()}getDepth(){return this.path.length}toString(t,e=!0){let i=t||this.separator;if(i===this.separator&&e===!0){if(this._pathStringCache!==null)return this._pathStringCache;let n=this.path.map(l=>l.namespace?`${l.namespace}:${l.tag}`:l.tag).join(i);return this._pathStringCache=n,n}return this.path.map(n=>e&&n.namespace?`${n.namespace}:${n.tag}`:n.tag).join(i)}toArray(){return this.path.map(t=>t.tag)}reset(){this._pathStringCache=null,this.path=[],this.siblingStacks=[]}matches(t){let e=t.segments;return e.length===0?!1:t.hasDeepWildcard()?this._matchWithDeepWildcard(e):this._matchSimple(e)}_matchSimple(t){if(this.path.length!==t.length)return!1;for(let e=0;e<t.length;e++)if(!this._matchSegment(t[e],this.path[e],e===this.path.length-1))return!1;return!0}_matchWithDeepWildcard(t){let e=this.path.length-1,i=t.length-1;for(;i>=0&&e>=0;){let s=t[i];if(s.type==="deep-wildcard"){if(i--,i<0)return!0;let n=t[i],l=!1;for(let u=e;u>=0;u--)if(this._matchSegment(n,this.path[u],u===this.path.length-1)){e=u-1,i--,l=!0;break}if(!l)return!1}else{if(!this._matchSegment(s,this.path[e],e===this.path.length-1))return!1;e--,i--}}return i<0}_matchSegment(t,e,i){if(t.tag!=="*"&&t.tag!==e.tag||t.namespace!==void 0&&t.namespace!=="*"&&t.namespace!==e.namespace||t.attrName!==void 0&&(!i||!e.values||!(t.attrName in e.values)||t.attrValue!==void 0&&String(e.values[t.attrName])!==String(t.attrValue)))return!1;if(t.position!==void 0){if(!i)return!1;let s=e.counter??0;if(t.position==="first"&&s!==0)return!1;if(t.position==="odd"&&s%2!==1)return!1;if(t.position==="even"&&s%2!==0)return!1;if(t.position==="nth"&&s!==t.positionValue)return!1}return!0}matchesAny(t){return t.matchesAny(this)}snapshot(){return{path:this.path.map(t=>({...t})),siblingStacks:this.siblingStacks.map(t=>new Map(t))}}restore(t){this._pathStringCache=null,this.path=t.path.map(e=>({...e})),this.siblingStacks=t.siblingStacks.map(e=>new Map(e))}readOnly(){return this._view}};var _n=[{id:"html-script-open",description:"<script opening tag",pattern:/<script[\\s>/]/i},{id:"html-script-close",description:"<\\/script closing tag",pattern:/<\\/script[\\s>]/i},{id:"html-javascript-protocol",description:"javascript: URI scheme (with optional whitespace/encoding)",pattern:/j[\\t\\n\\r ]*a[\\t\\n\\r ]*v[\\t\\n\\r ]*a[\\t\\n\\r ]*s[\\t\\n\\r ]*c[\\t\\n\\r ]*r[\\t\\n\\r ]*i[\\t\\n\\r ]*p[\\t\\n\\r ]*t[\\t\\n\\r ]*:/i},{id:"html-vbscript-protocol",description:"vbscript: URI scheme",pattern:/vbscript[\\t\\n\\r ]*:/i},{id:"html-data-html",description:"data:text/html URI \\u2014 can execute scripts in browsers",pattern:/data[\\t\\n\\r ]*:[\\t\\n\\r ]*text\\/html/i},{id:"html-data-xhtml",description:"data:application/xhtml+xml URI",pattern:/data[\\t\\n\\r ]*:[\\t\\n\\r ]*application\\/xhtml/i},{id:"html-data-svg",description:"data:image/svg+xml URI \\u2014 can execute scripts",pattern:/data[\\t\\n\\r ]*:[\\t\\n\\r ]*image\\/svg\\+xml/i},{id:"html-inline-event-handler",description:"Inline event handler attributes: onclick=, onerror=, onload=, etc.",pattern:/\\bon\\w{1,30}\\s*=/i},{id:"html-entity-obfuscated-script",description:"HTML-entity-encoded <script (e.g. &#x3C;script or &lt;script)",pattern:/(?:&#x0*3[Cc];?|&#0*60;?|&lt;)\\s*script/i},{id:"html-entity-obfuscated-javascript",description:\'HTML-entity-encoded javascript: (partial \\u2014 catches common &#106; or &#x6a; for "j")\',pattern:/(?:&#x0*6[Aa];?|&#0*106;?)\\s*(?:&#x0*61;?|a)[\\s\\S]{0,80}script\\s*:/i},{id:"html-style-expression",description:"CSS expression() \\u2014 IE-era code execution in style attributes",pattern:/style[\\s\\S]{0,20}expression\\s*\\(/i},{id:"html-object-embed",description:"<object or <embed tags that can load active content",pattern:/<(?:object|embed)[\\s>/]/i},{id:"html-base-tag",description:"<base href= \\u2014 can hijack all relative URLs on a page",pattern:/<base[\\s>]/i},{id:"html-meta-refresh",description:\'<meta http-equiv="refresh" \\u2014 can redirect users\',pattern:/<meta[\\s\\S]{0,40}http-equiv[\\s\\S]{0,20}refresh/i},{id:"html-srcdoc",description:"srcdoc= attribute on iframes \\u2014 embeds HTML that can run scripts",pattern:/srcdoc\\s*=/i},{id:"html-iframe",description:"<iframe tag",pattern:/<iframe[\\s>/]/i},{id:"html-form",description:"<form tag \\u2014 can be used for phishing / credential harvesting injection",pattern:/<form[\\s>/]/i}],ar=_n;var yn=[{id:"xml-cdata-injection",description:"CDATA section injection: <![CDATA[ breaks out of text node context",pattern:/<!\\[CDATA\\[/i},{id:"xml-cdata-close",description:"CDATA close sequence: ]]> can terminate an enclosing CDATA section",pattern:/\\]\\]>/},{id:"xml-processing-instruction",description:"XML processing instruction: <?xml-stylesheet or <?php etc.",pattern:/<\\?(?:xml[\\- ]|php|asp)/i},{id:"xml-doctype-injection",description:"DOCTYPE declaration embedded in content \\u2014 can define entities",pattern:/<!DOCTYPE(?:[\\s[]|$)/i},{id:"xml-entity-system",description:"SYSTEM keyword \\u2014 used in external entity declarations (XXE)",pattern:/\\bSYSTEM\\s+["\']/i},{id:"xml-entity-public",description:"PUBLIC keyword \\u2014 used in external entity declarations (XXE)",pattern:/\\bPUBLIC\\s+["\']/i},{id:"xml-entity-declaration",description:"<!ENTITY declaration \\u2014 defines entities, potential XXE or entity expansion",pattern:/<!ENTITY[\\s%]/i},{id:"xml-billion-laughs",description:"Entity reference chaining / billion laughs: repeated &eX; style references",pattern:/(?:&\\w{1,20};){3,}/},{id:"xml-namespace-confusion",description:"xmlns: attribute injection \\u2014 can redefine namespaces to confuse parsers",pattern:/\\bxmlns\\s*(?::\\w{1,40})?\\s*=/i},{id:"xml-comment-injection",description:"<!-- comment injection \\u2014 can hide content from some parsers",pattern:/<!--/},{id:"xml-comment-close",description:"--> closes an enclosing XML comment",pattern:/-->/},{id:"xml-pi-close",description:"?> closes an enclosing processing instruction",pattern:/\\?>/}],or=yn;var wn=[{id:"svg-script-element",description:"<script element inside SVG executes JavaScript",pattern:/<script[\\s>/]/i},{id:"svg-xlink-href-javascript",description:"xlink:href with javascript: \\u2014 classic SVG XSS via <a> or <use>",pattern:/xlink\\s*:\\s*href\\s*=\\s*["\']?\\s*javascript\\s*:/i},{id:"svg-href-javascript",description:"href= with javascript: in SVG context (<a>, <animate>, etc.)",pattern:/href\\s*=\\s*["\']?\\s*javascript\\s*:/i},{id:"svg-foreignobject",description:"<foreignObject embeds HTML inside SVG \\u2014 can execute scripts",pattern:/<foreignObject[\\s>/]/i},{id:"svg-use-external",description:"<use xlink:href or href pointing to external resource (non-fragment URL)",pattern:/<use[\\s\\S]{0,60}(?:xlink\\s*:\\s*)?href\\s*=\\s*(?:["\'][^#]|[^"\'#\\s>])/i},{id:"svg-animate-href",description:\'<animate attributeName="href" \\u2014 can dynamically change href to javascript:\',pattern:/<animate[\\s\\S]{0,80}attributeName\\s*=\\s*["\'][\\s]*href["\']/i},{id:"svg-animate-xlinkhref",description:\'<animate attributeName="xlink:href"\',pattern:/<animate[\\s\\S]{0,80}attributeName\\s*=\\s*["\'][\\s]*xlink\\s*:\\s*href["\']/i},{id:"svg-set-javascript",description:\'<set to="javascript:..." \\u2014 sets an attribute to a javascript: URI\',pattern:/<set[\\s\\S]{0,80}to\\s*=\\s*["\']?\\s*javascript\\s*:/i},{id:"svg-event-handler",description:"SVG-specific event handler attributes: onload=, onerror=, onactivate=, etc.",pattern:/\\bon(?:load|error|activate|begin|end|repeat|focus|blur|click|mouse\\w{1,20}|key\\w{1,20})\\s*=/i},{id:"svg-handler-generic",description:"Generic on* handler catch-all for SVG attributes",pattern:/\\bon\\w{1,30}\\s*=/i},{id:"svg-filter-feimage",description:"<feImage href= \\u2014 filter primitive that can load external resources",pattern:/<feImage[\\s\\S]{0,80}(?:xlink\\s*:\\s*)?href\\s*=/i},{id:"svg-image-external",description:"<image xlink:href with http/https or javascript protocol",pattern:/<image[\\s\\S]{0,80}(?:xlink\\s*:\\s*)?href\\s*=\\s*["\']?\\s*(?:https?|javascript)\\s*:/i},{id:"svg-style-javascript",description:"style= attribute containing javascript: (e.g. background:url(javascript:...))",pattern:/style\\s*=[\\s\\S]{0,60}javascript\\s*:/i}],lr=wn;var vn=[{id:"sql-block-comment-open",description:"SQL block comment open: /* ... */ \\u2014 unusual in legitimate user text",pattern:/\\/\\*/},{id:"sql-union-select",description:"UNION SELECT \\u2014 most common SQL injection aggregation attack",pattern:/\\bUNION\\s{1,20}(?:ALL\\s{1,20})?SELECT\\b/i},{id:"sql-drop-table",description:"DROP TABLE \\u2014 destructive DDL injection",pattern:/\\bDROP\\s{1,20}TABLE\\b/i},{id:"sql-drop-database",description:"DROP DATABASE \\u2014 destructive DDL injection",pattern:/\\bDROP\\s{1,20}DATABASE\\b/i},{id:"sql-insert-into",description:"INSERT INTO \\u2014 data injection",pattern:/\\bINSERT\\s{1,20}INTO\\b/i},{id:"sql-delete-from",description:"DELETE FROM \\u2014 data deletion injection",pattern:/\\bDELETE\\s{1,20}FROM\\b/i},{id:"sql-update-set",description:"UPDATE ... SET \\u2014 data modification injection",pattern:/\\bUPDATE\\b[\\s\\S]{1,60}\\bSET\\b/i},{id:"sql-exec-xp",description:"EXEC xp_ \\u2014 MSSQL extended stored procedure execution",pattern:/\\bEXEC(?:UTE)?\\s{1,20}xp_/i},{id:"sql-tautology-string",description:`Classic string tautology: \' OR \'1\'=\'1 or " OR "1"="1"`,pattern:/\'\\s{0,10}OR\\s{0,10}\'[^\']{0,20}\'\\s*=\\s*\'[^\']{0,20}/i},{id:"sql-tautology-numeric",description:"Numeric tautology: OR 1=1",pattern:/\\bOR\\s{1,10}1\\s*=\\s*1\\b/i},{id:"sql-always-true-zero",description:"Numeric tautology: OR 0=0",pattern:/\\bOR\\s{1,10}0\\s*=\\s*0\\b/i},{id:"sql-sleep-benchmark",description:"Time-based blind injection: SLEEP() or BENCHMARK()",pattern:/\\b(?:SLEEP|BENCHMARK)\\s*\\(/i},{id:"sql-waitfor-delay",description:"MSSQL time-based blind injection: WAITFOR DELAY",pattern:/\\bWAITFOR\\s{1,20}DELAY\\b/i},{id:"sql-char-function",description:"CHAR() function \\u2014 used to obfuscate injected strings",pattern:/\\bCHAR\\s*\\(\\s*\\d{1,3}/i},{id:"sql-information-schema",description:"INFORMATION_SCHEMA \\u2014 reconnaissance query for table/column enumeration",pattern:/\\bINFORMATION_SCHEMA\\b/i}],re=vn;var xn=[{id:"sql-line-comment",description:"SQL line comment: -- followed by whitespace or end of string",pattern:/--(?:\\s|$)/},{id:"sql-stacked-query",description:"Stacked queries: semicolon immediately followed by a SQL keyword",pattern:/;\\s{0,10}(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC)\\b/i},{id:"sql-hex-encoding",description:"Hex-encoded string injection: 0x41414141 style (MySQL)",pattern:/\\b0x[0-9a-f]{4,}/i}],En=[...re,...xn],cr=En;var kn=[{id:"shell-path-traversal-unix",description:"Unix path traversal: ../  \\u2014 climbing the directory tree",pattern:/\\.\\.\\//},{id:"shell-path-traversal-windows",description:"Windows path traversal: ..\\\\ \\u2014 climbing the directory tree",pattern:/\\.\\.\\\\/},{id:"shell-path-traversal-encoded",description:"URL-encoded path traversal: %2e%2e or %2f variants",pattern:/%2e%2e|%2f\\.\\.|\\.\\.%2f/i},{id:"shell-null-byte",description:"Null byte injection: \\\\x00 or %00 \\u2014 truncates strings in C-backed functions",pattern:/\\x00|%00/},{id:"shell-semicolon",description:"Semicolon command separator: cmd1; cmd2",pattern:/;/},{id:"shell-pipe",description:"Pipe operator: cmd1 | cmd2",pattern:/\\|/},{id:"shell-and-operator",description:"AND operator: cmd1 && cmd2",pattern:/&&/},{id:"shell-or-operator",description:"OR operator: cmd1 || cmd2",pattern:/\\|\\|/},{id:"shell-backtick",description:"Backtick command substitution: `cmd`",pattern:/`/},{id:"shell-dollar-paren",description:"Dollar-paren command substitution: $(cmd)",pattern:/\\$\\(/},{id:"shell-dollar-brace",description:"Dollar-brace variable expansion: ${var} \\u2014 can be abused for injection",pattern:/\\$\\{/},{id:"shell-redirect-out",description:"Output redirection: cmd > file or cmd >> file",pattern:/>{1,2}/},{id:"shell-redirect-in",description:"Input redirection: cmd < file",pattern:/</},{id:"shell-newline-injection",description:"Newline injection: \\\\n or \\\\r \\u2014 can inject new shell commands",pattern:/[\\n\\r]/},{id:"shell-glob-star",description:"Glob expansion: * or ? \\u2014 can expand to unintended files",pattern:/[/\\\\][*?]/},{id:"shell-absolute-root",description:"Absolute root path injection: string starting with / or \\\\ (Windows UNC)",pattern:/^(?:\\/|\\\\\\\\)/},{id:"shell-windows-drive",description:"Windows drive letter path injection: C:\\\\ or D:/",pattern:/^[a-zA-Z]:[/\\\\]/},{id:"shell-curl-wget",description:"curl/wget with URL or flags \\u2014 can exfiltrate data or download payloads",pattern:/\\b(?:curl|wget)\\s+(?:https?:\\/\\/|ftp:\\/\\/|-)/i}],ur=kn;var Sn=[{id:"redos-nested-quantifier-plus",description:"Nested + quantifier inside a group with outer quantifier: (a+)+, (.+b)*, etc.",pattern:/\\([^)]*\\+[^)]*\\)[+*]/},{id:"redos-nested-quantifier-star",description:"Nested * quantifier: (a*)* or (a*)+ \\u2014 catastrophic backtracking",pattern:/\\([^)]*\\*[^)]*\\)[*+]/},{id:"redos-nested-groups",description:"Doubly nested quantified groups: ((a+)+) \\u2014 guaranteed catastrophic",pattern:/\\(\\([^)]{0,40}\\)[+*]\\)[+*]/},{id:"redos-alternation-overlap",description:"Overlapping alternation under quantifier: (a|a)+ \\u2014 ambiguous NFA paths",pattern:/\\(([^|()]{1,20})\\|(?:\\1)(?:\\|[^|()]{1,20}){0,5}\\)[+*?]{1,2}/},{id:"redos-star-plus-concat",description:"(x*x)+ pattern \\u2014 triggers super-linear backtracking",pattern:/\\([^)]{0,10}\\*[^)]{0,10}\\)[+*]/},{id:"redos-dot-star-greedy",description:"(.*){n,} or (.+){n,} \\u2014 repeated greedy dot quantifiers",pattern:/\\(\\.[*+]\\)\\{?\\d/},{id:"redos-large-repetition",description:"Very large fixed or range repetition count {1000,} or {1000,n} \\u2014 denial of service via backtracking",pattern:/\\{\\d{4,}(?:,\\d*)?\\}/},{id:"redos-catastrophic-alternation",description:"Long alternation with many similar branches \\u2014 polynomial backtracking risk",pattern:/\\([^)]{0,200}(?:\\|[^|)]{0,50}){9,}\\)/}],dr=Sn;var ft=`["\'\\\\s]*:`,An=[{id:"nosql-where-operator",description:"$where \\u2014 executes arbitrary JavaScript server-side in MongoDB",pattern:new RegExp(`\\\\$where${ft}`,"i")},{id:"nosql-ne-operator",description:\'$ne \\u2014 "not equal" operator used to bypass equality checks\',pattern:new RegExp(`\\\\$ne${ft}`,"i")},{id:"nosql-gt-operator",description:\'$gt \\u2014 "greater than" used to bypass password/value checks\',pattern:new RegExp(`\\\\$gte?${ft}`,"i")},{id:"nosql-lt-operator",description:\'$lt / $lte \\u2014 "less than" bypass variants\',pattern:new RegExp(`\\\\$lte?${ft}`,"i")},{id:"nosql-regex-operator",description:"$regex \\u2014 can be used to extract data character by character (blind injection)",pattern:new RegExp(`\\\\$regex${ft}`,"i")},{id:"nosql-or-operator",description:"$or \\u2014 logical OR; used to create always-true conditions",pattern:new RegExp(`\\\\$or${ft}\\\\s*\\\\[`,"i")},{id:"nosql-and-operator",description:"$and \\u2014 logical AND operator injection",pattern:new RegExp(`\\\\$and${ft}\\\\s*\\\\[`,"i")},{id:"nosql-nor-operator",description:"$nor \\u2014 logical NOR operator injection",pattern:new RegExp(`\\\\$nor${ft}\\\\s*\\\\[`,"i")},{id:"nosql-exists-operator",description:"$exists \\u2014 can enumerate fields to determine schema",pattern:new RegExp(`\\\\$exists${ft}`,"i")},{id:"nosql-in-operator",description:"$in \\u2014 matches any value in a list; can enumerate values",pattern:new RegExp(`\\\\$in${ft}\\\\s*\\\\[`,"i")},{id:"nosql-expr-operator",description:"$expr \\u2014 allows aggregation expressions in queries (MongoDB 3.6+)",pattern:new RegExp(`\\\\$expr${ft}`,"i")},{id:"nosql-function-operator",description:"$function \\u2014 executes arbitrary JavaScript in MongoDB 4.4+",pattern:new RegExp(`\\\\$function${ft}`,"i")},{id:"nosql-accumulator-operator",description:"$accumulator \\u2014 custom aggregation with arbitrary JS execution",pattern:new RegExp(`\\\\$accumulator${ft}`,"i")},{id:"nosql-proto-pollution",description:"__proto__ \\u2014 prototype pollution via object key injection",pattern:/__proto__/},{id:"nosql-constructor-prototype",description:"constructor.prototype \\u2014 alternative prototype pollution vector (dot notation or JSON key)",pattern:/constructor[\\s"\':.,{\\[]*prototype/i},{id:"nosql-proto-bracket",description:\'["__proto__"] \\u2014 bracket-notation prototype pollution\',pattern:/\\[["\']__proto__["\']\\]/}],hr=An;var Tn=[{id:"log-crlf-injection",description:"CRLF injection: literal \\\\r or \\\\n embeds fake log lines",pattern:/[\\r\\n]/},{id:"log-url-encoded-crlf",description:"URL-encoded CRLF: %0d, %0a, %0D, %0A \\u2014 decoded by some log parsers",pattern:/%0[dDaA]/},{id:"log-unicode-newline",description:"Unicode newline variants: U+2028 (line separator), U+2029 (paragraph separator)",pattern:/[\\u2028\\u2029]/},{id:"log-log4shell-jndi",description:"Log4Shell: ${jndi:...} triggers remote code execution in Apache Log4j",pattern:/\\$\\{jndi\\s*:/i},{id:"log-log4shell-obfuscated",description:"Obfuscated Log4Shell: ${::-j}... lookup-bypass prefix used to evade WAF detection",pattern:/\\$\\{::-/},{id:"log-log4j-lookup",description:"Log4j lookup syntax: ${env:...}, ${sys:...}, ${ctx:...} \\u2014 data exfiltration",pattern:/\\$\\{(?:env|sys|ctx|main|map|sd|web|docker|k8s|spring)\\s*:/i},{id:"log-ssti-double-brace",description:"SSTI double-brace: {{expression}} \\u2014 Jinja2, Twig, Handlebars, etc.",pattern:/\\{\\{[\\s\\S]{0,80}\\}\\}/},{id:"log-ssti-hash-brace",description:"SSTI hash-brace: #{expression} \\u2014 Thymeleaf, Velocity, Ruby ERB",pattern:/#\\{[\\s\\S]{0,80}\\}/},{id:"log-ssti-dollar-brace",description:"SSTI/EL injection: ${expression with operators or method calls} \\u2014 JSP EL, Freemarker, SpEL",pattern:/\\$\\{[^}]*(?:\\.|\\(|\\*|\\+|\\bclass\\b|\\bruntime\\b|\\bprocess\\b|\\bexec\\b)[^}]{0,80}\\}/i},{id:"log-ssti-percent-tag",description:"SSTI ERB/ASP tag: <%= expression %> \\u2014 Ruby ERB, ASP",pattern:/<%=[\\s\\S]{0,80}%>/},{id:"log-null-byte",description:"Null byte: \\\\x00 or %00 \\u2014 can truncate log entries in C-backed loggers",pattern:/\\x00|%00/},{id:"log-ansi-escape",description:"ANSI escape sequence: ESC[ \\u2014 can manipulate terminal output when logs are tailed",pattern:/\\x1b\\[/}],fr=Tn;var pr={HTML:ar,XML:or,SVG:lr,SQL:re,"SQL-STRICT":cr,SHELL:ur,REDOS:dr,NOSQL:hr,LOG:fr},ne=pr,It=Object.freeze(Object.fromEntries(Object.keys(pr).map(r=>[r,r])));function Cn(r){if(typeof r!="string")throw new TypeError(`is-unsafe: first argument must be a string, got ${typeof r}`)}function Nn(r){if(!(r instanceof RegExp)){if(typeof r=="string"){if(!ne[r])throw new TypeError(`is-unsafe: unknown context "${r}". Valid contexts: ${Object.keys(It).join(", ")}`);return}if(Array.isArray(r)){if(r.length===0)throw new TypeError("is-unsafe: context array must not be empty");for(let t of r)if(typeof t!="string"||!ne[t])throw new TypeError(`is-unsafe: unknown context "${t}" in array. Valid contexts: ${Object.keys(It).join(", ")}`);return}throw new TypeError(`is-unsafe: second argument must be a context string, array of context strings, or RegExp. Got: ${typeof r}`)}}function mr(r,t){let e=ne[t];for(let i of e)if(i.pattern.test(r))return{context:t,id:i.id,description:i.description,pattern:i.pattern};return null}function gr(r,t){if(Cn(r),Nn(t),t instanceof RegExp)return t.test(r);if(typeof t=="string")return mr(r,t)!==null;for(let e of t)if(mr(r,e)!==null)return!0;return!1}function In(r,t){if(!r)return{};let e=t.attributesGroupName?r[t.attributesGroupName]:r;if(!e)return{};let i={};for(let s in e)if(s.startsWith(t.attributeNamePrefix)){let n=s.substring(t.attributeNamePrefix.length);i[n]=e[s]}else i[s]=e[s];return i}function Rn(r){if(!r||typeof r!="string")return;let t=r.indexOf(":");if(t!==-1&&t>0){let e=r.substring(0,t);if(e!=="xmlns")return e}}var qt=class{constructor(t,e){this.options=t,this.currentNode=null,this.tagsNodeStack=[],this.parseXml=zn,this.parseTextData=On,this.resolveNameSpace=Ln,this.buildAttributesMap=Pn,this.isItStopNode=Un,this.replaceEntitiesValue=Mn,this.readStopNodeData=$n,this.saveTextToParentTag=jn,this.addChild=Bn,this.ignoreAttributesFn=pe(this.options.ignoreAttributes),this.entityExpansionCount=0,this.currentExpandedLength=0;let i={...Ut};this.options.entityDecoder?this.entityDecoder=this.options.entityDecoder:(typeof this.options.htmlEntities=="object"?i=this.options.htmlEntities:this.options.htmlEntities===!0&&(i={...ce,...Yt}),this.entityDecoder=new At({namedEntities:{...i,...e},numericAllowed:this.options.htmlEntities,limit:{maxTotalExpansions:this.options.processEntities.maxTotalExpansions,maxExpandedLength:this.options.processEntities.maxExpandedLength,applyLimitsTo:this.options.processEntities.appliesTo},onInputEntity:(n,l)=>gr(l,[It.HTML,It.XML])?St.BLOCK:St.ALLOW})),this.matcher=new Nt,this.readonlyMatcher=this.matcher.readOnly(),this.isCurrentNodeStopNode=!1,this.stopNodeExpressionsSet=new Ct;let s=this.options.stopNodes;if(s&&s.length>0){for(let n=0;n<s.length;n++){let l=s[n];typeof l=="string"?this.stopNodeExpressionsSet.add(new kt(l)):l instanceof kt&&this.stopNodeExpressionsSet.add(l)}this.stopNodeExpressionsSet.seal()}}};function On(r,t,e,i,s,n,l){let u=this.options;if(r!==void 0&&(u.trimValues&&!i&&(r=r.trim()),r.length>0)){l||(r=this.replaceEntitiesValue(r,t,e));let m=u.jPath?e.toString():e,h=u.tagValueProcessor(t,r,m,s,n);return h==null?r:typeof h!=typeof r||h!==r?h:u.trimValues||r.trim()===r?_e(r,u.parseTagValue,u.numberParseOptions):r}}function Ln(r){if(this.options.removeNSPrefix){let t=r.split(":"),e=r.charAt(0)==="/"?"/":"";if(t[0]==="xmlns")return"";t.length===2&&(r=e+t[1])}return r}var Fn=new RegExp(`([^\\\\s=]+)\\\\s*(=\\\\s*([\'"])([\\\\s\\\\S]*?)\\\\3)?`,"gm");function Pn(r,t,e,i=!1){let s=this.options;if(i===!0||s.ignoreAttributes!==!0&&typeof r=="string"){let n=Zt(r,Fn),l=n.length,u={},m=new Array(l),h=!1,p={};for(let d=0;d<l;d++){let b=this.resolveNameSpace(n[d][1]),f=n[d][4];if(b.length&&f!==void 0){let y=f;s.trimValues&&(y=y.trim()),y=this.replaceEntitiesValue(y,e,this.readonlyMatcher),m[d]=y,p[b]=y,h=!0}}h&&typeof t=="object"&&t.updateCurrent&&t.updateCurrent(p);let o=s.jPath?t.toString():this.readonlyMatcher,g=!1;for(let d=0;d<l;d++){let b=this.resolveNameSpace(n[d][1]);if(this.ignoreAttributesFn(b,o))continue;let f=s.attributeNamePrefix+b;if(b.length)if(s.transformAttributeName&&(f=s.transformAttributeName(f)),f=br(f,s),n[d][4]!==void 0){let y=m[d],v=s.attributeValueProcessor(b,y,o);v==null?u[f]=y:typeof v!=typeof y||v!==y?u[f]=v:u[f]=_e(y,s.parseAttributeValue,s.numberParseOptions),g=!0}else s.allowBooleanAttributes&&(u[f]=!0,g=!0)}if(!g)return;if(s.attributesGroupName&&!s.preserveOrder){let d={};return d[s.attributesGroupName]=u,d}return u}}var zn=function(r){r=r.replace(/\\r\\n?/g,`\n`);let t=new dt("!xml"),e=t,i="";this.matcher.reset(),this.entityDecoder.reset(),this.entityExpansionCount=0,this.currentExpandedLength=0;let s=this.options,n=new $t(s.processEntities),l=r.length;for(let u=0;u<l;u++)if(r[u]==="<"){let h=r.charCodeAt(u+1);if(h===47){let p=Rt(r,">",u,"Closing Tag is not closed."),o=r.substring(u+2,p).trim();if(s.removeNSPrefix){let d=o.indexOf(":");d!==-1&&(o=o.substr(d+1))}o=ge(s.transformTagName,o,"",s).tagName,e&&(i=this.saveTextToParentTag(i,e,this.readonlyMatcher));let g=this.matcher.getCurrentTag();if(o&&s.unpairedTagsSet.has(o))throw new Error(`Unpaired tag can not be used as closing tag: </${o}>`);g&&s.unpairedTagsSet.has(g)&&(this.matcher.pop(),this.tagsNodeStack.pop()),this.matcher.pop(),this.isCurrentNodeStopNode=!1,e=this.tagsNodeStack.pop(),i="",u=p}else if(h===63){let p=be(r,u,!1,"?>");if(!p)throw new Error("Pi Tag is not closed.");i=this.saveTextToParentTag(i,e,this.readonlyMatcher);let o=this.buildAttributesMap(p.tagExp,this.matcher,p.tagName,!0);if(o){let g=o[this.options.attributeNamePrefix+"version"];this.entityDecoder.setXmlVersion(Number(g)||1),n.setXmlVersion(Number(g)||1)}if(!(s.ignoreDeclaration&&p.tagName==="?xml"||s.ignorePiTags)){let g=new dt(p.tagName);g.add(s.textNodeName,""),p.tagName!==p.tagExp&&p.attrExpPresent&&s.ignoreAttributes!==!0&&(g[":@"]=o),this.addChild(e,g,this.readonlyMatcher,u)}u=p.closeIndex+1}else if(h===33&&r.charCodeAt(u+2)===45&&r.charCodeAt(u+3)===45){let p=Rt(r,"-->",u+4,"Comment is not closed.");if(s.commentPropName){let o=r.substring(u+4,p-2);i=this.saveTextToParentTag(i,e,this.readonlyMatcher),e.add(s.commentPropName,[{[s.textNodeName]:o}])}u=p}else if(h===33&&r.charCodeAt(u+2)===68){let p=n.readDocType(r,u);this.entityDecoder.addInputEntities(p.entities),u=p.i}else if(h===33&&r.charCodeAt(u+2)===91){let p=Rt(r,"]]>",u,"CDATA is not closed.")-2,o=r.substring(u+9,p);i=this.saveTextToParentTag(i,e,this.readonlyMatcher);let g=this.parseTextData(o,e.tagname,this.readonlyMatcher,!0,!1,!0,!0);g==null&&(g=""),s.cdataPropName?e.add(s.cdataPropName,[{[s.textNodeName]:o}]):e.add(s.textNodeName,g),u=p+2}else{let p=be(r,u,s.removeNSPrefix);if(!p){let O=r.substring(Math.max(0,u-50),Math.min(l,u+50));throw new Error(`readTagExp returned undefined at position ${u}. Context: "${O}"`)}let o=p.tagName,g=p.rawTagName,d=p.tagExp,b=p.attrExpPresent,f=p.closeIndex;if({tagName:o,tagExp:d}=ge(s.transformTagName,o,d,s),s.strictReservedNames&&(o===s.commentPropName||o===s.cdataPropName||o===s.textNodeName||o===s.attributesGroupName))throw new Error(`Invalid tag name: ${o}`);e&&i&&e.tagname!=="!xml"&&(i=this.saveTextToParentTag(i,e,this.readonlyMatcher,!1));let y=e;y&&s.unpairedTagsSet.has(y.tagname)&&(e=this.tagsNodeStack.pop(),this.matcher.pop());let v=!1;d.length>0&&d.lastIndexOf("/")===d.length-1&&(v=!0,o[o.length-1]==="/"?(o=o.substr(0,o.length-1),d=o):d=d.substr(0,d.length-1),b=o!==d);let E=null,S={},F;F=Rn(g),o!==t.tagname&&this.matcher.push(o,{},F),o!==d&&b&&(E=this.buildAttributesMap(d,this.matcher,o),E&&(S=In(E,s))),o!==t.tagname&&(this.isCurrentNodeStopNode=this.isItStopNode());let R=u;if(this.isCurrentNodeStopNode){let O="";if(v)u=p.closeIndex;else if(s.unpairedTagsSet.has(o))u=p.closeIndex;else{let j=this.readStopNodeData(r,g,f+1);if(!j)throw new Error(`Unexpected end of ${g}`);u=j.i,O=j.tagContent}let N=new dt(o);E&&(N[":@"]=E),N.add(s.textNodeName,O),this.matcher.pop(),this.isCurrentNodeStopNode=!1,this.addChild(e,N,this.readonlyMatcher,R)}else{if(v){({tagName:o,tagExp:d}=ge(s.transformTagName,o,d,s));let O=new dt(o);E&&(O[":@"]=E),this.addChild(e,O,this.readonlyMatcher,R),this.matcher.pop(),this.isCurrentNodeStopNode=!1}else if(s.unpairedTagsSet.has(o)){let O=new dt(o);E&&(O[":@"]=E),this.addChild(e,O,this.readonlyMatcher,R),this.matcher.pop(),this.isCurrentNodeStopNode=!1,u=p.closeIndex;continue}else{let O=new dt(o);if(this.tagsNodeStack.length>s.maxNestedTags)throw new Error("Maximum nested tags exceeded");this.tagsNodeStack.push(e),E&&(O[":@"]=E),this.addChild(e,O,this.readonlyMatcher,R),e=O}i="",u=f}}}else i+=r[u];return t.child};function Bn(r,t,e,i){this.options.captureMetaData||(i=void 0);let s=this.options.jPath?e.toString():e,n=this.options.updateTag(t.tagname,s,t[":@"]);n===!1||(typeof n=="string"&&(t.tagname=n),r.addChild(t,i))}function Mn(r,t,e){let i=this.options.processEntities;if(!i||!i.enabled)return r;if(i.allowedTags){let s=this.options.jPath?e.toString():e;if(!(Array.isArray(i.allowedTags)?i.allowedTags.includes(t):i.allowedTags(t,s)))return r}if(i.tagFilter){let s=this.options.jPath?e.toString():e;if(!i.tagFilter(t,s))return r}return this.entityDecoder.decode(r)}function jn(r,t,e,i){return r&&(i===void 0&&(i=t.child.length===0),r=this.parseTextData(r,t.tagname,e,!1,t[":@"]?Object.keys(t[":@"]).length!==0:!1,i),r!==void 0&&r!==""&&t.add(this.options.textNodeName,r),r=""),r}function Un(){return this.stopNodeExpressionsSet.size===0?!1:this.matcher.matchesAny(this.stopNodeExpressionsSet)}function Dn(r,t,e=">"){let i=0,s=r.length,n=e.charCodeAt(0),l=e.length>1?e.charCodeAt(1):-1,u="",m=t;for(let h=t;h<s;h++){let p=r.charCodeAt(h);if(i)p===i&&(i=0);else if(p===34||p===39)i=p;else if(p===n)if(l!==-1){if(r.charCodeAt(h+1)===l)return u+=r.substring(m,h),{data:u,index:h}}else return u+=r.substring(m,h),{data:u,index:h};else p===9&&!i&&(u+=r.substring(m,h)+" ",m=h+1)}}function Rt(r,t,e,i){let s=r.indexOf(t,e);if(s===-1)throw new Error(i);return s+t.length-1}function Vn(r,t,e,i){let s=r.indexOf(t,e);if(s===-1)throw new Error(i);return s}function be(r,t,e,i=">"){let s=Dn(r,t+1,i);if(!s)return;let n=s.data,l=s.index,u=n.search(/\\s/),m=n,h=!0;u!==-1&&(m=n.substring(0,u),n=n.substring(u+1).trimStart());let p=m;if(e){let o=m.indexOf(":");o!==-1&&(m=m.substr(o+1),h=m!==s.data.substr(o+1))}return{tagName:m,tagExp:n,closeIndex:l,attrExpPresent:h,rawTagName:p}}function $n(r,t,e){let i=e,s=1,n=r.length;for(;e<n;e++)if(r[e]==="<"){let l=r.charCodeAt(e+1);if(l===47){let u=Vn(r,">",e,`${t} is not closed`);if(r.substring(e+2,u).trim()===t&&(s--,s===0))return{tagContent:r.substring(i,e),i:u};e=u}else if(l===63)e=Rt(r,"?>",e+1,"StopNode is not closed.");else if(l===33&&r.charCodeAt(e+2)===45&&r.charCodeAt(e+3)===45)e=Rt(r,"-->",e+3,"StopNode is not closed.");else if(l===33&&r.charCodeAt(e+2)===91)e=Rt(r,"]]>",e,"StopNode is not closed.")-2;else{let u=be(r,e,!1);u&&((u&&u.tagName)===t&&u.tagExp[u.tagExp.length-1]!=="/"&&s++,e=u.closeIndex)}}}function _e(r,t,e){if(t&&typeof r=="string"){let i=r.trim();return i==="true"?!0:i==="false"?!1:fe(r,e)}else return Ne(r)?r:""}function ge(r,t,e,i){if(r){let s=r(t);e===t&&(e=s),t=s}return t=br(t,i),{tagName:t,tagExp:e}}function br(r,t){if(Gt.includes(r))throw new Error(`[SECURITY] Invalid name: "${r}" is a reserved JavaScript keyword that could cause prototype pollution`);return Mt.includes(r)?t.onDangerousProperty(r):r}var ye=dt.getMetaDataSymbol();function qn(r,t){if(!r||typeof r!="object")return{};if(!t)return r;let e={};for(let i in r)if(i.startsWith(t)){let s=i.substring(t.length);e[s]=r[i]}else e[i]=r[i];return e}function we(r,t,e,i){return _r(r,t,e,i)}function _r(r,t,e,i){let s,n={};for(let l=0;l<r.length;l++){let u=r[l],m=Wn(u);if(m!==void 0&&m!==t.textNodeName){let h=qn(u[":@"]||{},t.attributeNamePrefix);e.push(m,h)}if(m===t.textNodeName)s===void 0?s=u[m]:s+=""+u[m];else{if(m===void 0)continue;if(u[m]){let h=_r(u[m],t,e,i),p=Zn(h,t);if(Object.keys(h).length===0&&t.alwaysCreateTextNode&&(h[t.textNodeName]=""),u[":@"]?Hn(h,u[":@"],i,t):Object.keys(h).length===1&&h[t.textNodeName]!==void 0&&!t.alwaysCreateTextNode?h=h[t.textNodeName]:Object.keys(h).length===0&&(t.alwaysCreateTextNode?h[t.textNodeName]="":h=""),u[ye]!==void 0&&typeof h=="object"&&h!==null&&(h[ye]=u[ye]),n[m]!==void 0&&Object.prototype.hasOwnProperty.call(n,m))Array.isArray(n[m])||(n[m]=[n[m]]),n[m].push(h);else{let o=t.jPath?i.toString():i;t.isArray(m,o,p)?n[m]=[h]:n[m]=h}m!==void 0&&m!==t.textNodeName&&e.pop()}}}return typeof s=="string"?s.length>0&&(n[t.textNodeName]=s):s!==void 0&&(n[t.textNodeName]=s),n}function Wn(r){let t=Object.keys(r);for(let e=0;e<t.length;e++){let i=t[e];if(i!==":@")return i}}function Hn(r,t,e,i){if(t){let s=Object.keys(t),n=s.length;for(let l=0;l<n;l++){let u=s[l],m=u.startsWith(i.attributeNamePrefix)?u.substring(i.attributeNamePrefix.length):u,h=i.jPath?e.toString()+"."+m:e;i.isArray(u,h,!0,!0)?r[u]=[t[u]]:r[u]=t[u]}}}function Zn(r,t){let{textNodeName:e}=t,i=Object.keys(r).length;return!!(i===0||i===1&&(r[e]||typeof r[e]=="boolean"||r[e]===0))}var Ot=class{constructor(t){this.externalEntities={},this.options=Xe(t)}parse(t,e){if(typeof t!="string"&&t.toString)t=t.toString();else if(typeof t!="string")throw new Error("XML data is accepted in String or Bytes[] form.");if(e){e===!0&&(e={});let n=Fe(t,e);if(n!==!0)throw Error(`${n.err.msg}:${n.err.line}:${n.err.col}`)}let i=new qt(this.options,this.externalEntities),s=i.parseXml(t);return this.options.preserveOrder||s===void 0?s:we(s,this.options,i.matcher,i.readonlyMatcher)}addEntity(t,e){if(e.indexOf("&")!==-1)throw new Error("Entity value can\'t have \'&\'");if(t.indexOf("&")!==-1||t.indexOf(";")!==-1)throw new Error("An entity must be set without \'&\' and \';\'. Eg. use \'#xD\' for \'&#xD;\'");if(e==="&")throw new Error("An entity with value \'&\' is not permitted");this.externalEntities[t]=e}static getMetaDataSymbol(){return dt.getMetaDataSymbol()}};var yr="useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";var wr=(r=21)=>{let t="",e=crypto.getRandomValues(new Uint8Array(r|=0));for(;r--;)t+=yr[e[r]&63];return t};function ve(){return wr(12)}function pt(r){return Array.isArray(r)?r:[r]}function Er(r){return r.replace(/&#x([0-9a-fA-F]+);/g,(t,e)=>String.fromCodePoint(parseInt(e,16))).replace(/&#([0-9]+);/g,(t,e)=>String.fromCodePoint(parseInt(e,10))).replace(/&quot;/g,\'"\').replace(/&apos;/g,"\'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&")}function gt(r,t){let e=pt(r.value??[]);for(let i of e)if(i["@_key"]===t){let s=i["#text"];if(s!==void 0)return Er(String(s))}}function Lt(r,t){let e=gt(r,t);if(e===void 0)return;let i=parseInt(e,10);return isNaN(i)?void 0:i}function xe(r,t){let e=pt(r.link??[]);for(let i of e)if(i["@_key"]===t&&i["#text"]!==void 0)return String(i["#text"])}function ie(r,t){let e=pt(r.value??[]);for(let i of e)if(i["@_key"]===t&&(i["@_content-type"]==="object"||i["@_type"]==="list"))return pt(i.value??[])}function Gn(r,t){let e=pt(r.value??[]);for(let i of e)if(i["@_key"]===t&&i["@_type"]==="list")return pt(i.value??[]).map(s=>Er(String(s["#text"]??""))).filter(Boolean);return[]}function se(r,t){let e=pt(r.value??[]);for(let i of e)if(i["@_key"]===t)return pt(i.link??[]).map(n=>String(n["#text"]??"")).filter(Boolean);return[]}function Yn(r,t){let e=pt(r.value??[]);for(let i of e)if(i["@_key"]===t&&i["@_struct-name"])return i}function Xn(r,t){if(r){let i=r.split("."),s=i[i.length-1]?.toUpperCase()??"VARCHAR",n=Lt(t,"length"),l=["INT","BIGINT","SMALLINT","TINYINT","MEDIUMINT","FLOAT","DOUBLE","DECIMAL","DATE","DATETIME","TIMESTAMP","TIME","YEAR","TEXT","BLOB"];return n&&n>0&&!l.includes(s)?`${s}(${n})`:s}let e=gt(t,"formattedType");return e?e.toUpperCase():"VARCHAR"}function vr(r){if(!r)return"NO ACTION";switch(r.toUpperCase()){case"CASCADE":return"CASCADE";case"SET NULL":return"SET NULL";case"SET DEFAULT":return"SET DEFAULT";case"RESTRICT":return"RESTRICT";default:return"NO ACTION"}}function Kn(r){let t=r.map(e=>e.toUpperCase().replace(/\\s+/g," ").trim());return t.includes("PRIMARY")||t.includes("PRIMARY KEY")||t.includes("PK")}function Jn(r){let t=[];function e(i){if(!i||typeof i!="object")return;let s=i;if(s["@_struct-name"]==="db.mysql.Table"||s["@_struct-name"]==="db.Table"){t.push(s);return}for(let n of Object.values(s))if(Array.isArray(n))for(let l of n)e(l);else typeof n=="object"&&n!==null&&e(n)}return e(r),t}function vt(r){self.postMessage(r)}self.onmessage=async r=>{try{vt({type:"progress",step:"Extracting ZIP...",percent:10});let e=(await xr.default.loadAsync(r.data.payload.buffer)).file("document.mwb.xml");if(!e)throw new Error("Invalid .mwb file: document.mwb.xml not found");vt({type:"progress",step:"Reading XML...",percent:20});let i=await e.async("text");vt({type:"progress",step:"Parsing XML...",percent:30});let n=new Ot({ignoreAttributes:!1,attributeNamePrefix:"@_",allowBooleanAttributes:!0,parseAttributeValue:!1}).parse(i);vt({type:"progress",step:"Extracting tables...",percent:60});let l={tables:{},relationships:{},layers:{}},u=Jn(n),m=new Map;for(let h of u){let p=gt(h,"name");if(!p)continue;let o=ve(),g=[],d=ie(h,"columns");if(d)for(let y of pt(d)){let v=gt(y,"name");if(!v)continue;let E=y["@_id"]??"",S=ve();E&&m.set(E,{tableId:o,columnId:S});let F=xe(y,"simpleType"),R=Xn(F,y),O=Gn(y,"flags");g.push({id:S,name:v,dataType:R,nullable:Lt(y,"isNotNull")!==1,autoIncrement:O.includes("AUTO_INCREMENT"),isPrimaryKey:Kn(O),isUnique:!1,defaultValue:gt(y,"defaultValue")||void 0,length:Lt(y,"length")||void 0,precision:Lt(y,"precision")||void 0,scale:Lt(y,"scale")||void 0,comment:gt(y,"comment")||void 0})}let b=Yn(h,"primaryKey");if(b)for(let y of se(b,"columns")){let v=m.get(y);if(v){let E=g.find(S=>S.id===v.columnId);E&&(E.isPrimaryKey=!0)}}let f=ie(h,"indices");if(f)for(let y of pt(f)){let v=Lt(y,"indexType"),E=(gt(y,"name")??"").toUpperCase(),S=v===1||E==="PRIMARY",F=v===2;if(!S&&!F)continue;let R=N=>{let j=m.get(N);if(!j)return;let Z=g.find(x=>x.id===j.columnId);Z&&(S&&(Z.isPrimaryKey=!0),F&&(Z.isUnique=!0))},O=ie(y,"columns");if(O)for(let N of pt(O)){let j=xe(N,"referencedColumn");j&&R(j)}for(let N of se(y,"columns"))R(N)}l.tables[o]={id:o,name:p,columns:g,indexes:[],comment:gt(h,"comment")||void 0}}vt({type:"progress",step:"Resolving foreign keys...",percent:80});for(let h of u){let p=ie(h,"foreignKeys");if(p)for(let o of pt(p)){let g=gt(o,"name");if(!xe(o,"referencedTable"))continue;let b=gt(h,"name"),f=Object.values(l.tables).find(O=>O.name===b);if(!f)continue;let y=se(o,"columns"),v=se(o,"referencedColumns"),E=y.map(O=>m.get(O)?.columnId).filter(O=>!!O),S=v.map(O=>m.get(O)?.columnId).filter(O=>!!O),F=v.length>0?m.get(v[0]):void 0;if(!F?.tableId)continue;let R=ve();l.relationships[R]={id:R,name:g||void 0,sourceTableId:F.tableId,targetTableId:f.id,type:"1:N",sourceColumnIds:S,targetColumnIds:E,onDelete:vr(gt(o,"deleteRule")),onUpdate:vr(gt(o,"updateRule"))}}}vt({type:"progress",step:"Done!",percent:100}),vt({type:"parseResult",schema:l})}catch(t){vt({type:"error",message:t.message})}};})();\n');
 }
@@ -85527,16 +89008,16 @@ function ImportMWBDialog() {
   const loadSchema = useStore2((s3) => s3.loadSchema);
   const clearSchema = useStore2((s3) => s3.clearSchema);
   const setNodePositions = useStore2((s3) => s3.setNodePositions);
-  const [file, setFile] = (0, import_react28.useState)(null);
-  const [mode, setMode] = (0, import_react28.useState)("replace");
-  const [error, setError] = (0, import_react28.useState)(null);
-  const [parsing, setParsing] = (0, import_react28.useState)(false);
-  const [progress, setProgress] = (0, import_react28.useState)("");
-  const [preview, setPreview] = (0, import_react28.useState)(null);
-  const [isDragging, setIsDragging] = (0, import_react28.useState)(false);
-  const fileInputRef = (0, import_react28.useRef)(null);
-  const workerRef = (0, import_react28.useRef)(null);
-  const resetForm = (0, import_react28.useCallback)(() => {
+  const [file, setFile] = (0, import_react34.useState)(null);
+  const [mode, setMode] = (0, import_react34.useState)("replace");
+  const [error, setError] = (0, import_react34.useState)(null);
+  const [parsing, setParsing] = (0, import_react34.useState)(false);
+  const [progress, setProgress] = (0, import_react34.useState)("");
+  const [preview, setPreview] = (0, import_react34.useState)(null);
+  const [isDragging, setIsDragging] = (0, import_react34.useState)(false);
+  const fileInputRef = (0, import_react34.useRef)(null);
+  const workerRef = (0, import_react34.useRef)(null);
+  const resetForm = (0, import_react34.useCallback)(() => {
     setFile(null);
     setError(null);
     setPreview(null);
@@ -85544,7 +89025,7 @@ function ImportMWBDialog() {
     setProgress("");
     setMode("replace");
   }, []);
-  const parseWithWorker = (0, import_react28.useCallback)((f3, isPreview) => {
+  const parseWithWorker = (0, import_react34.useCallback)((f3, isPreview) => {
     workerRef.current?.terminate();
     const worker = createMWBWorker();
     workerRef.current = worker;
@@ -85623,23 +89104,23 @@ function ImportMWBDialog() {
       worker.postMessage({ type: "parseMWB", payload: { buffer } }, [buffer]);
     });
   }, [mode, clearSchema, loadSchema, setNodePositions, setOpen, resetForm]);
-  const handleFile = (0, import_react28.useCallback)((f3) => {
+  const handleFile = (0, import_react34.useCallback)((f3) => {
     setFile(f3);
     setPreview(null);
     parseWithWorker(f3, true);
   }, [parseWithWorker]);
-  const handleFileInput = (0, import_react28.useCallback)((e4) => {
+  const handleFileInput = (0, import_react34.useCallback)((e4) => {
     const f3 = e4.target.files?.[0];
     if (f3) handleFile(f3);
   }, [handleFile]);
-  const handleDragOver = (0, import_react28.useCallback)((e4) => {
+  const handleDragOver = (0, import_react34.useCallback)((e4) => {
     e4.preventDefault();
     setIsDragging(true);
   }, []);
-  const handleDragLeave = (0, import_react28.useCallback)(() => {
+  const handleDragLeave = (0, import_react34.useCallback)(() => {
     setIsDragging(false);
   }, []);
-  const handleDrop = (0, import_react28.useCallback)((e4) => {
+  const handleDrop = (0, import_react34.useCallback)((e4) => {
     e4.preventDefault();
     setIsDragging(false);
     const f3 = e4.dataTransfer.files?.[0];
@@ -85649,34 +89130,34 @@ function ImportMWBDialog() {
       setError("Please drop a .mwb file.");
     }
   }, [handleFile]);
-  const handleImport = (0, import_react28.useCallback)(() => {
+  const handleImport = (0, import_react34.useCallback)(() => {
     if (!file) return;
     parseWithWorker(file, false);
   }, [file, parseWithWorker]);
-  const handleOpenChange = (0, import_react28.useCallback)((nextOpen) => {
+  const handleOpenChange = (0, import_react34.useCallback)((nextOpen) => {
     setOpen(nextOpen);
     if (!nextOpen) {
       workerRef.current?.terminate();
       resetForm();
     }
   }, [setOpen, resetForm]);
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(DialogHeader, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(DialogTitle2, { children: "Import MySQL Workbench File" }),
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(DialogDescription2, { children: "Upload a .mwb file to import tables and relationships." })
+  return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(DialogHeader, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(DialogTitle2, { children: "Import MySQL Workbench File" }),
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(DialogDescription2, { children: "Upload a .mwb file to import tables and relationships." })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
-        /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SelectTrigger2, { size: "sm", className: "mt-1 w-40", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SelectValue2, {}) }),
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(SelectContent2, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SelectItem2, { value: "merge", children: "Merge" })
+    /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("label", { className: "text-sm font-medium", children: "Import Mode" }),
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Select2, { value: mode, onValueChange: (v4) => setMode(v4), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(SelectTrigger2, { size: "sm", className: "mt-1 w-40", children: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(SelectValue2, {}) }),
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(SelectContent2, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(SelectItem2, { value: "replace", children: "Replace All" }),
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(SelectItem2, { value: "merge", children: "Merge" })
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(
         "div",
         {
           className: `
@@ -85688,9 +89169,9 @@ function ImportMWBDialog() {
           onDrop: handleDrop,
           onClick: () => fileInputRef.current?.click(),
           children: [
-            parsing ? /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(LoaderCircle, { className: "size-8 text-blue-500 animate-spin" }) : file ? /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(FileArchive, { className: "size-8 text-green-500" }) : /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Upload, { className: "size-8 text-zinc-400" }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("p", { className: "text-sm text-zinc-500 dark:text-zinc-400", children: parsing ? progress : file ? file.name : "Drop .mwb file here or click to browse" }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+            parsing ? /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(LoaderCircle, { className: "size-8 text-blue-500 animate-spin" }) : file ? /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(FileArchive, { className: "size-8 text-green-500" }) : /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Upload, { className: "size-8 text-zinc-400" }),
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("p", { className: "text-sm text-zinc-500 dark:text-zinc-400", children: parsing ? progress : file ? file.name : "Drop .mwb file here or click to browse" }),
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
               "input",
               {
                 ref: fileInputRef,
@@ -85703,25 +89184,25 @@ function ImportMWBDialog() {
           ]
         }
       ),
-      preview && /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
+      preview && /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("p", { className: "text-xs text-green-600 dark:text-green-400", children: [
         "Detected ",
         preview.tableCount,
         " table",
         preview.tableCount > 1 ? "s" : "",
         preview.relCount > 0 && `, ${preview.relCount} relationship${preview.relCount > 1 ? "s" : ""}`
       ] }),
-      error && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("p", { className: "text-xs text-red-500", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("p", { className: "text-xs text-red-500", children: error })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(DialogFooter, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
-      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+    /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(DialogFooter, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Button, { variant: "outline", onClick: () => handleOpenChange(false), children: "Cancel" }),
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
         Button,
         {
           onClick: handleImport,
           disabled: !file || parsing,
           className: "bg-blue-600 hover:bg-blue-700 text-white",
-          children: parsing ? /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(import_jsx_runtime59.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
+          children: parsing ? /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(import_jsx_runtime69.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(LoaderCircle, { className: "size-3 mr-1 animate-spin" }),
             progress || "Parsing..."
           ] }) : "Import"
         }
@@ -85731,7 +89212,7 @@ function ImportMWBDialog() {
 }
 
 // src/components/Toaster.tsx
-var import_jsx_runtime60 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime70 = __toESM(require_jsx_runtime(), 1);
 var ICON = {
   info: Info,
   success: CircleCheck,
@@ -85748,14 +89229,14 @@ function Toaster() {
   const active2 = useToastStore((s3) => s3.active);
   const dismiss = useToastStore((s3) => s3.dismiss);
   if (active2.length === 0) return null;
-  return /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
     "div",
     {
       className: "pointer-events-none absolute right-3 top-3 z-[100] flex w-72 flex-col gap-2",
       "data-node": "toaster",
       children: active2.map((t4) => {
         const Icon2 = ICON[t4.severity];
-        return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
+        return /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(
           "div",
           {
             "data-node": `toast/${t4.id}`,
@@ -85766,16 +89247,16 @@ function Toaster() {
               ACCENT[t4.severity]
             ),
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Icon2, { className: cn("mt-0.5 size-3.5 shrink-0", ACCENT[t4.severity]) }),
-              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("span", { className: "min-w-0 flex-1 break-words", children: t4.message }),
-              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(Icon2, { className: cn("mt-0.5 size-3.5 shrink-0", ACCENT[t4.severity]) }),
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "min-w-0 flex-1 break-words", children: t4.message }),
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
                 "button",
                 {
                   type: "button",
                   className: "shrink-0 text-gray-400 hover:text-gray-700 dark:text-zinc-500 dark:hover:text-zinc-200",
                   onClick: () => dismiss(t4.id),
                   "aria-label": "dismiss",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(X2, { className: "size-3" })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(X2, { className: "size-3" })
                 }
               )
             ]
@@ -85788,7 +89269,7 @@ function Toaster() {
 }
 
 // src/components/CommandPalette.tsx
-var import_react29 = __toESM(require_react(), 1);
+var import_react35 = __toESM(require_react(), 1);
 
 // src/features/palette/actions.ts
 function buildPaletteActions() {
@@ -85826,13 +89307,13 @@ function buildPaletteActions() {
 }
 
 // src/components/CommandPalette.tsx
-var import_jsx_runtime61 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime71 = __toESM(require_jsx_runtime(), 1);
 var GROUP_ORDER = ["Create", "Edit", "View", "Export", "Navigate"];
 function CommandPalette() {
   const open = usePaletteStore((s3) => s3.open);
   const setOpen = usePaletteStore((s3) => s3.setOpen);
   const toggle = usePaletteStore((s3) => s3.toggle);
-  (0, import_react29.useEffect)(() => {
+  (0, import_react35.useEffect)(() => {
     const onKey = (e4) => {
       if (e4.key.toLowerCase() === "k" && (e4.metaKey || e4.ctrlKey)) {
         e4.preventDefault();
@@ -85842,8 +89323,8 @@ function CommandPalette() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggle]);
-  const actions = (0, import_react29.useMemo)(() => open ? buildPaletteActions() : [], [open]);
-  const groups = (0, import_react29.useMemo)(() => {
+  const actions = (0, import_react35.useMemo)(() => open ? buildPaletteActions() : [], [open]);
+  const groups = (0, import_react35.useMemo)(() => {
     const byGroup = /* @__PURE__ */ new Map();
     for (const a3 of actions) {
       const list = byGroup.get(a3.group) ?? [];
@@ -85856,11 +89337,11 @@ function CommandPalette() {
     setOpen(false);
     action.run();
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(CommandDialog, { open, onOpenChange: setOpen, title: "\uBA85\uB839 \uD314\uB808\uD2B8", description: "\uBA85\uB839\uC744 \uAC80\uC0C9\uD574 \uC2E4\uD589\uD558\uC138\uC694", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { "data-node": "command-palette", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(CommandInput, { placeholder: "\uBA85\uB839 \uAC80\uC0C9\u2026 (\u2318K)" }),
-    /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(CommandList, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(CommandEmpty, { children: "\uC77C\uCE58\uD558\uB294 \uBA85\uB839\uC774 \uC5C6\uC2B5\uB2C8\uB2E4" }),
-      groups.map(({ group, items }) => /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(CommandGroup, { heading: group, children: items.map((a3) => /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CommandDialog, { open, onOpenChange: setOpen, title: "\uBA85\uB839 \uD314\uB808\uD2B8", description: "\uBA85\uB839\uC744 \uAC80\uC0C9\uD574 \uC2E4\uD589\uD558\uC138\uC694", children: /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { "data-node": "command-palette", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CommandInput, { placeholder: "\uBA85\uB839 \uAC80\uC0C9\u2026 (\u2318K)" }),
+    /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CommandList, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CommandEmpty, { children: "\uC77C\uCE58\uD558\uB294 \uBA85\uB839\uC774 \uC5C6\uC2B5\uB2C8\uB2E4" }),
+      groups.map(({ group, items }) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CommandGroup, { heading: group, children: items.map((a3) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
         CommandItem,
         {
           "data-node": `palette-item/${a3.id.toLowerCase().replace(/[^a-z0-9.-]+/g, "-")}`,
@@ -86026,25 +89507,26 @@ if (typeof window !== "undefined") {
 }
 
 // src/App.tsx
-var import_jsx_runtime62 = __toESM(require_jsx_runtime(), 1);
-function App({ portalRoot }) {
+var import_jsx_runtime72 = __toESM(require_jsx_runtime(), 1);
+function App({ portalRoot, exec, connStore }) {
   useHostThemeSync();
   const theme = useStore2((s3) => s3.theme);
-  (0, import_react30.useEffect)(() => {
+  (0, import_react36.useEffect)(() => {
     if (!portalRoot) return;
     const resolved = theme === "system" ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : theme;
     portalRoot.classList.remove("light", "dark");
     portalRoot.classList.add(resolved);
   }, [theme, portalRoot]);
-  return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PortalRootProvider, { value: portalRoot ?? null, children: /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)("div", { className: "relative h-full w-full", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(AppLayout, { canvas: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PixiERDCanvas, {}) }),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(CreateTableDialog, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(ImportSQLDialog, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(ImportMermaidDialog, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(ImportMWBDialog, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Toaster, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(CommandPalette, {})
-  ] }) });
+  const store = (0, import_react36.useMemo)(() => connStore ?? createConnectionsStore(), [connStore]);
+  return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(PortalRootProvider, { value: portalRoot ?? null, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(DbHostProvider, { exec, connStore: store, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "relative h-full w-full", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AppLayout, { canvas: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(PixiERDCanvas, {}) }),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(CreateTableDialog, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(ImportSQLDialog, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(ImportMermaidDialog, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(ImportMWBDialog, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Toaster, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(CommandPalette, {})
+  ] }) }) });
 }
 var App_default = App;
 
@@ -88475,867 +91957,6 @@ var dbmlConverter = {
 };
 registerConverter(dbmlConverter);
 
-// src/features/migration/mig-dsl/tokenizer.ts
-var TokenType = {
-  Keyword: "Keyword",
-  Ident: "Ident",
-  Number: "Number",
-  String: "String",
-  Comment: "Comment",
-  LBrace: "LBrace",
-  // {
-  RBrace: "RBrace",
-  // }
-  LParen: "LParen",
-  // (
-  RParen: "RParen",
-  // )
-  Semicolon: "Semicolon",
-  // ;
-  Dot: "Dot",
-  // .
-  Comma: "Comma",
-  // ,
-  Arrow: "Arrow",
-  // ->
-  NL: "NL",
-  // 줄바꿈(파서는 무시하지만 위치 보존용으로 노출)
-  EOF: "EOF"
-};
-var KEYWORDS = /* @__PURE__ */ new Set([
-  "create",
-  "table",
-  "alter",
-  "add",
-  "drop",
-  "rename",
-  "column",
-  "fk",
-  "index",
-  "unique",
-  "on",
-  "delete",
-  "update",
-  "up",
-  "down",
-  "raw",
-  "to",
-  "primary",
-  "key",
-  "not",
-  "null",
-  "auto_increment",
-  "default",
-  "check"
-]);
-function isIdentStart(ch) {
-  return /[A-Za-z_]/.test(ch);
-}
-function isIdentPart(ch) {
-  return /[A-Za-z0-9_]/.test(ch);
-}
-function isDigit(ch) {
-  return ch >= "0" && ch <= "9";
-}
-function tokenize2(input) {
-  const tokens = [];
-  let i3 = 0;
-  let line = 1;
-  let col = 1;
-  const n3 = input.length;
-  function advance() {
-    const ch = input[i3++];
-    if (ch === "\n") {
-      line++;
-      col = 1;
-    } else {
-      col++;
-    }
-    return ch;
-  }
-  while (i3 < n3) {
-    const ch = input[i3];
-    const startLine = line;
-    const startCol = col;
-    if (ch === "\n") {
-      advance();
-      tokens.push({ type: TokenType.NL, value: "\n", line: startLine, col: startCol });
-      continue;
-    }
-    if (ch === " " || ch === "	" || ch === "\r") {
-      advance();
-      continue;
-    }
-    if (ch === "-" && input[i3 + 1] === "-") {
-      advance();
-      advance();
-      let value = "";
-      while (i3 < n3 && input[i3] !== "\n") value += advance();
-      tokens.push({ type: TokenType.Comment, value: value.trim(), line: startLine, col: startCol });
-      continue;
-    }
-    if (ch === "-" && input[i3 + 1] === ">") {
-      advance();
-      advance();
-      tokens.push({ type: TokenType.Arrow, value: "->", line: startLine, col: startCol });
-      continue;
-    }
-    if (ch === "'") {
-      advance();
-      let value = "";
-      let closed = false;
-      while (i3 < n3) {
-        const c3 = input[i3];
-        if (c3 === "'") {
-          if (input[i3 + 1] === "'") {
-            advance();
-            advance();
-            value += "'";
-            continue;
-          }
-          advance();
-          closed = true;
-          break;
-        }
-        value += advance();
-      }
-      if (!closed) {
-        throw makeLexError("Unterminated string literal", startLine, startCol);
-      }
-      tokens.push({ type: TokenType.String, value, line: startLine, col: startCol });
-      continue;
-    }
-    if (isDigit(ch)) {
-      let value = "";
-      while (i3 < n3 && isDigit(input[i3])) value += advance();
-      tokens.push({ type: TokenType.Number, value, line: startLine, col: startCol });
-      continue;
-    }
-    if (isIdentStart(ch)) {
-      let value = "";
-      while (i3 < n3 && isIdentPart(input[i3])) value += advance();
-      const lower = value.toLowerCase();
-      tokens.push({
-        type: KEYWORDS.has(lower) ? TokenType.Keyword : TokenType.Ident,
-        value: KEYWORDS.has(lower) ? lower : value,
-        line: startLine,
-        col: startCol
-      });
-      continue;
-    }
-    const punct = {
-      "{": TokenType.LBrace,
-      "}": TokenType.RBrace,
-      "(": TokenType.LParen,
-      ")": TokenType.RParen,
-      ";": TokenType.Semicolon,
-      ".": TokenType.Dot,
-      ",": TokenType.Comma
-    };
-    if (punct[ch] !== void 0) {
-      advance();
-      tokens.push({ type: punct[ch], value: ch, line: startLine, col: startCol });
-      continue;
-    }
-    throw makeLexError(`Unexpected character '${ch}'`, startLine, startCol);
-  }
-  tokens.push({ type: TokenType.EOF, value: "", line, col });
-  return tokens;
-}
-function makeLexError(message, line, col) {
-  const err = new Error(`${message} (line ${line}, col ${col})`);
-  err.line = line;
-  err.col = col;
-  return err;
-}
-
-// src/features/migration/mig-dsl/parser.ts
-function makeError(message, tok) {
-  const err = new Error(`${message} (line ${tok.line}, col ${tok.col})`);
-  err.line = tok.line;
-  err.col = tok.col;
-  return err;
-}
-var REF_ACTIONS = {
-  cascade: "CASCADE",
-  restrict: "RESTRICT",
-  set_null: "SET NULL",
-  no_action: "NO ACTION",
-  set_default: "SET DEFAULT"
-};
-var Parser = class {
-  toks;
-  pos = 0;
-  warnings = [];
-  constructor(input) {
-    this.toks = tokenize2(input).filter((t4) => t4.type !== TokenType.NL);
-  }
-  // ── 토큰 커서 헬퍼 ──────────────────────────────────────────────
-  peek() {
-    return this.toks[this.pos];
-  }
-  next() {
-    return this.toks[this.pos++];
-  }
-  atEof() {
-    return this.peek().type === TokenType.EOF;
-  }
-  // 다음 토큰이 특정 키워드인지(소비하지 않음)
-  isKeyword(kw) {
-    const t4 = this.peek();
-    return t4.type === TokenType.Keyword && t4.value === kw;
-  }
-  // 특정 키워드를 기대하고 소비. 아니면 에러.
-  expectKeyword(kw) {
-    const t4 = this.peek();
-    if (t4.type !== TokenType.Keyword || t4.value !== kw) {
-      throw makeError(`Expected keyword '${kw}'`, t4);
-    }
-    return this.next();
-  }
-  // 특정 토큰 타입을 기대하고 소비. 아니면 에러.
-  expect(type, label) {
-    const t4 = this.peek();
-    if (t4.type !== type) {
-      throw makeError(`Expected ${label}`, t4);
-    }
-    return this.next();
-  }
-  // 식별자(또는 키워드도 식별자로 허용하지 않음 — 식별자만)
-  expectIdent(label = "identifier") {
-    const t4 = this.peek();
-    if (t4.type !== TokenType.Ident) {
-      throw makeError(`Expected ${label}`, t4);
-    }
-    return this.next();
-  }
-  // qname := (ident '.')? ident → { schema?, name }
-  parseQName() {
-    const first = this.expectIdent("table name");
-    if (this.peek().type === TokenType.Dot) {
-      this.next();
-      const second = this.expectIdent("table name");
-      return { schema: first.value, name: second.value };
-    }
-    return { name: first.value };
-  }
-  // ── 진입점 ─────────────────────────────────────────────────────
-  parse() {
-    while (this.peek().type === TokenType.Comment) this.next();
-    let ops = [];
-    let downOps = [];
-    if (this.isKeyword("up")) {
-      ops = this.parseBlock("up");
-    } else {
-      ops = this.parseStatementsUntilEof();
-      return { ops, downOps, warnings: this.warnings };
-    }
-    while (this.peek().type === TokenType.Comment) this.next();
-    if (this.isKeyword("down")) {
-      downOps = this.parseBlock("down");
-    }
-    while (this.peek().type === TokenType.Comment) this.next();
-    if (!this.atEof()) {
-      throw makeError("Unexpected trailing tokens", this.peek());
-    }
-    return { ops, downOps, warnings: this.warnings };
-  }
-  // 'up'|'down' '{' stmt* '}'
-  parseBlock(kw) {
-    this.expectKeyword(kw);
-    this.expect(TokenType.LBrace, "'{'");
-    const ops = [];
-    while (!this.atEof() && this.peek().type !== TokenType.RBrace) {
-      if (this.peek().type === TokenType.Comment) {
-        this.next();
-        continue;
-      }
-      ops.push(this.parseStatement());
-    }
-    this.expect(TokenType.RBrace, "'}'");
-    return ops;
-  }
-  // 블록 없이 톱레벨 문장(EOF 까지)
-  parseStatementsUntilEof() {
-    const ops = [];
-    while (!this.atEof()) {
-      if (this.peek().type === TokenType.Comment) {
-        this.next();
-        continue;
-      }
-      ops.push(this.parseStatement());
-    }
-    return ops;
-  }
-  // 단일 문장 → Operation. 끝에 ';' 강제.
-  parseStatement() {
-    const head = this.peek();
-    if (head.type !== TokenType.Keyword) {
-      throw makeError(`Expected statement keyword, got '${head.value}'`, head);
-    }
-    let op;
-    switch (head.value) {
-      case "create":
-        op = this.parseCreate();
-        break;
-      case "alter":
-        op = this.parseAlter();
-        break;
-      case "drop":
-        op = this.parseDrop();
-        break;
-      case "rename":
-        op = this.parseRenameTable();
-        break;
-      case "add":
-        op = this.parseAdd();
-        break;
-      case "raw":
-        op = this.parseRaw();
-        break;
-      default:
-        throw makeError(`Unknown statement keyword '${head.value}'`, head);
-    }
-    this.expect(TokenType.Semicolon, "';'");
-    return op;
-  }
-  // create table | create [unique] index
-  parseCreate() {
-    this.expectKeyword("create");
-    if (this.isKeyword("table")) {
-      return this.parseCreateTable();
-    }
-    if (this.isKeyword("unique") || this.isKeyword("index")) {
-      return this.parseCreateIndex();
-    }
-    throw makeError("Expected 'table' or 'index' after 'create'", this.peek());
-  }
-  // create table qname '(' column_def (';' column_def)* ')'
-  parseCreateTable() {
-    this.expectKeyword("table");
-    const { schema, name } = this.parseQName();
-    this.expect(TokenType.LParen, "'('");
-    const columns = [];
-    while (this.peek().type !== TokenType.RParen && !this.atEof()) {
-      columns.push(this.parseColumnDef());
-      if (this.peek().type === TokenType.Semicolon) {
-        this.next();
-      } else if (this.peek().type !== TokenType.RParen) {
-        throw makeError("Expected ';' or ')' in column list", this.peek());
-      }
-    }
-    this.expect(TokenType.RParen, "')'");
-    const params = { name, columns };
-    if (schema) params.schema = schema;
-    return this.mkOp("createTable", params);
-  }
-  // column_def := ident type flag*
-  //   flag := 'primary' 'key' | 'auto_increment' | 'not' 'null' | 'null'
-  //         | 'unique' | 'default' (string|number|ident)
-  parseColumnDef() {
-    const nameTok = this.expectIdent("column name");
-    const typeTok = this.parseTypeName();
-    const col = { name: nameTok.value, dataType: typeTok };
-    let sawNotNull = false;
-    let sawNull = false;
-    while (this.peek().type === TokenType.Keyword) {
-      const kw = this.peek().value;
-      if (kw === "primary") {
-        this.next();
-        this.expectKeyword("key");
-        col.isPrimaryKey = true;
-      } else if (kw === "auto_increment") {
-        this.next();
-        col.autoIncrement = true;
-      } else if (kw === "not") {
-        this.next();
-        this.expectKeyword("null");
-        sawNotNull = true;
-      } else if (kw === "null") {
-        this.next();
-        sawNull = true;
-      } else if (kw === "unique") {
-        this.next();
-        col.isUnique = true;
-      } else if (kw === "default") {
-        this.next();
-        col.defaultValue = this.parseDefaultValue();
-      } else {
-        break;
-      }
-    }
-    if (sawNotNull) col.nullable = false;
-    else if (sawNull) col.nullable = true;
-    return col;
-  }
-  // 타입 이름: 식별자(+선택적 '(' 정수 [',' 정수] ')'). 타입에 붙은 길이/정밀도는 이름에 합친다.
-  parseTypeName() {
-    const base = this.expectIdent("type name");
-    let type = base.value;
-    if (this.peek().type === TokenType.LParen) {
-      this.next();
-      const parts = [];
-      while (this.peek().type !== TokenType.RParen && !this.atEof()) {
-        const t4 = this.peek();
-        if (t4.type === TokenType.Number || t4.type === TokenType.Ident) {
-          parts.push(this.next().value);
-        } else if (t4.type === TokenType.Comma) {
-          this.next();
-        } else {
-          throw makeError("Invalid type parameter", t4);
-        }
-      }
-      this.expect(TokenType.RParen, "')'");
-      type += `(${parts.join(",")})`;
-    }
-    return type;
-  }
-  // default 값: 문자열은 따옴표 포함 정규형('...'), 정수/식별자(NULL·CURRENT_TIMESTAMP 등)는 원문
-  parseDefaultValue() {
-    const t4 = this.peek();
-    if (t4.type === TokenType.String) {
-      this.next();
-      return `'${t4.value}'`;
-    }
-    if (t4.type === TokenType.Number) {
-      this.next();
-      return t4.value;
-    }
-    if (t4.type === TokenType.Ident || t4.type === TokenType.Keyword) {
-      this.next();
-      return t4.value.toUpperCase() === "NULL" ? "NULL" : t4.value;
-    }
-    throw makeError("Expected default value", t4);
-  }
-  // alter table qname (add|drop|rename|alter) column ...
-  parseAlter() {
-    this.expectKeyword("alter");
-    this.expectKeyword("table");
-    const { name: table } = this.parseQName();
-    const sub = this.peek();
-    if (sub.type !== TokenType.Keyword) {
-      throw makeError("Expected add/drop/rename/alter in alter table", sub);
-    }
-    switch (sub.value) {
-      case "add": {
-        this.next();
-        this.expectKeyword("column");
-        const colNameTok = this.expectIdent("column name");
-        const typeTok = this.parseTypeName();
-        const params = { table, name: colNameTok.value, dataType: typeTok };
-        let sawNotNull = false;
-        let sawNull = false;
-        while (this.peek().type === TokenType.Keyword) {
-          const kw = this.peek().value;
-          if (kw === "not") {
-            this.next();
-            this.expectKeyword("null");
-            sawNotNull = true;
-          } else if (kw === "null") {
-            this.next();
-            sawNull = true;
-          } else if (kw === "unique") {
-            this.next();
-            params.isUnique = true;
-          } else if (kw === "auto_increment") {
-            this.next();
-            params.autoIncrement = true;
-          } else if (kw === "default") {
-            this.next();
-            params.defaultValue = this.parseDefaultValue();
-          } else break;
-        }
-        if (sawNotNull) params.nullable = false;
-        else if (sawNull) params.nullable = true;
-        return this.mkOp("addColumn", params);
-      }
-      case "drop": {
-        this.next();
-        this.expectKeyword("column");
-        const colNameTok = this.expectIdent("column name");
-        return this.mkOp("dropColumn", { table, name: colNameTok.value });
-      }
-      case "rename": {
-        this.next();
-        this.expectKeyword("column");
-        const oldTok = this.expectIdent("column name");
-        this.expectKeyword("to");
-        const newTok = this.expectIdent("column name");
-        return this.mkOp("renameColumn", { table, oldName: oldTok.value, newName: newTok.value });
-      }
-      case "alter": {
-        this.next();
-        this.expectKeyword("column");
-        const colTok = this.expectIdent("column name");
-        const newType = this.parseTypeName();
-        return this.mkOp("modifyColumnType", { table, column: colTok.value, newType });
-      }
-      default:
-        throw makeError(`Unknown alter action '${sub.value}'`, sub);
-    }
-  }
-  // drop table qname | drop fk name on qname | drop index name on qname
-  parseDrop() {
-    this.expectKeyword("drop");
-    if (this.isKeyword("table")) {
-      this.next();
-      const { name } = this.parseQName();
-      return this.mkOp("dropTable", { name });
-    }
-    if (this.isKeyword("fk")) {
-      this.next();
-      const fkName = this.expectIdent("fk name").value;
-      this.expectKeyword("on");
-      const { name: table } = this.parseQName();
-      return this.mkOp("dropForeignKey", { table, name: fkName });
-    }
-    if (this.isKeyword("index")) {
-      this.next();
-      const idxName = this.expectIdent("index name").value;
-      this.expectKeyword("on");
-      const { name: table } = this.parseQName();
-      return this.mkOp("dropIndex", { table, name: idxName });
-    }
-    throw makeError("Expected 'table', 'fk', or 'index' after 'drop'", this.peek());
-  }
-  // rename table qname to ident
-  parseRenameTable() {
-    this.expectKeyword("rename");
-    this.expectKeyword("table");
-    const { name: oldName } = this.parseQName();
-    this.expectKeyword("to");
-    const newName = this.expectIdent("new table name").value;
-    return this.mkOp("renameTable", { oldName, newName });
-  }
-  // add fk name on qname '(' cols ')' -> qname '(' cols ')' [on delete X] [on update Y]
-  parseAdd() {
-    this.expectKeyword("add");
-    this.expectKeyword("fk");
-    const fkName = this.expectIdent("fk name").value;
-    this.expectKeyword("on");
-    const { name: table } = this.parseQName();
-    const columns = this.parseColumnList();
-    this.expect(TokenType.Arrow, "'->'");
-    const { name: refTable } = this.parseQName();
-    const refColumns = this.parseColumnList();
-    let onDelete = "NO ACTION";
-    let onUpdate = "NO ACTION";
-    while (this.isKeyword("on")) {
-      this.next();
-      if (this.isKeyword("delete")) {
-        this.next();
-        onDelete = this.parseRefAction();
-      } else if (this.isKeyword("update")) {
-        this.next();
-        onUpdate = this.parseRefAction();
-      } else {
-        throw makeError("Expected 'delete' or 'update' after 'on'", this.peek());
-      }
-    }
-    return this.mkOp("addForeignKey", {
-      name: fkName,
-      table,
-      columns,
-      refTable,
-      refColumns,
-      onDelete,
-      onUpdate
-    });
-  }
-  // 참조 동작: cascade/restrict/set null/no action/set default
-  parseRefAction() {
-    const t4 = this.peek();
-    const first = this.consumeWord();
-    let key = first.toLowerCase();
-    if (key === "set" || key === "no") {
-      const second = this.consumeWord();
-      key = `${key}_${second.toLowerCase()}`;
-    }
-    const action = REF_ACTIONS[key];
-    if (!action) {
-      throw makeError(`Unknown referential action '${key.replace("_", " ")}'`, t4);
-    }
-    return action;
-  }
-  // 키워드/식별자 어느 쪽이든 단어 하나를 소비해 값 반환
-  consumeWord() {
-    const t4 = this.peek();
-    if (t4.type === TokenType.Keyword || t4.type === TokenType.Ident) {
-      return this.next().value;
-    }
-    throw makeError("Expected word", t4);
-  }
-  // create [unique] index name on qname '(' cols ')'
-  parseCreateIndex() {
-    let unique = false;
-    if (this.isKeyword("unique")) {
-      this.next();
-      unique = true;
-    }
-    this.expectKeyword("index");
-    const idxName = this.expectIdent("index name").value;
-    this.expectKeyword("on");
-    const { name: table } = this.parseQName();
-    const columns = this.parseColumnList();
-    return this.mkOp("createIndex", { table, name: idxName, columns, unique });
-  }
-  // raw '<sql string>'
-  parseRaw() {
-    this.expectKeyword("raw");
-    const sqlTok = this.expect(TokenType.String, "raw SQL string");
-    return this.mkOp("raw", { sql: sqlTok.value });
-  }
-  // '(' ident (',' ident)* ')'
-  parseColumnList() {
-    this.expect(TokenType.LParen, "'('");
-    const cols = [];
-    cols.push(this.expectIdent("column name").value);
-    while (this.peek().type === TokenType.Comma) {
-      this.next();
-      cols.push(this.expectIdent("column name").value);
-    }
-    this.expect(TokenType.RParen, "')'");
-    return cols;
-  }
-  // Operation 생성(id/timestamp 채움)
-  mkOp(type, params) {
-    return { id: generateId(), type, timestamp: 0, params };
-  }
-};
-function parse3(input) {
-  return new Parser(input).parse();
-}
-
-// src/features/migration/operations/inverse.ts
-function generateInverse(op) {
-  const p4 = op.params;
-  switch (op.type) {
-    case "createTable":
-      return {
-        ...op,
-        type: "dropTable",
-        params: { name: p4.name, _tableData: op.params }
-      };
-    case "dropTable":
-      return p4._tableData ? { ...op, type: "createTable", params: p4._tableData } : null;
-    case "renameTable":
-      return {
-        ...op,
-        type: "renameTable",
-        params: { oldName: p4.newName, newName: p4.oldName }
-      };
-    case "addColumn":
-      return {
-        ...op,
-        type: "dropColumn",
-        params: { table: p4.table, name: p4.name, _columnData: op.params }
-      };
-    case "dropColumn":
-      return p4._columnData ? { ...op, type: "addColumn", params: p4._columnData } : null;
-    case "renameColumn":
-      return {
-        ...op,
-        type: "renameColumn",
-        params: { table: p4.table, oldName: p4.newName, newName: p4.oldName }
-      };
-    case "modifyColumnType":
-      return {
-        ...op,
-        type: "modifyColumnType",
-        params: { table: p4.table, column: p4.column, oldType: p4.newType, newType: p4.oldType }
-      };
-    case "modifyColumnDefault":
-      return {
-        ...op,
-        type: "modifyColumnDefault",
-        params: { table: p4.table, column: p4.column, oldDefault: p4.newDefault, newDefault: p4.oldDefault }
-      };
-    case "setColumnNullable":
-      return {
-        ...op,
-        type: "setColumnNullable",
-        params: { table: p4.table, column: p4.column, nullable: p4.oldNullable, oldNullable: p4.nullable }
-      };
-    case "setColumnAutoIncrement":
-      return {
-        ...op,
-        type: "setColumnAutoIncrement",
-        params: { table: p4.table, column: p4.column, autoIncrement: !p4.autoIncrement }
-      };
-    case "setColumnUnique":
-      return {
-        ...op,
-        type: "setColumnUnique",
-        params: { table: p4.table, column: p4.column, unique: !p4.unique }
-      };
-    case "addPrimaryKey":
-      return {
-        ...op,
-        type: "dropPrimaryKey",
-        params: { table: p4.table, columns: p4.columns }
-      };
-    case "dropPrimaryKey":
-      return {
-        ...op,
-        type: "addPrimaryKey",
-        params: { table: p4.table, columns: p4.columns }
-      };
-    case "addForeignKey": {
-      const fkName = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
-      return {
-        ...op,
-        type: "dropForeignKey",
-        params: { table: p4.table, name: fkName, _fkData: op.params }
-      };
-    }
-    case "dropForeignKey":
-      return p4._fkData ? { ...op, type: "addForeignKey", params: p4._fkData } : null;
-    case "addUniqueConstraint": {
-      const uqName = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
-      return {
-        ...op,
-        type: "dropUniqueConstraint",
-        params: { table: p4.table, name: uqName, columns: p4.columns }
-      };
-    }
-    case "dropUniqueConstraint":
-      return p4.columns ? { ...op, type: "addUniqueConstraint", params: { table: p4.table, name: p4.name, columns: p4.columns } } : null;
-    case "createIndex":
-      return {
-        ...op,
-        type: "dropIndex",
-        params: { table: p4.table, name: p4.name, _indexData: op.params }
-      };
-    case "dropIndex":
-      return p4._indexData ? { ...op, type: "createIndex", params: p4._indexData } : null;
-    default:
-      return null;
-  }
-}
-
-// src/features/migration/mig-dsl/serializer.ts
-var INDENT = "  ";
-function serializeColumnDef(c3) {
-  const parts = [String(c3.name), String(c3.dataType)];
-  if (c3.isPrimaryKey) parts.push("primary key");
-  if (c3.autoIncrement) parts.push("auto_increment");
-  if (c3.nullable === false) parts.push("not null");
-  else if (c3.nullable === true) parts.push("null");
-  if (c3.isUnique) parts.push("unique");
-  if (c3.defaultValue != null) parts.push(`default ${String(c3.defaultValue)}`);
-  return parts.join(" ");
-}
-function qname(name, schema) {
-  return schema ? `${String(schema)}.${String(name)}` : String(name);
-}
-function refAction2(a3) {
-  return String(a3).toLowerCase();
-}
-function serializeOp(op) {
-  const p4 = op.params;
-  switch (op.type) {
-    case "createTable": {
-      const cols = p4.columns ?? [];
-      const header = `create table ${qname(p4.name, p4.schema)} (`;
-      const colLines = cols.map((c3) => `${INDENT}${INDENT}${serializeColumnDef(c3)};`);
-      return `${header}
-${colLines.join("\n")}
-${INDENT});`;
-    }
-    case "addColumn": {
-      const flags = [];
-      if (p4.nullable === false) flags.push("not null");
-      if (p4.isUnique) flags.push("unique");
-      if (p4.autoIncrement) flags.push("auto_increment");
-      if (p4.defaultValue != null) flags.push(`default ${String(p4.defaultValue)}`);
-      const tail = flags.length ? ` ${flags.join(" ")}` : "";
-      return `alter table ${String(p4.table)} add column ${String(p4.name)} ${String(p4.dataType)}${tail};`;
-    }
-    case "dropColumn":
-      return `alter table ${String(p4.table)} drop column ${String(p4.name)};`;
-    case "renameColumn":
-      return `alter table ${String(p4.table)} rename column ${String(p4.oldName)} to ${String(p4.newName)};`;
-    case "modifyColumnType":
-      return `alter table ${String(p4.table)} alter column ${String(p4.column)} ${String(p4.newType)};`;
-    case "dropTable":
-      return `drop table ${qname(p4.name, p4.schema)};`;
-    case "renameTable":
-      return `rename table ${String(p4.oldName)} to ${String(p4.newName)};`;
-    case "addForeignKey": {
-      const cols = p4.columns.join(", ");
-      const refCols = p4.refColumns.join(", ");
-      let s3 = `add fk ${String(p4.name)} on ${String(p4.table)} ( ${cols} ) -> ${String(p4.refTable)} ( ${refCols} )`;
-      s3 += ` on delete ${refAction2(p4.onDelete)} on update ${refAction2(p4.onUpdate)}`;
-      return `${s3};`;
-    }
-    case "dropForeignKey":
-      return `drop fk ${String(p4.name)} on ${String(p4.table)};`;
-    case "createIndex": {
-      const cols = p4.columns.join(", ");
-      const uniq = p4.unique ? "unique " : "";
-      return `create ${uniq}index ${String(p4.name)} on ${String(p4.table)} ( ${cols} );`;
-    }
-    case "dropIndex":
-      return `drop index ${String(p4.name)} on ${String(p4.table)};`;
-    // raw 는 OperationType 에 없으므로 문자열 비교로 처리
-    default:
-      if (op.type === "raw") {
-        return `raw '${String(p4.sql)}';`;
-      }
-      throw new Error(`serialize: unsupported operation type '${op.type}'`);
-  }
-}
-function serializeBlockBody(ops) {
-  return ops.map((op) => {
-    const text = serializeOp(op);
-    return text.split("\n").map((line, i3) => i3 === 0 ? `${INDENT}${line}` : line).join("\n");
-  }).join("\n");
-}
-function serialize(ops, opts = {}) {
-  const upBody = serializeBlockBody(ops);
-  let out2 = `up {
-${upBody}
-}`;
-  if (opts.omitDown) return out2;
-  let downOps = opts.downOps;
-  if (!downOps || downOps.length === 0) {
-    downOps = [];
-    for (let i3 = ops.length - 1; i3 >= 0; i3--) {
-      const inv = generateInverse(ops[i3]);
-      if (inv) downOps.push(inv);
-    }
-  }
-  if (downOps.length > 0) {
-    const downBody = serializeBlockBody(downOps);
-    out2 += `
-down {
-${downBody}
-}`;
-  }
-  return out2;
-}
-
-// src/features/migration/mig-dsl/index.ts
-function parseMig(text) {
-  const { ops, downOps, warnings: warnings2 } = parse3(text);
-  return { ops, downOps, warnings: warnings2 };
-}
-function serializeMig(ops, opts = {}) {
-  return serialize(ops, opts);
-}
-function lintMig(text) {
-  try {
-    parse3(text);
-    return { errors: [] };
-  } catch (e4) {
-    const err = e4;
-    const line = typeof err.line === "number" ? err.line : 1;
-    const col = typeof err.col === "number" ? err.col : 1;
-    const message = (err.message ?? "parse error").replace(/\s*\(line \d+, col \d+\)\s*$/, "");
-    return { errors: [{ line, col, message }] };
-  }
-}
-
 // src/features/migration/operations/executor.ts
 function applyOperation(schema, op) {
   const next = structuredClone(schema);
@@ -89600,488 +92221,6 @@ function applyOperation(schema, op) {
     }
   }
   return next;
-}
-
-// src/features/migration/sql-generator/mysql-generator.ts
-var MySQLGenerator = class {
-  dialect = "mysql";
-  generate(op) {
-    const p4 = op.params;
-    switch (op.type) {
-      case "createTable": {
-        const columns = p4.columns ?? [];
-        const colDefs = columns.map((c3) => {
-          let def = `  \`${c3.name}\` ${c3.dataType}`;
-          if (c3.length) def += `(${c3.length})`;
-          if (c3.autoIncrement) def += " AUTO_INCREMENT";
-          if (!c3.nullable) def += " NOT NULL";
-          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
-          if (c3.isUnique) def += " UNIQUE";
-          if (c3.comment) def += ` COMMENT '${c3.comment}'`;
-          return def;
-        });
-        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `\`${c3.name}\``);
-        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
-        let sql = `CREATE TABLE \`${p4.name}\` (
-${colDefs.join(",\n")}
-)`;
-        if (p4.engine) sql += ` ENGINE=${p4.engine}`;
-        if (p4.charset) sql += ` DEFAULT CHARSET=${p4.charset}`;
-        if (p4.comment) sql += ` COMMENT='${p4.comment}'`;
-        return sql + ";";
-      }
-      case "dropTable":
-        return `DROP TABLE IF EXISTS \`${p4.name}\`;`;
-      case "renameTable":
-        return `ALTER TABLE \`${p4.oldName}\` RENAME TO \`${p4.newName}\`;`;
-      case "addColumn": {
-        let sql = `ALTER TABLE \`${p4.table}\` ADD COLUMN \`${p4.name}\` ${p4.dataType ?? "VARCHAR(255)"}`;
-        if (!(p4.nullable ?? true)) sql += " NOT NULL";
-        if (p4.defaultValue != null) sql += ` DEFAULT ${p4.defaultValue}`;
-        if (p4.autoIncrement) sql += " AUTO_INCREMENT";
-        if (p4.isUnique) sql += " UNIQUE";
-        if (p4.after) sql += ` AFTER \`${p4.after}\``;
-        return sql + ";";
-      }
-      case "dropColumn":
-        return `ALTER TABLE \`${p4.table}\` DROP COLUMN \`${p4.name}\`;`;
-      case "renameColumn":
-        return `ALTER TABLE \`${p4.table}\` RENAME COLUMN \`${p4.oldName}\` TO \`${p4.newName}\`;`;
-      case "modifyColumnType":
-        return `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` ${p4.newType};`;
-      case "modifyColumnDefault":
-        return p4.newDefault != null ? `ALTER TABLE \`${p4.table}\` ALTER COLUMN \`${p4.column}\` SET DEFAULT ${p4.newDefault};` : `ALTER TABLE \`${p4.table}\` ALTER COLUMN \`${p4.column}\` DROP DEFAULT;`;
-      case "setColumnNullable":
-        return p4.nullable ? `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` NULL;` : `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` NOT NULL;`;
-      case "setColumnAutoIncrement":
-        return p4.autoIncrement ? `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\` AUTO_INCREMENT;` : `ALTER TABLE \`${p4.table}\` MODIFY COLUMN \`${p4.column}\`;`;
-      case "setColumnUnique":
-        return p4.unique ? `ALTER TABLE \`${p4.table}\` ADD UNIQUE (\`${p4.column}\`);` : `ALTER TABLE \`${p4.table}\` DROP INDEX \`${p4.column}\`;`;
-      case "addPrimaryKey": {
-        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p4.table}\` ADD PRIMARY KEY (${cols});`;
-      }
-      case "dropPrimaryKey":
-        return `ALTER TABLE \`${p4.table}\` DROP PRIMARY KEY;`;
-      case "addForeignKey": {
-        const name = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
-        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
-        const refCols = p4.refColumns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p4.table}\` ADD CONSTRAINT \`${name}\` FOREIGN KEY (${cols}) REFERENCES \`${p4.refTable}\`(${refCols}) ON DELETE ${p4.onDelete} ON UPDATE ${p4.onUpdate};`;
-      }
-      case "dropForeignKey":
-        return `ALTER TABLE \`${p4.table}\` DROP FOREIGN KEY \`${p4.name}\`;`;
-      case "addUniqueConstraint": {
-        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
-        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `ALTER TABLE \`${p4.table}\` ADD CONSTRAINT \`${name}\` UNIQUE (${cols});`;
-      }
-      case "dropUniqueConstraint":
-        return `ALTER TABLE \`${p4.table}\` DROP INDEX \`${p4.name}\`;`;
-      case "createIndex": {
-        const unique = p4.unique ? "UNIQUE " : "";
-        const cols = p4.columns.map((c3) => `\`${c3}\``).join(", ");
-        return `CREATE ${unique}INDEX \`${p4.name}\` ON \`${p4.table}\`(${cols});`;
-      }
-      case "dropIndex":
-        return `DROP INDEX \`${p4.name}\` ON \`${p4.table}\`;`;
-      default:
-        return `-- Unknown operation: ${op.type}`;
-    }
-  }
-  generateBatch(ops) {
-    return ops.map((op) => this.generate(op)).join("\n\n");
-  }
-};
-
-// src/features/migration/sql-generator/postgresql-generator.ts
-var PostgreSQLGenerator = class {
-  dialect = "postgresql";
-  generate(op) {
-    const p4 = op.params;
-    switch (op.type) {
-      case "createTable": {
-        const columns = p4.columns ?? [];
-        const colDefs = columns.map((c3) => {
-          const isSerial = c3.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(c3.dataType);
-          let def;
-          if (isSerial) {
-            const serialType = /^BIGINT/i.test(c3.dataType) ? "BIGSERIAL" : "SERIAL";
-            def = `  "${c3.name}" ${serialType}`;
-          } else {
-            def = `  "${c3.name}" ${c3.dataType}`;
-            if (c3.length) def += `(${c3.length})`;
-          }
-          if (!c3.nullable) def += " NOT NULL";
-          if (c3.defaultValue != null && !isSerial) def += ` DEFAULT ${c3.defaultValue}`;
-          if (c3.isUnique) def += " UNIQUE";
-          return def;
-        });
-        const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => `"${c3.name}"`);
-        if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
-        const schemaPrefix = p4.schema ? `"${p4.schema}".` : "";
-        let sql = `CREATE TABLE ${schemaPrefix}"${p4.name}" (
-${colDefs.join(",\n")}
-)`;
-        if (p4.comment) sql += `;
-COMMENT ON TABLE ${schemaPrefix}"${p4.name}" IS '${p4.comment}'`;
-        return sql + ";";
-      }
-      case "dropTable": {
-        const schemaPrefix = p4.schema ? `"${p4.schema}".` : "";
-        return `DROP TABLE IF EXISTS ${schemaPrefix}"${p4.name}" CASCADE;`;
-      }
-      case "renameTable":
-        return `ALTER TABLE "${p4.oldName}" RENAME TO "${p4.newName}";`;
-      case "addColumn": {
-        const isSerial = p4.autoIncrement && /^(INT|INTEGER|BIGINT)/i.test(p4.dataType ?? "");
-        let colType;
-        if (isSerial) {
-          colType = /^BIGINT/i.test(p4.dataType ?? "") ? "BIGSERIAL" : "SERIAL";
-        } else {
-          colType = p4.dataType ?? "VARCHAR(255)";
-        }
-        let sql = `ALTER TABLE "${p4.table}" ADD COLUMN "${p4.name}" ${colType}`;
-        if (!(p4.nullable ?? true)) sql += " NOT NULL";
-        if (p4.defaultValue != null && !isSerial) sql += ` DEFAULT ${p4.defaultValue}`;
-        if (p4.isUnique) sql += " UNIQUE";
-        return sql + ";";
-      }
-      case "dropColumn":
-        return `ALTER TABLE "${p4.table}" DROP COLUMN "${p4.name}";`;
-      case "renameColumn":
-        return `ALTER TABLE "${p4.table}" RENAME COLUMN "${p4.oldName}" TO "${p4.newName}";`;
-      case "modifyColumnType":
-        return `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" TYPE ${p4.newType};`;
-      case "modifyColumnDefault":
-        return p4.newDefault != null ? `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET DEFAULT ${p4.newDefault};` : `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP DEFAULT;`;
-      case "setColumnNullable":
-        return p4.nullable ? `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP NOT NULL;` : `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET NOT NULL;`;
-      case "setColumnAutoIncrement": {
-        const seqName = `${p4.table}_${p4.column}_seq`;
-        if (p4.autoIncrement) {
-          return [
-            `CREATE SEQUENCE "${seqName}";`,
-            `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" SET DEFAULT nextval('"${seqName}"');`,
-            `ALTER SEQUENCE "${seqName}" OWNED BY "${p4.table}"."${p4.column}";`
-          ].join("\n");
-        }
-        return `ALTER TABLE "${p4.table}" ALTER COLUMN "${p4.column}" DROP DEFAULT;`;
-      }
-      case "setColumnUnique":
-        if (p4.unique) {
-          const constraintName = `uq_${p4.table}_${p4.column}`;
-          return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${constraintName}" UNIQUE ("${p4.column}");`;
-        }
-        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "uq_${p4.table}_${p4.column}";`;
-      case "addPrimaryKey": {
-        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p4.table}" ADD PRIMARY KEY (${cols});`;
-      }
-      case "dropPrimaryKey":
-        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT "${p4.table}_pkey";`;
-      case "addForeignKey": {
-        const name = p4.name ?? `fk_${p4.table}_${p4.columns[0]}`;
-        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
-        const refCols = p4.refColumns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${name}" FOREIGN KEY (${cols}) REFERENCES "${p4.refTable}"(${refCols}) ON DELETE ${p4.onDelete} ON UPDATE ${p4.onUpdate};`;
-      }
-      case "dropForeignKey":
-        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "${p4.name}";`;
-      case "addUniqueConstraint": {
-        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
-        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
-        return `ALTER TABLE "${p4.table}" ADD CONSTRAINT "${name}" UNIQUE (${cols});`;
-      }
-      case "dropUniqueConstraint":
-        return `ALTER TABLE "${p4.table}" DROP CONSTRAINT IF EXISTS "${p4.name}";`;
-      case "createIndex": {
-        const unique = p4.unique ? "UNIQUE " : "";
-        const cols = p4.columns.map((c3) => `"${c3}"`).join(", ");
-        return `CREATE ${unique}INDEX "${p4.name}" ON "${p4.table}"(${cols});`;
-      }
-      case "dropIndex":
-        return `DROP INDEX IF EXISTS "${p4.name}";`;
-      default:
-        return `-- Unknown operation: ${op.type}`;
-    }
-  }
-  generateBatch(ops) {
-    return ops.map((op) => this.generate(op)).join("\n\n");
-  }
-};
-
-// src/features/migration/sql-generator/sqlite-generator.ts
-var SQLiteGenerator = class {
-  dialect = "sqlite";
-  q(name) {
-    return `"${name}"`;
-  }
-  unsupported(op) {
-    return `-- SQLite: '${op}' \uB294 ALTER \uB85C \uBD88\uAC00 \u2014 \uD14C\uC774\uBE14 \uC7AC\uC791\uC131 \uD544\uC694(\uC218\uB3D9)`;
-  }
-  generate(op) {
-    const p4 = op.params;
-    switch (op.type) {
-      case "createTable": {
-        const columns = p4.columns ?? [];
-        const inlinePk = columns.find((c3) => c3.autoIncrement && c3.isPrimaryKey);
-        const colDefs = columns.map((c3) => {
-          if (c3 === inlinePk) return `  ${this.q(c3.name)} INTEGER PRIMARY KEY AUTOINCREMENT`;
-          let def = `  ${this.q(c3.name)} ${c3.dataType}`;
-          if (c3.length) def += `(${c3.length})`;
-          if (!c3.nullable) def += " NOT NULL";
-          if (c3.defaultValue != null) def += ` DEFAULT ${c3.defaultValue}`;
-          if (c3.isUnique) def += " UNIQUE";
-          return def;
-        });
-        if (!inlinePk) {
-          const pks = columns.filter((c3) => c3.isPrimaryKey).map((c3) => this.q(c3.name));
-          if (pks.length > 0) colDefs.push(`  PRIMARY KEY (${pks.join(", ")})`);
-        }
-        return `CREATE TABLE ${this.q(p4.name)} (
-${colDefs.join(",\n")}
-);`;
-      }
-      case "dropTable":
-        return `DROP TABLE IF EXISTS ${this.q(p4.name)};`;
-      case "renameTable":
-        return `ALTER TABLE ${this.q(p4.oldName)} RENAME TO ${this.q(p4.newName)};`;
-      case "addColumn": {
-        let sql = `ALTER TABLE ${this.q(p4.table)} ADD COLUMN ${this.q(p4.name)} ${p4.dataType ?? "TEXT"}`;
-        if (!(p4.nullable ?? true)) sql += " NOT NULL";
-        if (p4.defaultValue != null) sql += ` DEFAULT ${p4.defaultValue}`;
-        const stmt = sql + ";";
-        if (p4.isUnique) {
-          return `${stmt}
-CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.name}`)} ON ${this.q(p4.table)}(${this.q(p4.name)});`;
-        }
-        return stmt;
-      }
-      case "dropColumn":
-        return `ALTER TABLE ${this.q(p4.table)} DROP COLUMN ${this.q(p4.name)};`;
-      case "renameColumn":
-        return `ALTER TABLE ${this.q(p4.table)} RENAME COLUMN ${this.q(p4.oldName)} TO ${this.q(p4.newName)};`;
-      case "modifyColumnType":
-      case "modifyColumnDefault":
-      case "setColumnNullable":
-      case "setColumnAutoIncrement":
-      case "addPrimaryKey":
-      case "dropPrimaryKey":
-      case "addForeignKey":
-      // FK 는 CREATE TABLE 인라인으로만, ALTER 추가 불가
-      case "dropForeignKey":
-        return this.unsupported(op.type);
-      case "setColumnUnique":
-        return p4.unique ? `CREATE UNIQUE INDEX ${this.q(`uq_${p4.table}_${p4.column}`)} ON ${this.q(p4.table)}(${this.q(p4.column)});` : `DROP INDEX ${this.q(`uq_${p4.table}_${p4.column}`)};`;
-      case "addUniqueConstraint": {
-        const name = p4.name ?? `uq_${p4.table}_${p4.columns[0]}`;
-        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
-        return `CREATE UNIQUE INDEX ${this.q(name)} ON ${this.q(p4.table)}(${cols});`;
-      }
-      case "dropUniqueConstraint":
-        return `DROP INDEX ${this.q(p4.name)};`;
-      case "createIndex": {
-        const unique = p4.unique ? "UNIQUE " : "";
-        const cols = p4.columns.map((c3) => this.q(c3)).join(", ");
-        return `CREATE ${unique}INDEX ${this.q(p4.name)} ON ${this.q(p4.table)}(${cols});`;
-      }
-      case "dropIndex":
-        return `DROP INDEX ${this.q(p4.name)};`;
-      default:
-        return `-- Unknown operation: ${op.type}`;
-    }
-  }
-  generateBatch(ops) {
-    return ops.map((op) => this.generate(op)).join("\n\n");
-  }
-};
-
-// src/features/migration/sql-generator/index.ts
-var generators = {
-  sqlite: new SQLiteGenerator(),
-  mysql: new MySQLGenerator(),
-  postgresql: new PostgreSQLGenerator()
-};
-function getSQLGenerator(dialect) {
-  return generators[dialect];
-}
-
-// src/features/migration/diff.ts
-function mkOp(type, params) {
-  return { id: generateId(), type, timestamp: 0, params };
-}
-function columnParams(c3) {
-  const out2 = {
-    name: c3.name,
-    dataType: c3.dataType,
-    nullable: c3.nullable,
-    isPrimaryKey: c3.isPrimaryKey,
-    isUnique: c3.isUnique,
-    autoIncrement: c3.autoIncrement
-  };
-  if (c3.defaultValue != null) out2.defaultValue = c3.defaultValue;
-  if (c3.length != null) out2.length = c3.length;
-  if (c3.precision != null) out2.precision = c3.precision;
-  if (c3.scale != null) out2.scale = c3.scale;
-  return out2;
-}
-function columnDefEqual(a3, b3) {
-  return a3.dataType === b3.dataType && (a3.nullable ?? true) === (b3.nullable ?? true) && (a3.isPrimaryKey ?? false) === (b3.isPrimaryKey ?? false) && (a3.isUnique ?? false) === (b3.isUnique ?? false) && (a3.autoIncrement ?? false) === (b3.autoIncrement ?? false) && (a3.defaultValue ?? null) === (b3.defaultValue ?? null);
-}
-function diffColumns(tableName, before, after) {
-  const ops = [];
-  const afterById = new Map(after.columns.map((c3) => [c3.id, c3]));
-  const beforeByName = new Map(before.columns.map((c3) => [c3.name, c3]));
-  const afterByName = new Map(after.columns.map((c3) => [c3.name, c3]));
-  const matchedBeforeIds = /* @__PURE__ */ new Set();
-  const matchedAfterIds = /* @__PURE__ */ new Set();
-  for (const bc of before.columns) {
-    const ac = afterById.get(bc.id);
-    if (!ac) continue;
-    matchedBeforeIds.add(bc.id);
-    matchedAfterIds.add(ac.id);
-    if (bc.name !== ac.name) {
-      ops.push(mkOp("renameColumn", { table: tableName, oldName: bc.name, newName: ac.name }));
-    }
-    if (bc.dataType !== ac.dataType) {
-      ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
-    }
-    const nameAligned = { ...bc, name: ac.name };
-    if (!columnDefEqual(nameAligned, ac)) {
-      ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
-      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
-    }
-  }
-  for (const ac of after.columns) {
-    if (matchedAfterIds.has(ac.id)) continue;
-    if (beforeByName.has(ac.name)) {
-      const bc = beforeByName.get(ac.name);
-      if (bc.dataType !== ac.dataType) {
-        ops.push(mkOp("modifyColumnType", { table: tableName, column: ac.name, oldType: bc.dataType, newType: ac.dataType }));
-      }
-      if (!columnDefEqual(bc, ac)) {
-        ops.push(mkOp("dropColumn", { table: tableName, name: ac.name }));
-        ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
-      }
-      matchedBeforeIds.add(bc.id);
-    } else {
-      ops.push(mkOp("addColumn", { table: tableName, ...columnParams(ac) }));
-    }
-  }
-  for (const bc of before.columns) {
-    if (matchedBeforeIds.has(bc.id)) continue;
-    if (!afterByName.has(bc.name)) {
-      ops.push(mkOp("dropColumn", { table: tableName, name: bc.name }));
-    }
-  }
-  return ops;
-}
-function diffIndexes(tableName, before, after) {
-  const ops = [];
-  const colName = (t4, id) => t4.columns.find((c3) => c3.id === id)?.name;
-  const beforeNames = new Set(before.indexes.map((i3) => i3.name));
-  const afterNames = new Set(after.indexes.map((i3) => i3.name));
-  for (const idx of after.indexes) {
-    if (beforeNames.has(idx.name)) continue;
-    const columns = idx.columnIds.map((id) => colName(after, id)).filter((n3) => n3 != null);
-    if (columns.length === 0) continue;
-    ops.push(mkOp("createIndex", { table: tableName, name: idx.name, columns, unique: idx.unique }));
-  }
-  for (const idx of before.indexes) {
-    if (afterNames.has(idx.name)) continue;
-    ops.push(mkOp("dropIndex", { table: tableName, name: idx.name }));
-  }
-  return ops;
-}
-function relToFkParams(rel, after) {
-  const target = after.tables[rel.targetTableId];
-  const source3 = after.tables[rel.sourceTableId];
-  if (!target || !source3) return null;
-  const columns = rel.targetColumnIds.map((id) => target.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
-  const refColumns = rel.sourceColumnIds.map((id) => source3.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
-  if (columns.length === 0 || refColumns.length === 0) return null;
-  const name = rel.name ?? `fk_${target.name}_${columns[0]}`;
-  return {
-    name,
-    table: target.name,
-    columns,
-    refTable: source3.name,
-    refColumns,
-    onDelete: rel.onDelete,
-    onUpdate: rel.onUpdate
-  };
-}
-function relKey(rel, schema) {
-  const s3 = schema.tables[rel.sourceTableId];
-  const t4 = schema.tables[rel.targetTableId];
-  const sName = s3?.name ?? rel.sourceTableId;
-  const tName = t4?.name ?? rel.targetTableId;
-  const sCols = rel.sourceColumnIds.map((id) => s3?.columns.find((c3) => c3.id === id)?.name ?? id).sort().join(",");
-  const tCols = rel.targetColumnIds.map((id) => t4?.columns.find((c3) => c3.id === id)?.name ?? id).sort().join(",");
-  return `${sName}(${sCols})->${tName}(${tCols})`;
-}
-function diffRelationships(before, after) {
-  const ops = [];
-  const beforeKeys = new Set(Object.values(before.relationships).map((r4) => relKey(r4, before)));
-  const afterKeys = new Set(Object.values(after.relationships).map((r4) => relKey(r4, after)));
-  for (const rel of Object.values(after.relationships)) {
-    if (beforeKeys.has(relKey(rel, after))) continue;
-    const params = relToFkParams(rel, after);
-    if (params) ops.push(mkOp("addForeignKey", params));
-  }
-  for (const rel of Object.values(before.relationships)) {
-    if (afterKeys.has(relKey(rel, before))) continue;
-    const target = before.tables[rel.targetTableId];
-    if (!target) continue;
-    const columns = rel.targetColumnIds.map((id) => target.columns.find((c3) => c3.id === id)?.name).filter((n3) => n3 != null);
-    const name = rel.name ?? `fk_${target.name}_${columns[0] ?? "x"}`;
-    ops.push(mkOp("dropForeignKey", { table: target.name, name }));
-  }
-  return ops;
-}
-function diffSchemas(before, after) {
-  const created = [];
-  const altered = [];
-  const dropped = [];
-  const beforeTables = Object.values(before.tables);
-  const afterTables = Object.values(after.tables);
-  const afterById = new Map(afterTables.map((t4) => [t4.id, t4]));
-  const beforeByName = new Map(beforeTables.map((t4) => [t4.name, t4]));
-  const afterByName = new Map(afterTables.map((t4) => [t4.name, t4]));
-  const matchedBeforeIds = /* @__PURE__ */ new Set();
-  const matchedAfterIds = /* @__PURE__ */ new Set();
-  for (const bt of beforeTables) {
-    const at = afterById.get(bt.id);
-    if (!at) continue;
-    matchedBeforeIds.add(bt.id);
-    matchedAfterIds.add(at.id);
-    if (bt.name !== at.name) {
-      altered.push(mkOp("renameTable", { oldName: bt.name, newName: at.name }));
-    }
-    altered.push(...diffColumns(at.name, bt, at));
-    altered.push(...diffIndexes(at.name, bt, at));
-  }
-  for (const at of afterTables) {
-    if (matchedAfterIds.has(at.id)) continue;
-    const bt = beforeByName.get(at.name);
-    if (bt && !matchedBeforeIds.has(bt.id)) {
-      matchedBeforeIds.add(bt.id);
-      altered.push(...diffColumns(at.name, bt, at));
-      altered.push(...diffIndexes(at.name, bt, at));
-    } else {
-      created.push(mkOp("createTable", { name: at.name, columns: at.columns.map(columnParams), ...at.schema ? { schema: at.schema } : {} }));
-      altered.push(...diffIndexes(at.name, { ...at, indexes: [] }, at));
-    }
-  }
-  for (const bt of beforeTables) {
-    if (matchedBeforeIds.has(bt.id)) continue;
-    if (!afterByName.has(bt.name)) {
-      dropped.push(mkOp("dropTable", { name: bt.name }));
-    }
-  }
-  const rels = diffRelationships(before, after);
-  return [...created, ...altered, ...dropped, ...rels];
 }
 
 // src/plugin/commands.ts
@@ -91043,161 +93182,10 @@ function registerCommands(ctx, store) {
   });
 }
 
-// src/plugin/durable-doc.ts
-function createDurableDoc(kv, store, spec) {
-  let hydrated = false;
-  let restored = false;
-  let dirty = false;
-  let applying = false;
-  let writing = 0;
-  let timer = null;
-  let lastSavedAt = null;
-  let lastError = null;
-  let disabled = kv ? null : 'app.data.kv is unavailable ("data" permission?)';
-  let unsubscribe = null;
-  let unwatch = null;
-  const disable = (reason) => {
-    disabled = reason;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  };
-  const flushNow = async () => {
-    if (!kv || disabled || !dirty) return false;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    dirty = false;
-    writing++;
-    try {
-      const doc = spec.serialize(store.getState());
-      await kv.set(spec.key, doc);
-      lastSavedAt = doc.savedAt;
-      lastError = null;
-      return true;
-    } catch (e4) {
-      dirty = true;
-      lastError = e4 instanceof Error ? e4.message : String(e4);
-      return false;
-    } finally {
-      writing--;
-    }
-  };
-  const scheduleFlush = () => {
-    if (!kv || disabled) return;
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      timer = null;
-      void flushNow();
-    }, spec.debounceMs);
-  };
-  const readDoc = async () => {
-    const raw = await kv.get(spec.key);
-    if (raw == null) return null;
-    const doc = raw;
-    if (typeof doc !== "object" || typeof doc.v !== "number") {
-      throw new Error("stored document has no version tag");
-    }
-    if (doc.v > spec.version) {
-      disable(`stored document v${doc.v} is newer than supported v${spec.version}`);
-      return null;
-    }
-    return doc;
-  };
-  const applyStored = (doc) => {
-    applying = true;
-    try {
-      spec.apply(doc);
-    } finally {
-      applying = false;
-    }
-  };
-  const rehydrate = async () => {
-    if (!kv || disabled) return false;
-    if (dirty) return false;
-    try {
-      const doc = await readDoc();
-      if (!doc) return false;
-      if (lastSavedAt != null && doc.savedAt === lastSavedAt) return false;
-      applyStored(doc);
-      lastSavedAt = doc.savedAt;
-      restored = true;
-      return true;
-    } catch (e4) {
-      lastError = e4 instanceof Error ? e4.message : String(e4);
-      return false;
-    }
-  };
-  const hydrate = async () => {
-    if (hydrated) return;
-    if (kv && !disabled) {
-      try {
-        const doc = await readDoc();
-        if (doc) {
-          applyStored(doc);
-          lastSavedAt = doc.savedAt;
-          restored = true;
-        }
-      } catch (e4) {
-        lastError = e4 instanceof Error ? e4.message : String(e4);
-      }
-    }
-    hydrated = true;
-    if (kv && !disabled) {
-      unsubscribe = store.subscribe((s3, p4) => {
-        if (applying) return;
-        if (!spec.changed(s3, p4)) return;
-        dirty = true;
-        scheduleFlush();
-      });
-      if (kv.watch) {
-        unwatch = kv.watch((key) => {
-          if (key !== spec.key) return;
-          if (writing > 0) return;
-          void rehydrate();
-        });
-      }
-    }
-  };
-  const dispose = () => {
-    if (unsubscribe) {
-      unsubscribe();
-      unsubscribe = null;
-    }
-    if (unwatch) {
-      unwatch();
-      unwatch = null;
-    }
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
-    void flushNow();
-  };
-  return {
-    hydrate,
-    rehydrate,
-    flush: flushNow,
-    status: () => ({
-      enabled: kv != null && !disabled,
-      hydrated,
-      restored,
-      dirty,
-      pendingFlush: timer != null,
-      lastSavedAt,
-      lastError,
-      disabled
-    }),
-    dispose
-  };
-}
-
 // src/plugin/persist.ts
 var PERSIST_KEY = "doc:default";
 var PERSIST_DOC_VERSION = 1;
-var FLUSH_DEBOUNCE_MS = 500;
+var FLUSH_DEBOUNCE_MS2 = 500;
 function serializeDoc(s3) {
   return {
     v: PERSIST_DOC_VERSION,
@@ -91231,7 +93219,7 @@ function createPersistence(kv, store) {
   return createDurableDoc(kv, store, {
     key: PERSIST_KEY,
     version: PERSIST_DOC_VERSION,
-    debounceMs: FLUSH_DEBOUNCE_MS,
+    debounceMs: FLUSH_DEBOUNCE_MS2,
     serialize: serializeDoc,
     apply: (doc) => applyDoc(store, doc),
     changed: durableChanged2
@@ -91274,7 +93262,7 @@ function registerPersistCommands(ctx, persistence) {
 // src/plugin/prefs.ts
 var PREFS_KEY = "prefs:default";
 var PREFS_DOC_VERSION = 1;
-var FLUSH_DEBOUNCE_MS2 = 500;
+var FLUSH_DEBOUNCE_MS3 = 500;
 function serializePrefs(s3) {
   return {
     v: PREFS_DOC_VERSION,
@@ -91309,7 +93297,7 @@ function createPrefsPersistence(kv, store) {
   return createDurableDoc(kv, store, {
     key: PREFS_KEY,
     version: PREFS_DOC_VERSION,
-    debounceMs: FLUSH_DEBOUNCE_MS2,
+    debounceMs: FLUSH_DEBOUNCE_MS3,
     serialize: serializePrefs,
     apply: (doc) => applyPrefs(store, doc),
     changed: prefsChanged
@@ -91351,454 +93339,22 @@ function registerPrefsCommands(ctx, prefs, store) {
   );
 }
 
-// src/plugin/connections.ts
-var CONNECTIONS_KEY = "connections:default";
-var CONNECTIONS_DOC_VERSION = 1;
-var FLUSH_DEBOUNCE_MS3 = 500;
-function secretRefFor(profileId) {
-  return `connections/${profileId}/password`;
-}
-function createConnectionsStore() {
-  return createStore()(
-    immer2((set2) => ({
-      connectionProfiles: {},
-      setConnectionProfiles: (profiles) => set2((s3) => {
-        s3.connectionProfiles = profiles;
-      })
-    }))
-  );
-}
-function addProfile(profiles, profile) {
-  return { ...profiles, [profile.id]: profile };
-}
-function removeProfile(profiles, id) {
-  if (!(id in profiles)) return profiles;
-  const next = { ...profiles };
-  delete next[id];
-  return next;
-}
-function listProfiles(profiles) {
-  return Object.values(profiles);
-}
-function serializeConnections(s3) {
-  return {
-    v: CONNECTIONS_DOC_VERSION,
-    savedAt: Date.now(),
-    profiles: s3.connectionProfiles
-  };
-}
-function applyConnections(store, doc) {
-  store.getState().setConnectionProfiles(doc.profiles ?? {});
-}
-function connectionsChanged(s3, p4) {
-  return s3.connectionProfiles !== p4.connectionProfiles;
-}
-function createConnectionsPersistence(kv, store) {
-  return createDurableDoc(kv, store, {
-    key: CONNECTIONS_KEY,
-    version: CONNECTIONS_DOC_VERSION,
-    debounceMs: FLUSH_DEBOUNCE_MS3,
-    serialize: serializeConnections,
-    apply: (doc) => applyConnections(store, doc),
-    changed: connectionsChanged
-  });
-}
-var DIALECTS = ["sqlite", "mysql", "postgresql"];
-var ENVIRONMENTS = ["dev", "staging", "prod"];
-function slugify(name) {
-  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-function buildProfile(p4) {
-  const name = typeof p4.name === "string" ? p4.name.trim() : "";
-  if (!name) return { ok: false, code: "INVALID_INPUT", message: "name is required" };
-  const dialect = p4.dialect;
-  if (!DIALECTS.includes(dialect)) {
-    return { ok: false, code: "INVALID_INPUT", message: `dialect must be one of ${DIALECTS.join(", ")}` };
-  }
-  const environment = ENVIRONMENTS.includes(p4.environment) ? p4.environment : "dev";
-  const id = typeof p4.id === "string" && p4.id.trim() || slugify(name) || generateId();
-  const profile = {
-    id,
-    name,
-    dialect,
-    environment,
-    readOnly: p4.readOnly === true
-  };
-  if (typeof p4.host === "string") profile.host = p4.host;
-  if (typeof p4.port === "number") profile.port = p4.port;
-  if (typeof p4.database === "string") profile.database = p4.database;
-  if (typeof p4.user === "string") profile.user = p4.user;
-  if (typeof p4.ssl === "boolean") profile.ssl = p4.ssl;
-  if (typeof p4.file === "string") profile.file = p4.file;
-  return { ok: true, profile };
-}
-function registerConnectionCommands(ctx, conns, store) {
-  const reg = ctx.app.commands?.register;
-  if (!reg) return;
-  const register = reg.bind(ctx.app.commands);
-  ctx.subscriptions.push(
-    register("db-profile-add", {
-      description: "Add or update a non-secret connection profile (dialect, host, port, database, user, environment, readOnly, ssl, file). Passwords are NOT accepted here \u2014 store them in the vault.",
-      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uCD94\uAC00 \uB370\uC774\uD130\uBCA0\uC774\uC2A4 \uC5F0\uACB0 \uB4F1\uB85D" },
-      message: (d3) => {
-        const r4 = d3;
-        if (!r4.ok) return r4.message ?? "\uD504\uB85C\uD544 \uCD94\uAC00 \uC2E4\uD328";
-        return `\uD504\uB85C\uD544 '${r4.profile?.name}' \uC744 \uCD94\uAC00\uD588\uC2B5\uB2C8\uB2E4(\uBE44\uBC00\uBC88\uD638\uB294 vault \uD0A4 '${r4.secretRef}' \uC5D0 \uBCC4\uB3C4 \uC800\uC7A5)`;
-      },
-      params: {
-        name: { type: "string", required: true, description: "Human-readable profile name" },
-        dialect: { type: "string", enum: ["sqlite", "mysql", "postgresql"], required: true, description: "Database dialect" },
-        id: { type: "string", description: "Stable profile id (defaults to a slug of name)" },
-        environment: { type: "string", enum: ["dev", "staging", "prod"], default: "dev", description: "Deployment environment" },
-        readOnly: { type: "boolean", default: false, description: "Open the connection read-only" },
-        host: { type: "string", description: "Server host (network dialects)" },
-        port: { type: "number", description: "Server port (network dialects)" },
-        database: { type: "string", description: "Database name" },
-        user: { type: "string", description: "Connection user (secret password goes to the vault, not here)" },
-        ssl: { type: "boolean", description: "Require SSL/TLS" },
-        file: { type: "string", description: "File path (sqlite)" }
-      },
-      handler: async (params) => {
-        const built = buildProfile(params ?? {});
-        if (!built.ok) return { ok: false, code: built.code, message: built.message };
-        const st2 = store.getState();
-        st2.setConnectionProfiles(addProfile(st2.connectionProfiles, built.profile));
-        const flushed = await conns.flush();
-        const s3 = conns.status();
-        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
-        return {
-          ok: true,
-          profile: built.profile,
-          secretRef: secretRefFor(built.profile.id),
-          flushed,
-          savedAt: s3.lastSavedAt
-        };
-      }
-    })
-  );
-  ctx.subscriptions.push(
-    register("db-profile-list", {
-      description: "List all non-secret connection profiles",
-      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uBAA9\uB85D \uC870\uD68C \uC5F0\uACB0 \uBAA9\uB85D" },
-      message: (d3) => `\uD504\uB85C\uD544 ${(d3.profiles ?? []).length}\uAC1C`,
-      params: {},
-      handler: async () => ({ ok: true, profiles: listProfiles(store.getState().connectionProfiles) })
-    })
-  );
-  ctx.subscriptions.push(
-    register("db-profile-remove", {
-      description: "Remove a connection profile by id (idempotent \u2014 removing an absent profile succeeds)",
-      triggers: { ko: "\uC811\uC18D \uD504\uB85C\uD544 \uC0AD\uC81C \uC81C\uAC70 \uC5F0\uACB0" },
-      message: (d3) => {
-        const r4 = d3;
-        return r4.removed ? `\uD504\uB85C\uD544 '${r4.id}' \uC744 \uC0AD\uC81C\uD588\uC2B5\uB2C8\uB2E4` : `\uD504\uB85C\uD544 '${r4.id}' \uC774 \uC5C6\uC2B5\uB2C8\uB2E4(\uBB34\uBCC0\uACBD)`;
-      },
-      params: {
-        id: { type: "string", required: true, description: "Profile id to remove" }
-      },
-      handler: async (params) => {
-        const id = typeof params?.id === "string" ? params.id : "";
-        if (!id) return { ok: false, code: "INVALID_INPUT", message: "id is required" };
-        const st2 = store.getState();
-        const removed = id in st2.connectionProfiles;
-        if (removed) st2.setConnectionProfiles(removeProfile(st2.connectionProfiles, id));
-        const flushed = await conns.flush();
-        const s3 = conns.status();
-        if (s3.disabled) return { ok: false, code: "CONNECTIONS_DISABLED", message: s3.disabled };
-        return { ok: true, id, removed, flushed, savedAt: s3.lastSavedAt };
-      }
-    })
-  );
-}
-
-// src/features/db/introspect-map.ts
-function refAction3(a3) {
-  if (!a3) return "NO ACTION";
-  const n3 = a3.toUpperCase().replace(/\s+/g, " ").trim();
-  switch (n3) {
-    case "CASCADE":
-      return "CASCADE";
-    case "SET NULL":
-      return "SET NULL";
-    case "SET DEFAULT":
-      return "SET DEFAULT";
-    case "RESTRICT":
-      return "RESTRICT";
-    default:
-      return "NO ACTION";
-  }
-}
-function parseTypeArgs(type) {
-  const m4 = type.match(/\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/);
-  if (!m4) return {};
-  const first = Number(m4[1]);
-  if (m4[2] !== void 0) {
-    return { precision: first, scale: Number(m4[2]) };
-  }
-  return { length: first };
-}
-function catalogToSchema(catalog) {
-  const schema = { tables: {}, relationships: {}, layers: {} };
-  const losses = [];
-  const tableByName = /* @__PURE__ */ new Map();
-  const columnIdByRef = /* @__PURE__ */ new Map();
-  for (const ct of catalog.tables) {
-    const pkCount = ct.columns.filter((c3) => c3.pk).length;
-    const columns = ct.columns.map((cc) => {
-      const id = generateId();
-      columnIdByRef.set(`${ct.name}\0${cc.name}`, id);
-      const autoIncrement = cc.pk && pkCount === 1 && cc.type.trim().toUpperCase() === "INTEGER";
-      const col = {
-        id,
-        name: cc.name,
-        dataType: cc.type,
-        // A primary key is semantically NOT NULL. SQLite reports notnull=0 for an
-        // INTEGER PRIMARY KEY (rowid alias), so pk overrides it — otherwise a
-        // reverse→forward round-trip proposes a spurious nullable change on the PK.
-        nullable: !cc.notnull && !cc.pk,
-        autoIncrement,
-        isPrimaryKey: cc.pk,
-        isUnique: false,
-        ...parseTypeArgs(cc.type)
-      };
-      if (cc.default != null) col.defaultValue = cc.default;
-      return col;
-    });
-    const colByName = new Map(columns.map((c3) => [c3.name, c3]));
-    const indexes = [];
-    for (const ci of ct.indexes ?? []) {
-      const columnIds = [];
-      for (const cn2 of ci.columns) {
-        const col = colByName.get(cn2);
-        if (col) columnIds.push(col.id);
-        else
-          losses.push({
-            kind: "index-column",
-            table: ct.name,
-            detail: `index ${ci.name} references unknown column ${cn2}`
-          });
-      }
-      if (ci.unique && columnIds.length === 1) {
-        const col = colByName.get(ci.columns[0]);
-        if (col) {
-          col.isUnique = true;
-          continue;
-        }
-      }
-      indexes.push({
-        id: generateId(),
-        name: ci.name,
-        columnIds,
-        unique: ci.unique
-      });
-    }
-    const table = { id: generateId(), name: ct.name, columns, indexes };
-    schema.tables[table.id] = table;
-    tableByName.set(ct.name, table);
-  }
-  for (const ct of catalog.tables) {
-    const childTable = tableByName.get(ct.name);
-    for (const fk of ct.foreignKeys ?? []) {
-      const parentTable = tableByName.get(fk.table);
-      if (!parentTable) {
-        losses.push({
-          kind: "foreign-key",
-          table: ct.name,
-          detail: `FK ${ct.name}.${fk.from} references unknown table ${fk.table}`
-        });
-        continue;
-      }
-      const childColId = columnIdByRef.get(`${ct.name}\0${fk.from}`);
-      if (!childColId) {
-        losses.push({
-          kind: "foreign-key",
-          table: ct.name,
-          detail: `FK references unknown local column ${fk.from}`
-        });
-        continue;
-      }
-      let parentColId;
-      if (fk.to != null) {
-        parentColId = columnIdByRef.get(`${fk.table}\0${fk.to}`);
-      } else {
-        const pk = parentTable.columns.find((c3) => c3.isPrimaryKey);
-        parentColId = pk?.id;
-      }
-      if (!parentColId) {
-        losses.push({
-          kind: "foreign-key",
-          table: ct.name,
-          detail: `FK ${ct.name}.${fk.from} \u2192 ${fk.table}${fk.to ? "." + fk.to : " (implicit PK)"} could not resolve the referenced column`
-        });
-        continue;
-      }
-      const childCol = childTable.columns.find((c3) => c3.id === childColId);
-      const type = childCol && (childCol.isUnique || childCol.isPrimaryKey) ? "1:1" : "1:N";
-      const relId = generateId();
-      schema.relationships[relId] = {
-        id: relId,
-        sourceTableId: parentTable.id,
-        targetTableId: childTable.id,
-        type,
-        sourceColumnIds: [parentColId],
-        targetColumnIds: [childColId],
-        onDelete: refAction3(fk.onDelete),
-        onUpdate: refAction3(fk.onUpdate)
-      };
-    }
-  }
-  for (const v4 of catalog.views ?? [])
-    losses.push({ kind: "view", table: v4.name, detail: `view ${v4.name} is not representable` });
-  for (const t4 of catalog.triggers ?? [])
-    losses.push({ kind: "trigger", table: t4.name, detail: `trigger ${t4.name} is not representable` });
-  return { schema, losses };
-}
-
-// src/features/db/push-plan.ts
-var INT_RANK = {
-  TINYINT: 1,
-  SMALLINT: 2,
-  MEDIUMINT: 3,
-  INT: 4,
-  INTEGER: 4,
-  BIGINT: 5
-};
-function parseType(raw) {
-  const s3 = String(raw ?? "").trim();
-  const m4 = s3.match(/^([A-Za-z_]+)\s*(?:\(\s*(\d+))?/);
-  if (!m4) return { base: s3.toUpperCase() };
-  return { base: m4[1].toUpperCase(), len: m4[2] != null ? Number(m4[2]) : void 0 };
-}
-function isNarrowingOrUnsafe(oldType, newType) {
-  const from = parseType(oldType);
-  const to = parseType(newType);
-  if (from.base === to.base) {
-    if (from.len != null && to.len != null) return to.len < from.len;
-    return false;
-  }
-  const fromRank = INT_RANK[from.base];
-  const toRank = INT_RANK[to.base];
-  if (fromRank != null && toRank != null) return toRank < fromRank;
-  return true;
-}
-function colOps(ops, type) {
-  const out2 = [];
-  for (const op of ops) {
-    if (op.type !== type) continue;
-    out2.push({ op, table: String(op.params.table ?? ""), name: String(op.params.name ?? "") });
-  }
-  return out2;
-}
-function applyRenameHints(live, current2, hints) {
-  if (hints.length === 0) return live;
-  const tables = {};
-  for (const [id, t4] of Object.entries(live.tables)) {
-    tables[id] = { ...t4, columns: t4.columns.map((c3) => ({ ...c3 })), indexes: t4.indexes.map((i3) => ({ ...i3 })) };
-  }
-  const currentByName = new Map(Object.values(current2.tables).map((t4) => [t4.name, t4]));
-  for (const h3 of hints) {
-    if (h3.level === "table") {
-      const liveT = Object.values(tables).find((t4) => t4.name === h3.from);
-      const curT = currentByName.get(h3.to);
-      if (liveT && curT) {
-        delete tables[liveT.id];
-        liveT.id = curT.id;
-        tables[curT.id] = liveT;
-      }
-    } else {
-      const curT = currentByName.get(h3.table ?? "");
-      const liveT = Object.values(tables).find((t4) => t4.name === (h3.table ?? ""));
-      const liveCol = liveT?.columns.find((c3) => c3.name === h3.from);
-      const curCol = curT?.columns.find((c3) => c3.name === h3.to);
-      if (liveCol && curCol) liveCol.id = curCol.id;
-    }
-  }
-  return { ...live, tables };
-}
-function buildPushPlan(current2, live, dialect, renameHints = []) {
-  const ops = diffSchemas(applyRenameHints(live, current2, renameHints), current2);
-  const sql = getSQLGenerator(dialect).generateBatch(ops);
-  const drops = colOps(ops, "dropColumn");
-  const adds = colOps(ops, "addColumn");
-  const addKey = new Set(adds.map((a3) => `${a3.table}\0${a3.name}`));
-  const isRedefinition = (d3) => addKey.has(`${d3.table}\0${d3.name}`);
-  const destructive = [];
-  for (const op of ops) {
-    switch (op.type) {
-      case "dropTable":
-        destructive.push({ op, reason: `\uD14C\uC774\uBE14 '${op.params.name}' \uC0AD\uC81C \u2014 \uBAA8\uB4E0 \uD589 \uC18C\uC2E4` });
-        break;
-      case "dropColumn": {
-        const d3 = { op, table: String(op.params.table ?? ""), name: String(op.params.name ?? "") };
-        if (isRedefinition(d3)) {
-          destructive.push({
-            op,
-            reason: `\uCEEC\uB7FC '${d3.table}.${d3.name}' \uC7AC\uC815\uC758(drop+add) \u2014 nullable/default/pk \uBCC0\uACBD\uC73C\uB85C \uAE30\uC874 \uAC12 \uC18C\uC2E4 \uAC00\uB2A5`
-          });
-        } else {
-          destructive.push({ op, reason: `\uCEEC\uB7FC '${d3.table}.${d3.name}' \uC0AD\uC81C \u2014 \uD574\uB2F9 \uC5F4 \uAC12 \uC18C\uC2E4` });
-        }
-        break;
-      }
-      case "modifyColumnType": {
-        if (isNarrowingOrUnsafe(op.params.oldType, op.params.newType)) {
-          destructive.push({
-            op,
-            reason: `\uD0C0\uC785 \uCD95\uC18C/\uC774\uC885 \uBCC0\uD658 ${op.params.oldType}\u2192${op.params.newType} on '${op.params.table}.${op.params.column}' \u2014 \uC808\uB2E8\xB7\uBCC0\uD658 \uC2E4\uD328 \uC704\uD5D8`
-          });
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  const renamesNeedingConfirm = [];
-  const leftoverDrops = drops.filter((d3) => !isRedefinition(d3));
-  const leftoverAdds = adds.filter((a3) => !addHasMatchingDrop(a3, drops));
-  const byTable = /* @__PURE__ */ new Map();
-  for (const d3 of leftoverDrops) {
-    const e4 = byTable.get(d3.table) ?? { d: [], a: [] };
-    e4.d.push(d3);
-    byTable.set(d3.table, e4);
-  }
-  for (const a3 of leftoverAdds) {
-    const e4 = byTable.get(a3.table) ?? { d: [], a: [] };
-    e4.a.push(a3);
-    byTable.set(a3.table, e4);
-  }
-  for (const [table, { d: d3, a: a3 }] of byTable) {
-    const n3 = Math.min(d3.length, a3.length);
-    for (let i3 = 0; i3 < n3; i3++) {
-      renamesNeedingConfirm.push({
-        level: "column",
-        table,
-        from: d3[i3].name,
-        to: a3[i3].name,
-        drop: d3[i3].op,
-        add: a3[i3].op
-      });
-    }
-  }
-  const dropTables = ops.filter((o3) => o3.type === "dropTable");
-  const createTables = ops.filter((o3) => o3.type === "createTable");
-  const nT = Math.min(dropTables.length, createTables.length);
-  for (let i3 = 0; i3 < nT; i3++) {
-    renamesNeedingConfirm.push({
-      level: "table",
-      from: String(dropTables[i3].params.name ?? ""),
-      to: String(createTables[i3].params.name ?? ""),
-      drop: dropTables[i3],
-      add: createTables[i3]
-    });
-  }
-  return { ops, sql, destructive, renamesNeedingConfirm };
-}
-function addHasMatchingDrop(a3, drops) {
-  return drops.some((d3) => d3.table === a3.table && d3.name === a3.name);
-}
-
 // src/plugin/db-commands.ts
+var SELF = "plugin.soksak-plugin-db-studio";
+function joinPath2(dir, file) {
+  return dir.endsWith("/") ? `${dir}${file}` : `${dir}/${file}`;
+}
+function extractMigNames2(listing) {
+  const children = listing?.children ?? [];
+  return children.filter((c3) => c3 && c3.dir !== true && typeof c3.name === "string" && c3.name.endsWith(".mig")).map((c3) => c3.name).sort();
+}
+async function sha256Hex2(text) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(digest)).map((b3) => b3.toString(16).padStart(2, "0")).join("");
+}
+function isDialect(v4) {
+  return v4 === "sqlite" || v4 === "mysql" || v4 === "postgresql";
+}
 function registerDbCommands(ctx, store) {
   const reg = ctx.app.commands?.register;
   if (!reg) return;
@@ -91874,6 +93430,97 @@ function registerDbCommands(ctx, store) {
       }
     })
   );
+  ctx.subscriptions.push(
+    register("migration-run", {
+      description: "Apply pending file-based migrations: diff the `.mig` files under `dir` against the profile ledger, render each pending one to DDL, and (with confirm:true) apply them in order via db-migrate (transactional + checksum ledger). Without confirm it returns the plan (pending ids + generated SQL) for review.",
+      triggers: { ko: "\uB9C8\uC774\uADF8\uB808\uC774\uC158 \uC2E4\uD589 \uC801\uC6A9 \uD30C\uC77C pending \uC6D0\uC7A5" },
+      danger: "destructive",
+      message: (d3) => {
+        const r4 = d3;
+        return r4.mode === "applied" ? `\uB9C8\uC774\uADF8\uB808\uC774\uC158 ${r4.count ?? 0}\uAC74\uC744 \uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4` : `\uC801\uC6A9 \uB300\uAE30 \uB9C8\uC774\uADF8\uB808\uC774\uC158 ${r4.count ?? 0}\uAC74`;
+      },
+      params: {
+        profile: { type: "string", required: true, description: "Connection profile id (the target DB)" },
+        dir: { type: "string", required: true, description: "Absolute directory holding the `.mig` files" },
+        confirm: {
+          type: "boolean",
+          description: "false/omitted \u2192 return the plan only; true \u2192 apply the pending migrations"
+        },
+        dialect: {
+          type: "string",
+          enum: ["sqlite", "mysql", "postgresql"],
+          description: "DDL dialect (defaults to the working-model dialect)"
+        }
+      },
+      handler: async (params, inv) => {
+        const p4 = params ?? {};
+        const profile = typeof p4.profile === "string" ? p4.profile : "";
+        const dir = typeof p4.dir === "string" ? p4.dir : "";
+        if (!profile) return { ok: false, code: "INVALID_INPUT", message: "profile required" };
+        if (!dir) return { ok: false, code: "INVALID_INPUT", message: "dir required" };
+        if (p4.dialect !== void 0 && !isDialect(p4.dialect)) {
+          return { ok: false, code: "INVALID_INPUT", message: `dialect \uBBF8\uC9C0\uC6D0: '${String(p4.dialect)}'(sqlite|mysql|postgresql)` };
+        }
+        const exec = inv?.execute;
+        if (!exec) return { ok: false, code: "GATE_REQUIRED", message: "command execute \uD45C\uBA74 \uD544\uC694" };
+        const fs = ctx.app.fs;
+        if (!fs?.list || !fs.readText) return { ok: false, code: "GATE_REQUIRED", message: "fs \uAD8C\uD55C \uD544\uC694" };
+        const appliedOut = await exec(`${SELF}.migration-applied`, { profile });
+        if (!appliedOut.ok) {
+          return { ok: false, code: appliedOut.code || "SERVICE_ERROR", message: appliedOut.message };
+        }
+        const ledger = appliedOut.data?.migrations ?? [];
+        const applied = new Set(ledger.map((m4) => String(m4.id)));
+        let files;
+        try {
+          files = extractMigNames2(await fs.list(dir));
+        } catch (e4) {
+          return { ok: false, code: "FS_ERROR", message: `dir \uBAA9\uB85D \uC2E4\uD328: ${e4 instanceof Error ? e4.message : String(e4)}` };
+        }
+        const pendingFiles = files.filter((f3) => !applied.has(f3));
+        const dialect = isDialect(p4.dialect) ? p4.dialect : store.getState().dialect;
+        const gen = getSQLGenerator(dialect);
+        const plan = [];
+        for (const file of pendingFiles) {
+          const { text } = await fs.readText(joinPath2(dir, file));
+          const { ops } = parseMig(text);
+          const statements = splitStatements(gen.generateBatch(ops));
+          const checksum = await sha256Hex2(text);
+          plan.push({ id: file, checksum, statements });
+        }
+        if (p4.confirm !== true) {
+          return {
+            ok: true,
+            mode: "plan",
+            profile,
+            dir,
+            dialect,
+            count: plan.length,
+            pending: plan.map((m4) => ({ id: m4.id, statements: m4.statements, sql: m4.statements.join("\n") }))
+          };
+        }
+        const results = [];
+        for (const m4 of plan) {
+          const out2 = await exec(`${SELF}.db-migrate`, {
+            profile,
+            id: m4.id,
+            checksum: m4.checksum,
+            statements: m4.statements
+          });
+          if (!out2.ok) {
+            return {
+              ok: false,
+              code: out2.code || "MIGRATE_FAILED",
+              message: `migration failed at ${m4.id}: ${out2.message}`,
+              applied: results
+            };
+          }
+          results.push({ id: m4.id, applied: out2.data?.applied ?? true, message: out2.message });
+        }
+        return { ok: true, mode: "applied", profile, dir, dialect, count: results.length, applied: results };
+      }
+    })
+  );
 }
 
 // src/plugin/notifications.ts
@@ -91931,8 +93578,8 @@ function registerPaletteCommands(ctx) {
 }
 
 // src/plugin-entry.tsx
-var import_jsx_runtime63 = __toESM(require_jsx_runtime(), 1);
-var ErrBoundary = class extends import_react31.Component {
+var import_jsx_runtime73 = __toESM(require_jsx_runtime(), 1);
+var ErrBoundary = class extends import_react37.Component {
   state = { err: null };
   static getDerivedStateFromError(err) {
     return { err };
@@ -91942,7 +93589,7 @@ var ErrBoundary = class extends import_react31.Component {
   }
   render() {
     if (this.state.err) {
-      return /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)("div", { style: { padding: 16, color: "#f88", fontFamily: "system-ui", fontSize: 13 }, children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { style: { padding: 16, color: "#f88", fontFamily: "system-ui", fontSize: 13 }, children: [
         "ERD \uB80C\uB354 \uC624\uB958: ",
         this.state.err.message || String(this.state.err)
       ] });
@@ -91951,7 +93598,7 @@ var ErrBoundary = class extends import_react31.Component {
   }
 };
 var mounts = /* @__PURE__ */ new WeakMap();
-function mountApp(container) {
+function mountApp(container, exec, connStore) {
   unmountApp(container);
   const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
   shadow.replaceChildren();
@@ -92157,7 +93804,7 @@ function mountApp(container) {
 }
 
 /*! tailwindcss v4.3.1 | MIT License | https://tailwindcss.com */
-@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-scale-x:1;--tw-scale-y:1;--tw-scale-z:1;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-pan-x:initial;--tw-pan-y:initial;--tw-pinch-zoom:initial;--tw-space-y-reverse:0;--tw-space-x-reverse:0;--tw-divide-x-reverse:0;--tw-border-style:solid;--tw-divide-y-reverse:0;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-ordinal:initial;--tw-slashed-zero:initial;--tw-numeric-figure:initial;--tw-numeric-spacing:initial;--tw-numeric-fraction:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial;--tw-content:"";--tw-animation-delay:0s;--tw-animation-direction:normal;--tw-animation-duration:initial;--tw-animation-fill-mode:none;--tw-animation-iteration-count:1;--tw-enter-blur:0;--tw-enter-opacity:1;--tw-enter-rotate:0;--tw-enter-scale:1;--tw-enter-translate-x:0;--tw-enter-translate-y:0;--tw-exit-blur:0;--tw-exit-opacity:1;--tw-exit-rotate:0;--tw-exit-scale:1;--tw-exit-translate-x:0;--tw-exit-translate-y:0}}}@layer theme{:root,:host{--font-sans:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-amber-400:oklch(82.8% .189 84.429);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-yellow-400:oklch(85.2% .199 91.936);--color-green-400:oklch(79.2% .209 151.711);--color-green-500:oklch(72.3% .219 149.579);--color-green-600:oklch(62.7% .194 149.214);--color-emerald-400:oklch(76.5% .177 163.223);--color-emerald-500:oklch(69.6% .17 162.48);--color-sky-400:oklch(74.6% .16 232.661);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-300:oklch(80.9% .105 251.813);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-900:oklch(37.9% .146 265.522);--color-purple-400:oklch(71.4% .203 305.504);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-zinc-100:oklch(96.7% .001 286.375);--color-zinc-200:oklch(92% .004 286.32);--color-zinc-300:oklch(87.1% .006 286.286);--color-zinc-400:oklch(70.5% .015 286.067);--color-zinc-500:oklch(55.2% .016 285.938);--color-zinc-600:oklch(44.2% .017 285.786);--color-zinc-700:oklch(37% .013 285.805);--color-zinc-800:oklch(27.4% .006 286.033);--color-zinc-900:oklch(21% .006 285.885);--color-zinc-950:oklch(14.1% .005 285.823);--color-black:#000;--color-white:#fff;--spacing:.25rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--radius-xs:.125rem;--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-spin:spin 1s linear infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}*{border-color:var(--border);outline-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){*{outline-color:color-mix(in oklab, var(--ring) 50%, transparent)}}body{background-color:var(--background);color:var(--foreground)}}@layer components;@layer utilities{.\\@container{container-type:inline-size}.pointer-events-auto{pointer-events:auto}.pointer-events-none{pointer-events:none}.collapse{visibility:collapse}.invisible{visibility:hidden}.visible{visibility:visible}.sr-only{clip-path:inset(50%);white-space:nowrap;border-width:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}.not-sr-only{clip-path:none;white-space:normal;width:auto;height:auto;margin:0;padding:0;position:static;overflow:visible}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.sticky{position:sticky}.inset-0{inset:0}.inset-x-0{inset-inline:0}.inset-y-0{inset-block:0}.top-0{top:0}.top-1{top:var(--spacing)}.top-1\\/2{top:50%}.top-2{top:calc(var(--spacing) * 2)}.top-3{top:calc(var(--spacing) * 3)}.top-4{top:calc(var(--spacing) * 4)}.top-\\[50\\%\\]{top:50%}.\\!-right-\\[5px\\]{right:-5px!important}.right-0{right:0}.right-2{right:calc(var(--spacing) * 2)}.right-3{right:calc(var(--spacing) * 3)}.right-4{right:calc(var(--spacing) * 4)}.bottom-0{bottom:0}.\\!-left-\\[5px\\]{left:-5px!important}.left-0{left:0}.left-1{left:var(--spacing)}.left-1\\/2{left:50%}.left-2{left:calc(var(--spacing) * 2)}.left-3{left:calc(var(--spacing) * 3)}.left-4{left:calc(var(--spacing) * 4)}.left-\\[50\\%\\]{left:50%}.isolate{isolation:isolate}.isolation-auto{isolation:auto}.z-50{z-index:50}.z-\\[70\\]{z-index:70}.z-\\[80\\]{z-index:80}.z-\\[85\\]{z-index:85}.z-\\[90\\]{z-index:90}.z-\\[100\\]{z-index:100}.container{width:100%}@media (min-width:40rem){.container{max-width:40rem}}@media (min-width:48rem){.container{max-width:48rem}}@media (min-width:64rem){.container{max-width:64rem}}@media (min-width:80rem){.container{max-width:80rem}}@media (min-width:96rem){.container{max-width:96rem}}.-mx-1{margin-inline:calc(var(--spacing) * -1)}.mx-1{margin-inline:var(--spacing)}.mx-auto{margin-inline:auto}.my-1{margin-block:var(--spacing)}.mt-0{margin-top:0}.mt-0\\.5{margin-top:calc(var(--spacing) * .5)}.mt-1{margin-top:var(--spacing)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-auto{margin-top:auto}.mr-1{margin-right:var(--spacing)}.mb-1{margin-bottom:var(--spacing)}.mb-1\\.5{margin-bottom:calc(var(--spacing) * 1.5)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.ml-1{margin-left:var(--spacing)}.ml-auto{margin-left:auto}.box-border{box-sizing:border-box}.block{display:block}.contents{display:contents}.flex{display:flex}.flow-root{display:flow-root}.grid{display:grid}.hidden{display:none}.inline{display:inline}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.inline-grid{display:inline-grid}.inline-table{display:inline-table}.list-item{display:list-item}.table{display:table}.table-caption{display:table-caption}.table-cell{display:table-cell}.table-column{display:table-column}.table-column-group{display:table-column-group}.table-footer-group{display:table-footer-group}.table-header-group{display:table-header-group}.table-row{display:table-row}.table-row-group{display:table-row-group}.field-sizing-content{field-sizing:content}.\\!size-2\\.5{width:calc(var(--spacing) * 2.5)!important;height:calc(var(--spacing) * 2.5)!important}.size-1{width:var(--spacing);height:var(--spacing)}.size-1\\.5{width:calc(var(--spacing) * 1.5);height:calc(var(--spacing) * 1.5)}.size-2{width:calc(var(--spacing) * 2);height:calc(var(--spacing) * 2)}.size-2\\.5{width:calc(var(--spacing) * 2.5);height:calc(var(--spacing) * 2.5)}.size-3{width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}.size-3\\.5{width:calc(var(--spacing) * 3.5);height:calc(var(--spacing) * 3.5)}.size-4{width:calc(var(--spacing) * 4);height:calc(var(--spacing) * 4)}.size-6{width:calc(var(--spacing) * 6);height:calc(var(--spacing) * 6)}.size-8{width:calc(var(--spacing) * 8);height:calc(var(--spacing) * 8)}.size-9{width:calc(var(--spacing) * 9);height:calc(var(--spacing) * 9)}.size-10{width:calc(var(--spacing) * 10);height:calc(var(--spacing) * 10)}.size-\\[18px\\]{width:18px;height:18px}.size-full{width:100%;height:100%}.h-0{height:0}.h-1{height:var(--spacing)}.h-1\\.5{height:calc(var(--spacing) * 1.5)}.h-2{height:calc(var(--spacing) * 2)}.h-2\\.5{height:calc(var(--spacing) * 2.5)}.h-5{height:calc(var(--spacing) * 5)}.h-6{height:calc(var(--spacing) * 6)}.h-7{height:calc(var(--spacing) * 7)}.h-8{height:calc(var(--spacing) * 8)}.h-9{height:calc(var(--spacing) * 9)}.h-10{height:calc(var(--spacing) * 10)}.h-\\[26px\\]{height:26px}.h-\\[calc\\(100\\%-1px\\)\\]{height:calc(100% - 1px)}.h-\\[var\\(--radix-select-trigger-height\\)\\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.h-screen{height:100vh}.max-h-\\(--radix-context-menu-content-available-height\\){max-height:var(--radix-context-menu-content-available-height)}.max-h-\\(--radix-dropdown-menu-content-available-height\\){max-height:var(--radix-dropdown-menu-content-available-height)}.max-h-\\(--radix-select-content-available-height\\){max-height:var(--radix-select-content-available-height)}.max-h-\\[300px\\]{max-height:300px}.max-h-\\[400px\\]{max-height:400px}.min-h-0{min-height:0}.min-h-16{min-height:calc(var(--spacing) * 16)}.min-h-40{min-height:calc(var(--spacing) * 40)}.w-0{width:0}.w-2{width:calc(var(--spacing) * 2)}.w-2\\.5{width:calc(var(--spacing) * 2.5)}.w-3{width:calc(var(--spacing) * 3)}.w-3\\/4{width:75%}.w-5{width:calc(var(--spacing) * 5)}.w-28{width:calc(var(--spacing) * 28)}.w-40{width:calc(var(--spacing) * 40)}.w-48{width:calc(var(--spacing) * 48)}.w-72{width:calc(var(--spacing) * 72)}.w-\\[200px\\]{width:200px}.w-\\[220px\\]{width:220px}.w-auto{width:auto}.w-fit{width:fit-content}.w-full{width:100%}.max-w-\\[400px\\]{max-width:400px}.max-w-\\[420px\\]{max-width:420px}.max-w-\\[calc\\(100\\%-2rem\\)\\]{max-width:calc(100% - 2rem)}.min-w-0{min-width:0}.min-w-8{min-width:calc(var(--spacing) * 8)}.min-w-9{min-width:calc(var(--spacing) * 9)}.min-w-10{min-width:calc(var(--spacing) * 10)}.min-w-\\[8rem\\]{min-width:8rem}.min-w-\\[200px\\]{min-width:200px}.min-w-\\[var\\(--radix-select-trigger-width\\)\\]{min-width:var(--radix-select-trigger-width)}.flex-1{flex:1}.shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.grow{flex-grow:1}.border-collapse{border-collapse:collapse}.origin-\\(--radix-context-menu-content-transform-origin\\){transform-origin:var(--radix-context-menu-content-transform-origin)}.origin-\\(--radix-dropdown-menu-content-transform-origin\\){transform-origin:var(--radix-dropdown-menu-content-transform-origin)}.origin-\\(--radix-popover-content-transform-origin\\){transform-origin:var(--radix-popover-content-transform-origin)}.origin-\\(--radix-select-content-transform-origin\\){transform-origin:var(--radix-select-content-transform-origin)}.origin-\\(--radix-tooltip-content-transform-origin\\){transform-origin:var(--radix-tooltip-content-transform-origin)}.-translate-x-1{--tw-translate-x:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-x-1\\/2{--tw-translate-x:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-x-\\[-50\\%\\]{--tw-translate-x:-50%;translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1\\/2{--tw-translate-y:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-y-\\[-50\\%\\]{--tw-translate-y:-50%;translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-y-\\[calc\\(-50\\%_-_2px\\)\\]{--tw-translate-y:calc(-50% - 2px);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-none{translate:none}.scale-3d{scale:var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)}.rotate-45{rotate:45deg}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.animate-in{animation:enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.animate-pulse{animation:var(--animate-pulse)}.animate-spin{animation:var(--animate-spin)}.cursor-crosshair{cursor:crosshair}.cursor-default{cursor:default}.cursor-ew-resize{cursor:ew-resize}.cursor-grab{cursor:grab}.cursor-not-allowed{cursor:not-allowed}.cursor-pointer{cursor:pointer}.touch-pinch-zoom{--tw-pinch-zoom:pinch-zoom;touch-action:var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)}.touch-none{touch-action:none}.resize{resize:both}.scroll-my-1{scroll-margin-block:var(--spacing)}.scroll-py-1{scroll-padding-block:var(--spacing)}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-wrap{flex-wrap:wrap}.place-content-center{place-content:center}.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.gap-0{gap:0}.gap-0\\.5{gap:calc(var(--spacing) * .5)}.gap-1{gap:var(--spacing)}.gap-1\\.5{gap:calc(var(--spacing) * 1.5)}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-\\[--spacing\\(var\\(--gap\\)\\)\\]{gap:calc(var(--spacing) * var(--gap))}:where(.space-y-0>:not(:last-child)){--tw-space-y-reverse:0;margin-block:0}:where(.space-y-1>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(var(--spacing) * var(--tw-space-y-reverse));margin-block-end:calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-1\\.5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-2>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-reverse>:not(:last-child)){--tw-space-y-reverse:1}:where(.space-x-reverse>:not(:last-child)){--tw-space-x-reverse:1}:where(.divide-x>:not(:last-child)){--tw-divide-x-reverse:0;border-inline-style:var(--tw-border-style);border-inline-start-width:calc(1px * var(--tw-divide-x-reverse));border-inline-end-width:calc(1px * calc(1 - var(--tw-divide-x-reverse)))}:where(.divide-y>:not(:last-child)){--tw-divide-y-reverse:0;border-bottom-style:var(--tw-border-style);border-top-style:var(--tw-border-style);border-top-width:calc(1px * var(--tw-divide-y-reverse));border-bottom-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)))}:where(.divide-y-reverse>:not(:last-child)){--tw-divide-y-reverse:1}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-hidden{overflow-x:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:.25rem}.rounded-\\[2px\\]{border-radius:2px}.rounded-\\[4px\\]{border-radius:4px}.rounded-\\[inherit\\]{border-radius:inherit}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius)}.rounded-md{border-radius:calc(var(--radius) - 2px)}.rounded-sm{border-radius:calc(var(--radius) - 4px)}.rounded-xs{border-radius:var(--radius-xs)}.rounded-s{border-start-start-radius:.25rem;border-end-start-radius:.25rem}.rounded-ss{border-start-start-radius:.25rem}.rounded-e{border-start-end-radius:.25rem;border-end-end-radius:.25rem}.rounded-se{border-start-end-radius:.25rem}.rounded-ee{border-end-end-radius:.25rem}.rounded-es{border-end-start-radius:.25rem}.rounded-t{border-top-left-radius:.25rem;border-top-right-radius:.25rem}.rounded-t-lg{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}.rounded-l{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.rounded-tl{border-top-left-radius:.25rem}.rounded-r{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.rounded-tr{border-top-right-radius:.25rem}.rounded-b{border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem}.rounded-br{border-bottom-right-radius:.25rem}.rounded-bl{border-bottom-left-radius:.25rem}.border{border-style:var(--tw-border-style);border-width:1px}.border-0{border-style:var(--tw-border-style);border-width:0}.border-2{border-style:var(--tw-border-style);border-width:2px}.border-x{border-inline-style:var(--tw-border-style);border-inline-width:1px}.border-y{border-block-style:var(--tw-border-style);border-block-width:1px}.border-s{border-inline-start-style:var(--tw-border-style);border-inline-start-width:1px}.border-e{border-inline-end-style:var(--tw-border-style);border-inline-end-width:1px}.border-bs{border-block-start-style:var(--tw-border-style);border-block-start-width:1px}.border-be{border-block-end-style:var(--tw-border-style);border-block-end-width:1px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.border-b{border-bottom-style:var(--tw-border-style);border-bottom-width:1px}.border-b-2{border-bottom-style:var(--tw-border-style);border-bottom-width:2px}.border-l{border-left-style:var(--tw-border-style);border-left-width:1px}.border-l-4{border-left-style:var(--tw-border-style);border-left-width:4px}.border-dashed{--tw-border-style:dashed;border-style:dashed}.\\!border-zinc-600{border-color:var(--color-zinc-600)!important}.border-black{border-color:var(--color-black)}.border-black\\/20{border-color:#0003}@supports (color:color-mix(in lab, red, red)){.border-black\\/20{border-color:color-mix(in oklab, var(--color-black) 20%, transparent)}}.border-blue-400{border-color:var(--color-blue-400)}.border-blue-400\\/60{border-color:#54a2ff99}@supports (color:color-mix(in lab, red, red)){.border-blue-400\\/60{border-color:color-mix(in oklab, var(--color-blue-400) 60%, transparent)}}.border-blue-500{border-color:var(--color-blue-500)}.border-blue-500\\/40{border-color:#3080ff66}@supports (color:color-mix(in lab, red, red)){.border-blue-500\\/40{border-color:color-mix(in oklab, var(--color-blue-500) 40%, transparent)}}.border-blue-500\\/90{border-color:#3080ffe6}@supports (color:color-mix(in lab, red, red)){.border-blue-500\\/90{border-color:color-mix(in oklab, var(--color-blue-500) 90%, transparent)}}.border-border{border-color:var(--border)}.border-gray-200{border-color:var(--color-gray-200)}.border-gray-300{border-color:var(--color-gray-300)}.border-gray-900{border-color:var(--color-gray-900)}.border-green-500{border-color:var(--color-green-500)}.border-green-500\\/50{border-color:#00c75880}@supports (color:color-mix(in lab, red, red)){.border-green-500\\/50{border-color:color-mix(in oklab, var(--color-green-500) 50%, transparent)}}.border-input{border-color:var(--input)}.border-transparent{border-color:#0000}.border-zinc-300{border-color:var(--color-zinc-300)}.border-zinc-700{border-color:var(--color-zinc-700)}.border-zinc-800{border-color:var(--color-zinc-800)}.border-t-transparent{border-top-color:#0000}.border-l-amber-500{border-left-color:var(--color-amber-500)}.border-l-blue-500{border-left-color:var(--color-blue-500)}.border-l-emerald-500{border-left-color:var(--color-emerald-500)}.border-l-red-500{border-left-color:var(--color-red-500)}.border-l-transparent{border-left-color:#0000}.\\!bg-zinc-400{background-color:var(--color-zinc-400)!important}.bg-accent{background-color:var(--accent)}.bg-amber-500{background-color:var(--color-amber-500)}.bg-background{background-color:var(--background)}.bg-black{background-color:var(--color-black)}.bg-black\\/50{background-color:#00000080}@supports (color:color-mix(in lab, red, red)){.bg-black\\/50{background-color:color-mix(in oklab, var(--color-black) 50%, transparent)}}.bg-blue-500{background-color:var(--color-blue-500)}.bg-blue-500\\/10{background-color:#3080ff1a}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\\/10{background-color:color-mix(in oklab, var(--color-blue-500) 10%, transparent)}}.bg-blue-500\\/95{background-color:#3080fff2}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\\/95{background-color:color-mix(in oklab, var(--color-blue-500) 95%, transparent)}}.bg-blue-600{background-color:var(--color-blue-600)}.bg-blue-900{background-color:var(--color-blue-900)}.bg-blue-900\\/50{background-color:#1c398e80}@supports (color:color-mix(in lab, red, red)){.bg-blue-900\\/50{background-color:color-mix(in oklab, var(--color-blue-900) 50%, transparent)}}.bg-border{background-color:var(--border)}.bg-destructive{background-color:var(--destructive)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-foreground{background-color:var(--foreground)}.bg-gray-50{background-color:var(--color-gray-50)}.bg-gray-100{background-color:var(--color-gray-100)}.bg-gray-200{background-color:var(--color-gray-200)}.bg-green-500{background-color:var(--color-green-500)}.bg-green-500\\/5{background-color:#00c7580d}@supports (color:color-mix(in lab, red, red)){.bg-green-500\\/5{background-color:color-mix(in oklab, var(--color-green-500) 5%, transparent)}}.bg-muted{background-color:var(--muted)}.bg-muted-foreground{background-color:var(--muted-foreground)}.bg-popover{background-color:var(--popover)}.bg-primary{background-color:var(--primary)}.bg-red-400{background-color:var(--color-red-400)}.bg-red-500{background-color:var(--color-red-500)}.bg-secondary{background-color:var(--secondary)}.bg-transparent{background-color:#0000}.bg-white{background-color:var(--color-white)}.bg-white\\/95{background-color:#fffffff2}@supports (color:color-mix(in lab, red, red)){.bg-white\\/95{background-color:color-mix(in oklab, var(--color-white) 95%, transparent)}}.bg-zinc-800{background-color:var(--color-zinc-800)}.bg-zinc-900{background-color:var(--color-zinc-900)}.bg-zinc-950{background-color:var(--color-zinc-950)}.bg-repeat{background-repeat:repeat}.mask-no-clip{-webkit-mask-clip:no-clip;mask-clip:no-clip}.mask-repeat{-webkit-mask-repeat:repeat;mask-repeat:repeat}.fill-blue-400{fill:var(--color-blue-400)}.fill-current{fill:currentColor}.fill-foreground{fill:var(--foreground)}.p-0{padding:0}.p-1{padding:var(--spacing)}.p-2{padding:calc(var(--spacing) * 2)}.p-2\\.5{padding:calc(var(--spacing) * 2.5)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-6{padding:calc(var(--spacing) * 6)}.p-\\[3px\\]{padding:3px}.p-px{padding:1px}.px-0{padding-inline:0}.px-0\\.5{padding-inline:calc(var(--spacing) * .5)}.px-1{padding-inline:var(--spacing)}.px-1\\.5{padding-inline:calc(var(--spacing) * 1.5)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-2\\.5{padding-inline:calc(var(--spacing) * 2.5)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-6{padding-inline:calc(var(--spacing) * 6)}.py-0{padding-block:0}.py-0\\.5{padding-block:calc(var(--spacing) * .5)}.py-1{padding-block:var(--spacing)}.py-1\\.5{padding-block:calc(var(--spacing) * 1.5)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-2\\.5{padding-block:calc(var(--spacing) * 2.5)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-6{padding-block:calc(var(--spacing) * 6)}.pt-2{padding-top:calc(var(--spacing) * 2)}.pr-2{padding-right:calc(var(--spacing) * 2)}.pr-8{padding-right:calc(var(--spacing) * 8)}.pb-2{padding-bottom:calc(var(--spacing) * 2)}.pl-2{padding-left:calc(var(--spacing) * 2)}.pl-8{padding-left:calc(var(--spacing) * 8)}.text-center{text-align:center}.text-left{text-align:left}.font-mono{font-family:var(--font-mono)}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.text-\\[9px\\]{font-size:9px}.text-\\[10px\\]{font-size:10px}.text-\\[11px\\]{font-size:11px}.text-\\[12px\\]{font-size:12px}.leading-none{--tw-leading:1;line-height:1}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.text-balance{text-wrap:balance}.text-wrap{text-wrap:wrap}.break-words{overflow-wrap:break-word}.text-clip{text-overflow:clip}.text-ellipsis{text-overflow:ellipsis}.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.text-accent-foreground{color:var(--accent-foreground)}.text-amber-400{color:var(--color-amber-400)}.text-amber-500{color:var(--color-amber-500)}.text-amber-500\\/70{color:#f99c00b3}@supports (color:color-mix(in lab, red, red)){.text-amber-500\\/70{color:color-mix(in oklab, var(--color-amber-500) 70%, transparent)}}.text-amber-600{color:var(--color-amber-600)}.text-background{color:var(--background)}.text-blue-300{color:var(--color-blue-300)}.text-blue-400{color:var(--color-blue-400)}.text-blue-400\\/70{color:#54a2ffb3}@supports (color:color-mix(in lab, red, red)){.text-blue-400\\/70{color:color-mix(in oklab, var(--color-blue-400) 70%, transparent)}}.text-blue-500{color:var(--color-blue-500)}.text-current{color:currentColor}.text-emerald-400{color:var(--color-emerald-400)}.text-foreground,.text-foreground\\/60{color:var(--foreground)}@supports (color:color-mix(in lab, red, red)){.text-foreground\\/60{color:color-mix(in oklab, var(--foreground) 60%, transparent)}}.text-gray-300{color:var(--color-gray-300)}.text-gray-400{color:var(--color-gray-400)}.text-gray-500{color:var(--color-gray-500)}.text-gray-600{color:var(--color-gray-600)}.text-gray-700{color:var(--color-gray-700)}.text-gray-800{color:var(--color-gray-800)}.text-green-500{color:var(--color-green-500)}.text-green-600{color:var(--color-green-600)}.text-muted-foreground{color:var(--muted-foreground)}.text-popover-foreground{color:var(--popover-foreground)}.text-primary{color:var(--primary)}.text-primary-foreground{color:var(--primary-foreground)}.text-purple-400{color:var(--color-purple-400)}.text-purple-400\\/70{color:#c07effb3}@supports (color:color-mix(in lab, red, red)){.text-purple-400\\/70{color:color-mix(in oklab, var(--color-purple-400) 70%, transparent)}}.text-red-400{color:var(--color-red-400)}.text-red-500{color:var(--color-red-500)}.text-red-600{color:var(--color-red-600)}.text-secondary-foreground{color:var(--secondary-foreground)}.text-sky-400{color:var(--color-sky-400)}.text-white{color:var(--color-white)}.text-yellow-400{color:var(--color-yellow-400)}.text-zinc-100{color:var(--color-zinc-100)}.text-zinc-200{color:var(--color-zinc-200)}.text-zinc-400{color:var(--color-zinc-400)}.text-zinc-500{color:var(--color-zinc-500)}.text-zinc-800{color:var(--color-zinc-800)}.text-zinc-900{color:var(--color-zinc-900)}.capitalize{text-transform:capitalize}.lowercase{text-transform:lowercase}.normal-case{text-transform:none}.uppercase{text-transform:uppercase}.italic{font-style:italic}.not-italic{font-style:normal}.diagonal-fractions{--tw-numeric-fraction:diagonal-fractions;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.lining-nums{--tw-numeric-figure:lining-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.oldstyle-nums{--tw-numeric-figure:oldstyle-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.ordinal{--tw-ordinal:ordinal;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.proportional-nums{--tw-numeric-spacing:proportional-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.slashed-zero{--tw-slashed-zero:slashed-zero;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.stacked-fractions{--tw-numeric-fraction:stacked-fractions;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.normal-nums{font-variant-numeric:normal}.line-through{text-decoration-line:line-through}.no-underline{text-decoration-line:none}.overline{text-decoration-line:overline}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.subpixel-antialiased{-webkit-font-smoothing:auto;-moz-osx-font-smoothing:auto}.opacity-0{opacity:0}.opacity-50{opacity:.5}.opacity-70{opacity:.7}.opacity-90{opacity:.9}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-\\[0_0_0_1px_rgba\\(59\\,130\\,246\\,0\\.3\\)\\]{--tw-shadow:0 0 0 1px var(--tw-shadow-color,#3b82f64d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px var(--tw-shadow-color,#0000001a), 0 2px 4px -2px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-none{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-xs{--tw-shadow:0 1px 2px 0 var(--tw-shadow-color,#0000000d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-2{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.inset-ring{--tw-inset-ring-shadow:inset 0 0 0 1px var(--tw-inset-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-gray-400{--tw-ring-color:var(--color-gray-400)}.ring-offset-1{--tw-ring-offset-width:1px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.ring-offset-background{--tw-ring-offset-color:var(--background)}.ring-offset-white{--tw-ring-offset-color:var(--color-white)}.outline-hidden{--tw-outline-style:none;outline-style:none}@media (forced-colors:active){.outline-hidden{outline-offset:2px;outline:2px solid #0000}}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.drop-shadow{--tw-drop-shadow-size:drop-shadow(0 1px 2px var(--tw-drop-shadow-color,#0000001a)) drop-shadow(0 1px 1px var(--tw-drop-shadow-color,#0000000f));--tw-drop-shadow:drop-shadow(0 1px 2px #0000001a) drop-shadow(0 1px 1px #0000000f);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.grayscale{--tw-grayscale:grayscale(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.invert{--tw-invert:invert(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.sepia{--tw-sepia:sepia(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.filter\\!{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)!important}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-grayscale{--tw-backdrop-grayscale:grayscale(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-invert{--tw-backdrop-invert:invert(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-sepia{--tw-backdrop-sepia:sepia(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-\\[color\\,box-shadow\\]{transition-property:color,box-shadow;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-\\[width\\]{transition-property:width;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-none{transition-property:none}.duration-100{--tw-duration:.1s;transition-duration:.1s}.duration-200{--tw-duration:.2s;transition-duration:.2s}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.fade-in-0{--tw-enter-opacity:0}.outline-none{--tw-outline-style:none;outline-style:none}.select-all{-webkit-user-select:all;user-select:all}.select-none{-webkit-user-select:none;user-select:none}.zoom-in-95{--tw-enter-scale:.95}:where(.divide-x-reverse>:not(:last-child)){--tw-divide-x-reverse:1}.paused{animation-play-state:paused}.ring-inset{--tw-ring-inset:inset}.running{animation-play-state:running}.zoom-in{--tw-enter-scale:0}.zoom-out{--tw-exit-scale:0}@media (hover:hover){.group-hover\\:opacity-100:is(:where(.group):hover *){opacity:1}}.group-data-\\[disabled\\=true\\]\\:pointer-events-none:is(:where(.group)[data-disabled=true] *){pointer-events:none}.group-data-\\[disabled\\=true\\]\\:opacity-50:is(:where(.group)[data-disabled=true] *){opacity:.5}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:h-9:is(:where(.group\\/tabs)[data-orientation=horizontal] *){height:calc(var(--spacing) * 9)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:h-fit:is(:where(.group\\/tabs)[data-orientation=vertical] *){height:fit-content}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:w-full:is(:where(.group\\/tabs)[data-orientation=vertical] *){width:100%}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:flex-col:is(:where(.group\\/tabs)[data-orientation=vertical] *){flex-direction:column}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:justify-start:is(:where(.group\\/tabs)[data-orientation=vertical] *){justify-content:flex-start}.group-data-\\[variant\\=line\\]\\/tabs-list\\:bg-transparent:is(:where(.group\\/tabs-list)[data-variant=line] *){background-color:#0000}.peer-disabled\\:cursor-not-allowed:is(:where(.peer):disabled~*){cursor:not-allowed}.peer-disabled\\:opacity-50:is(:where(.peer):disabled~*){opacity:.5}.selection\\:bg-primary ::selection{background-color:var(--primary)}.selection\\:bg-primary::selection{background-color:var(--primary)}.selection\\:text-primary-foreground ::selection{color:var(--primary-foreground)}.selection\\:text-primary-foreground::selection{color:var(--primary-foreground)}.file\\:inline-flex::file-selector-button{display:inline-flex}.file\\:h-7::file-selector-button{height:calc(var(--spacing) * 7)}.file\\:border-0::file-selector-button{border-style:var(--tw-border-style);border-width:0}.file\\:bg-transparent::file-selector-button{background-color:#0000}.file\\:text-sm::file-selector-button{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.file\\:font-medium::file-selector-button{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.file\\:text-foreground::file-selector-button{color:var(--foreground)}.placeholder\\:text-muted-foreground::placeholder{color:var(--muted-foreground)}.after\\:absolute:after{content:var(--tw-content);position:absolute}.after\\:bg-foreground:after{content:var(--tw-content);background-color:var(--foreground)}.after\\:opacity-0:after{content:var(--tw-content);opacity:0}.after\\:transition-opacity:after{content:var(--tw-content);transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:inset-x-0:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);inset-inline:0}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:bottom-\\[-5px\\]:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);bottom:-5px}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:h-0\\.5:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);height:calc(var(--spacing) * .5)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:inset-y-0:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);inset-block:0}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:-right-1:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);right:calc(var(--spacing) * -1)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:w-0\\.5:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);width:calc(var(--spacing) * .5)}@media (hover:hover){.hover\\:scale-110:hover{--tw-scale-x:110%;--tw-scale-y:110%;--tw-scale-z:110%;scale:var(--tw-scale-x) var(--tw-scale-y)}.hover\\:border-zinc-400:hover{border-color:var(--color-zinc-400)}.hover\\:\\!bg-blue-400:hover{background-color:var(--color-blue-400)!important}.hover\\:bg-accent:hover,.hover\\:bg-accent\\/50:hover{background-color:var(--accent)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-accent\\/50:hover{background-color:color-mix(in oklab, var(--accent) 50%, transparent)}}.hover\\:bg-blue-600:hover{background-color:var(--color-blue-600)}.hover\\:bg-blue-700:hover{background-color:var(--color-blue-700)}.hover\\:bg-destructive\\/90:hover{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-destructive\\/90:hover{background-color:color-mix(in oklab, var(--destructive) 90%, transparent)}}.hover\\:bg-gray-100:hover{background-color:var(--color-gray-100)}.hover\\:bg-gray-200:hover{background-color:var(--color-gray-200)}.hover\\:bg-muted:hover{background-color:var(--muted)}.hover\\:bg-primary\\/90:hover{background-color:var(--primary)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-primary\\/90:hover{background-color:color-mix(in oklab, var(--primary) 90%, transparent)}}.hover\\:bg-secondary\\/80:hover{background-color:var(--secondary)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-secondary\\/80:hover{background-color:color-mix(in oklab, var(--secondary) 80%, transparent)}}.hover\\:bg-zinc-800\\/50:hover{background-color:#27272a80}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-zinc-800\\/50:hover{background-color:color-mix(in oklab, var(--color-zinc-800) 50%, transparent)}}.hover\\:text-accent-foreground:hover{color:var(--accent-foreground)}.hover\\:text-blue-200:hover{color:var(--color-blue-200)}.hover\\:text-blue-400:hover{color:var(--color-blue-400)}.hover\\:text-foreground:hover{color:var(--foreground)}.hover\\:text-gray-600:hover{color:var(--color-gray-600)}.hover\\:text-gray-700:hover{color:var(--color-gray-700)}.hover\\:text-gray-900:hover{color:var(--color-gray-900)}.hover\\:text-muted-foreground:hover{color:var(--muted-foreground)}.hover\\:text-red-500:hover{color:var(--color-red-500)}.hover\\:underline:hover{text-decoration-line:underline}.hover\\:opacity-100:hover{opacity:1}}.focus\\:z-10:focus{z-index:10}.focus\\:bg-accent:focus{background-color:var(--accent)}.focus\\:text-accent-foreground:focus{color:var(--accent-foreground)}.focus\\:ring-1:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\\:ring-ring:focus{--tw-ring-color:var(--ring)}.focus\\:ring-offset-2:focus{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.focus\\:outline-hidden:focus{--tw-outline-style:none;outline-style:none}@media (forced-colors:active){.focus\\:outline-hidden:focus{outline-offset:2px;outline:2px solid #0000}}.focus\\:outline-none:focus{--tw-outline-style:none;outline-style:none}.focus-visible\\:z-10:focus-visible{z-index:10}.focus-visible\\:border-ring:focus-visible{border-color:var(--ring)}.focus-visible\\:ring-0:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\\:ring-\\[3px\\]:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\\:ring-destructive\\/20:focus-visible{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.focus-visible\\:ring-destructive\\/20:focus-visible{--tw-ring-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.focus-visible\\:ring-ring\\/50:focus-visible{--tw-ring-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){.focus-visible\\:ring-ring\\/50:focus-visible{--tw-ring-color:color-mix(in oklab, var(--ring) 50%, transparent)}}.focus-visible\\:outline-1:focus-visible{outline-style:var(--tw-outline-style);outline-width:1px}.focus-visible\\:outline-ring:focus-visible{outline-color:var(--ring)}.disabled\\:pointer-events-none:disabled{pointer-events:none}.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\\:opacity-50:disabled{opacity:.5}.has-\\[\\>svg\\]\\:px-1\\.5:has(>svg){padding-inline:calc(var(--spacing) * 1.5)}.has-\\[\\>svg\\]\\:px-2\\.5:has(>svg){padding-inline:calc(var(--spacing) * 2.5)}.has-\\[\\>svg\\]\\:px-3:has(>svg){padding-inline:calc(var(--spacing) * 3)}.has-\\[\\>svg\\]\\:px-4:has(>svg){padding-inline:calc(var(--spacing) * 4)}.aria-invalid\\:border-destructive[aria-invalid=true]{border-color:var(--destructive)}.aria-invalid\\:ring-destructive\\/20[aria-invalid=true]{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.aria-invalid\\:ring-destructive\\/20[aria-invalid=true]{--tw-ring-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.data-\\[disabled\\]\\:pointer-events-none[data-disabled]{pointer-events:none}.data-\\[disabled\\]\\:opacity-50[data-disabled]{opacity:.5}.data-\\[disabled\\=true\\]\\:pointer-events-none[data-disabled=true]{pointer-events:none}.data-\\[disabled\\=true\\]\\:opacity-50[data-disabled=true]{opacity:.5}.data-\\[inset\\]\\:pl-8[data-inset]{padding-left:calc(var(--spacing) * 8)}.data-\\[orientation\\=horizontal\\]\\:h-px[data-orientation=horizontal]{height:1px}.data-\\[orientation\\=horizontal\\]\\:w-full[data-orientation=horizontal]{width:100%}.data-\\[orientation\\=horizontal\\]\\:flex-col[data-orientation=horizontal]{flex-direction:column}.data-\\[orientation\\=vertical\\]\\:h-full[data-orientation=vertical]{height:100%}.data-\\[orientation\\=vertical\\]\\:w-px[data-orientation=vertical]{width:1px}.data-\\[placeholder\\]\\:text-muted-foreground[data-placeholder]{color:var(--muted-foreground)}.data-\\[selected\\=true\\]\\:bg-accent[data-selected=true]{background-color:var(--accent)}.data-\\[selected\\=true\\]\\:text-accent-foreground[data-selected=true]{color:var(--accent-foreground)}.data-\\[side\\=bottom\\]\\:translate-y-1[data-side=bottom]{--tw-translate-y:var(--spacing);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=bottom\\]\\:slide-in-from-top-2[data-side=bottom]{--tw-enter-translate-y:calc(2*var(--spacing)*-1)}.data-\\[side\\=left\\]\\:-translate-x-1[data-side=left]{--tw-translate-x:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=left\\]\\:slide-in-from-right-2[data-side=left]{--tw-enter-translate-x:calc(2*var(--spacing))}.data-\\[side\\=right\\]\\:translate-x-1[data-side=right]{--tw-translate-x:var(--spacing);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=right\\]\\:slide-in-from-left-2[data-side=right]{--tw-enter-translate-x:calc(2*var(--spacing)*-1)}.data-\\[side\\=top\\]\\:-translate-y-1[data-side=top]{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=top\\]\\:slide-in-from-bottom-2[data-side=top]{--tw-enter-translate-y:calc(2*var(--spacing))}.data-\\[size\\=default\\]\\:h-9[data-size=default]{height:calc(var(--spacing) * 9)}.data-\\[size\\=sm\\]\\:h-8[data-size=sm]{height:calc(var(--spacing) * 8)}:is(.\\*\\*\\:data-\\[slot\\=command-input-wrapper\\]\\:h-12 *)[data-slot=command-input-wrapper]{height:calc(var(--spacing) * 12)}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:line-clamp-1>*)[data-slot=select-value]{-webkit-line-clamp:1;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:flex>*)[data-slot=select-value]{display:flex}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:items-center>*)[data-slot=select-value]{align-items:center}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:gap-2>*)[data-slot=select-value]{gap:calc(var(--spacing) * 2)}.data-\\[spacing\\=0\\]\\:rounded-none[data-spacing="0"]{border-radius:0}.data-\\[spacing\\=0\\]\\:shadow-none[data-spacing="0"]{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.data-\\[spacing\\=0\\]\\:first\\:rounded-l-md[data-spacing="0"]:first-child{border-top-left-radius:calc(var(--radius) - 2px);border-bottom-left-radius:calc(var(--radius) - 2px)}.data-\\[spacing\\=0\\]\\:last\\:rounded-r-md[data-spacing="0"]:last-child{border-top-right-radius:calc(var(--radius) - 2px);border-bottom-right-radius:calc(var(--radius) - 2px)}.data-\\[state\\=active\\]\\:bg-background[data-state=active]{background-color:var(--background)}.data-\\[state\\=active\\]\\:text-foreground[data-state=active]{color:var(--foreground)}.group-data-\\[variant\\=default\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:shadow-sm:is(:where(.group\\/tabs-list)[data-variant=default] *)[data-state=active]{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:bg-transparent:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{background-color:#0000}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:shadow-none:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:after\\:opacity-100:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]:after{content:var(--tw-content);opacity:1}.data-\\[state\\=checked\\]\\:border-primary[data-state=checked]{border-color:var(--primary)}.data-\\[state\\=checked\\]\\:bg-primary[data-state=checked]{background-color:var(--primary)}.data-\\[state\\=checked\\]\\:text-primary-foreground[data-state=checked]{color:var(--primary-foreground)}.data-\\[state\\=closed\\]\\:animate-out[data-state=closed]{animation:exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\\[state\\=closed\\]\\:duration-300[data-state=closed]{--tw-duration:.3s;transition-duration:.3s}.data-\\[state\\=closed\\]\\:fade-out-0[data-state=closed]{--tw-exit-opacity:0}.data-\\[state\\=closed\\]\\:zoom-out-95[data-state=closed]{--tw-exit-scale:.95}.data-\\[state\\=closed\\]\\:slide-out-to-bottom[data-state=closed]{--tw-exit-translate-y:100%}.data-\\[state\\=closed\\]\\:slide-out-to-left[data-state=closed]{--tw-exit-translate-x:-100%}.data-\\[state\\=closed\\]\\:slide-out-to-right[data-state=closed]{--tw-exit-translate-x:100%}.data-\\[state\\=closed\\]\\:slide-out-to-top[data-state=closed]{--tw-exit-translate-y:-100%}.data-\\[state\\=on\\]\\:bg-accent[data-state=on]{background-color:var(--accent)}.data-\\[state\\=on\\]\\:text-accent-foreground[data-state=on]{color:var(--accent-foreground)}.data-\\[state\\=open\\]\\:animate-in[data-state=open]{animation:enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\\[state\\=open\\]\\:bg-accent[data-state=open]{background-color:var(--accent)}.data-\\[state\\=open\\]\\:bg-secondary[data-state=open]{background-color:var(--secondary)}.data-\\[state\\=open\\]\\:text-accent-foreground[data-state=open]{color:var(--accent-foreground)}.data-\\[state\\=open\\]\\:text-muted-foreground[data-state=open]{color:var(--muted-foreground)}.data-\\[state\\=open\\]\\:duration-500[data-state=open]{--tw-duration:.5s;transition-duration:.5s}.data-\\[state\\=open\\]\\:fade-in-0[data-state=open]{--tw-enter-opacity:0}.data-\\[state\\=open\\]\\:zoom-in-95[data-state=open]{--tw-enter-scale:.95}.data-\\[state\\=open\\]\\:slide-in-from-bottom[data-state=open]{--tw-enter-translate-y:100%}.data-\\[state\\=open\\]\\:slide-in-from-left[data-state=open]{--tw-enter-translate-x:-100%}.data-\\[state\\=open\\]\\:slide-in-from-right[data-state=open]{--tw-enter-translate-x:100%}.data-\\[state\\=open\\]\\:slide-in-from-top[data-state=open]{--tw-enter-translate-y:-100%}.data-\\[variant\\=destructive\\]\\:text-destructive[data-variant=destructive]{color:var(--destructive)}.data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/10[data-variant=destructive]:focus{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/10[data-variant=destructive]:focus{background-color:color-mix(in oklab, var(--destructive) 10%, transparent)}}.data-\\[variant\\=destructive\\]\\:focus\\:text-destructive[data-variant=destructive]:focus{color:var(--destructive)}.data-\\[variant\\=line\\]\\:rounded-none[data-variant=line]{border-radius:0}.data-\\[spacing\\=0\\]\\:data-\\[variant\\=outline\\]\\:border-l-0[data-spacing="0"][data-variant=outline]{border-left-style:var(--tw-border-style);border-left-width:0}.data-\\[spacing\\=0\\]\\:data-\\[variant\\=outline\\]\\:first\\:border-l[data-spacing="0"][data-variant=outline]:first-child{border-left-style:var(--tw-border-style);border-left-width:1px}.data-\\[spacing\\=default\\]\\:data-\\[variant\\=outline\\]\\:shadow-xs[data-spacing=default][data-variant=outline]{--tw-shadow:0 1px 2px 0 var(--tw-shadow-color,#0000000d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}@media (min-width:40rem){.sm\\:max-w-lg{max-width:var(--container-lg)}.sm\\:max-w-md{max-width:var(--container-md)}.sm\\:max-w-sm{max-width:var(--container-sm)}.sm\\:flex-row{flex-direction:row}.sm\\:justify-end{justify-content:flex-end}.sm\\:text-left{text-align:left}}@media (min-width:48rem){.md\\:text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}}.dark\\:border-input:is(.dark *){border-color:var(--input)}.dark\\:border-white:is(.dark *){border-color:var(--color-white)}.dark\\:border-white\\/20:is(.dark *){border-color:#fff3}@supports (color:color-mix(in lab, red, red)){.dark\\:border-white\\/20:is(.dark *){border-color:color-mix(in oklab, var(--color-white) 20%, transparent)}}.dark\\:border-zinc-700:is(.dark *){border-color:var(--color-zinc-700)}.dark\\:border-zinc-800:is(.dark *){border-color:var(--color-zinc-800)}.dark\\:bg-destructive\\/60:is(.dark *){background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-destructive\\/60:is(.dark *){background-color:color-mix(in oklab, var(--destructive) 60%, transparent)}}.dark\\:bg-input\\/30:is(.dark *){background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-input\\/30:is(.dark *){background-color:color-mix(in oklab, var(--input) 30%, transparent)}}.dark\\:bg-zinc-800:is(.dark *){background-color:var(--color-zinc-800)}.dark\\:bg-zinc-800\\/40:is(.dark *){background-color:#27272a66}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-800\\/40:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-800) 40%, transparent)}}.dark\\:bg-zinc-900:is(.dark *){background-color:var(--color-zinc-900)}.dark\\:bg-zinc-900\\/40:is(.dark *){background-color:#18181b66}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-900\\/40:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-900) 40%, transparent)}}.dark\\:bg-zinc-900\\/95:is(.dark *){background-color:#18181bf2}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-900\\/95:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-900) 95%, transparent)}}.dark\\:bg-zinc-950:is(.dark *){background-color:var(--color-zinc-950)}.dark\\:text-green-400:is(.dark *){color:var(--color-green-400)}.dark\\:text-muted-foreground:is(.dark *){color:var(--muted-foreground)}.dark\\:text-white:is(.dark *){color:var(--color-white)}.dark\\:text-zinc-100:is(.dark *){color:var(--color-zinc-100)}.dark\\:text-zinc-200:is(.dark *){color:var(--color-zinc-200)}.dark\\:text-zinc-300:is(.dark *){color:var(--color-zinc-300)}.dark\\:text-zinc-400:is(.dark *){color:var(--color-zinc-400)}.dark\\:text-zinc-500:is(.dark *){color:var(--color-zinc-500)}.dark\\:text-zinc-600:is(.dark *){color:var(--color-zinc-600)}.dark\\:text-zinc-700:is(.dark *){color:var(--color-zinc-700)}.dark\\:ring-zinc-400:is(.dark *){--tw-ring-color:var(--color-zinc-400)}.dark\\:ring-offset-zinc-900:is(.dark *){--tw-ring-offset-color:var(--color-zinc-900)}@media (hover:hover){.dark\\:hover\\:border-zinc-600:is(.dark *):hover{border-color:var(--color-zinc-600)}.dark\\:hover\\:bg-accent\\/50:is(.dark *):hover{background-color:var(--accent)}@supports (color:color-mix(in lab, red, red)){.dark\\:hover\\:bg-accent\\/50:is(.dark *):hover{background-color:color-mix(in oklab, var(--accent) 50%, transparent)}}.dark\\:hover\\:bg-input\\/50:is(.dark *):hover{background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:hover\\:bg-input\\/50:is(.dark *):hover{background-color:color-mix(in oklab, var(--input) 50%, transparent)}}.dark\\:hover\\:bg-zinc-700:is(.dark *):hover{background-color:var(--color-zinc-700)}.dark\\:hover\\:bg-zinc-800:is(.dark *):hover{background-color:var(--color-zinc-800)}.dark\\:hover\\:text-foreground:is(.dark *):hover{color:var(--foreground)}.dark\\:hover\\:text-white:is(.dark *):hover{color:var(--color-white)}.dark\\:hover\\:text-zinc-200:is(.dark *):hover{color:var(--color-zinc-200)}.dark\\:hover\\:text-zinc-300:is(.dark *):hover{color:var(--color-zinc-300)}.dark\\:hover\\:text-zinc-400:is(.dark *):hover{color:var(--color-zinc-400)}}.dark\\:focus-visible\\:ring-destructive\\/40:is(.dark *):focus-visible{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:focus-visible\\:ring-destructive\\/40:is(.dark *):focus-visible{--tw-ring-color:color-mix(in oklab, var(--destructive) 40%, transparent)}}.dark\\:aria-invalid\\:ring-destructive\\/40:is(.dark *)[aria-invalid=true]{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:aria-invalid\\:ring-destructive\\/40:is(.dark *)[aria-invalid=true]{--tw-ring-color:color-mix(in oklab, var(--destructive) 40%, transparent)}}.dark\\:data-\\[state\\=active\\]\\:border-input:is(.dark *)[data-state=active]{border-color:var(--input)}.dark\\:data-\\[state\\=active\\]\\:bg-input\\/30:is(.dark *)[data-state=active]{background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:data-\\[state\\=active\\]\\:bg-input\\/30:is(.dark *)[data-state=active]{background-color:color-mix(in oklab, var(--input) 30%, transparent)}}.dark\\:data-\\[state\\=active\\]\\:text-foreground:is(.dark *)[data-state=active]{color:var(--foreground)}.dark\\:group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:border-transparent:is(.dark *):is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{border-color:#0000}.dark\\:group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:bg-transparent:is(.dark *):is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{background-color:#0000}.dark\\:data-\\[state\\=checked\\]\\:bg-primary:is(.dark *)[data-state=checked]{background-color:var(--primary)}.dark\\:data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/20:is(.dark *)[data-variant=destructive]:focus{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/20:is(.dark *)[data-variant=destructive]:focus{background-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:px-2 [cmdk-group-heading]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:py-1\\.5 [cmdk-group-heading]{padding-block:calc(var(--spacing) * 1.5)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:text-xs [cmdk-group-heading]{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:font-medium [cmdk-group-heading]{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:text-muted-foreground [cmdk-group-heading]{color:var(--muted-foreground)}.\\[\\&_\\[cmdk-group\\]\\]\\:px-2 [cmdk-group]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-group\\]\\:not\\(\\[hidden\\]\\)_\\~\\[cmdk-group\\]\\]\\:pt-0 [cmdk-group]:not([hidden])~[cmdk-group]{padding-top:0}.\\[\\&_\\[cmdk-input-wrapper\\]_svg\\]\\:h-5 [cmdk-input-wrapper] svg{height:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-input-wrapper\\]_svg\\]\\:w-5 [cmdk-input-wrapper] svg{width:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-input\\]\\]\\:h-12 [cmdk-input]{height:calc(var(--spacing) * 12)}.\\[\\&_\\[cmdk-item\\]\\]\\:px-2 [cmdk-item]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-item\\]\\]\\:py-3 [cmdk-item]{padding-block:calc(var(--spacing) * 3)}.\\[\\&_\\[cmdk-item\\]_svg\\]\\:h-5 [cmdk-item] svg{height:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-item\\]_svg\\]\\:w-5 [cmdk-item] svg{width:calc(var(--spacing) * 5)}.\\[\\&_svg\\]\\:pointer-events-none svg{pointer-events:none}.\\[\\&_svg\\]\\:shrink-0 svg{flex-shrink:0}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'size-\\'\\]\\)\\]\\:size-3 svg:not([class*=size-]){width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'size-\\'\\]\\)\\]\\:size-4 svg:not([class*=size-]){width:calc(var(--spacing) * 4);height:calc(var(--spacing) * 4)}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'text-\\'\\]\\)\\]\\:text-muted-foreground svg:not([class*=text-]){color:var(--muted-foreground)}:is(.\\*\\:\\[span\\]\\:last\\:flex>*):is(span):last-child{display:flex}:is(.\\*\\:\\[span\\]\\:last\\:items-center>*):is(span):last-child{align-items:center}:is(.\\*\\:\\[span\\]\\:last\\:gap-2>*):is(span):last-child{gap:calc(var(--spacing) * 2)}:is(.data-\\[variant\\=destructive\\]\\:\\*\\:\\[svg\\]\\:\\!text-destructive[data-variant=destructive]>*):is(svg){color:var(--destructive)!important}.\\[\\&\\>svg\\]\\:pointer-events-none>svg{pointer-events:none}.\\[\\&\\>svg\\]\\:size-3>svg{width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}@media (hover:hover){a.\\[a\\&\\]\\:hover\\:bg-accent:hover{background-color:var(--accent)}a.\\[a\\&\\]\\:hover\\:bg-destructive\\/90:hover{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-destructive\\/90:hover{background-color:color-mix(in oklab, var(--destructive) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:bg-primary\\/90:hover{background-color:var(--primary)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-primary\\/90:hover{background-color:color-mix(in oklab, var(--primary) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:bg-secondary\\/90:hover{background-color:var(--secondary)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-secondary\\/90:hover{background-color:color-mix(in oklab, var(--secondary) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:text-accent-foreground:hover{color:var(--accent-foreground)}a.\\[a\\&\\]\\:hover\\:underline:hover{text-decoration-line:underline}}}@property --tw-animation-delay{syntax:"*";inherits:false;initial-value:0s}@property --tw-animation-direction{syntax:"*";inherits:false;initial-value:normal}@property --tw-animation-duration{syntax:"*";inherits:false}@property --tw-animation-fill-mode{syntax:"*";inherits:false;initial-value:none}@property --tw-animation-iteration-count{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-translate-y{syntax:"*";inherits:false;initial-value:0}:root{--radius:.625rem;--background:oklch(100% 0 0);--foreground:oklch(14.5% 0 0);--card:oklch(100% 0 0);--card-foreground:oklch(14.5% 0 0);--popover:oklch(100% 0 0);--popover-foreground:oklch(14.5% 0 0);--primary:oklch(20.5% 0 0);--primary-foreground:oklch(98.5% 0 0);--secondary:oklch(97% 0 0);--secondary-foreground:oklch(20.5% 0 0);--muted:oklch(97% 0 0);--muted-foreground:oklch(55.6% 0 0);--accent:oklch(97% 0 0);--accent-foreground:oklch(20.5% 0 0);--destructive:oklch(57.7% .245 27.325);--border:oklch(92.2% 0 0);--input:oklch(92.2% 0 0);--ring:oklch(70.8% 0 0);--chart-1:oklch(64.6% .222 41.116);--chart-2:oklch(60% .118 184.704);--chart-3:oklch(39.8% .07 227.392);--chart-4:oklch(82.8% .189 84.429);--chart-5:oklch(76.9% .188 70.08);--sidebar:oklch(98.5% 0 0);--sidebar-foreground:oklch(14.5% 0 0);--sidebar-primary:oklch(20.5% 0 0);--sidebar-primary-foreground:oklch(98.5% 0 0);--sidebar-accent:oklch(97% 0 0);--sidebar-accent-foreground:oklch(20.5% 0 0);--sidebar-border:oklch(92.2% 0 0);--sidebar-ring:oklch(70.8% 0 0)}.dark{--background:oklch(14.5% 0 0);--foreground:oklch(98.5% 0 0);--card:oklch(20.5% 0 0);--card-foreground:oklch(98.5% 0 0);--popover:oklch(20.5% 0 0);--popover-foreground:oklch(98.5% 0 0);--primary:oklch(92.2% 0 0);--primary-foreground:oklch(20.5% 0 0);--secondary:oklch(26.9% 0 0);--secondary-foreground:oklch(98.5% 0 0);--muted:oklch(26.9% 0 0);--muted-foreground:oklch(70.8% 0 0);--accent:oklch(26.9% 0 0);--accent-foreground:oklch(98.5% 0 0);--destructive:oklch(70.4% .191 22.216);--border:oklch(100% 0 0/.1);--input:oklch(100% 0 0/.15);--ring:oklch(55.6% 0 0);--chart-1:oklch(48.8% .243 264.376);--chart-2:oklch(69.6% .17 162.48);--chart-3:oklch(76.9% .188 70.08);--chart-4:oklch(62.7% .265 303.9);--chart-5:oklch(64.5% .246 16.439);--sidebar:oklch(20.5% 0 0);--sidebar-foreground:oklch(98.5% 0 0);--sidebar-primary:oklch(48.8% .243 264.376);--sidebar-primary-foreground:oklch(98.5% 0 0);--sidebar-accent:oklch(26.9% 0 0);--sidebar-accent-foreground:oklch(98.5% 0 0);--sidebar-border:oklch(100% 0 0/.1);--sidebar-ring:oklch(55.6% 0 0)}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-scale-x{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-y{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-z{syntax:"*";inherits:false;initial-value:1}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-pan-x{syntax:"*";inherits:false}@property --tw-pan-y{syntax:"*";inherits:false}@property --tw-pinch-zoom{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-divide-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-divide-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-ordinal{syntax:"*";inherits:false}@property --tw-slashed-zero{syntax:"*";inherits:false}@property --tw-numeric-figure{syntax:"*";inherits:false}@property --tw-numeric-spacing{syntax:"*";inherits:false}@property --tw-numeric-fraction{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@property --tw-content{syntax:"*";inherits:false;initial-value:""}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}@keyframes enter{0%{opacity:var(--tw-enter-opacity,1);transform:translate3d(var(--tw-enter-translate-x,0),var(--tw-enter-translate-y,0),0)scale3d(var(--tw-enter-scale,1),var(--tw-enter-scale,1),var(--tw-enter-scale,1))rotate(var(--tw-enter-rotate,0));filter:blur(var(--tw-enter-blur,0))}}@keyframes exit{to{opacity:var(--tw-exit-opacity,1);transform:translate3d(var(--tw-exit-translate-x,0),var(--tw-exit-translate-y,0),0)scale3d(var(--tw-exit-scale,1),var(--tw-exit-scale,1),var(--tw-exit-scale,1))rotate(var(--tw-exit-rotate,0));filter:blur(var(--tw-exit-blur,0))}}
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-scale-x:1;--tw-scale-y:1;--tw-scale-z:1;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-pan-x:initial;--tw-pan-y:initial;--tw-pinch-zoom:initial;--tw-space-y-reverse:0;--tw-space-x-reverse:0;--tw-divide-x-reverse:0;--tw-border-style:solid;--tw-divide-y-reverse:0;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-ordinal:initial;--tw-slashed-zero:initial;--tw-numeric-figure:initial;--tw-numeric-spacing:initial;--tw-numeric-fraction:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial;--tw-content:"";--tw-animation-delay:0s;--tw-animation-direction:normal;--tw-animation-duration:initial;--tw-animation-fill-mode:none;--tw-animation-iteration-count:1;--tw-enter-blur:0;--tw-enter-opacity:1;--tw-enter-rotate:0;--tw-enter-scale:1;--tw-enter-translate-x:0;--tw-enter-translate-y:0;--tw-exit-blur:0;--tw-exit-opacity:1;--tw-exit-rotate:0;--tw-exit-scale:1;--tw-exit-translate-x:0;--tw-exit-translate-y:0}}}@layer theme{:root,:host{--font-sans:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-100:oklch(93.6% .032 17.717);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-700:oklch(50.5% .213 27.518);--color-amber-100:oklch(96.2% .059 95.617);--color-amber-400:oklch(82.8% .189 84.429);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-amber-700:oklch(55.5% .163 48.998);--color-yellow-400:oklch(85.2% .199 91.936);--color-green-400:oklch(79.2% .209 151.711);--color-green-500:oklch(72.3% .219 149.579);--color-green-600:oklch(62.7% .194 149.214);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-400:oklch(76.5% .177 163.223);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-600:oklch(59.6% .145 163.225);--color-emerald-700:oklch(50.8% .118 165.612);--color-sky-400:oklch(74.6% .16 232.661);--color-sky-500:oklch(68.5% .169 237.323);--color-sky-600:oklch(58.8% .158 241.966);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-300:oklch(80.9% .105 251.813);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-900:oklch(37.9% .146 265.522);--color-indigo-400:oklch(67.3% .182 276.935);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-violet-400:oklch(70.2% .183 293.541);--color-violet-500:oklch(60.6% .25 292.717);--color-violet-600:oklch(54.1% .281 293.009);--color-purple-400:oklch(71.4% .203 305.504);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-zinc-100:oklch(96.7% .001 286.375);--color-zinc-200:oklch(92% .004 286.32);--color-zinc-300:oklch(87.1% .006 286.286);--color-zinc-400:oklch(70.5% .015 286.067);--color-zinc-500:oklch(55.2% .016 285.938);--color-zinc-600:oklch(44.2% .017 285.786);--color-zinc-700:oklch(37% .013 285.805);--color-zinc-800:oklch(27.4% .006 286.033);--color-zinc-900:oklch(21% .006 285.885);--color-zinc-950:oklch(14.1% .005 285.823);--color-black:#000;--color-white:#fff;--spacing:.25rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-relaxed:1.625;--radius-xs:.125rem;--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-spin:spin 1s linear infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}*{border-color:var(--border);outline-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){*{outline-color:color-mix(in oklab, var(--ring) 50%, transparent)}}body{background-color:var(--background);color:var(--foreground)}}@layer components;@layer utilities{.\\@container{container-type:inline-size}.pointer-events-auto{pointer-events:auto}.pointer-events-none{pointer-events:none}.collapse{visibility:collapse}.invisible{visibility:hidden}.visible{visibility:visible}.sr-only{clip-path:inset(50%);white-space:nowrap;border-width:0;width:1px;height:1px;margin:-1px;padding:0;position:absolute;overflow:hidden}.not-sr-only{clip-path:none;white-space:normal;width:auto;height:auto;margin:0;padding:0;position:static;overflow:visible}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.sticky{position:sticky}.inset-0{inset:0}.inset-x-0{inset-inline:0}.inset-y-0{inset-block:0}.top-0{top:0}.top-1{top:var(--spacing)}.top-1\\/2{top:50%}.top-2{top:calc(var(--spacing) * 2)}.top-3{top:calc(var(--spacing) * 3)}.top-4{top:calc(var(--spacing) * 4)}.top-\\[50\\%\\]{top:50%}.\\!-right-\\[5px\\]{right:-5px!important}.right-0{right:0}.right-2{right:calc(var(--spacing) * 2)}.right-3{right:calc(var(--spacing) * 3)}.right-4{right:calc(var(--spacing) * 4)}.bottom-0{bottom:0}.\\!-left-\\[5px\\]{left:-5px!important}.left-0{left:0}.left-1{left:var(--spacing)}.left-1\\/2{left:50%}.left-2{left:calc(var(--spacing) * 2)}.left-3{left:calc(var(--spacing) * 3)}.left-4{left:calc(var(--spacing) * 4)}.left-\\[50\\%\\]{left:50%}.isolate{isolation:isolate}.isolation-auto{isolation:auto}.z-10{z-index:10}.z-50{z-index:50}.z-\\[70\\]{z-index:70}.z-\\[80\\]{z-index:80}.z-\\[85\\]{z-index:85}.z-\\[90\\]{z-index:90}.z-\\[100\\]{z-index:100}.container{width:100%}@media (min-width:40rem){.container{max-width:40rem}}@media (min-width:48rem){.container{max-width:48rem}}@media (min-width:64rem){.container{max-width:64rem}}@media (min-width:80rem){.container{max-width:80rem}}@media (min-width:96rem){.container{max-width:96rem}}.-mx-1{margin-inline:calc(var(--spacing) * -1)}.mx-1{margin-inline:var(--spacing)}.mx-auto{margin-inline:auto}.my-1{margin-block:var(--spacing)}.mt-0{margin-top:0}.mt-0\\.5{margin-top:calc(var(--spacing) * .5)}.mt-1{margin-top:var(--spacing)}.mt-2{margin-top:calc(var(--spacing) * 2)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-auto{margin-top:auto}.mr-1{margin-right:var(--spacing)}.mb-1{margin-bottom:var(--spacing)}.mb-1\\.5{margin-bottom:calc(var(--spacing) * 1.5)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.ml-0{margin-left:0}.ml-0\\.5{margin-left:calc(var(--spacing) * .5)}.ml-1{margin-left:var(--spacing)}.ml-auto{margin-left:auto}.box-border{box-sizing:border-box}.block{display:block}.contents{display:contents}.flex{display:flex}.flow-root{display:flow-root}.grid{display:grid}.hidden{display:none}.inline{display:inline}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.inline-grid{display:inline-grid}.inline-table{display:inline-table}.list-item{display:list-item}.table{display:table}.table-caption{display:table-caption}.table-cell{display:table-cell}.table-column{display:table-column}.table-column-group{display:table-column-group}.table-footer-group{display:table-footer-group}.table-header-group{display:table-header-group}.table-row{display:table-row}.table-row-group{display:table-row-group}.field-sizing-content{field-sizing:content}.\\!size-2\\.5{width:calc(var(--spacing) * 2.5)!important;height:calc(var(--spacing) * 2.5)!important}.size-1{width:var(--spacing);height:var(--spacing)}.size-1\\.5{width:calc(var(--spacing) * 1.5);height:calc(var(--spacing) * 1.5)}.size-2{width:calc(var(--spacing) * 2);height:calc(var(--spacing) * 2)}.size-2\\.5{width:calc(var(--spacing) * 2.5);height:calc(var(--spacing) * 2.5)}.size-3{width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}.size-3\\.5{width:calc(var(--spacing) * 3.5);height:calc(var(--spacing) * 3.5)}.size-4{width:calc(var(--spacing) * 4);height:calc(var(--spacing) * 4)}.size-5{width:calc(var(--spacing) * 5);height:calc(var(--spacing) * 5)}.size-6{width:calc(var(--spacing) * 6);height:calc(var(--spacing) * 6)}.size-8{width:calc(var(--spacing) * 8);height:calc(var(--spacing) * 8)}.size-9{width:calc(var(--spacing) * 9);height:calc(var(--spacing) * 9)}.size-10{width:calc(var(--spacing) * 10);height:calc(var(--spacing) * 10)}.size-\\[18px\\]{width:18px;height:18px}.size-full{width:100%;height:100%}.h-0{height:0}.h-1{height:var(--spacing)}.h-1\\.5{height:calc(var(--spacing) * 1.5)}.h-2{height:calc(var(--spacing) * 2)}.h-2\\.5{height:calc(var(--spacing) * 2.5)}.h-5{height:calc(var(--spacing) * 5)}.h-6{height:calc(var(--spacing) * 6)}.h-7{height:calc(var(--spacing) * 7)}.h-8{height:calc(var(--spacing) * 8)}.h-9{height:calc(var(--spacing) * 9)}.h-10{height:calc(var(--spacing) * 10)}.h-\\[26px\\]{height:26px}.h-\\[calc\\(100\\%-1px\\)\\]{height:calc(100% - 1px)}.h-\\[var\\(--radix-select-trigger-height\\)\\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.h-screen{height:100vh}.max-h-\\(--radix-context-menu-content-available-height\\){max-height:var(--radix-context-menu-content-available-height)}.max-h-\\(--radix-dropdown-menu-content-available-height\\){max-height:var(--radix-dropdown-menu-content-available-height)}.max-h-\\(--radix-select-content-available-height\\){max-height:var(--radix-select-content-available-height)}.max-h-48{max-height:calc(var(--spacing) * 48)}.max-h-\\[300px\\]{max-height:300px}.max-h-\\[400px\\]{max-height:400px}.min-h-0{min-height:0}.min-h-16{min-height:calc(var(--spacing) * 16)}.min-h-20{min-height:calc(var(--spacing) * 20)}.min-h-40{min-height:calc(var(--spacing) * 40)}.w-0{width:0}.w-2{width:calc(var(--spacing) * 2)}.w-2\\.5{width:calc(var(--spacing) * 2.5)}.w-3{width:calc(var(--spacing) * 3)}.w-3\\/4{width:75%}.w-4{width:calc(var(--spacing) * 4)}.w-5{width:calc(var(--spacing) * 5)}.w-24{width:calc(var(--spacing) * 24)}.w-28{width:calc(var(--spacing) * 28)}.w-40{width:calc(var(--spacing) * 40)}.w-48{width:calc(var(--spacing) * 48)}.w-56{width:calc(var(--spacing) * 56)}.w-72{width:calc(var(--spacing) * 72)}.w-\\[200px\\]{width:200px}.w-\\[220px\\]{width:220px}.w-auto{width:auto}.w-fit{width:fit-content}.w-full{width:100%}.max-w-\\[400px\\]{max-width:400px}.max-w-\\[420px\\]{max-width:420px}.max-w-\\[calc\\(100\\%-2rem\\)\\]{max-width:calc(100% - 2rem)}.min-w-0{min-width:0}.min-w-8{min-width:calc(var(--spacing) * 8)}.min-w-9{min-width:calc(var(--spacing) * 9)}.min-w-10{min-width:calc(var(--spacing) * 10)}.min-w-\\[8rem\\]{min-width:8rem}.min-w-\\[200px\\]{min-width:200px}.min-w-\\[var\\(--radix-select-trigger-width\\)\\]{min-width:var(--radix-select-trigger-width)}.flex-1{flex:1}.shrink{flex-shrink:1}.shrink-0{flex-shrink:0}.grow{flex-grow:1}.border-collapse{border-collapse:collapse}.origin-\\(--radix-context-menu-content-transform-origin\\){transform-origin:var(--radix-context-menu-content-transform-origin)}.origin-\\(--radix-dropdown-menu-content-transform-origin\\){transform-origin:var(--radix-dropdown-menu-content-transform-origin)}.origin-\\(--radix-popover-content-transform-origin\\){transform-origin:var(--radix-popover-content-transform-origin)}.origin-\\(--radix-select-content-transform-origin\\){transform-origin:var(--radix-select-content-transform-origin)}.origin-\\(--radix-tooltip-content-transform-origin\\){transform-origin:var(--radix-tooltip-content-transform-origin)}.-translate-x-1{--tw-translate-x:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-x-1\\/2{--tw-translate-x:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-x-\\[-50\\%\\]{--tw-translate-x:-50%;translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.-translate-y-1\\/2{--tw-translate-y:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-y-\\[-50\\%\\]{--tw-translate-y:-50%;translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-y-\\[calc\\(-50\\%_-_2px\\)\\]{--tw-translate-y:calc(-50% - 2px);translate:var(--tw-translate-x) var(--tw-translate-y)}.translate-none{translate:none}.scale-3d{scale:var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)}.rotate-45{rotate:45deg}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.animate-in{animation:enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.animate-pulse{animation:var(--animate-pulse)}.animate-spin{animation:var(--animate-spin)}.cursor-crosshair{cursor:crosshair}.cursor-default{cursor:default}.cursor-ew-resize{cursor:ew-resize}.cursor-grab{cursor:grab}.cursor-not-allowed{cursor:not-allowed}.cursor-pointer{cursor:pointer}.touch-pinch-zoom{--tw-pinch-zoom:pinch-zoom;touch-action:var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)}.touch-none{touch-action:none}.resize{resize:both}.resize-y{resize:vertical}.scroll-my-1{scroll-margin-block:var(--spacing)}.scroll-py-1{scroll-padding-block:var(--spacing)}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-cols-\\[1fr_auto\\]{grid-template-columns:1fr auto}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.flex-wrap{flex-wrap:wrap}.place-content-center{place-content:center}.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-0{gap:0}.gap-0\\.5{gap:calc(var(--spacing) * .5)}.gap-1{gap:var(--spacing)}.gap-1\\.5{gap:calc(var(--spacing) * 1.5)}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-\\[--spacing\\(var\\(--gap\\)\\)\\]{gap:calc(var(--spacing) * var(--gap))}:where(.space-y-0>:not(:last-child)){--tw-space-y-reverse:0;margin-block:0}:where(.space-y-0\\.5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * .5) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * .5) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-1>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(var(--spacing) * var(--tw-space-y-reverse));margin-block-end:calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-1\\.5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-2>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-reverse>:not(:last-child)){--tw-space-y-reverse:1}:where(.space-x-reverse>:not(:last-child)){--tw-space-x-reverse:1}:where(.divide-x>:not(:last-child)){--tw-divide-x-reverse:0;border-inline-style:var(--tw-border-style);border-inline-start-width:calc(1px * var(--tw-divide-x-reverse));border-inline-end-width:calc(1px * calc(1 - var(--tw-divide-x-reverse)))}:where(.divide-y>:not(:last-child)){--tw-divide-y-reverse:0;border-bottom-style:var(--tw-border-style);border-top-style:var(--tw-border-style);border-top-width:calc(1px * var(--tw-divide-y-reverse));border-bottom-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)))}:where(.divide-y-reverse>:not(:last-child)){--tw-divide-y-reverse:1}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-hidden{overflow-x:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:.25rem}.rounded-\\[2px\\]{border-radius:2px}.rounded-\\[4px\\]{border-radius:4px}.rounded-\\[inherit\\]{border-radius:inherit}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius)}.rounded-md{border-radius:calc(var(--radius) - 2px)}.rounded-sm{border-radius:calc(var(--radius) - 4px)}.rounded-xs{border-radius:var(--radius-xs)}.rounded-s{border-start-start-radius:.25rem;border-end-start-radius:.25rem}.rounded-ss{border-start-start-radius:.25rem}.rounded-e{border-start-end-radius:.25rem;border-end-end-radius:.25rem}.rounded-se{border-start-end-radius:.25rem}.rounded-ee{border-end-end-radius:.25rem}.rounded-es{border-end-start-radius:.25rem}.rounded-t{border-top-left-radius:.25rem;border-top-right-radius:.25rem}.rounded-t-lg{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius)}.rounded-l{border-top-left-radius:.25rem;border-bottom-left-radius:.25rem}.rounded-tl{border-top-left-radius:.25rem}.rounded-r{border-top-right-radius:.25rem;border-bottom-right-radius:.25rem}.rounded-tr{border-top-right-radius:.25rem}.rounded-b{border-bottom-right-radius:.25rem;border-bottom-left-radius:.25rem}.rounded-br{border-bottom-right-radius:.25rem}.rounded-bl{border-bottom-left-radius:.25rem}.border{border-style:var(--tw-border-style);border-width:1px}.border-0{border-style:var(--tw-border-style);border-width:0}.border-2{border-style:var(--tw-border-style);border-width:2px}.border-x{border-inline-style:var(--tw-border-style);border-inline-width:1px}.border-y{border-block-style:var(--tw-border-style);border-block-width:1px}.border-s{border-inline-start-style:var(--tw-border-style);border-inline-start-width:1px}.border-e{border-inline-end-style:var(--tw-border-style);border-inline-end-width:1px}.border-bs{border-block-start-style:var(--tw-border-style);border-block-start-width:1px}.border-be{border-block-end-style:var(--tw-border-style);border-block-end-width:1px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-r{border-right-style:var(--tw-border-style);border-right-width:1px}.border-b{border-bottom-style:var(--tw-border-style);border-bottom-width:1px}.border-b-2{border-bottom-style:var(--tw-border-style);border-bottom-width:2px}.border-l{border-left-style:var(--tw-border-style);border-left-width:1px}.border-l-4{border-left-style:var(--tw-border-style);border-left-width:4px}.border-dashed{--tw-border-style:dashed;border-style:dashed}.\\!border-zinc-600{border-color:var(--color-zinc-600)!important}.border-amber-500{border-color:var(--color-amber-500)}.border-amber-500\\/40{border-color:#f99c0066}@supports (color:color-mix(in lab, red, red)){.border-amber-500\\/40{border-color:color-mix(in oklab, var(--color-amber-500) 40%, transparent)}}.border-black{border-color:var(--color-black)}.border-black\\/20{border-color:#0003}@supports (color:color-mix(in lab, red, red)){.border-black\\/20{border-color:color-mix(in oklab, var(--color-black) 20%, transparent)}}.border-blue-400{border-color:var(--color-blue-400)}.border-blue-400\\/60{border-color:#54a2ff99}@supports (color:color-mix(in lab, red, red)){.border-blue-400\\/60{border-color:color-mix(in oklab, var(--color-blue-400) 60%, transparent)}}.border-blue-500{border-color:var(--color-blue-500)}.border-blue-500\\/40{border-color:#3080ff66}@supports (color:color-mix(in lab, red, red)){.border-blue-500\\/40{border-color:color-mix(in oklab, var(--color-blue-500) 40%, transparent)}}.border-blue-500\\/90{border-color:#3080ffe6}@supports (color:color-mix(in lab, red, red)){.border-blue-500\\/90{border-color:color-mix(in oklab, var(--color-blue-500) 90%, transparent)}}.border-border{border-color:var(--border)}.border-emerald-500{border-color:var(--color-emerald-500)}.border-emerald-500\\/40{border-color:#00bb7f66}@supports (color:color-mix(in lab, red, red)){.border-emerald-500\\/40{border-color:color-mix(in oklab, var(--color-emerald-500) 40%, transparent)}}.border-gray-200{border-color:var(--color-gray-200)}.border-gray-300{border-color:var(--color-gray-300)}.border-gray-900{border-color:var(--color-gray-900)}.border-green-500{border-color:var(--color-green-500)}.border-green-500\\/50{border-color:#00c75880}@supports (color:color-mix(in lab, red, red)){.border-green-500\\/50{border-color:color-mix(in oklab, var(--color-green-500) 50%, transparent)}}.border-input{border-color:var(--input)}.border-transparent{border-color:#0000}.border-zinc-300{border-color:var(--color-zinc-300)}.border-zinc-700{border-color:var(--color-zinc-700)}.border-zinc-800{border-color:var(--color-zinc-800)}.border-t-transparent{border-top-color:#0000}.border-l-amber-500{border-left-color:var(--color-amber-500)}.border-l-blue-500{border-left-color:var(--color-blue-500)}.border-l-emerald-500{border-left-color:var(--color-emerald-500)}.border-l-red-500{border-left-color:var(--color-red-500)}.border-l-transparent{border-left-color:#0000}.\\!bg-zinc-400{background-color:var(--color-zinc-400)!important}.bg-accent{background-color:var(--accent)}.bg-amber-100{background-color:var(--color-amber-100)}.bg-amber-400{background-color:var(--color-amber-400)}.bg-amber-500{background-color:var(--color-amber-500)}.bg-amber-500\\/15{background-color:#f99c0026}@supports (color:color-mix(in lab, red, red)){.bg-amber-500\\/15{background-color:color-mix(in oklab, var(--color-amber-500) 15%, transparent)}}.bg-background{background-color:var(--background)}.bg-black{background-color:var(--color-black)}.bg-black\\/50{background-color:#00000080}@supports (color:color-mix(in lab, red, red)){.bg-black\\/50{background-color:color-mix(in oklab, var(--color-black) 50%, transparent)}}.bg-blue-500{background-color:var(--color-blue-500)}.bg-blue-500\\/10{background-color:#3080ff1a}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\\/10{background-color:color-mix(in oklab, var(--color-blue-500) 10%, transparent)}}.bg-blue-500\\/95{background-color:#3080fff2}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\\/95{background-color:color-mix(in oklab, var(--color-blue-500) 95%, transparent)}}.bg-blue-600{background-color:var(--color-blue-600)}.bg-blue-900{background-color:var(--color-blue-900)}.bg-blue-900\\/50{background-color:#1c398e80}@supports (color:color-mix(in lab, red, red)){.bg-blue-900\\/50{background-color:color-mix(in oklab, var(--color-blue-900) 50%, transparent)}}.bg-border{background-color:var(--border)}.bg-destructive{background-color:var(--destructive)}.bg-emerald-50{background-color:var(--color-emerald-50)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-foreground{background-color:var(--foreground)}.bg-gray-50{background-color:var(--color-gray-50)}.bg-gray-100{background-color:var(--color-gray-100)}.bg-gray-200{background-color:var(--color-gray-200)}.bg-gray-300{background-color:var(--color-gray-300)}.bg-green-500{background-color:var(--color-green-500)}.bg-green-500\\/5{background-color:#00c7580d}@supports (color:color-mix(in lab, red, red)){.bg-green-500\\/5{background-color:color-mix(in oklab, var(--color-green-500) 5%, transparent)}}.bg-indigo-500{background-color:var(--color-indigo-500)}.bg-indigo-500\\/15{background-color:#625fff26}@supports (color:color-mix(in lab, red, red)){.bg-indigo-500\\/15{background-color:color-mix(in oklab, var(--color-indigo-500) 15%, transparent)}}.bg-muted{background-color:var(--muted)}.bg-muted-foreground{background-color:var(--muted-foreground)}.bg-popover{background-color:var(--popover)}.bg-primary{background-color:var(--primary)}.bg-red-100{background-color:var(--color-red-100)}.bg-red-400{background-color:var(--color-red-400)}.bg-red-500{background-color:var(--color-red-500)}.bg-red-600{background-color:var(--color-red-600)}.bg-secondary{background-color:var(--secondary)}.bg-sky-500{background-color:var(--color-sky-500)}.bg-sky-500\\/15{background-color:#00a5ef26}@supports (color:color-mix(in lab, red, red)){.bg-sky-500\\/15{background-color:color-mix(in oklab, var(--color-sky-500) 15%, transparent)}}.bg-transparent{background-color:#0000}.bg-violet-500{background-color:var(--color-violet-500)}.bg-white{background-color:var(--color-white)}.bg-white\\/20{background-color:#fff3}@supports (color:color-mix(in lab, red, red)){.bg-white\\/20{background-color:color-mix(in oklab, var(--color-white) 20%, transparent)}}.bg-white\\/95{background-color:#fffffff2}@supports (color:color-mix(in lab, red, red)){.bg-white\\/95{background-color:color-mix(in oklab, var(--color-white) 95%, transparent)}}.bg-zinc-800{background-color:var(--color-zinc-800)}.bg-zinc-900{background-color:var(--color-zinc-900)}.bg-zinc-950{background-color:var(--color-zinc-950)}.bg-repeat{background-repeat:repeat}.mask-no-clip{-webkit-mask-clip:no-clip;mask-clip:no-clip}.mask-repeat{-webkit-mask-repeat:repeat;mask-repeat:repeat}.fill-blue-400{fill:var(--color-blue-400)}.fill-current{fill:currentColor}.fill-foreground{fill:var(--foreground)}.p-0{padding:0}.p-0\\.5{padding:calc(var(--spacing) * .5)}.p-1{padding:var(--spacing)}.p-2{padding:calc(var(--spacing) * 2)}.p-2\\.5{padding:calc(var(--spacing) * 2.5)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-6{padding:calc(var(--spacing) * 6)}.p-\\[3px\\]{padding:3px}.p-px{padding:1px}.px-0{padding-inline:0}.px-0\\.5{padding-inline:calc(var(--spacing) * .5)}.px-1{padding-inline:var(--spacing)}.px-1\\.5{padding-inline:calc(var(--spacing) * 1.5)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-2\\.5{padding-inline:calc(var(--spacing) * 2.5)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-6{padding-inline:calc(var(--spacing) * 6)}.py-0{padding-block:0}.py-0\\.5{padding-block:calc(var(--spacing) * .5)}.py-1{padding-block:var(--spacing)}.py-1\\.5{padding-block:calc(var(--spacing) * 1.5)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-2\\.5{padding-block:calc(var(--spacing) * 2.5)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-4{padding-block:calc(var(--spacing) * 4)}.py-6{padding-block:calc(var(--spacing) * 6)}.pt-2{padding-top:calc(var(--spacing) * 2)}.pr-2{padding-right:calc(var(--spacing) * 2)}.pr-8{padding-right:calc(var(--spacing) * 8)}.pb-2{padding-bottom:calc(var(--spacing) * 2)}.pl-2{padding-left:calc(var(--spacing) * 2)}.pl-8{padding-left:calc(var(--spacing) * 8)}.text-center{text-align:center}.text-left{text-align:left}.font-mono{font-family:var(--font-mono)}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.text-\\[9px\\]{font-size:9px}.text-\\[10px\\]{font-size:10px}.text-\\[11px\\]{font-size:11px}.text-\\[12px\\]{font-size:12px}.leading-none{--tw-leading:1;line-height:1}.leading-relaxed{--tw-leading:var(--leading-relaxed);line-height:var(--leading-relaxed)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.text-balance{text-wrap:balance}.text-wrap{text-wrap:wrap}.break-words{overflow-wrap:break-word}.text-clip{text-overflow:clip}.text-ellipsis{text-overflow:ellipsis}.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.text-accent-foreground{color:var(--accent-foreground)}.text-amber-400{color:var(--color-amber-400)}.text-amber-500{color:var(--color-amber-500)}.text-amber-500\\/70{color:#f99c00b3}@supports (color:color-mix(in lab, red, red)){.text-amber-500\\/70{color:color-mix(in oklab, var(--color-amber-500) 70%, transparent)}}.text-amber-600{color:var(--color-amber-600)}.text-amber-700{color:var(--color-amber-700)}.text-background{color:var(--background)}.text-blue-300{color:var(--color-blue-300)}.text-blue-400{color:var(--color-blue-400)}.text-blue-400\\/70{color:#54a2ffb3}@supports (color:color-mix(in lab, red, red)){.text-blue-400\\/70{color:color-mix(in oklab, var(--color-blue-400) 70%, transparent)}}.text-blue-500{color:var(--color-blue-500)}.text-blue-600{color:var(--color-blue-600)}.text-current{color:currentColor}.text-emerald-400{color:var(--color-emerald-400)}.text-emerald-500{color:var(--color-emerald-500)}.text-emerald-600{color:var(--color-emerald-600)}.text-emerald-700{color:var(--color-emerald-700)}.text-foreground,.text-foreground\\/60{color:var(--foreground)}@supports (color:color-mix(in lab, red, red)){.text-foreground\\/60{color:color-mix(in oklab, var(--foreground) 60%, transparent)}}.text-gray-300{color:var(--color-gray-300)}.text-gray-400{color:var(--color-gray-400)}.text-gray-500{color:var(--color-gray-500)}.text-gray-600{color:var(--color-gray-600)}.text-gray-700{color:var(--color-gray-700)}.text-gray-800{color:var(--color-gray-800)}.text-green-500{color:var(--color-green-500)}.text-green-600{color:var(--color-green-600)}.text-indigo-600{color:var(--color-indigo-600)}.text-muted-foreground{color:var(--muted-foreground)}.text-popover-foreground{color:var(--popover-foreground)}.text-primary{color:var(--primary)}.text-primary-foreground{color:var(--primary-foreground)}.text-purple-400{color:var(--color-purple-400)}.text-purple-400\\/70{color:#c07effb3}@supports (color:color-mix(in lab, red, red)){.text-purple-400\\/70{color:color-mix(in oklab, var(--color-purple-400) 70%, transparent)}}.text-red-400{color:var(--color-red-400)}.text-red-500{color:var(--color-red-500)}.text-red-600{color:var(--color-red-600)}.text-red-700{color:var(--color-red-700)}.text-secondary-foreground{color:var(--secondary-foreground)}.text-sky-400{color:var(--color-sky-400)}.text-sky-600{color:var(--color-sky-600)}.text-violet-600{color:var(--color-violet-600)}.text-white{color:var(--color-white)}.text-yellow-400{color:var(--color-yellow-400)}.text-zinc-100{color:var(--color-zinc-100)}.text-zinc-200{color:var(--color-zinc-200)}.text-zinc-400{color:var(--color-zinc-400)}.text-zinc-500{color:var(--color-zinc-500)}.text-zinc-800{color:var(--color-zinc-800)}.text-zinc-900{color:var(--color-zinc-900)}.capitalize{text-transform:capitalize}.lowercase{text-transform:lowercase}.normal-case{text-transform:none}.uppercase{text-transform:uppercase}.italic{font-style:italic}.not-italic{font-style:normal}.diagonal-fractions{--tw-numeric-fraction:diagonal-fractions;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.lining-nums{--tw-numeric-figure:lining-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.oldstyle-nums{--tw-numeric-figure:oldstyle-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.ordinal{--tw-ordinal:ordinal;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.proportional-nums{--tw-numeric-spacing:proportional-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.slashed-zero{--tw-slashed-zero:slashed-zero;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.stacked-fractions{--tw-numeric-fraction:stacked-fractions;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,)}.normal-nums{font-variant-numeric:normal}.line-through{text-decoration-line:line-through}.no-underline{text-decoration-line:none}.overline{text-decoration-line:overline}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.underline-offset-4{text-underline-offset:4px}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.subpixel-antialiased{-webkit-font-smoothing:auto;-moz-osx-font-smoothing:auto}.opacity-0{opacity:0}.opacity-40{opacity:.4}.opacity-50{opacity:.5}.opacity-70{opacity:.7}.opacity-90{opacity:.9}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-\\[0_0_0_1px_rgba\\(59\\,130\\,246\\,0\\.3\\)\\]{--tw-shadow:0 0 0 1px var(--tw-shadow-color,#3b82f64d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px var(--tw-shadow-color,#0000001a), 0 2px 4px -2px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-none{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-xs{--tw-shadow:0 1px 2px 0 var(--tw-shadow-color,#0000000d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-2{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.inset-ring{--tw-inset-ring-shadow:inset 0 0 0 1px var(--tw-inset-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-gray-400{--tw-ring-color:var(--color-gray-400)}.ring-offset-1{--tw-ring-offset-width:1px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.ring-offset-background{--tw-ring-offset-color:var(--background)}.ring-offset-white{--tw-ring-offset-color:var(--color-white)}.outline-hidden{--tw-outline-style:none;outline-style:none}@media (forced-colors:active){.outline-hidden{outline-offset:2px;outline:2px solid #0000}}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.drop-shadow{--tw-drop-shadow-size:drop-shadow(0 1px 2px var(--tw-drop-shadow-color,#0000001a)) drop-shadow(0 1px 1px var(--tw-drop-shadow-color,#0000000f));--tw-drop-shadow:drop-shadow(0 1px 2px #0000001a) drop-shadow(0 1px 1px #0000000f);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.grayscale{--tw-grayscale:grayscale(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.invert{--tw-invert:invert(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.sepia{--tw-sepia:sepia(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.filter\\!{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)!important}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-grayscale{--tw-backdrop-grayscale:grayscale(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-invert{--tw-backdrop-invert:invert(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-sepia{--tw-backdrop-sepia:sepia(100%);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-\\[color\\,box-shadow\\]{transition-property:color,box-shadow;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-\\[width\\]{transition-property:width;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-shadow{transition-property:box-shadow;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-none{transition-property:none}.duration-100{--tw-duration:.1s;transition-duration:.1s}.duration-200{--tw-duration:.2s;transition-duration:.2s}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.fade-in-0{--tw-enter-opacity:0}.outline-none{--tw-outline-style:none;outline-style:none}.select-all{-webkit-user-select:all;user-select:all}.select-none{-webkit-user-select:none;user-select:none}.zoom-in-95{--tw-enter-scale:.95}:where(.divide-x-reverse>:not(:last-child)){--tw-divide-x-reverse:1}.paused{animation-play-state:paused}.ring-inset{--tw-ring-inset:inset}.running{animation-play-state:running}.zoom-in{--tw-enter-scale:0}.zoom-out{--tw-exit-scale:0}@media (hover:hover){.group-hover\\:opacity-100:is(:where(.group):hover *){opacity:1}}.group-data-\\[disabled\\=true\\]\\:pointer-events-none:is(:where(.group)[data-disabled=true] *){pointer-events:none}.group-data-\\[disabled\\=true\\]\\:opacity-50:is(:where(.group)[data-disabled=true] *){opacity:.5}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:h-9:is(:where(.group\\/tabs)[data-orientation=horizontal] *){height:calc(var(--spacing) * 9)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:h-fit:is(:where(.group\\/tabs)[data-orientation=vertical] *){height:fit-content}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:w-full:is(:where(.group\\/tabs)[data-orientation=vertical] *){width:100%}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:flex-col:is(:where(.group\\/tabs)[data-orientation=vertical] *){flex-direction:column}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:justify-start:is(:where(.group\\/tabs)[data-orientation=vertical] *){justify-content:flex-start}.group-data-\\[variant\\=line\\]\\/tabs-list\\:bg-transparent:is(:where(.group\\/tabs-list)[data-variant=line] *){background-color:#0000}.peer-disabled\\:cursor-not-allowed:is(:where(.peer):disabled~*){cursor:not-allowed}.peer-disabled\\:opacity-50:is(:where(.peer):disabled~*){opacity:.5}.selection\\:bg-primary ::selection{background-color:var(--primary)}.selection\\:bg-primary::selection{background-color:var(--primary)}.selection\\:text-primary-foreground ::selection{color:var(--primary-foreground)}.selection\\:text-primary-foreground::selection{color:var(--primary-foreground)}.file\\:inline-flex::file-selector-button{display:inline-flex}.file\\:h-7::file-selector-button{height:calc(var(--spacing) * 7)}.file\\:border-0::file-selector-button{border-style:var(--tw-border-style);border-width:0}.file\\:bg-transparent::file-selector-button{background-color:#0000}.file\\:text-sm::file-selector-button{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.file\\:font-medium::file-selector-button{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.file\\:text-foreground::file-selector-button{color:var(--foreground)}.placeholder\\:text-gray-400::placeholder{color:var(--color-gray-400)}.placeholder\\:text-muted-foreground::placeholder{color:var(--muted-foreground)}.after\\:absolute:after{content:var(--tw-content);position:absolute}.after\\:bg-foreground:after{content:var(--tw-content);background-color:var(--foreground)}.after\\:opacity-0:after{content:var(--tw-content);opacity:0}.after\\:transition-opacity:after{content:var(--tw-content);transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:inset-x-0:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);inset-inline:0}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:bottom-\\[-5px\\]:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);bottom:-5px}.group-data-\\[orientation\\=horizontal\\]\\/tabs\\:after\\:h-0\\.5:is(:where(.group\\/tabs)[data-orientation=horizontal] *):after{content:var(--tw-content);height:calc(var(--spacing) * .5)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:inset-y-0:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);inset-block:0}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:-right-1:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);right:calc(var(--spacing) * -1)}.group-data-\\[orientation\\=vertical\\]\\/tabs\\:after\\:w-0\\.5:is(:where(.group\\/tabs)[data-orientation=vertical] *):after{content:var(--tw-content);width:calc(var(--spacing) * .5)}.even\\:bg-gray-50:nth-child(2n){background-color:var(--color-gray-50)}@media (hover:hover){.hover\\:scale-110:hover{--tw-scale-x:110%;--tw-scale-y:110%;--tw-scale-z:110%;scale:var(--tw-scale-x) var(--tw-scale-y)}.hover\\:border-zinc-400:hover{border-color:var(--color-zinc-400)}.hover\\:\\!bg-blue-400:hover{background-color:var(--color-blue-400)!important}.hover\\:bg-accent:hover,.hover\\:bg-accent\\/50:hover{background-color:var(--accent)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-accent\\/50:hover{background-color:color-mix(in oklab, var(--accent) 50%, transparent)}}.hover\\:bg-blue-600:hover{background-color:var(--color-blue-600)}.hover\\:bg-blue-700:hover{background-color:var(--color-blue-700)}.hover\\:bg-destructive\\/90:hover{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-destructive\\/90:hover{background-color:color-mix(in oklab, var(--destructive) 90%, transparent)}}.hover\\:bg-gray-50:hover{background-color:var(--color-gray-50)}.hover\\:bg-gray-100:hover{background-color:var(--color-gray-100)}.hover\\:bg-gray-200:hover{background-color:var(--color-gray-200)}.hover\\:bg-muted:hover{background-color:var(--muted)}.hover\\:bg-primary\\/90:hover{background-color:var(--primary)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-primary\\/90:hover{background-color:color-mix(in oklab, var(--primary) 90%, transparent)}}.hover\\:bg-red-700:hover{background-color:var(--color-red-700)}.hover\\:bg-secondary\\/80:hover{background-color:var(--secondary)}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-secondary\\/80:hover{background-color:color-mix(in oklab, var(--secondary) 80%, transparent)}}.hover\\:bg-zinc-800\\/50:hover{background-color:#27272a80}@supports (color:color-mix(in lab, red, red)){.hover\\:bg-zinc-800\\/50:hover{background-color:color-mix(in oklab, var(--color-zinc-800) 50%, transparent)}}.hover\\:text-accent-foreground:hover{color:var(--accent-foreground)}.hover\\:text-blue-200:hover{color:var(--color-blue-200)}.hover\\:text-blue-400:hover{color:var(--color-blue-400)}.hover\\:text-foreground:hover{color:var(--foreground)}.hover\\:text-gray-600:hover{color:var(--color-gray-600)}.hover\\:text-gray-700:hover{color:var(--color-gray-700)}.hover\\:text-gray-900:hover{color:var(--color-gray-900)}.hover\\:text-muted-foreground:hover{color:var(--muted-foreground)}.hover\\:text-red-500:hover{color:var(--color-red-500)}.hover\\:underline:hover{text-decoration-line:underline}.hover\\:opacity-100:hover{opacity:1}}.focus\\:z-10:focus{z-index:10}.focus\\:bg-accent:focus{background-color:var(--accent)}.focus\\:text-accent-foreground:focus{color:var(--accent-foreground)}.focus\\:ring-1:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\\:ring-ring:focus{--tw-ring-color:var(--ring)}.focus\\:ring-offset-2:focus{--tw-ring-offset-width:2px;--tw-ring-offset-shadow:var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)}.focus\\:outline-hidden:focus{--tw-outline-style:none;outline-style:none}@media (forced-colors:active){.focus\\:outline-hidden:focus{outline-offset:2px;outline:2px solid #0000}}.focus\\:outline-none:focus{--tw-outline-style:none;outline-style:none}.focus-visible\\:z-10:focus-visible{z-index:10}.focus-visible\\:border-blue-500:focus-visible{border-color:var(--color-blue-500)}.focus-visible\\:border-ring:focus-visible{border-color:var(--ring)}.focus-visible\\:ring-0:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\\:ring-1:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\\:ring-\\[3px\\]:focus-visible{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus-visible\\:ring-blue-500\\/40:focus-visible{--tw-ring-color:#3080ff66}@supports (color:color-mix(in lab, red, red)){.focus-visible\\:ring-blue-500\\/40:focus-visible{--tw-ring-color:color-mix(in oklab, var(--color-blue-500) 40%, transparent)}}.focus-visible\\:ring-destructive\\/20:focus-visible{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.focus-visible\\:ring-destructive\\/20:focus-visible{--tw-ring-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.focus-visible\\:ring-ring\\/50:focus-visible{--tw-ring-color:var(--ring)}@supports (color:color-mix(in lab, red, red)){.focus-visible\\:ring-ring\\/50:focus-visible{--tw-ring-color:color-mix(in oklab, var(--ring) 50%, transparent)}}.focus-visible\\:outline-1:focus-visible{outline-style:var(--tw-outline-style);outline-width:1px}.focus-visible\\:outline-ring:focus-visible{outline-color:var(--ring)}.disabled\\:pointer-events-none:disabled{pointer-events:none}.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\\:opacity-50:disabled{opacity:.5}.has-\\[\\>svg\\]\\:px-1\\.5:has(>svg){padding-inline:calc(var(--spacing) * 1.5)}.has-\\[\\>svg\\]\\:px-2\\.5:has(>svg){padding-inline:calc(var(--spacing) * 2.5)}.has-\\[\\>svg\\]\\:px-3:has(>svg){padding-inline:calc(var(--spacing) * 3)}.has-\\[\\>svg\\]\\:px-4:has(>svg){padding-inline:calc(var(--spacing) * 4)}.aria-invalid\\:border-destructive[aria-invalid=true]{border-color:var(--destructive)}.aria-invalid\\:ring-destructive\\/20[aria-invalid=true]{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.aria-invalid\\:ring-destructive\\/20[aria-invalid=true]{--tw-ring-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.data-\\[disabled\\]\\:pointer-events-none[data-disabled]{pointer-events:none}.data-\\[disabled\\]\\:opacity-50[data-disabled]{opacity:.5}.data-\\[disabled\\=true\\]\\:pointer-events-none[data-disabled=true]{pointer-events:none}.data-\\[disabled\\=true\\]\\:opacity-50[data-disabled=true]{opacity:.5}.data-\\[inset\\]\\:pl-8[data-inset]{padding-left:calc(var(--spacing) * 8)}.data-\\[orientation\\=horizontal\\]\\:h-px[data-orientation=horizontal]{height:1px}.data-\\[orientation\\=horizontal\\]\\:w-full[data-orientation=horizontal]{width:100%}.data-\\[orientation\\=horizontal\\]\\:flex-col[data-orientation=horizontal]{flex-direction:column}.data-\\[orientation\\=vertical\\]\\:h-full[data-orientation=vertical]{height:100%}.data-\\[orientation\\=vertical\\]\\:w-px[data-orientation=vertical]{width:1px}.data-\\[placeholder\\]\\:text-muted-foreground[data-placeholder]{color:var(--muted-foreground)}.data-\\[selected\\=true\\]\\:bg-accent[data-selected=true]{background-color:var(--accent)}.data-\\[selected\\=true\\]\\:text-accent-foreground[data-selected=true]{color:var(--accent-foreground)}.data-\\[side\\=bottom\\]\\:translate-y-1[data-side=bottom]{--tw-translate-y:var(--spacing);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=bottom\\]\\:slide-in-from-top-2[data-side=bottom]{--tw-enter-translate-y:calc(2*var(--spacing)*-1)}.data-\\[side\\=left\\]\\:-translate-x-1[data-side=left]{--tw-translate-x:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=left\\]\\:slide-in-from-right-2[data-side=left]{--tw-enter-translate-x:calc(2*var(--spacing))}.data-\\[side\\=right\\]\\:translate-x-1[data-side=right]{--tw-translate-x:var(--spacing);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=right\\]\\:slide-in-from-left-2[data-side=right]{--tw-enter-translate-x:calc(2*var(--spacing)*-1)}.data-\\[side\\=top\\]\\:-translate-y-1[data-side=top]{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.data-\\[side\\=top\\]\\:slide-in-from-bottom-2[data-side=top]{--tw-enter-translate-y:calc(2*var(--spacing))}.data-\\[size\\=default\\]\\:h-9[data-size=default]{height:calc(var(--spacing) * 9)}.data-\\[size\\=sm\\]\\:h-8[data-size=sm]{height:calc(var(--spacing) * 8)}:is(.\\*\\*\\:data-\\[slot\\=command-input-wrapper\\]\\:h-12 *)[data-slot=command-input-wrapper]{height:calc(var(--spacing) * 12)}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:line-clamp-1>*)[data-slot=select-value]{-webkit-line-clamp:1;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:flex>*)[data-slot=select-value]{display:flex}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:items-center>*)[data-slot=select-value]{align-items:center}:is(.\\*\\:data-\\[slot\\=select-value\\]\\:gap-2>*)[data-slot=select-value]{gap:calc(var(--spacing) * 2)}.data-\\[spacing\\=0\\]\\:rounded-none[data-spacing="0"]{border-radius:0}.data-\\[spacing\\=0\\]\\:shadow-none[data-spacing="0"]{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.data-\\[spacing\\=0\\]\\:first\\:rounded-l-md[data-spacing="0"]:first-child{border-top-left-radius:calc(var(--radius) - 2px);border-bottom-left-radius:calc(var(--radius) - 2px)}.data-\\[spacing\\=0\\]\\:last\\:rounded-r-md[data-spacing="0"]:last-child{border-top-right-radius:calc(var(--radius) - 2px);border-bottom-right-radius:calc(var(--radius) - 2px)}.data-\\[state\\=active\\]\\:bg-background[data-state=active]{background-color:var(--background)}.data-\\[state\\=active\\]\\:text-foreground[data-state=active]{color:var(--foreground)}.group-data-\\[variant\\=default\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:shadow-sm:is(:where(.group\\/tabs-list)[data-variant=default] *)[data-state=active]{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:bg-transparent:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{background-color:#0000}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:shadow-none:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{--tw-shadow:0 0 #0000;box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:after\\:opacity-100:is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]:after{content:var(--tw-content);opacity:1}.data-\\[state\\=checked\\]\\:border-primary[data-state=checked]{border-color:var(--primary)}.data-\\[state\\=checked\\]\\:bg-primary[data-state=checked]{background-color:var(--primary)}.data-\\[state\\=checked\\]\\:text-primary-foreground[data-state=checked]{color:var(--primary-foreground)}.data-\\[state\\=closed\\]\\:animate-out[data-state=closed]{animation:exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\\[state\\=closed\\]\\:duration-300[data-state=closed]{--tw-duration:.3s;transition-duration:.3s}.data-\\[state\\=closed\\]\\:fade-out-0[data-state=closed]{--tw-exit-opacity:0}.data-\\[state\\=closed\\]\\:zoom-out-95[data-state=closed]{--tw-exit-scale:.95}.data-\\[state\\=closed\\]\\:slide-out-to-bottom[data-state=closed]{--tw-exit-translate-y:100%}.data-\\[state\\=closed\\]\\:slide-out-to-left[data-state=closed]{--tw-exit-translate-x:-100%}.data-\\[state\\=closed\\]\\:slide-out-to-right[data-state=closed]{--tw-exit-translate-x:100%}.data-\\[state\\=closed\\]\\:slide-out-to-top[data-state=closed]{--tw-exit-translate-y:-100%}.data-\\[state\\=on\\]\\:bg-accent[data-state=on]{background-color:var(--accent)}.data-\\[state\\=on\\]\\:text-accent-foreground[data-state=on]{color:var(--accent-foreground)}.data-\\[state\\=open\\]\\:animate-in[data-state=open]{animation:enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none)}.data-\\[state\\=open\\]\\:bg-accent[data-state=open]{background-color:var(--accent)}.data-\\[state\\=open\\]\\:bg-secondary[data-state=open]{background-color:var(--secondary)}.data-\\[state\\=open\\]\\:text-accent-foreground[data-state=open]{color:var(--accent-foreground)}.data-\\[state\\=open\\]\\:text-muted-foreground[data-state=open]{color:var(--muted-foreground)}.data-\\[state\\=open\\]\\:duration-500[data-state=open]{--tw-duration:.5s;transition-duration:.5s}.data-\\[state\\=open\\]\\:fade-in-0[data-state=open]{--tw-enter-opacity:0}.data-\\[state\\=open\\]\\:zoom-in-95[data-state=open]{--tw-enter-scale:.95}.data-\\[state\\=open\\]\\:slide-in-from-bottom[data-state=open]{--tw-enter-translate-y:100%}.data-\\[state\\=open\\]\\:slide-in-from-left[data-state=open]{--tw-enter-translate-x:-100%}.data-\\[state\\=open\\]\\:slide-in-from-right[data-state=open]{--tw-enter-translate-x:100%}.data-\\[state\\=open\\]\\:slide-in-from-top[data-state=open]{--tw-enter-translate-y:-100%}.data-\\[variant\\=destructive\\]\\:text-destructive[data-variant=destructive]{color:var(--destructive)}.data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/10[data-variant=destructive]:focus{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/10[data-variant=destructive]:focus{background-color:color-mix(in oklab, var(--destructive) 10%, transparent)}}.data-\\[variant\\=destructive\\]\\:focus\\:text-destructive[data-variant=destructive]:focus{color:var(--destructive)}.data-\\[variant\\=line\\]\\:rounded-none[data-variant=line]{border-radius:0}.data-\\[spacing\\=0\\]\\:data-\\[variant\\=outline\\]\\:border-l-0[data-spacing="0"][data-variant=outline]{border-left-style:var(--tw-border-style);border-left-width:0}.data-\\[spacing\\=0\\]\\:data-\\[variant\\=outline\\]\\:first\\:border-l[data-spacing="0"][data-variant=outline]:first-child{border-left-style:var(--tw-border-style);border-left-width:1px}.data-\\[spacing\\=default\\]\\:data-\\[variant\\=outline\\]\\:shadow-xs[data-spacing=default][data-variant=outline]{--tw-shadow:0 1px 2px 0 var(--tw-shadow-color,#0000000d);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}@media (min-width:40rem){.sm\\:max-w-lg{max-width:var(--container-lg)}.sm\\:max-w-md{max-width:var(--container-md)}.sm\\:max-w-sm{max-width:var(--container-sm)}.sm\\:flex-row{flex-direction:row}.sm\\:justify-end{justify-content:flex-end}.sm\\:text-left{text-align:left}}@media (min-width:48rem){.md\\:text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}}.dark\\:border-input:is(.dark *){border-color:var(--input)}.dark\\:border-white:is(.dark *){border-color:var(--color-white)}.dark\\:border-white\\/20:is(.dark *){border-color:#fff3}@supports (color:color-mix(in lab, red, red)){.dark\\:border-white\\/20:is(.dark *){border-color:color-mix(in oklab, var(--color-white) 20%, transparent)}}.dark\\:border-zinc-700:is(.dark *){border-color:var(--color-zinc-700)}.dark\\:border-zinc-800:is(.dark *){border-color:var(--color-zinc-800)}.dark\\:bg-amber-500\\/15:is(.dark *){background-color:#f99c0026}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-amber-500\\/15:is(.dark *){background-color:color-mix(in oklab, var(--color-amber-500) 15%, transparent)}}.dark\\:bg-destructive\\/60:is(.dark *){background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-destructive\\/60:is(.dark *){background-color:color-mix(in oklab, var(--destructive) 60%, transparent)}}.dark\\:bg-emerald-500\\/10:is(.dark *){background-color:#00bb7f1a}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-emerald-500\\/10:is(.dark *){background-color:color-mix(in oklab, var(--color-emerald-500) 10%, transparent)}}.dark\\:bg-input\\/30:is(.dark *){background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-input\\/30:is(.dark *){background-color:color-mix(in oklab, var(--input) 30%, transparent)}}.dark\\:bg-red-500\\/15:is(.dark *){background-color:#fb2c3626}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-red-500\\/15:is(.dark *){background-color:color-mix(in oklab, var(--color-red-500) 15%, transparent)}}.dark\\:bg-zinc-600:is(.dark *){background-color:var(--color-zinc-600)}.dark\\:bg-zinc-800:is(.dark *){background-color:var(--color-zinc-800)}.dark\\:bg-zinc-800\\/40:is(.dark *){background-color:#27272a66}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-800\\/40:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-800) 40%, transparent)}}.dark\\:bg-zinc-900:is(.dark *){background-color:var(--color-zinc-900)}.dark\\:bg-zinc-900\\/40:is(.dark *){background-color:#18181b66}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-900\\/40:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-900) 40%, transparent)}}.dark\\:bg-zinc-900\\/95:is(.dark *){background-color:#18181bf2}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-900\\/95:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-900) 95%, transparent)}}.dark\\:bg-zinc-950:is(.dark *){background-color:var(--color-zinc-950)}.dark\\:bg-zinc-950\\/50:is(.dark *){background-color:#09090b80}@supports (color:color-mix(in lab, red, red)){.dark\\:bg-zinc-950\\/50:is(.dark *){background-color:color-mix(in oklab, var(--color-zinc-950) 50%, transparent)}}.dark\\:text-amber-400:is(.dark *){color:var(--color-amber-400)}.dark\\:text-blue-400:is(.dark *){color:var(--color-blue-400)}.dark\\:text-emerald-400:is(.dark *){color:var(--color-emerald-400)}.dark\\:text-green-400:is(.dark *){color:var(--color-green-400)}.dark\\:text-indigo-400:is(.dark *){color:var(--color-indigo-400)}.dark\\:text-muted-foreground:is(.dark *){color:var(--muted-foreground)}.dark\\:text-red-400:is(.dark *){color:var(--color-red-400)}.dark\\:text-sky-400:is(.dark *){color:var(--color-sky-400)}.dark\\:text-violet-400:is(.dark *){color:var(--color-violet-400)}.dark\\:text-white:is(.dark *){color:var(--color-white)}.dark\\:text-zinc-100:is(.dark *){color:var(--color-zinc-100)}.dark\\:text-zinc-200:is(.dark *){color:var(--color-zinc-200)}.dark\\:text-zinc-300:is(.dark *){color:var(--color-zinc-300)}.dark\\:text-zinc-400:is(.dark *){color:var(--color-zinc-400)}.dark\\:text-zinc-500:is(.dark *){color:var(--color-zinc-500)}.dark\\:text-zinc-600:is(.dark *){color:var(--color-zinc-600)}.dark\\:text-zinc-700:is(.dark *){color:var(--color-zinc-700)}.dark\\:ring-zinc-400:is(.dark *){--tw-ring-color:var(--color-zinc-400)}.dark\\:ring-offset-zinc-900:is(.dark *){--tw-ring-offset-color:var(--color-zinc-900)}.dark\\:placeholder\\:text-zinc-600:is(.dark *)::placeholder{color:var(--color-zinc-600)}.dark\\:even\\:bg-zinc-900\\/50:is(.dark *):nth-child(2n){background-color:#18181b80}@supports (color:color-mix(in lab, red, red)){.dark\\:even\\:bg-zinc-900\\/50:is(.dark *):nth-child(2n){background-color:color-mix(in oklab, var(--color-zinc-900) 50%, transparent)}}@media (hover:hover){.dark\\:hover\\:border-zinc-600:is(.dark *):hover{border-color:var(--color-zinc-600)}.dark\\:hover\\:bg-accent\\/50:is(.dark *):hover{background-color:var(--accent)}@supports (color:color-mix(in lab, red, red)){.dark\\:hover\\:bg-accent\\/50:is(.dark *):hover{background-color:color-mix(in oklab, var(--accent) 50%, transparent)}}.dark\\:hover\\:bg-input\\/50:is(.dark *):hover{background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:hover\\:bg-input\\/50:is(.dark *):hover{background-color:color-mix(in oklab, var(--input) 50%, transparent)}}.dark\\:hover\\:bg-zinc-700:is(.dark *):hover{background-color:var(--color-zinc-700)}.dark\\:hover\\:bg-zinc-800:is(.dark *):hover{background-color:var(--color-zinc-800)}.dark\\:hover\\:bg-zinc-800\\/50:is(.dark *):hover{background-color:#27272a80}@supports (color:color-mix(in lab, red, red)){.dark\\:hover\\:bg-zinc-800\\/50:is(.dark *):hover{background-color:color-mix(in oklab, var(--color-zinc-800) 50%, transparent)}}.dark\\:hover\\:text-foreground:is(.dark *):hover{color:var(--foreground)}.dark\\:hover\\:text-white:is(.dark *):hover{color:var(--color-white)}.dark\\:hover\\:text-zinc-200:is(.dark *):hover{color:var(--color-zinc-200)}.dark\\:hover\\:text-zinc-300:is(.dark *):hover{color:var(--color-zinc-300)}.dark\\:hover\\:text-zinc-400:is(.dark *):hover{color:var(--color-zinc-400)}}.dark\\:focus-visible\\:ring-destructive\\/40:is(.dark *):focus-visible{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:focus-visible\\:ring-destructive\\/40:is(.dark *):focus-visible{--tw-ring-color:color-mix(in oklab, var(--destructive) 40%, transparent)}}.dark\\:aria-invalid\\:ring-destructive\\/40:is(.dark *)[aria-invalid=true]{--tw-ring-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:aria-invalid\\:ring-destructive\\/40:is(.dark *)[aria-invalid=true]{--tw-ring-color:color-mix(in oklab, var(--destructive) 40%, transparent)}}.dark\\:data-\\[state\\=active\\]\\:border-input:is(.dark *)[data-state=active]{border-color:var(--input)}.dark\\:data-\\[state\\=active\\]\\:bg-input\\/30:is(.dark *)[data-state=active]{background-color:var(--input)}@supports (color:color-mix(in lab, red, red)){.dark\\:data-\\[state\\=active\\]\\:bg-input\\/30:is(.dark *)[data-state=active]{background-color:color-mix(in oklab, var(--input) 30%, transparent)}}.dark\\:data-\\[state\\=active\\]\\:text-foreground:is(.dark *)[data-state=active]{color:var(--foreground)}.dark\\:group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:border-transparent:is(.dark *):is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{border-color:#0000}.dark\\:group-data-\\[variant\\=line\\]\\/tabs-list\\:data-\\[state\\=active\\]\\:bg-transparent:is(.dark *):is(:where(.group\\/tabs-list)[data-variant=line] *)[data-state=active]{background-color:#0000}.dark\\:data-\\[state\\=checked\\]\\:bg-primary:is(.dark *)[data-state=checked]{background-color:var(--primary)}.dark\\:data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/20:is(.dark *)[data-variant=destructive]:focus{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){.dark\\:data-\\[variant\\=destructive\\]\\:focus\\:bg-destructive\\/20:is(.dark *)[data-variant=destructive]:focus{background-color:color-mix(in oklab, var(--destructive) 20%, transparent)}}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:px-2 [cmdk-group-heading]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:py-1\\.5 [cmdk-group-heading]{padding-block:calc(var(--spacing) * 1.5)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:text-xs [cmdk-group-heading]{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:font-medium [cmdk-group-heading]{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.\\[\\&_\\[cmdk-group-heading\\]\\]\\:text-muted-foreground [cmdk-group-heading]{color:var(--muted-foreground)}.\\[\\&_\\[cmdk-group\\]\\]\\:px-2 [cmdk-group]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-group\\]\\:not\\(\\[hidden\\]\\)_\\~\\[cmdk-group\\]\\]\\:pt-0 [cmdk-group]:not([hidden])~[cmdk-group]{padding-top:0}.\\[\\&_\\[cmdk-input-wrapper\\]_svg\\]\\:h-5 [cmdk-input-wrapper] svg{height:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-input-wrapper\\]_svg\\]\\:w-5 [cmdk-input-wrapper] svg{width:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-input\\]\\]\\:h-12 [cmdk-input]{height:calc(var(--spacing) * 12)}.\\[\\&_\\[cmdk-item\\]\\]\\:px-2 [cmdk-item]{padding-inline:calc(var(--spacing) * 2)}.\\[\\&_\\[cmdk-item\\]\\]\\:py-3 [cmdk-item]{padding-block:calc(var(--spacing) * 3)}.\\[\\&_\\[cmdk-item\\]_svg\\]\\:h-5 [cmdk-item] svg{height:calc(var(--spacing) * 5)}.\\[\\&_\\[cmdk-item\\]_svg\\]\\:w-5 [cmdk-item] svg{width:calc(var(--spacing) * 5)}.\\[\\&_svg\\]\\:pointer-events-none svg{pointer-events:none}.\\[\\&_svg\\]\\:shrink-0 svg{flex-shrink:0}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'size-\\'\\]\\)\\]\\:size-3 svg:not([class*=size-]){width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'size-\\'\\]\\)\\]\\:size-4 svg:not([class*=size-]){width:calc(var(--spacing) * 4);height:calc(var(--spacing) * 4)}.\\[\\&_svg\\:not\\(\\[class\\*\\=\\'text-\\'\\]\\)\\]\\:text-muted-foreground svg:not([class*=text-]){color:var(--muted-foreground)}:is(.\\*\\:\\[span\\]\\:last\\:flex>*):is(span):last-child{display:flex}:is(.\\*\\:\\[span\\]\\:last\\:items-center>*):is(span):last-child{align-items:center}:is(.\\*\\:\\[span\\]\\:last\\:gap-2>*):is(span):last-child{gap:calc(var(--spacing) * 2)}:is(.data-\\[variant\\=destructive\\]\\:\\*\\:\\[svg\\]\\:\\!text-destructive[data-variant=destructive]>*):is(svg){color:var(--destructive)!important}.\\[\\&\\>svg\\]\\:pointer-events-none>svg{pointer-events:none}.\\[\\&\\>svg\\]\\:size-3>svg{width:calc(var(--spacing) * 3);height:calc(var(--spacing) * 3)}@media (hover:hover){a.\\[a\\&\\]\\:hover\\:bg-accent:hover{background-color:var(--accent)}a.\\[a\\&\\]\\:hover\\:bg-destructive\\/90:hover{background-color:var(--destructive)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-destructive\\/90:hover{background-color:color-mix(in oklab, var(--destructive) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:bg-primary\\/90:hover{background-color:var(--primary)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-primary\\/90:hover{background-color:color-mix(in oklab, var(--primary) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:bg-secondary\\/90:hover{background-color:var(--secondary)}@supports (color:color-mix(in lab, red, red)){a.\\[a\\&\\]\\:hover\\:bg-secondary\\/90:hover{background-color:color-mix(in oklab, var(--secondary) 90%, transparent)}}a.\\[a\\&\\]\\:hover\\:text-accent-foreground:hover{color:var(--accent-foreground)}a.\\[a\\&\\]\\:hover\\:underline:hover{text-decoration-line:underline}}}@property --tw-animation-delay{syntax:"*";inherits:false;initial-value:0s}@property --tw-animation-direction{syntax:"*";inherits:false;initial-value:normal}@property --tw-animation-duration{syntax:"*";inherits:false}@property --tw-animation-fill-mode{syntax:"*";inherits:false;initial-value:none}@property --tw-animation-iteration-count{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-enter-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-enter-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-blur{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-opacity{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-rotate{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-scale{syntax:"*";inherits:false;initial-value:1}@property --tw-exit-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-exit-translate-y{syntax:"*";inherits:false;initial-value:0}:root{--radius:.625rem;--background:oklch(100% 0 0);--foreground:oklch(14.5% 0 0);--card:oklch(100% 0 0);--card-foreground:oklch(14.5% 0 0);--popover:oklch(100% 0 0);--popover-foreground:oklch(14.5% 0 0);--primary:oklch(20.5% 0 0);--primary-foreground:oklch(98.5% 0 0);--secondary:oklch(97% 0 0);--secondary-foreground:oklch(20.5% 0 0);--muted:oklch(97% 0 0);--muted-foreground:oklch(55.6% 0 0);--accent:oklch(97% 0 0);--accent-foreground:oklch(20.5% 0 0);--destructive:oklch(57.7% .245 27.325);--border:oklch(92.2% 0 0);--input:oklch(92.2% 0 0);--ring:oklch(70.8% 0 0);--chart-1:oklch(64.6% .222 41.116);--chart-2:oklch(60% .118 184.704);--chart-3:oklch(39.8% .07 227.392);--chart-4:oklch(82.8% .189 84.429);--chart-5:oklch(76.9% .188 70.08);--sidebar:oklch(98.5% 0 0);--sidebar-foreground:oklch(14.5% 0 0);--sidebar-primary:oklch(20.5% 0 0);--sidebar-primary-foreground:oklch(98.5% 0 0);--sidebar-accent:oklch(97% 0 0);--sidebar-accent-foreground:oklch(20.5% 0 0);--sidebar-border:oklch(92.2% 0 0);--sidebar-ring:oklch(70.8% 0 0)}.dark{--background:oklch(14.5% 0 0);--foreground:oklch(98.5% 0 0);--card:oklch(20.5% 0 0);--card-foreground:oklch(98.5% 0 0);--popover:oklch(20.5% 0 0);--popover-foreground:oklch(98.5% 0 0);--primary:oklch(92.2% 0 0);--primary-foreground:oklch(20.5% 0 0);--secondary:oklch(26.9% 0 0);--secondary-foreground:oklch(98.5% 0 0);--muted:oklch(26.9% 0 0);--muted-foreground:oklch(70.8% 0 0);--accent:oklch(26.9% 0 0);--accent-foreground:oklch(98.5% 0 0);--destructive:oklch(70.4% .191 22.216);--border:oklch(100% 0 0/.1);--input:oklch(100% 0 0/.15);--ring:oklch(55.6% 0 0);--chart-1:oklch(48.8% .243 264.376);--chart-2:oklch(69.6% .17 162.48);--chart-3:oklch(76.9% .188 70.08);--chart-4:oklch(62.7% .265 303.9);--chart-5:oklch(64.5% .246 16.439);--sidebar:oklch(20.5% 0 0);--sidebar-foreground:oklch(98.5% 0 0);--sidebar-primary:oklch(48.8% .243 264.376);--sidebar-primary-foreground:oklch(98.5% 0 0);--sidebar-accent:oklch(26.9% 0 0);--sidebar-accent-foreground:oklch(98.5% 0 0);--sidebar-border:oklch(100% 0 0/.1);--sidebar-ring:oklch(55.6% 0 0)}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-scale-x{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-y{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-z{syntax:"*";inherits:false;initial-value:1}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-pan-x{syntax:"*";inherits:false}@property --tw-pan-y{syntax:"*";inherits:false}@property --tw-pinch-zoom{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-divide-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-divide-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-ordinal{syntax:"*";inherits:false}@property --tw-slashed-zero{syntax:"*";inherits:false}@property --tw-numeric-figure{syntax:"*";inherits:false}@property --tw-numeric-spacing{syntax:"*";inherits:false}@property --tw-numeric-fraction{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@property --tw-content{syntax:"*";inherits:false;initial-value:""}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.5}}@keyframes enter{0%{opacity:var(--tw-enter-opacity,1);transform:translate3d(var(--tw-enter-translate-x,0),var(--tw-enter-translate-y,0),0)scale3d(var(--tw-enter-scale,1),var(--tw-enter-scale,1),var(--tw-enter-scale,1))rotate(var(--tw-enter-rotate,0));filter:blur(var(--tw-enter-blur,0))}}@keyframes exit{to{opacity:var(--tw-exit-opacity,1);transform:translate3d(var(--tw-exit-translate-x,0),var(--tw-exit-translate-y,0),0)scale3d(var(--tw-exit-scale,1),var(--tw-exit-scale,1),var(--tw-exit-scale,1))rotate(var(--tw-exit-rotate,0));filter:blur(var(--tw-exit-blur,0))}}
 `;
   shadow.appendChild(style);
   const host = document.createElement("div");
@@ -92168,7 +93815,7 @@ function mountApp(container) {
   shadow.appendChild(host);
   const root = (0, import_client.createRoot)(host);
   root.render(
-    /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(ErrBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(App_default, { portalRoot: host }) })
+    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(App_default, { portalRoot: host, exec, connStore }) })
   );
   mounts.set(container, { root, shadow });
 }
@@ -92181,10 +93828,12 @@ function unmountApp(container) {
 var plugin_entry_default = {
   async activate(ctx) {
     const app = ctx.app;
+    const exec = app.commands?.execute?.bind(app.commands);
+    const connStore = createConnectionsStore();
     ctx.subscriptions.push(
       app.ui.registerView("canvas", {
         mount(container) {
-          mountApp(container);
+          mountApp(container, exec, connStore);
         },
         unmount(container) {
           unmountApp(container);
@@ -92197,7 +93846,6 @@ var plugin_entry_default = {
     const prefs = createPrefsPersistence(app.data?.kv ?? null, useStore2);
     await prefs.hydrate();
     ctx.subscriptions.push({ dispose: () => prefs.dispose() });
-    const connStore = createConnectionsStore();
     const conns = createConnectionsPersistence(app.data?.kv ?? null, connStore);
     await conns.hydrate();
     ctx.subscriptions.push({ dispose: () => conns.dispose() });
