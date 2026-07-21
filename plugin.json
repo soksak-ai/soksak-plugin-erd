@@ -46,7 +46,43 @@
           "content"
         ],
         "status": [],
-        "defaultPlacement": "content"
+        "defaultPlacement": "content",
+        "sidebar": {
+          "left": [
+            {
+              "ref": "self.navigator",
+              "instance": "per-view"
+            }
+          ],
+          "right": [
+            {
+              "ref": "self.properties",
+              "instance": "per-view"
+            }
+          ]
+        }
+      },
+      {
+        "id": "navigator",
+        "title": {
+          "en": "Navigator",
+          "ko": "\ub0b4\ube44\uac8c\uc774\ud130"
+        },
+        "icon": "\u2630",
+        "placements": [
+          "rail"
+        ]
+      },
+      {
+        "id": "properties",
+        "title": {
+          "en": "Properties",
+          "ko": "\uc18d\uc131"
+        },
+        "icon": "\u270e",
+        "placements": [
+          "rail"
+        ]
       }
     ],
     "commands": [

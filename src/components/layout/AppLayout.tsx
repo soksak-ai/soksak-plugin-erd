@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { Allotment, LayoutPriority } from 'allotment';
 import { useStore } from '@/store';
 import { Toolbar } from '@/components/toolbar/Toolbar';
@@ -7,9 +8,15 @@ import { LeftSidebar } from '@/components/sidebar/LeftSidebar';
 import { RightSidebar } from '@/components/sidebar/RightSidebar';
 import { BottomPanel } from '@/components/panels/BottomPanel';
 import { StatusBar } from '@/components/layout/StatusBar';
+import { railContainer, subscribeRail } from '@/plugin/railBridge';
+import { resolveStoreMode } from '@/features/theme/host';
 
 interface AppLayoutProps {
   canvas: ReactNode;
+  // This canvas instance's content view id — the rail-bridge key. When a rail container is
+  // registered for it, the matching inline pane collapses and the panel renders through a
+  // React portal into the rail. null / no container = inline Allotment fallback.
+  viewId?: string | null;
 }
 
 const LEFT_SIDEBAR_SIZE_PX = 240;
@@ -19,7 +26,7 @@ const MAIN_MIN_PX = 480;
 const BOTTOM_DEFAULT_PX = 260;
 const BOTTOM_MIN_PX = 140;
 
-export function AppLayout({ canvas }: AppLayoutProps) {
+export function AppLayout({ canvas, viewId = null }: AppLayoutProps) {
   const leftSidebarOpen = useStore((s) => s.leftSidebarOpen);
   const rightSidebarOpen = useStore((s) => s.rightSidebarOpen);
   const bottomPanelOpen = useStore((s) => s.bottomPanelOpen);
@@ -29,12 +36,39 @@ export function AppLayout({ canvas }: AppLayoutProps) {
   const bottomHeight = useStore((s) => s.bottomHeight);
   const setPanelSizes = useStore((s) => s.setPanelSizes);
 
+  // Ejected sidebars (rail projection) — the rail views register bare containers keyed by
+  // the bound view id; state stays here and only rendering leaves through portals.
+  const railNav = useSyncExternalStore(
+    (fn) => subscribeRail(viewId, fn),
+    () => railContainer(viewId, 'navigator'),
+  );
+  const railProps = useSyncExternalStore(
+    (fn) => subscribeRail(viewId, fn),
+    () => railContainer(viewId, 'properties'),
+  );
+
+  // Rail containers live in their own shadow roots, outside the canvas shadow host that App
+  // stamps — mirror the effective mode so Tailwind `dark:` variants resolve inside them.
+  const theme = useStore((s) => s.theme);
+  useEffect(() => {
+    for (const el of [railNav, railProps]) {
+      if (!el) continue;
+      el.classList.remove('light', 'dark');
+      el.classList.add(resolveStoreMode(theme));
+    }
+  }, [theme, railNav, railProps]);
+
+  // Inline pane visibility: closed by pref, or ejected to a rail (collapse via the same
+  // width-0 mechanism as a closed sidebar — pane indices stay stable for onChange).
+  const leftInline = leftSidebarOpen && !railNav;
+  const rightInline = rightSidebarOpen && !railProps;
+
   const handleMainChange = useCallback((sizes: number[]) => {
     const next: { leftWidth?: number; rightWidth?: number } = {};
-    if (leftSidebarOpen && sizes[0] !== undefined) next.leftWidth = Math.max(LEFT_SIDEBAR_SIZE_PX, Math.round(sizes[0]));
-    if (rightSidebarOpen && sizes[2] !== undefined) next.rightWidth = Math.max(RIGHT_SIDEBAR_MIN_PX, Math.round(sizes[2]));
+    if (leftInline && sizes[0] !== undefined) next.leftWidth = Math.max(LEFT_SIDEBAR_SIZE_PX, Math.round(sizes[0]));
+    if (rightInline && sizes[2] !== undefined) next.rightWidth = Math.max(RIGHT_SIDEBAR_MIN_PX, Math.round(sizes[2]));
     if (next.leftWidth !== undefined || next.rightWidth !== undefined) setPanelSizes(next);
-  }, [leftSidebarOpen, rightSidebarOpen, setPanelSizes]);
+  }, [leftInline, rightInline, setPanelSizes]);
 
   const handleVerticalChange = useCallback((sizes: number[]) => {
     if (!bottomPanelOpen || sizes[1] === undefined) return;
@@ -49,11 +83,11 @@ export function AppLayout({ canvas }: AppLayoutProps) {
       className="h-full w-full"
     >
       <Allotment.Pane
-        minSize={leftSidebarOpen ? LEFT_SIDEBAR_SIZE_PX : 0}
-        maxSize={leftSidebarOpen ? undefined : 0}
-        preferredSize={leftSidebarOpen ? leftWidth : 0}
+        minSize={leftInline ? LEFT_SIDEBAR_SIZE_PX : 0}
+        maxSize={leftInline ? undefined : 0}
+        preferredSize={leftInline ? leftWidth : 0}
       >
-        {leftSidebarOpen ? <LeftSidebar /> : null}
+        {leftInline ? <LeftSidebar /> : null}
       </Allotment.Pane>
 
       <Allotment.Pane minSize={MAIN_MIN_PX} priority={LayoutPriority.High}>
@@ -61,11 +95,11 @@ export function AppLayout({ canvas }: AppLayoutProps) {
       </Allotment.Pane>
 
       <Allotment.Pane
-        minSize={rightSidebarOpen ? RIGHT_SIDEBAR_MIN_PX : 0}
-        maxSize={rightSidebarOpen ? undefined : 0}
-        preferredSize={rightSidebarOpen ? rightWidth : 0}
+        minSize={rightInline ? RIGHT_SIDEBAR_MIN_PX : 0}
+        maxSize={rightInline ? undefined : 0}
+        preferredSize={rightInline ? rightWidth : 0}
       >
-        {rightSidebarOpen ? <RightSidebar /> : null}
+        {rightInline ? <RightSidebar /> : null}
       </Allotment.Pane>
     </Allotment>
   );
@@ -96,6 +130,9 @@ export function AppLayout({ canvas }: AppLayoutProps) {
       </div>
 
       <StatusBar />
+
+      {railNav ? createPortal(<LeftSidebar />, railNav) : null}
+      {railProps ? createPortal(<RightSidebar />, railProps) : null}
     </div>
   );
 }

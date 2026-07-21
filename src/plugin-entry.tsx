@@ -10,6 +10,7 @@ import { createRoot, type Root } from "react-dom/client";
 import App from "@/App";
 import type { RawExec } from "@/components/host/db-host";
 import type { ConnectionsStore } from "@/plugin/connections";
+import { registerRailContainer, type RailSlot } from "@/plugin/railBridge";
 import { useStore } from "@/store";
 import { registerCommands } from "@/plugin/commands";
 import { createPersistence, registerPersistCommands } from "@/plugin/persist";
@@ -56,7 +57,12 @@ interface MountState {
 }
 const mounts = new WeakMap<HTMLElement, MountState>();
 
-function mountApp(container: HTMLElement, exec: RawExec | undefined, connStore: ConnectionsStore) {
+function mountApp(
+  container: HTMLElement,
+  exec: RawExec | undefined,
+  connStore: ConnectionsStore,
+  viewId: string | null,
+) {
   // 이미 마운트됐다면(중복 mount 호출 방어) 먼저 회수.
   unmountApp(container);
 
@@ -87,7 +93,7 @@ function mountApp(container: HTMLElement, exec: RawExec | undefined, connStore: 
   const root = createRoot(host);
   root.render(
     <ErrBoundary>
-      <App portalRoot={host} exec={exec} connStore={connStore} />
+      <App portalRoot={host} exec={exec} connStore={connStore} viewId={viewId} />
     </ErrBoundary>,
   );
   mounts.set(container, { root, shadow });
@@ -103,6 +109,48 @@ function unmountApp(container: HTMLElement) {
   mounts.delete(container);
 }
 
+// Ejected sidebar (rail) views — each owns only a bare container and registers it with the
+// rail bridge; the bound canvas App renders the actual panel into it through a React portal
+// (single state owner, zero duplicate truth). Unbound mounts (no bound canvas view) show a
+// static notice. The container gets the same compiled CSS in its own shadow root; the
+// effective light/dark class is seeded here and kept in sync by AppLayout.
+const railCleanups = new WeakMap<HTMLElement, () => void>();
+
+function railView(slot: RailSlot) {
+  return {
+    mount(container: HTMLElement, viewCtx?: { boundViewId?: string | null }) {
+      railCleanups.get(container)?.();
+      const shadow = container.shadowRoot ?? container.attachShadow({ mode: "open" });
+      shadow.replaceChildren();
+      const style = document.createElement("style");
+      style.textContent = __ERD_CSS__;
+      shadow.appendChild(style);
+      const host = document.createElement("div");
+      host.style.cssText =
+        "position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;overflow:hidden";
+      host.classList.add(resolveHostMode(document.documentElement));
+      container.style.position = "relative";
+      shadow.appendChild(host);
+      const bound = viewCtx?.boundViewId ?? null;
+      if (!bound) {
+        host.innerHTML =
+          '<div style="padding:14px;font-size:11px;color:#8a94a3;text-align:center">Not bound to a DB Studio view</div>';
+        railCleanups.set(container, () => shadow.replaceChildren());
+        return;
+      }
+      const off = registerRailContainer(bound, slot, host);
+      railCleanups.set(container, () => {
+        off();
+        shadow.replaceChildren();
+      });
+    },
+    unmount(container: HTMLElement) {
+      railCleanups.get(container)?.();
+      railCleanups.delete(container);
+    },
+  };
+}
+
 export default {
   async activate(ctx: any) {
     const app = ctx.app;
@@ -113,16 +161,19 @@ export default {
     const exec: RawExec | undefined = app.commands?.execute?.bind(app.commands);
     const connStore = createConnectionsStore();
 
-    // 뷰 등록 — content 탭에 <App/> 전체 마운트(placement 무관 동일 트리).
+    // 뷰 등록 — content 탭에 <App/> 전체 마운트(placement 무관 동일 트리). ctx.viewId 는
+    // 레일 브리지 키(사이드바 방출) — 레일 없는 호스트에서는 null 로 인라인 폴백.
     ctx.subscriptions.push(
       app.ui.registerView("canvas", {
-        mount(container: HTMLElement) {
-          mountApp(container, exec, connStore);
+        mount(container: HTMLElement, viewCtx?: { viewId?: string | null }) {
+          mountApp(container, exec, connStore, viewCtx?.viewId ?? null);
         },
         unmount(container: HTMLElement) {
           unmountApp(container);
         },
       }),
+      app.ui.registerView("navigator", railView("navigator")),
+      app.ui.registerView("properties", railView("properties")),
     );
 
     // 내구 영속 — persist.ts 계약: hydrate 는 커맨드 등록 전(헤드리스 호출이 복원 전 상태를

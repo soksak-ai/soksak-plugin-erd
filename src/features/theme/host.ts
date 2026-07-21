@@ -8,6 +8,17 @@ import { parseCssColor, mixColor } from '@/components/canvas/pixi/color';
 
 export type ThemeMode = 'light' | 'dark';
 
+// Effective light/dark from the store's theme preference ('system' follows the OS). Single
+// source for every surface that mirrors store.theme onto a DOM class scope so Tailwind `dark:`
+// variants resolve inside a shadow root (canvas shadow host, rail containers).
+export function resolveStoreMode(theme: 'light' | 'dark' | 'system'): ThemeMode {
+  if (theme === 'light' || theme === 'dark') return theme;
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'dark';
+}
+
 // Effective light/dark from the host root. Falls back to the OS preference, then dark, when the
 // host has not stamped data-theme-mode yet (pre-first-paint or a bare embedder).
 export function resolveHostMode(root: HTMLElement): ThemeMode {

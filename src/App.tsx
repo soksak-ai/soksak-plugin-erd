@@ -8,6 +8,7 @@ import { ImportMWBDialog } from '@/components/dialogs/ImportMWBDialog';
 import { Toaster } from '@/components/Toaster';
 import { CommandPalette } from '@/components/CommandPalette';
 import { useHostThemeSync } from '@/hooks/useTheme';
+import { resolveStoreMode } from '@/features/theme/host';
 import { useStore } from '@/store';
 import { PortalRootProvider } from '@/components/ui/portal-context';
 import { DbHostProvider, type RawExec } from '@/components/host/db-host';
@@ -23,9 +24,12 @@ interface AppProps {
   // 주입한다. 일반 웹(main.tsx)에서는 미지정 → DB 패널은 빈 상태로 mount 된다.
   exec?: RawExec;
   connStore?: ConnectionsStore;
+  // 이 canvas 인스턴스의 콘텐츠 뷰 id — 레일 브리지 키(사이드바 방출). null = 레일 없는
+  // 호스트(일반 웹·구코어) → AppLayout 이 인라인 Allotment 사이드바로 폴백한다.
+  viewId?: string | null;
 }
 
-function App({ portalRoot, exec, connStore }: AppProps) {
+function App({ portalRoot, exec, connStore, viewId = null }: AppProps) {
   // 호스트 테마 모드를 store.theme 로 반영(호스트 root 는 절대 건드리지 않는다).
   useHostThemeSync();
 
@@ -35,14 +39,8 @@ function App({ portalRoot, exec, connStore }: AppProps) {
   const theme = useStore((s) => s.theme);
   useEffect(() => {
     if (!portalRoot) return;
-    const resolved =
-      theme === 'system'
-        ? window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light'
-        : theme;
     portalRoot.classList.remove('light', 'dark');
-    portalRoot.classList.add(resolved);
+    portalRoot.classList.add(resolveStoreMode(theme));
   }, [theme, portalRoot]);
 
   // Web dev path (main.tsx) provides no connStore — a throwaway empty store keeps the DB panels
@@ -54,7 +52,7 @@ function App({ portalRoot, exec, connStore }: AppProps) {
       <DbHostProvider exec={exec} connStore={store}>
         {/* relative wrapper — 절대배치 Toaster 가 앱 콘텐츠 영역 우상단에 고정되게 한다. */}
         <div className="relative h-full w-full">
-          <AppLayout canvas={<ERDCanvas />} />
+          <AppLayout canvas={<ERDCanvas />} viewId={viewId} />
           <CreateTableDialog />
           <ImportSQLDialog />
           <ImportMermaidDialog />
