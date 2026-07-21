@@ -137,7 +137,7 @@ export function CreateTableDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent data-node="create-table-dialog" className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create New Table</DialogTitle>
           <DialogDescription>Define the table name and initial columns.</DialogDescription>

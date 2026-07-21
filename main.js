@@ -88249,7 +88249,7 @@ function CreateTableDialog() {
     },
     [columns.length, addColumnRow]
   );
-  return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogContent2, { className: "sm:max-w-md", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Dialog2, { open, onOpenChange: handleOpenChange, children: /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogContent2, { "data-node": "create-table-dialog", className: "sm:max-w-md", children: [
     /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(DialogHeader, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(DialogTitle2, { children: "Create New Table" }),
       /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(DialogDescription2, { children: "Define the table name and initial columns." })
@@ -92924,102 +92924,6 @@ function registerCommands(ctx, store) {
       // 캔버스 진실(렌더러 수·캔버스 연결/위치·문서 내 canvas 수) — 미마운트면 null.
       ...s3.renderStatsFn?.() ?? { rendererCount: null },
       viewport: s3.viewport
-    };
-  });
-  add2("probe-clickpath", "Diagnose the open dialog: modal opacity/background, overlay & control pointer-events, input reachability, autofocus target (E2E overlay/clickability assertion; settles enter animations for deterministic capture)", { ko: "\uD074\uB9AD \uACBD\uB85C \uC9C4\uB2E8 \uC624\uBC84\uB808\uC774 \uD3EC\uC778\uD130\uC774\uBCA4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8 \uBAA8\uB2EC" }, (d3) => d3.dialogOpen ? `\uBAA8\uB2EC \uD45C\uC2DC ${d3.contentPaint?.backgroundColor && d3.contentPaint.backgroundColor !== "rgba(0, 0, 0, 0)" ? "\uC815\uC0C1(\uBD88\uD22C\uBA85)" : "\uACB0\uD568(\uD22C\uBA85)"}` : "\uC5F4\uB9B0 \uB2E4\uC774\uC5BC\uB85C\uADF8 \uC5C6\uC74C", () => {
-    if (typeof document === "undefined") return { ok: true, dialogOpen: false, reason: "no document (headless)" };
-    const deepElementFromPoint = (x3, y4) => {
-      let el = document.elementFromPoint(x3, y4);
-      while (el?.shadowRoot) {
-        const inner = el.shadowRoot.elementFromPoint(x3, y4);
-        if (!inner || inner === el) break;
-        el = inner;
-      }
-      return el;
-    };
-    const pe4 = (el) => el ? getComputedStyle(el).pointerEvents : null;
-    const roots = [document];
-    for (const el of Array.from(document.querySelectorAll("*"))) {
-      if (el.shadowRoot) roots.push(el.shadowRoot);
-    }
-    const q2 = (sel) => {
-      for (const r4 of roots) {
-        const el = r4.querySelector(sel);
-        if (el) return el;
-      }
-      return null;
-    };
-    const content = q2('[data-slot="dialog-content"]');
-    const overlay = q2('[data-slot="dialog-overlay"]');
-    const reach = (el) => {
-      if (!el) return null;
-      const r4 = el.getBoundingClientRect();
-      if (r4.width <= 0 || r4.height <= 0) return { visible: false };
-      const top = deepElementFromPoint(r4.x + r4.width / 2, r4.y + r4.height / 2);
-      return {
-        visible: true,
-        reachable: !!top && (top === el || el.contains(top)),
-        pointerEvents: pe4(el),
-        topTag: top?.tagName.toLowerCase() ?? null,
-        topSlot: top?.getAttribute("data-slot") ?? null,
-        topText: (top?.textContent ?? "").trim().slice(0, 16)
-      };
-    };
-    const input = content?.querySelector("input") ?? null;
-    const primary = content?.querySelector('[data-slot="dialog-footer"] button:last-of-type');
-    const findActive = () => {
-      let ae3 = document.activeElement;
-      while (ae3?.shadowRoot?.activeElement) ae3 = ae3.shadowRoot.activeElement;
-      return ae3;
-    };
-    let settledOpacity = null;
-    if (content) {
-      try {
-        for (const el of [content, overlay]) {
-          el?.getAnimations?.({ subtree: true })?.forEach((a3) => a3.finish());
-        }
-        settledOpacity = getComputedStyle(content).opacity;
-      } catch {
-      }
-    }
-    const ae2 = findActive();
-    const paint = (el, label) => {
-      if (!el) return { [label]: null };
-      const cs = getComputedStyle(el);
-      return {
-        [label]: {
-          backgroundColor: cs.backgroundColor,
-          borderColor: cs.borderColor,
-          boxShadow: cs.boxShadow.slice(0, 24),
-          opacity: cs.opacity,
-          // animate-in 이 rAF 정지로 0 에 멈췄는지(캡처 아티팩트 판별)
-          visibility: cs.visibility,
-          // --background 토큰이 이 요소 위치에서 해석되는가(빈 문자열이면 미정의).
-          bgVar: cs.getPropertyValue("--background").trim() || null
-        }
-      };
-    };
-    return {
-      ok: true,
-      dialogOpen: !!content,
-      bodyPointerEvents: pe4(document.body),
-      overlayPointerEvents: pe4(overlay),
-      contentPointerEvents: pe4(content),
-      // 입력창을 클릭해 포커스할 수 있는가(못 하면 이름을 못 넣어 Create 가 계속 disabled).
-      tableNameInput: reach(input),
-      // autoFocus 로 입력창이 이미 포커스됐는가(그러면 클릭 없이 바로 타이핑 가능).
-      activeElement: ae2 ? { tag: ae2.tagName.toLowerCase(), type: ae2.type ?? null, isTableNameInput: ae2 === input } : null,
-      // Create 버튼: disabled 여부 + 도달성(비면 이름 없어 disabled 인 게 정상).
-      primaryButton: primary ? { disabled: primary.disabled, ariaDisabled: primary.getAttribute("aria-disabled"), ...reach(primary) } : null,
-      settledOpacity,
-      // 진입 애니메이션 완료 후 모달 opacity(1 이면 완전 표시)
-      // 모달 카드/오버레이 페인트 진실 — 모달이 불투명 배경을 갖는가(투명이면 오버레이가 비친다).
-      ...paint(content, "contentPaint"),
-      ...paint(overlay, "overlayPaint"),
-      portalRootBgVar: (() => {
-        const c3 = content?.parentElement ?? null;
-        return c3 ? getComputedStyle(c3).getPropertyValue("--background").trim() || null : null;
-      })()
     };
   });
   const importHint = (d3) => d3.ok === false ? [] : [

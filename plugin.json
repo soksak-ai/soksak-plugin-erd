@@ -353,13 +353,6 @@
         }
       },
       {
-        "name": "probe-clickpath",
-        "title": {
-          "en": "Probe dialog click-path",
-          "ko": "\ub2e4\uc774\uc5bc\ub85c\uadf8 \ud074\ub9ad \uacbd\ub85c \uc9c4\ub2e8"
-        }
-      },
-      {
         "name": "get-columns",
         "title": {
           "en": "List columns",
@@ -627,6 +620,10 @@
       {
         "id": "rename-input",
         "description": "Inline table-rename input, present only while renaming"
+      },
+      {
+        "id": "create-table-dialog",
+        "description": "Create-New-Table dialog card (modal content surface) — measure its backgroundColor to assert the modal paints opaque over the overlay"
       },
       {
         "id": "create-table-name",
