@@ -82800,8 +82800,8 @@ function AppLayout({ canvas, viewId = null }) {
       el.classList.add(resolveStoreMode(theme));
     }
   }, [theme, railNav, railProps]);
-  const leftInline = leftSidebarOpen && !railNav;
-  const rightInline = rightSidebarOpen && !railProps;
+  const leftInline = false;
+  const rightInline = false;
   const handleMainChange = (0, import_react27.useCallback)((sizes) => {
     const next = {};
     if (leftInline && sizes[0] !== void 0) next.leftWidth = Math.max(LEFT_SIDEBAR_SIZE_PX, Math.round(sizes[0]));

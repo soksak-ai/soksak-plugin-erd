@@ -60,8 +60,9 @@ export function AppLayout({ canvas, viewId = null }: AppLayoutProps) {
 
   // Inline pane visibility: closed by pref, or ejected to a rail (collapse via the same
   // width-0 mechanism as a closed sidebar — pane indices stay stable for onChange).
-  const leftInline = leftSidebarOpen && !railNav;
-  const rightInline = rightSidebarOpen && !railProps;
+  // 사이드바는 레일 투영으로만 그린다(투영 공리) — 레일 부재 시 내부 인라인 폴백은 없다.
+  const leftInline = false;
+  const rightInline = false;
 
   const handleMainChange = useCallback((sizes: number[]) => {
     const next: { leftWidth?: number; rightWidth?: number } = {};
